@@ -1,0 +1,161 @@
+        size_bytes: int,
+    ) -> None:
+        with self.lock, self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO files
+                (share_id, title, original_name, stored_name, password_hash, size_bytes, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    share_id,
+                    title,
+                    original_name,
+                    stored_name,
+                    password_hash,
+                    size_bytes,
+                    iso(utc_now()),
+                ),
+            )
+
+    def get_file(self, share_id: str) -> sqlite3.Row | None:
+        with self.lock, self._conn() as conn:
+            return conn.execute(
+                "SELECT * FROM files WHERE share_id = ?", (share_id,)
+            ).fetchone()
+
+    def touch_file(self, share_id: str) -> None:
+        with self.lock, self._conn() as conn:
+            conn.execute(
+                "UPDATE files SET last_access_at = ? WHERE share_id = ?",
+                (iso(utc_now()), share_id),
+            )
+
+    def load_session(self, raw_token: str) -> dict[str, Any] | None:
+        token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+        now = iso(utc_now())
+        with self.lock, self._conn() as conn:
+            row = conn.execute(
+                "SELECT payload, expires_at FROM sessions WHERE token_hash = ?", (token_hash,)
+            ).fetchone()
+            if not row or row["expires_at"] < now:
+                if row:
+                    conn.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
+                return None
+            try:
+                parsed = json.loads(row["payload"])
+                return parsed if isinstance(parsed, dict) else None
+            except json.JSONDecodeError:
+                return None
+
+    def save_session(self, raw_token: str, payload: dict[str, Any]) -> None:
+        token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+        now = utc_now()
+        expires = now + timedelta(hours=SESSION_TTL_HOURS)
+        with self.lock, self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO sessions(token_hash, payload, expires_at, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(token_hash) DO UPDATE SET
+                    payload=excluded.payload,
+                    expires_at=excluded.expires_at,
+                    updated_at=excluded.updated_at
+                """,
+                (token_hash, json.dumps(payload), iso(expires), iso(now)),
+            )
+
+    def delete_session(self, raw_token: str) -> None:
+        token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+        with self.lock, self._conn() as conn:
+            conn.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
+
+
+STORE = Store(DB_PATH)
+
+
+@dataclass
+class UploadedFile:
+    filename: str
+    content_type: str
+    data: bytes
+
+
+class RepositoryXHandler(BaseHTTPRequestHandler):
+    server_version = "repository_x/1.0"
+    protocol_version = "HTTP/1.1"
+
+    def log_message(self, fmt: str, *args: Any) -> None:
+        # Menos ruído, sem registrar senhas ou corpos de requisição.
+        sys.stderr.write("[%s] %s\n" % (self.log_date_time_string(), fmt % args))
+
+    # ---------- sessão ----------
+    def _load_session(self) -> dict[str, Any]:
+        if hasattr(self, "_session"):
+            return self._session  # type: ignore[attr-defined]
+
+        raw_cookie = None
+        cookie_header = self.headers.get("Cookie", "")
+        try:
+            cookie = SimpleCookie()
+            cookie.load(cookie_header)
+            morsel = cookie.get("rx_session")
+            if morsel:
+                raw_cookie = morsel.value
+        except Exception:
+            raw_cookie = None
+
+        if raw_cookie:
+            data = STORE.load_session(raw_cookie)
+        else:
+            data = None
+
+        self._session_token = raw_cookie if data is not None else secrets.token_urlsafe(32)
+        self._session = data or {}
+        self._session_dirty = data is None
+        return self._session
+
+    def _mark_session_dirty(self) -> None:
+        self._load_session()
+        self._session_dirty = True
+
+    def _save_session_header(self) -> str | None:
+        self._load_session()
+        if not self._session_dirty:
+            return None
+        STORE.save_session(self._session_token, self._session)
+        cookie = (
+            f"rx_session={self._session_token}; Path=/; HttpOnly; SameSite=Lax; "
+            f"Max-Age={SESSION_TTL_HOURS * 3600}"
+        )
+        if COOKIE_SECURE:
+            cookie += "; Secure"
+        return cookie
+
+    def _csrf(self) -> str:
+        session = self._load_session()
+        token = session.get("csrf")
+        if not isinstance(token, str) or len(token) < 24:
+            token = secrets.token_urlsafe(24)
+            session["csrf"] = token
+            self._mark_session_dirty()
+        return token
+
+    def _check_csrf(self, supplied: str) -> bool:
+        expected = self._load_session().get("csrf", "")
+        return isinstance(expected, str) and hmac.compare_digest(expected, supplied or "")
+
+    # ---------- requisições e respostas ----------
+    def _send(
+        self,
+        status: int,
+        body: bytes | str = b"",
+        content_type: str = "text/html; charset=utf-8",
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        if isinstance(body, str):
+            body = body.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("X-Content-Type-Options", "nosniff")
