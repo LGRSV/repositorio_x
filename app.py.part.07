@@ -1,0 +1,70 @@
+        path = (UPLOAD_DIR / row["stored_name"]).resolve()
+        if UPLOAD_DIR not in path.parents or not path.is_file():
+            self._send(HTTPStatus.NOT_FOUND, "Arquivo indisponível", "text/plain; charset=utf-8")
+            return
+        self._send(
+            HTTPStatus.OK,
+            path.read_bytes(),
+            "text/html; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(row['original_name'])}"},
+        )
+
+    # ---------- assets ----------
+    def _serve_css(self) -> None:
+        self._send(
+            HTTPStatus.OK,
+            CSS,
+            "text/css; charset=utf-8",
+            headers={"Cache-Control": "public, max-age=3600"},
+        )
+
+    def _serve_js(self) -> None:
+        self._send(
+            HTTPStatus.OK,
+            JS,
+            "application/javascript; charset=utf-8",
+            headers={"Cache-Control": "public, max-age=3600"},
+        )
+
+
+def format_size(size: int) -> str:
+    if size < 1024:
+        return f"{size} B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f} KB"
+    return f"{size / (1024 * 1024):.1f} MB"
+
+
+def notice(message: str, kind: str = "") -> str:
+    kind_class = f" {kind}" if kind else ""
+    return f"<section class='notice{kind_class}'>{html.escape(message)}</section>"
+
+
+def not_found() -> str:
+    return """
+    <section class="empty-state"><div class="file-mark">×</div><h1>Link não encontrado</h1><p>Ele pode ter sido digitado incorretamente ou não existe mais neste servidor.</p><a class="secondary link-button" href="/">Voltar ao repository_x</a></section>
+    """
+
+
+def layout(title: str, content: str, include_js: bool = False, viewer: bool = False) -> str:
+    js_tag = '<script src="/static/app.js" defer></script>' if include_js else ""
+    viewer_class = " viewer-page" if viewer else ""
+    return f"""<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>{html.escape(title)} · repository_x</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="{viewer_class.strip()}">
+  <div class="noise"></div>
+  <header class="site-header"><a class="brand" href="/"><span>rx</span> repository_x</a><div class="header-status"><i></i> servidor protegido</div></header>
+  <main class="{('viewer-main' if viewer else 'wrap')}">{content}</main>
+  {'' if viewer else '<footer>repository_x · arquivos HTML com acesso controlado</footer>'}
+  {js_tag}
+</body></html>"""
+
+
+CSS = r'''
