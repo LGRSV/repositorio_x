@@ -1,0 +1,119 @@
+        if path == "/static/app.css":
+            self._serve_css()
+            return
+        if path == "/static/app.js":
+            self._serve_js()
+            return
+        if path.startswith("/created/"):
+            self._render_created(path.rsplit("/", 1)[-1])
+            return
+        if path.startswith("/s/"):
+            self._render_share(path.rsplit("/", 1)[-1])
+            return
+        if path.startswith("/view/"):
+            self._render_view(path.rsplit("/", 1)[-1])
+            return
+        if path.startswith("/content/"):
+            self._serve_content(path.rsplit("/", 1)[-1])
+            return
+        if path.startswith("/download/"):
+            self._download(path.rsplit("/", 1)[-1])
+            return
+        self._send(HTTPStatus.NOT_FOUND, layout("Não encontrado", not_found()))
+
+    def do_POST(self) -> None:
+        STORE.cleanup()
+        parsed = urlparse(self.path)
+        path = parsed.path
+        try:
+            fields, files = self._parse_form()
+        except ValueError as exc:
+            self._form_error(str(exc))
+            return
+
+        if path == "/upload":
+            self._handle_upload(fields, files)
+            return
+        if path.startswith("/s/"):
+            self._handle_share_password(path.rsplit("/", 1)[-1], fields)
+            return
+        if path.startswith("/logout/"):
+            self._handle_logout(path.rsplit("/", 1)[-1], fields)
+            return
+        self._send(HTTPStatus.NOT_FOUND, layout("Não encontrado", not_found()))
+
+    # ---------- páginas ----------
+    def _render_home(self) -> None:
+        csrf = self._csrf()
+        content = f"""
+        <section class="hero">
+          <div class="eyebrow">REPOSITÓRIO PROTEGIDO</div>
+          <h1>Envie um HTML.<br><em>Compartilhe com controle.</em></h1>
+          <p>O repository_x cria um link único e uma senha por arquivo. Quem receber só visualiza o conteúdo depois de desbloquear o acesso.</p>
+        </section>
+        <section class="upload-grid">
+          <form class="panel form-panel" method="post" action="/upload" enctype="multipart/form-data">
+            <div class="panel-head">
+              <span>01</span>
+              <div><h2>Novo compartilhamento</h2><p>HTML isolado em uma visualização protegida.</p></div>
+            </div>
+            <input type="hidden" name="csrf" value="{html.escape(csrf)}">
+            <label>Arquivo HTML
+              <input type="file" name="html_file" accept=".html,.htm,text/html" required>
+              <small>Apenas .html ou .htm · até {MAX_UPLOAD_MB} MB</small>
+            </label>
+            <label>Título do compartilhamento <span class="muted">(opcional)</span>
+              <input type="text" name="title" maxlength="100" placeholder="Ex.: Croqui Smart Home — Casa 02">
+            </label>
+            <label>Senha de acesso <span class="muted">(opcional)</span>
+              <input type="text" name="access_password" minlength="8" maxlength="72" placeholder="Vazio = o site gera uma senha forte">
+              <small>A senha gerada aparece uma única vez após o envio.</small>
+            </label>
+            <label>Senha administrativa
+              <input type="password" name="admin_password" autocomplete="current-password" required placeholder="Senha configurada no servidor">
+              <small>Protege a criação de links contra uploads não autorizados.</small>
+            </label>
+            <button class="primary" type="submit">Gerar link protegido <span>→</span></button>
+          </form>
+          <aside class="panel info-panel">
+            <div class="panel-head"><span>02</span><div><h2>Como funciona</h2><p>Fluxo simples para quem envia e quem recebe.</p></div></div>
+            <ol class="steps">
+              <li><b>Envie</b><span>anexe um arquivo HTML.</span></li>
+              <li><b>Receba</b><span>um link exclusivo e uma senha.</span></li>
+              <li><b>Compartilhe</b><span>o destinatário valida a senha antes de abrir.</span></li>
+            </ol>
+            <div class="security-note"><strong>Segurança:</strong> senhas são armazenadas com hash scrypt; o HTML é aberto em iframe isolado, sem compartilhar cookies da aplicação.</div>
+          </aside>
+        </section>
+        <section class="capabilities">
+          <div><span>LINK ÚNICO</span><b>12 caracteres</b></div>
+          <div><span>SENHA</span><b>16 caracteres</b></div>
+          <div><span>SESSÃO</span><b>{SESSION_TTL_HOURS}h por acesso</b></div>
+          <div><span>ARQUIVO</span><b>HTML / HTM</b></div>
+        </section>
+        """
+        self._send(HTTPStatus.OK, layout("repository_x", content))
+
+    def _render_created(self, share_id: str) -> None:
+        session = self._load_session()
+        created = session.get("last_created")
+        if not isinstance(created, dict) or created.get("share_id") != share_id:
+            self._send(
+                HTTPStatus.NOT_FOUND,
+                layout("Link indisponível", notice("Esse comprovante de criação já expirou. Gere um novo compartilhamento ou use o link que foi copiado.", "error")),
+            )
+            return
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, layout("Não encontrado", not_found()))
+            return
+
+        # Exibe a senha apenas no fluxo de criação e em seguida remove da sessão.
+        password = str(created.get("password", ""))
+        session.pop("last_created", None)
+        self._mark_session_dirty()
+        share_url = f"{self._base_url()}/s/{share_id}"
+        content = f"""
+        <section class="result-shell">
+          <div class="eyebrow good">COMPARTILHAMENTO CRIADO</div>
+          <h1>Seu acesso protegido<br><em>está pronto.</em></h1>
