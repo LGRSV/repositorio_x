@@ -1,0 +1,122 @@
+        title = clean_text(fields.get("title", ""), 100) or extract_html_title(upload.data)
+
+        # Evita colisão mesmo em cenários improváveis de aleatoriedade duplicada.
+        share_id = generate_share_id()
+        while STORE.get_file(share_id):
+            share_id = generate_share_id()
+        stored_name = f"{share_id}.html"
+        target = UPLOAD_DIR / stored_name
+        try:
+            target.write_bytes(upload.data)
+            STORE.create_file(
+                share_id=share_id,
+                title=title,
+                original_name=original_name,
+                stored_name=stored_name,
+                password_hash=hash_password(password),
+                size_bytes=len(upload.data),
+            )
+        except Exception:
+            target.unlink(missing_ok=True)
+            raise
+
+        session = self._load_session()
+        session["last_created"] = {"share_id": share_id, "password": password}
+        self._grant_access(share_id)
+        self._mark_session_dirty()
+        self._redirect(f"/created/{quote(share_id)}")
+
+    def _handle_share_password(self, share_id: str, fields: dict[str, str]) -> None:
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, layout("Link não encontrado", not_found()))
+            return
+        if not self._check_csrf(fields.get("csrf", "")):
+            self._send(HTTPStatus.FORBIDDEN, layout("Sessão expirada", notice("A página expirou. Recarregue e tente novamente.", "error")))
+            return
+        allowed, seconds = self._attempt_allowed(share_id)
+        if not allowed:
+            self._send(HTTPStatus.TOO_MANY_REQUESTS, layout("Acesso bloqueado", notice(f"Aguarde cerca de {max(1, seconds // 60)} minuto(s) antes de tentar novamente.", "error")))
+            return
+        password = fields.get("password", "")
+        if not verify_password(password, row["password_hash"]):
+            locked = self._register_failure(share_id)
+            message = "Senha incorreta."
+            if locked:
+                message = "Muitas tentativas incorretas. Este navegador foi bloqueado por 5 minutos."
+            csrf = self._csrf()
+            content = f"""
+            <section class="gate-shell">
+              <div class="file-mark">&lt;/&gt;</div><div class="eyebrow">ACESSO PROTEGIDO</div>
+              <h1>{html.escape(row['title'])}</h1>
+              <p>Este arquivo está em um link privado do repository_x. Informe a senha para liberar a visualização.</p>
+              {notice(message, 'error')}
+              <form class="panel gate-form" method="post" action="/s/{quote(share_id)}">
+                <input type="hidden" name="csrf" value="{html.escape(csrf)}">
+                <label>Senha de acesso<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+                <button class="primary" type="submit">Tentar novamente <span>→</span></button>
+              </form>
+            </section>
+            """
+            self._send(HTTPStatus.UNAUTHORIZED, layout("Senha inválida", content))
+            return
+
+        self._grant_access(share_id)
+        self._load_session().get("attempts", {}).pop(share_id, None)
+        self._mark_session_dirty()
+        STORE.touch_file(share_id)
+        self._redirect(f"/view/{quote(share_id)}")
+
+    def _handle_logout(self, share_id: str, fields: dict[str, str]) -> None:
+        if not self._check_csrf(fields.get("csrf", "")):
+            self._send(HTTPStatus.FORBIDDEN, layout("Sessão expirada", notice("A página expirou. Recarregue e tente novamente.", "error")))
+            return
+        access = self._load_session().get("access", {})
+        if isinstance(access, dict):
+            access.pop(share_id, None)
+            self._mark_session_dirty()
+        self._redirect(f"/s/{quote(share_id)}")
+
+    # ---------- conteúdo protegido ----------
+    def _serve_content(self, share_id: str) -> None:
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, "Arquivo não encontrado", "text/plain; charset=utf-8")
+            return
+        if not self._has_access(share_id):
+            self._send(HTTPStatus.FORBIDDEN, "Acesso negado", "text/plain; charset=utf-8")
+            return
+        path = (UPLOAD_DIR / row["stored_name"]).resolve()
+        if UPLOAD_DIR not in path.parents or not path.is_file():
+            self._send(HTTPStatus.NOT_FOUND, "Arquivo indisponível", "text/plain; charset=utf-8")
+            return
+        data = path.read_bytes()
+        csp = (
+            "sandbox allow-scripts allow-forms allow-modals allow-popups allow-downloads; "
+            "default-src 'self' https: data: blob:; "
+            "script-src 'self' https: 'unsafe-inline'; "
+            "style-src 'self' https: 'unsafe-inline'; "
+            "img-src 'self' https: data: blob:; "
+            "font-src 'self' https: data:; "
+            "media-src 'self' https: data: blob:; "
+            "connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+        )
+        self._send(
+            HTTPStatus.OK,
+            data,
+            "text/html; charset=utf-8",
+            headers={
+                "Content-Security-Policy": csp,
+                "X-Frame-Options": "SAMEORIGIN",
+                "Content-Disposition": f"inline; filename*=UTF-8''{quote(row['original_name'])}",
+            },
+        )
+
+    def _download(self, share_id: str) -> None:
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, "Arquivo não encontrado", "text/plain; charset=utf-8")
+            return
+        if not self._has_access(share_id):
+            self._redirect(f"/s/{quote(share_id)}")
+            return
