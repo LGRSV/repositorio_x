@@ -1,0 +1,145 @@
+        self.send_header("Referrer-Policy", "same-origin")
+        self.send_header("Cache-Control", "no-store")
+        if headers:
+            for key, value in headers.items():
+                self.send_header(key, value)
+        cookie_header = self._save_session_header()
+        if cookie_header:
+            self.send_header("Set-Cookie", cookie_header)
+        self.end_headers()
+        if self.command != "HEAD" and body:
+            self.wfile.write(body)
+
+    def _redirect(self, location: str, status: int = HTTPStatus.SEE_OTHER) -> None:
+        self._send(status, b"", headers={"Location": location})
+
+    def _form_error(self, message: str, status: int = HTTPStatus.BAD_REQUEST) -> None:
+        self._send(status, layout("Falha", notice(message, "error")))
+
+    def _parse_form(self) -> tuple[dict[str, str], dict[str, UploadedFile]]:
+        raw_length = self.headers.get("Content-Length")
+        if not raw_length:
+            raise ValueError("Requisição sem Content-Length.")
+        try:
+            length = int(raw_length)
+        except ValueError as exc:
+            raise ValueError("Content-Length inválido.") from exc
+        if length < 0 or length > MAX_UPLOAD_BYTES + 256_000:
+            raise ValueError(f"O limite é {MAX_UPLOAD_MB} MB por envio.")
+
+        raw = self.rfile.read(length)
+        ctype = self.headers.get("Content-Type", "")
+        fields: dict[str, str] = {}
+        files: dict[str, UploadedFile] = {}
+
+        if ctype.lower().startswith("application/x-www-form-urlencoded"):
+            parsed = parse_qs(raw.decode("utf-8", errors="replace"), keep_blank_values=True)
+            fields = {key: values[-1] for key, values in parsed.items() if values}
+            return fields, files
+
+        if not ctype.lower().startswith("multipart/form-data"):
+            raise ValueError("Formato de formulário não suportado.")
+
+        # O parser MIME da biblioteca padrão lida corretamente com boundaries e CRLF.
+        envelope = (
+            b"Content-Type: "
+            + ctype.encode("utf-8", errors="replace")
+            + b"\r\nMIME-Version: 1.0\r\n\r\n"
+            + raw
+        )
+        message = BytesParser(policy=policy.default).parsebytes(envelope)
+        if not message.is_multipart():
+            raise ValueError("Upload multipart inválido.")
+
+        for part in message.iter_parts():
+            disposition = part.get_content_disposition()
+            if disposition != "form-data":
+                continue
+            name = part.get_param("name", header="content-disposition")
+            if not name:
+                continue
+            filename = part.get_filename()
+            payload = part.get_payload(decode=True) or b""
+            if filename is None:
+                fields[name] = payload.decode(part.get_content_charset() or "utf-8", errors="replace")
+            else:
+                files[name] = UploadedFile(
+                    filename=filename,
+                    content_type=part.get_content_type(),
+                    data=payload,
+                )
+        return fields, files
+
+    def _base_url(self) -> str:
+        if PUBLIC_BASE_URL:
+            return PUBLIC_BASE_URL
+        proto = self.headers.get("X-Forwarded-Proto", "http").split(",")[0].strip()
+        host = self.headers.get("X-Forwarded-Host") or self.headers.get("Host", "localhost")
+        return f"{proto}://{host}".rstrip("/")
+
+    # ---------- autorização ----------
+    def _has_access(self, share_id: str) -> bool:
+        access = self._load_session().get("access", {})
+        if not isinstance(access, dict):
+            return False
+        expires_at = access.get(share_id)
+        if not isinstance(expires_at, (int, float)) or expires_at < time.time():
+            if share_id in access:
+                access.pop(share_id, None)
+                self._mark_session_dirty()
+            return False
+        return True
+
+    def _grant_access(self, share_id: str) -> None:
+        session = self._load_session()
+        access = session.get("access")
+        if not isinstance(access, dict):
+            access = {}
+            session["access"] = access
+        access[share_id] = time.time() + SESSION_TTL_HOURS * 3600
+        self._mark_session_dirty()
+
+    def _attempt_allowed(self, share_id: str) -> tuple[bool, int]:
+        session = self._load_session()
+        attempts = session.get("attempts")
+        if not isinstance(attempts, dict):
+            attempts = {}
+            session["attempts"] = attempts
+        record = attempts.get(share_id, {})
+        now = time.time()
+        lock_until = float(record.get("lock_until", 0) or 0)
+        if lock_until > now:
+            return False, int(lock_until - now)
+        if lock_until:
+            attempts.pop(share_id, None)
+            self._mark_session_dirty()
+        return True, 0
+
+    def _register_failure(self, share_id: str) -> int:
+        session = self._load_session()
+        attempts = session.setdefault("attempts", {})
+        record = attempts.setdefault(share_id, {"count": 0})
+        count = int(record.get("count", 0)) + 1
+        record["count"] = count
+        if count >= 5:
+            record["lock_until"] = time.time() + 300
+            record["count"] = 0
+            self._mark_session_dirty()
+            return 300
+        self._mark_session_dirty()
+        return 0
+
+    # ---------- handlers ----------
+    def do_HEAD(self) -> None:
+        self.do_GET()
+
+    def do_GET(self) -> None:
+        STORE.cleanup()
+        parsed = urlparse(self.path)
+        path = parsed.path
+        if path == "/":
+            self._render_home()
+            return
+        if path == "/healthz":
+            self._send(HTTPStatus.OK, b'{"status":"ok"}', "application/json; charset=utf-8")
+            return
