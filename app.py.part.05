@@ -1,0 +1,98 @@
+          <p class="result-intro">Envie o link e a senha em canais separados sempre que possível.</p>
+          <div class="result-card">
+            <div class="result-row"><span>ARQUIVO</span><b>{html.escape(row['title'])}</b></div>
+            <div class="result-row"><span>LINK EXCLUSIVO</span><div class="copy-line"><input readonly value="{html.escape(share_url, quote=True)}"><button type="button" data-copy="{html.escape(share_url, quote=True)}">Copiar</button></div></div>
+            <div class="result-row"><span>SENHA DE ACESSO</span><div class="copy-line"><input readonly value="{html.escape(password, quote=True)}"><button type="button" data-copy="{html.escape(password, quote=True)}">Copiar</button></div></div>
+          </div>
+          <div class="warning"><strong>Guarde a senha agora.</strong> Ela não é salva em texto legível e não poderá ser recuperada pelo site.</div>
+          <div class="action-row"><a class="primary link-button" href="/view/{quote(share_id)}">Abrir visualização <span>→</span></a><a class="secondary link-button" href="/">Criar outro</a></div>
+        </section>
+        """
+        self._send(HTTPStatus.OK, layout("Link criado", content, include_js=True))
+
+    def _render_share(self, share_id: str) -> None:
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, layout("Link não encontrado", not_found()))
+            return
+        if self._has_access(share_id):
+            self._redirect(f"/view/{quote(share_id)}")
+            return
+        allowed, seconds = self._attempt_allowed(share_id)
+        lock_note = ""
+        disabled = ""
+        if not allowed:
+            disabled = "disabled"
+            lock_note = f"<div class='warning error'><strong>Tentativas bloqueadas temporariamente.</strong> Aguarde cerca de {max(1, seconds // 60)} minuto(s) para tentar de novo.</div>"
+        csrf = self._csrf()
+        content = f"""
+        <section class="gate-shell">
+          <div class="file-mark">&lt;/&gt;</div>
+          <div class="eyebrow">ACESSO PROTEGIDO</div>
+          <h1>{html.escape(row['title'])}</h1>
+          <p>Este arquivo está em um link privado do repository_x. Informe a senha para liberar a visualização.</p>
+          {lock_note}
+          <form class="panel gate-form" method="post" action="/s/{quote(share_id)}">
+            <input type="hidden" name="csrf" value="{html.escape(csrf)}">
+            <label>Senha de acesso
+              <input type="password" name="password" autocomplete="current-password" required {disabled} autofocus>
+            </label>
+            <button class="primary" type="submit" {disabled}>Desbloquear arquivo <span>→</span></button>
+          </form>
+          <div class="file-meta">{html.escape(row['original_name'])} · {format_size(int(row['size_bytes']))} · Link {html.escape(share_id)}</div>
+        </section>
+        """
+        self._send(HTTPStatus.OK, layout("Acesso protegido", content))
+
+    def _render_view(self, share_id: str) -> None:
+        row = STORE.get_file(share_id)
+        if not row:
+            self._send(HTTPStatus.NOT_FOUND, layout("Link não encontrado", not_found()))
+            return
+        if not self._has_access(share_id):
+            self._redirect(f"/s/{quote(share_id)}")
+            return
+        csrf = self._csrf()
+        content = f"""
+        <section class="viewer">
+          <div class="viewer-bar">
+            <div><span class="viewer-label">ARQUIVO PROTEGIDO</span><b>{html.escape(row['title'])}</b></div>
+            <div class="viewer-actions"><a class="viewer-link" href="/download/{quote(share_id)}">Baixar HTML</a><form method="post" action="/logout/{quote(share_id)}"><input type="hidden" name="csrf" value="{html.escape(csrf)}"><button class="viewer-link button-link" type="submit">Encerrar acesso</button></form></div>
+          </div>
+          <iframe class="html-frame" title="{html.escape(row['title'], quote=True)}" src="/content/{quote(share_id)}" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads"></iframe>
+        </section>
+        """
+        self._send(HTTPStatus.OK, layout("Visualização", content, viewer=True))
+
+    # ---------- ações ----------
+    def _handle_upload(self, fields: dict[str, str], files: dict[str, UploadedFile]) -> None:
+        if not self._check_csrf(fields.get("csrf", "")):
+            self._form_error("A página expirou. Recarregue e envie novamente.", HTTPStatus.FORBIDDEN)
+            return
+        if not hmac.compare_digest(fields.get("admin_password", ""), ADMIN_UPLOAD_PASSWORD):
+            self._form_error("Senha administrativa incorreta.", HTTPStatus.FORBIDDEN)
+            return
+        upload = files.get("html_file")
+        if not upload:
+            self._form_error("Selecione um arquivo HTML.")
+            return
+        original_name = safe_filename(upload.filename)
+        extension = Path(original_name).suffix.lower()
+        if extension not in {".html", ".htm"}:
+            self._form_error("Apenas arquivos .html ou .htm são aceitos.")
+            return
+        if not upload.data:
+            self._form_error("O arquivo enviado está vazio.")
+            return
+        if len(upload.data) > MAX_UPLOAD_BYTES:
+            self._form_error(f"O arquivo excede o limite de {MAX_UPLOAD_MB} MB.")
+            return
+        if b"\x00" in upload.data[:4096]:
+            self._form_error("O arquivo não parece ser HTML em texto.")
+            return
+
+        user_password = fields.get("access_password", "").strip()
+        if user_password and not (8 <= len(user_password) <= 72):
+            self._form_error("A senha precisa ter entre 8 e 72 caracteres.")
+            return
+        password = user_password or generate_access_password()
