@@ -1,0 +1,6 @@
+.env
+data/repository_x.sqlite3
+data/repository_x.sqlite3-shm
+data/repository_x.sqlite3-wal
+data/uploads/*
+!data/uploads/.gitkeep
