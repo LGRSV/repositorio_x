@@ -444,7 +444,9 @@ export default function Page() {
       </>;
     }
 
-    if (module === "auto-expurge") return <>
+    if (module === "auto-expurge") {
+      const workRules = data.workRules;
+      return <>
       <section className="kpi-grid">
         <Kpi label="Expurgos automáticos" value={data.expurgeDashboard.total} note={`${pct(data.expurgeDashboard.total, data.summary.total)}% da base`} tone="red" />
         <Kpi label="Valor realizado associado" value={compactMoney(data.expurgeDashboard.value)} note={money(data.expurgeDashboard.value)} tone="ink" />
@@ -460,7 +462,36 @@ export default function Page() {
       </section>
       <section className="panel"><div className="list-head"><div><span>{data.expurgeDashboard.total} casos</span><strong>Dossiês que acionaram expurgo automático</strong></div></div>
         <RecordTable records={data.records.filter((record) => record.consolidated.automaticExpurge)} mode="newbase" onOpen={openRecord} statusOf={statusOf} /></section>
+      {workRules ? <section className="panel"><div className="list-head">
+        <div><span>{workRules.expense.length + workRules.missing.length + workRules.kindDivergent.length} casos sinalizados</span><strong>Regras de ordem de obra · Manual v0.96</strong></div>
+        <small>Prazo contado contra {workRules.referenceDate}</small>
+      </div>
+        <div className="table-scroll"><table className="records-table">
+          <thead><tr><th>Regra</th><th>Registro</th><th>Situação da obra</th><th>Decisão</th></tr></thead>
+          <tbody>
+            {workRules.expense.map((item) => <tr key={`obr1-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+              <td><code>R-OBR-01</code><span>Ordem de despesa</span></td>
+              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
+              <td><strong>Obra {item.work}</strong><span>{item.workClass}</span><small>Não imobiliza o ativo</small></td>
+              <td><b className={`pill ${decisionClass(item.decision)}`}>{item.decision}</b><span>Análise manual obrigatória</span></td>
+            </tr>)}
+            {workRules.missing.map((item) => <tr key={`obr2-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+              <td><code>R-OBR-02</code><span>Obra não gerada</span></td>
+              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
+              <td><strong>{item.ssAgeDays ?? "—"} dias sem obra</strong><span>SS aberta em {item.openedAtLabel}</span><small>{item.overdue ? `Acima de ${workRules.deadlineDays} dias` : `Dentro dos ${workRules.deadlineDays} dias`}</small></td>
+              <td><b className={`pill ${decisionClass(item.decision)}`}>{item.decision}</b><span>Sem obra não há prova da troca</span></td>
+            </tr>)}
+            {workRules.kindDivergent.map((item) => <tr key={`obr3-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+              <td><code>R-OBR-03</code><span>Natureza da obra</span></td>
+              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
+              <td><strong>Obra {item.work}</strong><span>{[item.workNature, item.workKind].filter(Boolean).join(" · ")}</span></td>
+              <td><b className="pill warn">ANÁLISE MANUAL</b><span>Enquadramento de custo divergente</span></td>
+            </tr>)}
+          </tbody>
+        </table></div>
+      </section> : null}
     </>;
+    }
 
     if (module === "ai") return <>
       <section className="kpi-grid">
