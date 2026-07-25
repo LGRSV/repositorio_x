@@ -3,7 +3,7 @@ name: Publicar auditoria Base 134
 on:
   push:
     branches:
-      - agent/auditoria-transformadores-134
+      - main
     paths:
       - "auditoria-transformadores-134/**"
       - ".github/workflows/auditoria-pages.yml"
