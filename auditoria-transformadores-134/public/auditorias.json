@@ -18,12 +18,16 @@
     "burned": 89,
     "damaged": 45,
     "included": 41,
-    "expurged": 10,
-    "review": 83,
+    "expurged": 18,
+    "review": 74,
     "approved": 0,
     "pending": 134,
     "works": 125,
-    "analyticAlerts": 52
+    "analyticAlerts": 52,
+    "temporaryPending": 1,
+    "expenseOrders": 1,
+    "missingWork": 9,
+    "overdueWork": 8
   },
   "financial": {
     "materialValue": 1193563.08,
@@ -41,9 +45,9 @@
       "total": 34,
       "burned": 26,
       "damaged": 8,
-      "expurged": 3,
+      "expurged": 5,
       "included": 12,
-      "review": 19,
+      "review": 17,
       "realized": 453106
     },
     {
@@ -52,9 +56,9 @@
       "total": 34,
       "burned": 17,
       "damaged": 17,
-      "expurged": 2,
+      "expurged": 3,
       "included": 14,
-      "review": 18,
+      "review": 17,
       "realized": 407406
     },
     {
@@ -63,9 +67,9 @@
       "total": 31,
       "burned": 25,
       "damaged": 6,
-      "expurged": 1,
+      "expurged": 5,
       "included": 5,
-      "review": 25,
+      "review": 21,
       "realized": 361194
     },
     {
@@ -74,9 +78,9 @@
       "total": 10,
       "burned": 7,
       "damaged": 3,
-      "expurged": 2,
+      "expurged": 3,
       "included": 3,
-      "review": 5,
+      "review": 4,
       "realized": 155058
     },
     {
@@ -87,7 +91,7 @@
       "damaged": 6,
       "expurged": 1,
       "included": 2,
-      "review": 10,
+      "review": 9,
       "realized": 180749
     },
     {
@@ -103,10 +107,14 @@
     }
   ],
   "expurgeDashboard": {
-    "total": 10,
-    "value": 157421,
+    "total": 18,
+    "value": 157421.0,
     "materialValue": 110429.2,
     "byCause": [
+      {
+        "label": "Obra não gerada em 60 dias",
+        "value": 8
+      },
       {
         "label": "Possível furto ou abalroamento",
         "value": 7
@@ -122,6 +130,10 @@
     ],
     "byRule": [
       {
+        "label": "R-OBR-02",
+        "value": 8
+      },
+      {
         "label": "R-EXP-05",
         "value": 7
       },
@@ -134,19 +146,19 @@
         "value": 1
       }
     ],
-    "sentToReview": 7
+    "sentToReview": 8
   },
   "aiDashboard": {
-    "highConfidence": 51,
+    "highConfidence": 59,
     "mediumConfidence": 74,
-    "lowConfidence": 9,
-    "needsReview": 90,
+    "lowConfidence": 1,
+    "needsReview": 83,
     "sigcoAnalysis": 126,
     "completeEvidence": 122,
     "byDecision": [
       {
         "label": "REVISÃO MANUAL",
-        "value": 83
+        "value": 74
       },
       {
         "label": "INCLUIR",
@@ -154,7 +166,11 @@
       },
       {
         "label": "EXPURGAR",
-        "value": 10
+        "value": 18
+      },
+      {
+        "label": "PENDENTE TEMPORAL",
+        "value": 1
       }
     ],
     "byRule": [
@@ -167,7 +183,7 @@
         "value": 38
       },
       {
-        "label": "R-REV-02",
+        "label": "R-OBR-02",
         "value": 9
       },
       {
@@ -220,7 +236,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 166,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -257,7 +280,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "SAMUEL PINTO GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-002",
@@ -290,7 +317,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 160,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -327,7 +361,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-003",
@@ -360,7 +398,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 91,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -397,7 +442,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "EZEQUIEL CAVALCANTE DOS SANTOS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-004",
@@ -430,7 +479,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 139,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -467,7 +523,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-005",
@@ -500,7 +560,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 175,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -538,7 +605,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "DELIO NUNES OSCAR",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-006",
@@ -571,7 +642,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 116,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -608,7 +686,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "DEOP",
+      "requester": "Glauk Henrique Miranda Cardoso",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-007",
@@ -641,7 +723,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 126,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -678,7 +767,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-008",
@@ -711,7 +804,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 74,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -750,7 +850,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": ""
     },
     {
       "id": "AUD-134-009",
@@ -783,7 +887,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 142,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -820,7 +931,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "LAISON OLIVEIRA CARVALHO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-010",
@@ -853,7 +968,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 122,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -890,7 +1012,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "VALERIA DE JESUS BORGES CARVAL",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-011",
@@ -923,7 +1049,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 170,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -960,7 +1093,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JORGE BOAZ FERREIRA SOUSA DA S",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-012",
@@ -993,7 +1130,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 139,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1030,7 +1174,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-013",
@@ -1063,7 +1211,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 97,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1100,7 +1255,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "SOLICITAÇÃO DE SERVIÇO",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-014",
@@ -1133,7 +1292,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 129,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1170,7 +1336,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-015",
@@ -1203,7 +1373,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 107,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1240,7 +1417,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-016",
@@ -1273,7 +1454,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 143,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1310,7 +1498,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-017",
@@ -1343,7 +1535,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 114,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1380,7 +1579,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ROBSON FERNANDO LAUERMANN RICO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-018",
@@ -1413,7 +1616,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 143,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1450,7 +1660,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-019",
@@ -1483,7 +1697,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 131,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1520,7 +1741,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JANES FERREIRA DA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-020",
@@ -1553,7 +1778,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 144,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1590,7 +1822,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-021",
@@ -1623,7 +1859,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 168,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1660,7 +1903,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-022",
@@ -1693,7 +1940,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 99,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1730,7 +1984,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLEIBER DA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-023",
@@ -1763,7 +2021,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 115,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1800,7 +2065,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ROBSON FERNANDO LAUERMANN RICO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-024",
@@ -1833,7 +2102,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 131,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1870,7 +2146,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-025",
@@ -1903,7 +2183,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 160,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -1940,7 +2227,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-026",
@@ -1973,7 +2264,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 126,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2010,7 +2308,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "STANLEY APARECIDO DO CARMO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-027",
@@ -2043,7 +2345,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 105,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2080,7 +2389,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-028",
@@ -2113,7 +2426,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 129,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2150,7 +2470,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "VALERIA DE JESUS BORGES CARVAL",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-029",
@@ -2183,7 +2507,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 55,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2220,7 +2551,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "GUILHERME BORGES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-030",
@@ -2253,7 +2588,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 170,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2290,7 +2632,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "GUILHERME BORGES DE OLIVEIRA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-031",
@@ -2323,7 +2669,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 102,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2360,7 +2713,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "DEOP",
+      "requester": "Glauk Henrique Miranda Cardoso",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-032",
@@ -2393,7 +2750,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 112,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2430,7 +2794,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "VALERIA DE JESUS BORGES CARVAL",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-033",
@@ -2463,7 +2831,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 52,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2500,7 +2875,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "STANLEY APARECIDO DO CARMO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-034",
@@ -2533,7 +2912,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 173,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2570,7 +2956,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "GUILHERME BORGES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-035",
@@ -2603,7 +2993,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 112,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2640,7 +3037,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "SIRDEIS ALVES MONTEIRO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-036",
@@ -2673,7 +3074,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 163,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2710,7 +3118,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-037",
@@ -2743,7 +3155,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 162,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2780,7 +3199,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JONATAN ALVES DE SOUZA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-038",
@@ -2813,7 +3236,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 101,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2850,7 +3280,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CARLOS ALBERTO COUTINHO DE MOR",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-039",
@@ -2883,7 +3317,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 162,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2920,7 +3361,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "MARCELO LIMA DAMASCENO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-040",
@@ -2953,7 +3398,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 131,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -2990,7 +3442,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Felipe Batista Ferrreira",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-041",
@@ -3023,7 +3479,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 131,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3060,7 +3523,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-042",
@@ -3093,7 +3560,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 103,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3130,7 +3604,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-043",
@@ -3163,7 +3641,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 83,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3200,7 +3685,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "SIRDEIS ALVES MONTEIRO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-044",
@@ -3233,7 +3722,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 106,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3270,7 +3766,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ROBSON FERNANDO LAUERMANN RICO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-045",
@@ -3303,7 +3803,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 159,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3340,7 +3847,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JURANDY GOMES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-046",
@@ -3373,7 +3884,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 163,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3410,7 +3928,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CARLOS ALBERTO COUTINHO DE MOR",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-047",
@@ -3443,7 +3965,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3480,7 +4009,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CARLOS ALBERTO COUTINHO DE MOR",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-048",
@@ -3513,7 +4046,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 130,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3550,7 +4090,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLEIBER DA SILVA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-049",
@@ -3583,7 +4127,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 124,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3620,7 +4171,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-050",
@@ -3653,7 +4208,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 130,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3690,7 +4252,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-051",
@@ -3723,7 +4289,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 100,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3760,7 +4333,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "WESLEY MARCAL MENDES DE OLIVEI",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-052",
@@ -3793,7 +4370,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 114,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3830,7 +4414,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "MANUT",
+      "requester": "BOAVENTURA JUNIOR FERREIRA LOP",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-053",
@@ -3863,7 +4451,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3900,7 +4495,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-054",
@@ -3933,7 +4532,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 120,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -3970,7 +4576,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ASTROGILDO PIRES BERNARDO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-055",
@@ -4003,7 +4613,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 99,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4040,7 +4657,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "HELDER SILVA CARVALHO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-056",
@@ -4073,7 +4694,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 130,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4110,7 +4738,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "VALERIA DE JESUS BORGES CARVAL",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-057",
@@ -4143,7 +4775,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 133,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4180,7 +4819,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JANES FERREIRA DA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-058",
@@ -4213,7 +4856,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 173,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4250,7 +4900,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ANTONIO FAGNER ALVES RIBEIRO",
+      "originReason": ""
     },
     {
       "id": "AUD-134-059",
@@ -4283,7 +4937,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 57,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4320,7 +4981,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COCM",
+      "requester": "LEONARDO SANTOS DA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-060",
@@ -4353,7 +5018,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 48,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4390,7 +5062,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "STANLEY APARECIDO DO CARMO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-061",
@@ -4423,7 +5099,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4460,7 +5143,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "MARCELO LIMA DAMASCENO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-062",
@@ -4493,7 +5180,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 100,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4530,7 +5224,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-063",
@@ -4563,7 +5261,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 157,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4600,7 +5305,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JURANDY GOMES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-064",
@@ -4633,7 +5342,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 112,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4670,7 +5386,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "MARCELO LIMA DAMASCENO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-065",
@@ -4703,7 +5423,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 101,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4740,7 +5467,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JONATAN ALVES DE SOUZA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-066",
@@ -4773,7 +5504,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 149,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4810,7 +5548,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CARLOS ALBERTO COUTINHO DE MOR",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-067",
@@ -4843,7 +5585,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 104,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4880,7 +5629,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "GUILHERME BORGES DE OLIVEIRA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-068",
@@ -4913,7 +5666,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 161,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -4950,7 +5710,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-069",
@@ -4983,7 +5747,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 135,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5020,7 +5791,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JORGE BOAZ FERREIRA SOUSA DA S",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-070",
@@ -5053,7 +5828,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 142,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5090,7 +5872,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-071",
@@ -5123,7 +5909,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5160,7 +5953,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-072",
@@ -5193,7 +5990,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 123,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5230,7 +6034,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "STANLEY APARECIDO DO CARMO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-073",
@@ -5263,7 +6071,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 135,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5300,7 +6115,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "EZEQUIEL CAVALCANTE DOS SANTOS",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-074",
@@ -5333,7 +6152,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 147,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5370,7 +6196,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JOAO PAULO VASCONCELOS MARINHO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-075",
@@ -5403,7 +6233,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5440,7 +6277,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "GARANTIA DE TRAFO"
     },
     {
       "id": "AUD-134-076",
@@ -5473,7 +6314,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5510,7 +6358,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "MANUT",
+      "requester": "LEANDRO BISPO DE BARROS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-077",
@@ -5543,7 +6395,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 124,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5580,7 +6439,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-078",
@@ -5613,7 +6476,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 132,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5650,7 +6520,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-079",
@@ -5683,7 +6557,16 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "DESPESA",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": true,
+        "ssAgeDays": 40,
+        "overdue": false,
+        "alerts": [
+          "R-OBR-01 · Obra em CLASS_OBRA = DESPESA: não imobiliza o ativo, incorporação a confirmar."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -5711,16 +6594,22 @@
         "confidence": 93,
         "confidenceBand": "Alta",
         "automaticExpurge": true,
-        "review": false,
+        "review": true,
         "sigcoStatus": "Analisar",
         "sigcoReason": "Código sem regra conclusiva; validar contra a causa e a condição.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Ordem de despesa",
+          "Análise manual"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "MAIKOM DOUGLAS DA SILVA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-080",
@@ -5753,7 +6642,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 44,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5790,7 +6686,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "MANUT",
+      "requester": "MARCO ANTONIO LOURENCO CAMPOS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-081",
@@ -5823,7 +6723,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 70,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5860,7 +6767,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ERLAN PEREIRA DE SOUSA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-082",
@@ -5893,7 +6804,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -5932,7 +6850,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLEIDSON RODRIGUES VIEIRA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-083",
@@ -5965,7 +6887,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 73,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 0,
@@ -6004,7 +6933,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "SIRDEIS ALVES MONTEIRO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-084",
@@ -6037,7 +6970,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 154,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6074,7 +7014,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLEONE PEREIRA DE SOUZA LIMA",
+      "originReason": "POSTE"
     },
     {
       "id": "AUD-134-085",
@@ -6107,7 +7051,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 141,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6146,7 +7097,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "MANUT",
+      "requester": "ERLAN PEREIRA DE SOUSA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-086",
@@ -6179,7 +7134,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 152,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6216,7 +7178,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-087",
@@ -6249,7 +7215,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 128,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6286,7 +7259,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "PAULO AUGUSTO DA SILVA MORAIS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-088",
@@ -6319,7 +7296,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 20,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6357,7 +7341,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLEIDSON RODRIGUES VIEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-089",
@@ -6390,7 +7378,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 146,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6427,7 +7422,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-090",
@@ -6460,7 +7459,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 22,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6495,7 +7501,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "SAMUEL PINTO GOMES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-091",
@@ -6528,7 +7538,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 107,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6563,7 +7580,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "",
+      "requester": "WALLESON DE OLIVEIRA NUNES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-092",
@@ -6596,7 +7617,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 1,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6631,7 +7659,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-093",
@@ -6664,7 +7696,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 3,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6701,7 +7740,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "DEOP",
+      "requester": "WENDER FRANCISCO RIBEIRO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-094",
@@ -6734,7 +7777,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 21,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6771,7 +7821,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "MAIKOM DOUGLAS DA SILVA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-095",
@@ -6804,7 +7858,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 22,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6839,7 +7900,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JONATAN ALVES DE SOUZA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-096",
@@ -6872,7 +7937,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 127,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 0,
@@ -6909,7 +7981,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JONATAN ALVES DE SOUZA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-097",
@@ -6942,7 +8018,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 109,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -6980,7 +8063,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "THIAGO BORGES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-098",
@@ -7013,7 +8100,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 34,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7050,7 +8144,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-099",
@@ -7083,7 +8181,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 20,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7120,7 +8225,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "DEOP",
+      "requester": "Glauk Henrique Miranda Cardoso",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-100",
@@ -7153,7 +8262,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 63,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7188,7 +8304,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "SOLICITAÇÃO DE SERVIÇO",
+      "origin": "COCM",
+      "requester": "SULANY MOREIRA DE SOUSA",
+      "originReason": ""
     },
     {
       "id": "AUD-134-101",
@@ -7221,7 +8341,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 174,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7258,7 +8385,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "SOLICITAÇÃO DE SERVIÇO",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-102",
@@ -7291,7 +8422,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 90,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7328,7 +8466,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "SOLICITAÇÃO DE SERVIÇO",
+      "origin": "MANUT",
+      "requester": "LUANDERSON MARTINS ALMEIDA",
+      "originReason": ""
     },
     {
       "id": "AUD-134-103",
@@ -7361,7 +8503,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 2,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7398,7 +8547,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "CLEIDSON RODRIGUES VIEIRA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-104",
@@ -7431,7 +8584,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 23,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7468,7 +8628,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-105",
@@ -7501,7 +8665,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 113,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7538,7 +8709,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "HERIK BUARQUE DOS SANTOS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-106",
@@ -7571,7 +8746,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 43,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7608,7 +8790,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "MANUT",
+      "requester": "LUANDERSON MARTINS ALMEIDA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-107",
@@ -7641,7 +8827,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 15,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7678,7 +8871,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "JANES FERREIRA DA SILVA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-108",
@@ -7711,7 +8908,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 85,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7748,7 +8952,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ADRIANO DE SOUSA GOMES",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-109",
@@ -7781,7 +8989,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 79,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7818,7 +9033,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Wilmar Lucas Rodrigues Noleto",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-110",
@@ -7851,7 +9070,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 0,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7888,7 +9114,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ERLAN PEREIRA DE SOUSA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-111",
@@ -7921,7 +9151,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 131,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -7958,7 +9195,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Felipe Batista Ferrreira",
+      "originReason": "GARANTIA DE TRAFO"
     },
     {
       "id": "AUD-134-112",
@@ -7991,7 +9232,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 161,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8028,7 +9276,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-113",
@@ -8061,7 +9313,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 35,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8098,7 +9357,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "STANLEY APARECIDO DO CARMO",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-114",
@@ -8131,7 +9394,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 140,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8168,7 +9438,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-115",
@@ -8201,7 +9475,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 37,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8238,7 +9519,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "DELIO NUNES OSCAR",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-116",
@@ -8271,7 +9556,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 28,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8308,7 +9600,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "MANUT",
+      "requester": "LUANDERSON MARTINS ALMEIDA",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-117",
@@ -8341,7 +9637,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 128,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8378,7 +9681,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "CLEIDSON RODRIGUES VIEIRA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-118",
@@ -8411,7 +9718,14 @@
         "status": "ENCERRAMENTO:FISCALIZAÇÃO APROVADA",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": "SEM MOV. TRAFO"
+        "analyticReason": "SEM MOV. TRAFO",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 14,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8448,7 +9762,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "VALERIA DE JESUS BORGES CARVAL",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-119",
@@ -8481,7 +9799,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 44,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8518,7 +9843,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JURANDY GOMES DE OLIVEIRA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-120",
@@ -8551,7 +9880,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 84,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8588,7 +9924,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-121",
@@ -8621,7 +9961,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 168,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8658,7 +10005,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ARTHUR MAGALHAES DAS DORES",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-122",
@@ -8691,7 +10042,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "ENGESELT MAIS SERVICOS DE ENGENHARIA LTD",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 41,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8728,7 +10086,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ANTONIO FAGNER ALVES RIBEIRO",
+      "originReason": ""
     },
     {
       "id": "AUD-134-123",
@@ -8761,7 +10123,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 103,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8798,7 +10167,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "ANTONIO FAGNER ALVES RIBEIRO",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-124",
@@ -8831,7 +10204,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 105,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8868,7 +10248,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "ERLAN PEREIRA DE SOUSA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-125",
@@ -8901,7 +10285,14 @@
         "status": "ENCERRAMENTO:ENCERRAMENTO TÉCNICO",
         "contractor": "",
         "terminal": true,
-        "analyticReason": ""
+        "analyticReason": "",
+        "workClass": "ORDEM DE IMOBILIZAÇÃO",
+        "workNature": "MANUTENÇÃO",
+        "workKind": "MANUTENÇÃO CORRET EMERGENCIAL",
+        "expenseOrder": false,
+        "ssAgeDays": 156,
+        "overdue": false,
+        "alerts": []
       },
       "material": {
         "transformers": 1,
@@ -8938,7 +10329,11 @@
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "EVA RAIANE CASTELO BONFIM DA S",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-126",
@@ -8971,7 +10366,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA"
+        "analyticReason": "SEM OBRA",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 47,
+        "overdue": false,
+        "alerts": [
+          "R-OBR-02 · Obra ainda não gerada, 47 dias da abertura da SS (dentro do limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -8989,26 +10393,32 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "PENDENTE TEMPORAL",
         "condition": "AVARIADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra ainda não gerada",
         "action": "Substituído",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 47 dias e a obra ainda pode ser gerada dentro do prazo de 60 dias. O caso fica pendente até a obra aparecer ou o prazo vencer.",
+        "confidence": 60,
         "confidenceBand": "Baixa",
         "automaticExpurge": false,
         "review": true,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra",
+          "Pendência temporal"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "HERIK BUARQUE DOS SANTOS",
+      "originReason": "SOBRECARGA PREVENTIVA"
     },
     {
       "id": "AUD-134-127",
@@ -9041,7 +10451,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA + SEM MOV. TRAFO"
+        "analyticReason": "SEM OBRA + SEM MOV. TRAFO",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 105,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 105 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9059,26 +10478,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "QUEIMADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Não conclusivo",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 105 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "JOAO PAULO VASCONCELOS MARINHO",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-128",
@@ -9111,7 +10535,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA + SEM MOV. TRAFO"
+        "analyticReason": "SEM OBRA + SEM MOV. TRAFO",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 103,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 103 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9129,26 +10562,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "QUEIMADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Não conclusivo",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 103 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "MANUT",
+      "requester": "MARCO ANTONIO LOURENCO CAMPOS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-129",
@@ -9181,7 +10619,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA + SEM MOV. TRAFO"
+        "analyticReason": "SEM OBRA + SEM MOV. TRAFO",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 99,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 99 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9199,26 +10646,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "QUEIMADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Não conclusivo",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 99 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "MANUT",
+      "requester": "MARCO ANTONIO LOURENCO CAMPOS",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-130",
@@ -9251,7 +10703,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA"
+        "analyticReason": "SEM OBRA",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 68,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 68 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9269,26 +10730,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "AVARIADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Substituído",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 68 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "AVISO DE ANOMALIA",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "AVARIADO"
     },
     {
       "id": "AUD-134-131",
@@ -9321,7 +10787,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA + SEM MOV. TRAFO"
+        "analyticReason": "SEM OBRA + SEM MOV. TRAFO",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 105,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 105 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9339,26 +10814,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "QUEIMADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Não conclusivo",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 105 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "CLESIO CARVALHO MOURA",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-132",
@@ -9391,7 +10871,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA"
+        "analyticReason": "SEM OBRA",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 140,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 140 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9409,26 +10898,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "AVARIADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Substituído",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 140 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Felipe Batista Ferrreira",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-133",
@@ -9461,7 +10955,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA"
+        "analyticReason": "SEM OBRA",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 148,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 148 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9479,26 +10982,31 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "AVARIADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Substituído",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 148 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "Felipe Batista Ferrreira",
+      "originReason": "QUEIMADO"
     },
     {
       "id": "AUD-134-134",
@@ -9531,7 +11039,16 @@
         "status": "Sem obra localizada",
         "contractor": "",
         "terminal": false,
-        "analyticReason": "SEM OBRA"
+        "analyticReason": "SEM OBRA",
+        "workClass": "",
+        "workNature": "",
+        "workKind": "",
+        "expenseOrder": false,
+        "ssAgeDays": 147,
+        "overdue": true,
+        "alerts": [
+          "R-OBR-02 · Obra não gerada há 147 dias da abertura da SS (limite de 60)."
+        ]
       },
       "material": {
         "transformers": 0,
@@ -9549,26 +11066,335 @@
         "laborRealized": 0
       },
       "consolidated": {
-        "decision": "REVISÃO MANUAL",
+        "decision": "EXPURGAR",
         "condition": "QUEIMADO",
-        "cause": "Sem obra localizada",
+        "cause": "Obra não gerada em 60 dias",
         "action": "Substituído",
         "materialEvidence": "Sem transformador",
-        "rule": "R-REV-02",
-        "rationale": "Não há obra para confirmar material e etapa de encerramento.",
-        "confidence": 52,
-        "confidenceBand": "Baixa",
-        "automaticExpurge": false,
-        "review": true,
+        "rule": "R-OBR-02",
+        "rationale": "A SS foi aberta há 147 dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.",
+        "confidence": 88,
+        "confidenceBand": "Alta",
+        "automaticExpurge": true,
+        "review": false,
         "sigcoStatus": "Não informado",
         "sigcoReason": "Código ausente; a New Base deve recomendar abertura/correção com motivo.",
         "flags": [
-          "Análise por SIGCO"
+          "Análise por SIGCO",
+          "Regra de obra"
         ],
         "approvalStatus": "PENDENTE",
         "reviewer": "Matheus Gracia",
         "official": false
-      }
+      },
+      "requestType": "FORMS SUBST DE TRANSFORMADOR",
+      "origin": "COI",
+      "requester": "DIONES COSTA SILVA",
+      "originReason": "QUEIMADO"
     }
-  ]
+  ],
+  "workRules": {
+    "referenceDate": "25/06/2026",
+    "deadlineDays": 60,
+    "expense": [
+      {
+        "id": "AUD-134-079",
+        "ss": "ETO-RD-GR 00534/2026",
+        "work": "712600405",
+        "workClass": "DESPESA",
+        "decision": "EXPURGAR"
+      }
+    ],
+    "missing": [
+      {
+        "id": "AUD-134-126",
+        "ss": "ETO-RD-AG 00492/2026",
+        "openedAtLabel": "09/05/2026",
+        "ssAgeDays": 47,
+        "overdue": false,
+        "decision": "PENDENTE TEMPORAL"
+      },
+      {
+        "id": "AUD-134-127",
+        "ss": "ETO-RD-PA 00159/2026",
+        "openedAtLabel": "12/03/2026",
+        "ssAgeDays": 105,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-128",
+        "ss": "ETO-RD-PA 00167/2026",
+        "openedAtLabel": "14/03/2026",
+        "ssAgeDays": 103,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-129",
+        "ss": "ETO-RD-PA 00191/2026",
+        "openedAtLabel": "18/03/2026",
+        "ssAgeDays": 99,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-130",
+        "ss": "DOLP-RD-PA 00466/2026",
+        "openedAtLabel": "18/04/2026",
+        "ssAgeDays": 68,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-131",
+        "ss": "ETO-RD-PA 00161/2026",
+        "openedAtLabel": "12/03/2026",
+        "ssAgeDays": 105,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-132",
+        "ss": "DG-RD-PO 00164/2026",
+        "openedAtLabel": "05/02/2026",
+        "ssAgeDays": 140,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-133",
+        "ss": "ENC-RD-PS 00143/2026",
+        "openedAtLabel": "28/01/2026",
+        "ssAgeDays": 148,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      },
+      {
+        "id": "AUD-134-134",
+        "ss": "ETO-RD-PS 00077/2026",
+        "openedAtLabel": "29/01/2026",
+        "ssAgeDays": 147,
+        "overdue": true,
+        "decision": "EXPURGAR"
+      }
+    ],
+    "kindDivergent": []
+  },
+  "requestSources": {
+    "byType": [
+      {
+        "label": "FORMS SUBST DE TRANSFORMADOR",
+        "value": 84
+      },
+      {
+        "label": "AVISO DE ANOMALIA",
+        "value": 46
+      },
+      {
+        "label": "SOLICITAÇÃO DE SERVIÇO",
+        "value": 4
+      }
+    ],
+    "byOrigin": [
+      {
+        "label": "COI",
+        "value": 118
+      },
+      {
+        "label": "MANUT",
+        "value": 9
+      },
+      {
+        "label": "DEOP",
+        "value": 4
+      },
+      {
+        "label": "COCM",
+        "value": 2
+      },
+      {
+        "label": "Não informado",
+        "value": 1
+      }
+    ],
+    "byRequester": [
+      {
+        "label": "ARTHUR MAGALHAES DAS DORES",
+        "value": 19
+      },
+      {
+        "label": "ADRIANO DE SOUSA GOMES",
+        "value": 6
+      },
+      {
+        "label": "CLESIO CARVALHO MOURA",
+        "value": 6
+      },
+      {
+        "label": "DIONES COSTA SILVA",
+        "value": 6
+      },
+      {
+        "label": "Wilmar Lucas Rodrigues Noleto",
+        "value": 6
+      },
+      {
+        "label": "STANLEY APARECIDO DO CARMO",
+        "value": 5
+      },
+      {
+        "label": "VALERIA DE JESUS BORGES CARVAL",
+        "value": 5
+      },
+      {
+        "label": "CARLOS ALBERTO COUTINHO DE MOR",
+        "value": 4
+      },
+      {
+        "label": "CLEIDSON RODRIGUES VIEIRA",
+        "value": 4
+      },
+      {
+        "label": "ERLAN PEREIRA DE SOUSA",
+        "value": 4
+      },
+      {
+        "label": "Felipe Batista Ferrreira",
+        "value": 4
+      },
+      {
+        "label": "GUILHERME BORGES DE OLIVEIRA",
+        "value": 4
+      },
+      {
+        "label": "JONATAN ALVES DE SOUZA",
+        "value": 4
+      },
+      {
+        "label": "ANTONIO FAGNER ALVES RIBEIRO",
+        "value": 3
+      },
+      {
+        "label": "Glauk Henrique Miranda Cardoso",
+        "value": 3
+      },
+      {
+        "label": "JANES FERREIRA DA SILVA",
+        "value": 3
+      },
+      {
+        "label": "JURANDY GOMES DE OLIVEIRA",
+        "value": 3
+      },
+      {
+        "label": "LUANDERSON MARTINS ALMEIDA",
+        "value": 3
+      },
+      {
+        "label": "MARCELO LIMA DAMASCENO",
+        "value": 3
+      },
+      {
+        "label": "MARCO ANTONIO LOURENCO CAMPOS",
+        "value": 3
+      },
+      {
+        "label": "ROBSON FERNANDO LAUERMANN RICO",
+        "value": 3
+      },
+      {
+        "label": "SIRDEIS ALVES MONTEIRO",
+        "value": 3
+      },
+      {
+        "label": "CLEIBER DA SILVA",
+        "value": 2
+      },
+      {
+        "label": "DELIO NUNES OSCAR",
+        "value": 2
+      },
+      {
+        "label": "EZEQUIEL CAVALCANTE DOS SANTOS",
+        "value": 2
+      },
+      {
+        "label": "HERIK BUARQUE DOS SANTOS",
+        "value": 2
+      },
+      {
+        "label": "JOAO PAULO VASCONCELOS MARINHO",
+        "value": 2
+      },
+      {
+        "label": "JORGE BOAZ FERREIRA SOUSA DA S",
+        "value": 2
+      },
+      {
+        "label": "MAIKOM DOUGLAS DA SILVA",
+        "value": 2
+      },
+      {
+        "label": "SAMUEL PINTO GOMES",
+        "value": 2
+      },
+      {
+        "label": "ASTROGILDO PIRES BERNARDO",
+        "value": 1
+      },
+      {
+        "label": "BOAVENTURA JUNIOR FERREIRA LOP",
+        "value": 1
+      },
+      {
+        "label": "CLEONE PEREIRA DE SOUZA LIMA",
+        "value": 1
+      },
+      {
+        "label": "EVA RAIANE CASTELO BONFIM DA S",
+        "value": 1
+      },
+      {
+        "label": "HELDER SILVA CARVALHO",
+        "value": 1
+      },
+      {
+        "label": "LAISON OLIVEIRA CARVALHO",
+        "value": 1
+      },
+      {
+        "label": "LEANDRO BISPO DE BARROS",
+        "value": 1
+      },
+      {
+        "label": "LEONARDO SANTOS DA SILVA",
+        "value": 1
+      },
+      {
+        "label": "PAULO AUGUSTO DA SILVA MORAIS",
+        "value": 1
+      },
+      {
+        "label": "SULANY MOREIRA DE SOUSA",
+        "value": 1
+      },
+      {
+        "label": "THIAGO BORGES DE OLIVEIRA",
+        "value": 1
+      },
+      {
+        "label": "WALLESON DE OLIVEIRA NUNES",
+        "value": 1
+      },
+      {
+        "label": "WENDER FRANCISCO RIBEIRO",
+        "value": 1
+      },
+      {
+        "label": "WESLEY MARCAL MENDES DE OLIVEI",
+        "value": 1
+      }
+    ]
+  }
 }

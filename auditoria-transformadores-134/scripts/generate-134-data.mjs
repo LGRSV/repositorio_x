@@ -31,6 +31,16 @@ const extract = (source, pattern) => {
   const sentences = text(source).split(/(?<=[.;!?])\s+|\n+/).filter(Boolean);
   return (sentences.find((item) => pattern.test(normalize(item))) || sentences[0] || "").slice(0, 260);
 };
+// Prazo sempre contado contra a maior data de abertura de SS observada na base, nunca contra a data de hoje.
+const REFERENCE_DATE = "2026-06-25";
+const DEADLINE_DAYS = 60;
+const daysUntilReference = (iso) => {
+  const match = text(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const opened = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const [ry, rm, rd] = REFERENCE_DATE.split("-").map(Number);
+  return Math.round((Date.UTC(ry, rm - 1, rd) - opened) / 86400000);
+};
 const counts = (items, getter) =>
   [...items.reduce((map, item) => {
     const key = getter(item) || "Não informado";
@@ -71,6 +81,23 @@ function evaluate(base, full, work, fullWork, analytic, index) {
     normalize(work.STATUS).includes("FISCALIZACAO APROVADA"),
   );
   const workMissing = !text(work.NUM_OBRA);
+  const workClass = text(fullWork.CLASS_OBRA);
+  const workNature = text(fullWork.CONST_MANUT);
+  const workKind = text(fullWork.TIPO_OBRA);
+  const expenseOrder = normalize(workClass).includes("DESPESA");
+  const openedIso = excelDate(base.DATA);
+  const ssAgeDays = daysUntilReference(openedIso);
+  const overdueWork = workMissing && ssAgeDays !== null && ssAgeDays > DEADLINE_DAYS;
+  const kindDivergent = !workMissing &&
+    (normalize(workNature) !== "MANUTENCAO" || normalize(workKind) !== "MANUTENCAO CORRET EMERGENCIAL");
+  const workAlerts = [];
+  if (expenseOrder) workAlerts.push(`R-OBR-01 · Obra em CLASS_OBRA = ${workClass}: não imobiliza o ativo, incorporação a confirmar.`);
+  if (workMissing) {
+    workAlerts.push(overdueWork
+      ? `R-OBR-02 · Obra não gerada há ${ssAgeDays} dias da abertura da SS (limite de ${DEADLINE_DAYS}).`
+      : `R-OBR-02 · Obra ainda não gerada, ${ssAgeDays} dias da abertura da SS (dentro do limite de ${DEADLINE_DAYS}).`);
+  }
+  if (kindDivergent) workAlerts.push(`R-OBR-03 · Obra fora de manutenção corretiva emergencial (${workNature || "—"} / ${workKind || "—"}).`);
 
   const theft = /\b(FURT|ROUB|VANDAL)/.test(all);
   const particular = /\b(PARTICULAR|PROPRIEDADE DO CLIENTE|TERCEIRO)\b/.test(all) || /\b56\d{7,}\b/.test(asset);
@@ -115,8 +142,20 @@ function evaluate(base, full, work, fullWork, analytic, index) {
     [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
       ["EXPURGAR", "Sem movimentação de transformador", "R-MAT-01", "A obra está em etapa terminal sem movimentação de transformador.", 93, true, false];
   } else if (workMissing) {
-    [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
-      ["REVISÃO MANUAL", "Sem obra localizada", "R-REV-02", "Não há obra para confirmar material e etapa de encerramento.", 52, false, true];
+    // R-OBR-02 — sem obra não existe consulta SIAGO nem prova de troca; até 60 dias a SS ainda pode gerar obra.
+    if (overdueWork) {
+      [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
+        ["EXPURGAR", "Obra não gerada em 60 dias", "R-OBR-02",
+          `A SS foi aberta há ${ssAgeDays} dias e nenhuma obra foi gerada. Sem obra não existe consulta SIAGO, movimentação de material nem encerramento, então não há como provar a troca do transformador.`,
+          88, true, false];
+      flags.push("Regra de obra");
+    } else {
+      [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
+        ["PENDENTE TEMPORAL", "Obra ainda não gerada", "R-OBR-02",
+          `A SS foi aberta há ${ssAgeDays} dias e a obra ainda pode ser gerada dentro do prazo de ${DEADLINE_DAYS} dias. O caso fica pendente até a obra aparecer ou o prazo vencer.`,
+          60, false, true];
+      flags.push("Regra de obra", "Pendência temporal");
+    }
   } else if (ground) {
     [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
       ["REVISÃO MANUAL", "Possível furto ou abalroamento", "R-REV-03", "Transformador no chão ou ausente sem causa explícita.", 68, false, true];
@@ -134,6 +173,16 @@ function evaluate(base, full, work, fullWork, analytic, index) {
   } else if (hasTransformer && (damaged || normalize(base.CAT) === "AVARIADO")) {
     [decision, cause, rule, rationale, confidence, automaticExpurge, review] =
       ["INCLUIR", "Avaria confirmada", "R-AVA-01", "Avaria e substituição possuem evidência convergente em SS, OS e material.", 92, false, false];
+  }
+
+  // R-OBR-01 e R-OBR-03 não mudam a decisão: obrigam análise manual antes de o caso contar no indicador.
+  if (expenseOrder) {
+    review = true;
+    flags.push("Ordem de despesa", "Análise manual");
+  }
+  if (kindDivergent) {
+    review = true;
+    flags.push("Natureza da obra", "Análise manual");
   }
 
   const sigco = text(base.SIGCO);
@@ -164,7 +213,7 @@ function evaluate(base, full, work, fullWork, analytic, index) {
 
   const condition = normalize(base.CAT) === "QUEIMADO" ? "QUEIMADO" : "AVARIADO";
   const action = substituted ? "Substituído" : repaired ? "Reparado" : "Não conclusivo";
-  const date = excelDate(base.DATA);
+  const date = openedIso;
   const approvalStatus = "PENDENTE";
 
   return {
@@ -199,6 +248,13 @@ function evaluate(base, full, work, fullWork, analytic, index) {
       contractor: text(work.EMPREITEIRA),
       terminal,
       analyticReason: text(analytic.MOTIVO),
+      workClass,
+      workNature,
+      workKind,
+      expenseOrder,
+      ssAgeDays,
+      overdue: overdueWork,
+      alerts: workAlerts,
     },
     material: {
       transformers: transformerQty,
@@ -229,11 +285,15 @@ function evaluate(base, full, work, fullWork, analytic, index) {
       review,
       sigcoStatus,
       sigcoReason,
-      flags,
+      flags: [...new Set(flags)],
       approvalStatus,
       reviewer: "Matheus Gracia",
       official: false,
     },
+    requestType: text(full.TIPOSS || base.TIPOSS),
+    origin: text(full.ORG_SOLIC),
+    requester: text(full.SOLICITANTE),
+    originReason: text(full.ORIGEM_SS),
   };
 }
 
@@ -295,6 +355,10 @@ const data = {
     pending: records.length,
     works: new Set(records.map((record) => record.work.number).filter(Boolean)).size,
     analyticAlerts: analyticRows.length,
+    temporaryPending: records.filter((record) => record.consolidated.decision === "PENDENTE TEMPORAL").length,
+    expenseOrders: records.filter((record) => record.work.expenseOrder).length,
+    missingWork: records.filter((record) => !record.work.number).length,
+    overdueWork: records.filter((record) => record.work.overdue).length,
   },
   financial,
   byMonth,
@@ -317,6 +381,29 @@ const data = {
     byRule: counts(records, (record) => record.consolidated.rule),
   },
   records,
+  workRules: {
+    referenceDate: dateLabel(REFERENCE_DATE),
+    deadlineDays: DEADLINE_DAYS,
+    expense: records.filter((record) => record.work.expenseOrder).map((record) => ({
+      id: record.id, ss: record.ss, work: record.work.number,
+      workClass: record.work.workClass, decision: record.consolidated.decision,
+    })),
+    missing: records.filter((record) => !record.work.number).map((record) => ({
+      id: record.id, ss: record.ss, openedAtLabel: record.openedAtLabel,
+      ssAgeDays: record.work.ssAgeDays, overdue: record.work.overdue, decision: record.consolidated.decision,
+    })),
+    kindDivergent: records.filter((record) => record.work.number &&
+      (normalize(record.work.workNature) !== "MANUTENCAO" || normalize(record.work.workKind) !== "MANUTENCAO CORRET EMERGENCIAL"))
+      .map((record) => ({
+        id: record.id, ss: record.ss, work: record.work.number,
+        workNature: record.work.workNature, workKind: record.work.workKind,
+      })),
+  },
+  requestSources: {
+    byType: counts(records, (record) => record.requestType),
+    byOrigin: counts(records, (record) => record.origin),
+    byRequester: counts(records, (record) => record.requester),
+  },
 };
 
 await fs.writeFile(output, `${JSON.stringify(data, null, 2)}\n`);

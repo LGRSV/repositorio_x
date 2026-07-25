@@ -12,9 +12,14 @@ type AuditRecord = {
   id: string; ss: string; os: string; openedAt: string; openedAtLabel: string; month: number;
   category: string; location: string; type: string; sigco: string;
   powerRemoved: number; powerInstalled: number;
+  requestType?: string; origin?: string; requester?: string; originReason?: string;
   ssAnalysis: { description: string; category: string; causeHint: string; evidence: string };
   osAnalysis: { description: string; action: string; transformerEvidence: string; evidence: string };
-  work: { number: string; description: string; status: string; contractor: string; terminal: boolean; analyticReason: string };
+  work: {
+    number: string; description: string; status: string; contractor: string; terminal: boolean; analyticReason: string;
+    workClass?: string; workNature?: string; workKind?: string; expenseOrder?: boolean;
+    ssAgeDays?: number | null; overdue?: boolean; alerts?: string[];
+  };
   material: { transformers: number; poles: number; lightningArresters: number; items: number; value: number };
   finance: {
     totalBudgeted: number; totalRealized: number; materialBudgeted: number;
@@ -37,6 +42,7 @@ type AuditData = {
   summary: {
     total: number; burned: number; damaged: number; included: number; expurged: number;
     review: number; approved: number; pending: number; works: number; analyticAlerts: number;
+    temporaryPending?: number; expenseOrders?: number; missingWork?: number; overdueWork?: number;
   };
   financial: {
     materialValue: number; totalBudgeted: number; totalRealized: number;
@@ -52,6 +58,13 @@ type AuditData = {
     sigcoAnalysis: number; completeEvidence: number; byDecision: Pair[]; byRule: Pair[];
   };
   records: AuditRecord[];
+  workRules?: {
+    referenceDate: string; deadlineDays: number;
+    expense: Array<{ id: string; ss: string; work: string; workClass: string; decision: string }>;
+    missing: Array<{ id: string; ss: string; openedAtLabel: string; ssAgeDays: number | null; overdue: boolean; decision: string }>;
+    kindDivergent: Array<{ id: string; ss: string; work: string; workNature: string; workKind: string }>;
+  };
+  requestSources?: { byType: Pair[]; byOrigin: Pair[]; byRequester: Pair[] };
 };
 
 type Change = { status?: string; comment: string; at: string; actor: string; action: string };
@@ -81,6 +94,8 @@ const EXPURGE_REASONS = [
   "Construção, nova ligação ou desativação",
   "Sem movimentação de trafo e obra em etapa terminal",
   "Fiscalização aprovada ou término físico",
+  "Obra não gerada há mais de 60 dias da abertura da SS",
+  "Obra lançada como ordem de despesa",
   "Outro motivo técnico",
 ];
 
@@ -126,7 +141,7 @@ const TITLES: Record<Module, { eyebrow: string; title: string; description: stri
   revisoes: { eyebrow: "Decisão humana", title: "Revisões", description: "Casos com conflito, baixa evidência, obra ausente ou reavaliação obrigatória." },
   aprovacoes: { eyebrow: "Administração", title: "Aprovações", description: "Matheus Alves, Danillo e Mateus Gracia podem oficializar uma análise com comentário." },
   importar: { eyebrow: "Fonte controlada", title: "Importar e reconciliar", description: "Carga exclusiva do Painel_134_Completo.xlsx." },
-  regras: { eyebrow: "Manual v1.0", title: "Regras de decisão", description: "Critérios operacionais reproduzidos no motor de análise." },
+  regras: { eyebrow: "Manual v0.96", title: "Regras de decisão", description: "Critérios operacionais reproduzidos no motor de análise." },
   historico: { eyebrow: "Rastreabilidade", title: "Histórico", description: "Alterações, observações e decisões registradas neste navegador." },
   manuais: { eyebrow: "Documentação oficial", title: "Manuais", description: "Dois documentos separados e alinhados aos módulos do sistema." },
   admin: { eyebrow: "Governança", title: "Administração", description: "Papéis, limites do protótipo e controles de aprovação." },
@@ -142,7 +157,31 @@ const pct = (value: number, total: number) => total ? Math.round((value / total)
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 const assetUrl = (path: string) => `${import.meta.env.BASE_URL || "/"}${path.replace(/^\/+/, "")}`;
 const decisionClass = (value: string) =>
-  value === "INCLUIR" ? "good" : value === "EXPURGAR" ? "bad" : "warn";
+  value === "INCLUIR" ? "good"
+    : value === "EXPURGAR" ? "bad"
+      : value === "PENDENTE TEMPORAL" ? "pend"
+        : "warn";
+const requestTone = (value: string) => {
+  const key = normalize(value);
+  if (!key) return "neutral";
+  if (key.includes("FORMS")) return "green";
+  if (key.includes("ANOMALIA") || key.includes("SOLICITACAO DE SERVICO")) return "amber";
+  return "neutral";
+};
+
+function RequestSource({ record, tab }: { record: AuditRecord; tab: "ss" | "os" }) {
+  const type = record.requestType || record.type;
+  if (!type && !record.origin && !record.requester) return null;
+  return <article className={`request-source ${requestTone(type)}`}>
+    <span>COMO A SOLICITAÇÃO NASCEU</span>
+    <strong>{type || "Tipo não informado"}</strong>
+    <div className="request-fields">
+      <div><span>Origem</span><b>{record.origin || "Não informada"}</b></div>
+      <div><span>Solicitante</span><b>{record.requester || "Não informado"}</b></div>
+      {tab === "ss" ? <div><span>Motivo declarado na abertura</span><b>{record.originReason || "Não informado"}</b></div> : null}
+    </div>
+  </article>;
+}
 
 function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
   const [username, setUsername] = useState("");
@@ -350,7 +389,7 @@ export default function Page() {
           </button>)}
         </article>
       </section>
-      <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v1.0. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
+      <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v0.96. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
     </>;
 
     if (module === "ss") return <Queue mode="ss" />;
@@ -411,6 +450,9 @@ export default function Page() {
         <Kpi label="Valor realizado associado" value={compactMoney(data.expurgeDashboard.value)} note={money(data.expurgeDashboard.value)} tone="ink" />
         <Kpi label="Material associado" value={compactMoney(data.expurgeDashboard.materialValue)} note={money(data.expurgeDashboard.materialValue)} tone="blue" />
         <Kpi label="Também em revisão" value={data.expurgeDashboard.sentToReview} note="Possível furto ou abalroamento" tone="amber" />
+        <Kpi label="Obra não gerada" value={data.summary.missingWork ?? 0} note={`${data.summary.overdueWork ?? 0} acima de ${data.workRules?.deadlineDays ?? 60} dias · R-OBR-02`} tone="red" />
+        <Kpi label="Pendência temporal" value={data.summary.temporaryPending ?? 0} note="Dentro do prazo, aguardando obra" tone="amber" />
+        <Kpi label="Ordem de despesa" value={data.summary.expenseOrders ?? 0} note="R-OBR-01 · não imobiliza o ativo" tone="ink" />
       </section>
       <section className="dashboard-columns">
         <article className="panel"><div className="panel-title"><div><span>Motivos</span><h2>Expurgos por causa</h2></div></div><BarList data={data.expurgeDashboard.byCause} total={data.summary.total} /></article>
@@ -458,7 +500,16 @@ export default function Page() {
         ["R-SIG-01", "Sobrecarga, TAP ou preventivo", "Revisão manual e Análise por SIGCO."],
         ["R-QUE-01", "Queima + substituição + trafo", "Propor inclusão."],
         ["R-AVA-01", "Avaria + substituição + trafo", "Propor inclusão como AVARIADO."],
+        ["R-OBR-01", "Obra em CLASS_OBRA = DESPESA", "Alerta obrigatório: a obra não imobiliza o ativo. Vai para análise manual antes de contar no indicador."],
+        ["R-OBR-02", "SS sem obra gerada", `Até ${data.workRules?.deadlineDays ?? 60} dias da abertura da SS fica PENDENTE TEMPORAL; acima disso, expurgar por falta de prova da troca.`],
+        ["R-OBR-03", "Obra fora de manutenção corretiva emergencial", "Alerta obrigatório: CONST_MANUT ≠ MANUTENÇÃO ou TIPO_OBRA divergente muda o enquadramento de custo."],
       ].map(([code, trigger, result]) => <article className="panel rule-card" key={code}><code>{code}</code><h2>{trigger}</h2><p>{result}</p></article>)}
+      {data.workRules ? <article className="panel editorial-note wide"><span>REGRAS DE ORDEM DE OBRA · MANUAL v0.96</span><p>
+        Prazo contado contra {data.workRules.referenceDate}, a maior data de abertura de SS da base — nunca a data de hoje.
+        Nesta carga: {data.workRules.expense.length} obra(s) em despesa, {data.workRules.missing.length} SS sem obra gerada
+        ({data.workRules.missing.filter((item) => item.overdue).length} acima de {data.workRules.deadlineDays} dias, {data.summary.temporaryPending ?? 0} em pendência temporal)
+        e {data.workRules.kindDivergent.length} obra(s) fora de manutenção corretiva emergencial.
+      </p></article> : null}
       <article className="panel editorial-note wide"><span>SIGCO</span><p>20497: abalroamento · 25983: análise obrigatória · 8812: queimado · 25962: avariado · 8385: não comprova falha sozinho · #N/A: recomendar abertura/correção com motivo.</p></article>
     </section>;
 
@@ -513,6 +564,10 @@ export default function Page() {
       <aside className="drawer">
         <header><div><span>{selected.id} · {selected.openedAtLabel}</span><h2>{selected.ss}</h2><p>{selected.os} · {selected.location}</p></div><button onClick={() => setSelected(null)}>×</button></header>
         <div className="drawer-status"><b className={`pill ${decisionClass(selected.consolidated.decision)}`}>{selected.consolidated.decision}</b><span>{selected.consolidated.condition}</span><span>{selected.consolidated.confidence}% confiança</span><em>{statusOf(selected)}</em></div>
+        {(selected.requestType || selected.type) ? <div className={`request-strip ${requestTone(selected.requestType || selected.type)}`}>
+          <i /><strong>{selected.requestType || selected.type}</strong>
+          <span>ORIGEM {selected.origin || "—"}</span><span>SOLICITANTE {selected.requester || "—"}</span>
+        </div> : null}
         <nav>{(["consolidado", "ss", "os", "obra", "historico"] as const).map((tab) => <button key={tab} className={detailTab === tab ? "active" : ""} onClick={() => setDetailTab(tab)}>{tab === "obra" ? "Obra / material" : tab}</button>)}</nav>
         <div className="drawer-body">
           {detailTab === "consolidado" && <>
@@ -529,14 +584,17 @@ export default function Page() {
             <article className="sigco-box"><div><span>SIGCO {selected.sigco || "não informado"}</span><strong>{selected.consolidated.sigcoStatus}</strong></div><p>{selected.consolidated.sigcoReason}</p></article>
             {selected.consolidated.flags.length ? <div className="flags">{selected.consolidated.flags.map((flag) => <b key={flag}>{flag}</b>)}</div> : null}
           </>}
-          {detailTab === "ss" && <><h3>Análise de SS</h3><article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{selected.ssAnalysis.description}</p></article><section className="detail-grid"><div><span>Condição recebida</span><strong>{selected.ssAnalysis.category}</strong></div><div><span>Causa sugerida</span><strong>{selected.ssAnalysis.causeHint}</strong></div></section><article className="evidence"><span>EVIDÊNCIA DESTACADA</span><p>{selected.ssAnalysis.evidence || "Nenhum trecho conclusivo."}</p></article></>}
-          {detailTab === "os" && <><h3>Análise por OS</h3><article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{selected.osAnalysis.description}</p></article><section className="detail-grid"><div><span>Ação</span><strong>{selected.osAnalysis.action}</strong></div><div><span>Evidência de material</span><strong>{selected.osAnalysis.transformerEvidence}</strong></div></section><article className="evidence"><span>EVIDÊNCIA DESTACADA</span><p>{selected.osAnalysis.evidence || "Nenhum trecho conclusivo."}</p></article></>}
+          {detailTab === "ss" && <><h3>Análise de SS</h3><RequestSource record={selected} tab="ss" /><article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{selected.ssAnalysis.description}</p></article><section className="detail-grid"><div><span>Condição recebida</span><strong>{selected.ssAnalysis.category}</strong></div><div><span>Causa sugerida</span><strong>{selected.ssAnalysis.causeHint}</strong></div></section><article className="evidence"><span>EVIDÊNCIA DESTACADA</span><p>{selected.ssAnalysis.evidence || "Nenhum trecho conclusivo."}</p></article></>}
+          {detailTab === "os" && <><h3>Análise por OS</h3><RequestSource record={selected} tab="os" /><article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{selected.osAnalysis.description}</p></article><section className="detail-grid"><div><span>Ação</span><strong>{selected.osAnalysis.action}</strong></div><div><span>Evidência de material</span><strong>{selected.osAnalysis.transformerEvidence}</strong></div></section><article className="evidence"><span>EVIDÊNCIA DESTACADA</span><p>{selected.osAnalysis.evidence || "Nenhum trecho conclusivo."}</p></article></>}
           {detailTab === "obra" && <><h3>Obra e material</h3><section className="detail-grid">
             <div><span>Obra</span><strong>{selected.work.number || "Não localizada"}</strong></div><div><span>Status</span><strong>{selected.work.status}</strong></div>
             <div><span>Descrição</span><strong>{selected.work.description || "—"}</strong></div><div><span>Alerta analítico</span><strong>{selected.work.analyticReason || "Sem alerta"}</strong></div>
             <div><span>Transformadores / postes</span><strong>{selected.material.transformers} / {selected.material.poles}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
             <div><span>Total orçado</span><strong>{money(selected.finance.totalBudgeted)}</strong></div><div><span>Total realizado</span><strong>{money(selected.finance.totalRealized)}</strong></div>
-          </section></>}
+            <div><span>Classe da obra</span><strong>{selected.work.workClass || "Sem obra gerada"}</strong></div><div><span>Natureza / tipo</span><strong>{[selected.work.workNature, selected.work.workKind].filter(Boolean).join(" · ") || "—"}</strong></div>
+            <div><span>Dias desde a abertura da SS</span><strong>{selected.work.ssAgeDays ?? "—"}{selected.work.overdue ? " · acima do limite" : ""}</strong></div><div><span>Prova da troca</span><strong>{selected.work.number ? "Obra disponível para consulta SIAGO" : "Sem obra: troca não comprovável"}</strong></div>
+          </section>
+          {selected.work.alerts?.length ? <article className="work-alerts"><span>REGRAS DE ORDEM DE OBRA</span><ul>{selected.work.alerts.map((alert) => <li key={alert}>{alert}</li>)}</ul></article> : null}</>}
           {detailTab === "historico" && <><h3>Histórico do registro</h3>{(overrides[selected.id] || []).length ? <div className="timeline">{overrides[selected.id].slice().reverse().map((item, index) => <div className="timeline-item" key={`${item.at}-${index}`}><i /><div><strong>{item.action}</strong><span>{item.actor} · {new Date(item.at).toLocaleString("pt-BR")}</span><p>{item.comment}</p></div></div>)}</div> : <div className="empty"><strong>Sem alterações</strong><span>A proposta original da IA está preservada.</span></div>}</>}
         </div>
         <footer className="approval-bar">
