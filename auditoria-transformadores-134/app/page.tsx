@@ -138,6 +138,7 @@ const compactMoney = (value: number) => new Intl.NumberFormat("pt-BR", {
 }).format(value);
 const pct = (value: number, total: number) => total ? Math.round((value / total) * 100) : 0;
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL || "/"}${path.replace(/^\/+/, "")}`;
 const decisionClass = (value: string) =>
   value === "INCLUIR" ? "good" : value === "EXPURGAR" ? "bad" : "warn";
 
@@ -236,8 +237,8 @@ export default function Page() {
   const [overrides, setOverrides] = useState<Overrides>({});
 
   useEffect(() => {
-    fetch("/auditorias.json").then((response) => response.json()).then(setData);
-    fetch("/municipios-to.json").then((response) => response.json()).then(setMunicipalities);
+    fetch(assetUrl("auditorias.json")).then((response) => response.json()).then(setData);
+    fetch(assetUrl("municipios-to.json")).then((response) => response.json()).then(setMunicipalities);
     const saved = localStorage.getItem("auditoria-134-historico");
     if (saved) Promise.resolve().then(() => setOverrides(JSON.parse(saved)));
     const savedUser = localStorage.getItem("auditoria-134-demo-user");
@@ -469,11 +470,11 @@ export default function Page() {
     if (module === "manuais") return <section className="manual-grid">
       <article className="manual-card rules-manual"><span>MANUAL 01 · V1.0</span><h2>Manual de Regras</h2><p>Escopo, dimensões, critérios de inclusão, expurgo, revisão, SIGCO, aprovação e controles da New Base.</p>
         <ul><li>Regras reproduzíveis</li><li>Decisões e exceções</li><li>Governança de Mateus Gracia</li></ul>
-        <div><a href="/manuais/Manual_de_Regras_Auditoria_Transformadores_134_v1.0.docx" download>Baixar Word</a><a className="secondary" href="/manuais/Manual_de_Regras_Auditoria_Transformadores_134_v1.0.pdf" download>Baixar PDF</a></div>
+        <div><a href={assetUrl("manuais/Manual_de_Regras_Auditoria_Transformadores_134_v1.0.docx")} download>Baixar Word</a><a className="secondary" href={assetUrl("manuais/Manual_de_Regras_Auditoria_Transformadores_134_v1.0.pdf")} download>Baixar PDF</a></div>
       </article>
       <article className="manual-card operation-manual"><span>MANUAL 02 · V1.0</span><h2>Manual de Funcionamento</h2><p>Como carregar, navegar, analisar SS e OS, usar a New Base, interpretar dashboards, revisar e aprovar.</p>
         <ul><li>Roteiro por módulo</li><li>Leitura dos dashboards</li><li>Rotina completa de aprovação</li></ul>
-        <div><a href="/manuais/Manual_de_Funcionamento_Sistema_Auditoria_134_v1.0.docx" download>Baixar Word</a><a className="secondary" href="/manuais/Manual_de_Funcionamento_Sistema_Auditoria_134_v1.0.pdf" download>Baixar PDF</a></div>
+        <div><a href={assetUrl("manuais/Manual_de_Funcionamento_Sistema_Auditoria_134_v1.0.docx")} download>Baixar Word</a><a className="secondary" href={assetUrl("manuais/Manual_de_Funcionamento_Sistema_Auditoria_134_v1.0.pdf")} download>Baixar PDF</a></div>
       </article>
       <article className="panel editorial-note wide"><span>ALINHAMENTO</span><p>Os dois manuais usam os mesmos nomes, regras, contagens, período, papéis e valores exibidos no site.</p></article>
     </section>;

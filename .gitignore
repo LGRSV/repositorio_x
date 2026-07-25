@@ -8,5 +8,6 @@ data/uploads/*
 # Aplicação de auditoria de transformadores
 auditoria-transformadores-134/node_modules/
 auditoria-transformadores-134/dist/
+auditoria-transformadores-134/pages-dist/
 auditoria-transformadores-134/.next/
 auditoria-transformadores-134/.wrangler/
