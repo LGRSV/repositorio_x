@@ -69,6 +69,8 @@ const DEMO_USERS: DemoUser[] = [
   { id: "andressa", name: "Andressa", role: "Analista", initials: "AN", username: "andressa", password: "Analise@134", description: "Análise de SS, OS, SIGCO e consolidação.", canApprove: false },
   { id: "ronnald", name: "Ronnald", role: "Técnico terceiro", initials: "RO", username: "ronnald", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
   { id: "gustavo", name: "Gustavo", role: "Técnico terceiro", initials: "GU", username: "gustavo", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
+  { id: "danillo", name: "Danillo", role: "Coordenador", initials: "DA", username: "danillo", password: "Coordenador@134", description: "Coordenação da operação, acompanhamento das filas e solicitação de expurgo.", canApprove: false },
+  { id: "carlos", name: "Carlos", role: "Desenvolvedor 2", initials: "CA", username: "carlos", password: "Dev2@134", description: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", canApprove: false },
 ];
 
 const EXPURGE_REASONS = [

@@ -23,6 +23,8 @@ histórico local e solicitação de expurgo com justificativa obrigatória.
 | `andressa` | `Analise@134` | Analista |
 | `ronnald` | `Tecnico@134` | Técnico terceiro |
 | `gustavo` | `Tecnico@134` | Técnico terceiro |
+| `danillo` | `Coordenador@134` | Coordenador |
+| `carlos` | `Dev2@134` | Desenvolvedor 2 |
 
 Todos os perfis podem analisar, comentar e solicitar expurgo. Somente
 Mateus Gracia visualiza as ações de aprovação e rejeição oficial.
