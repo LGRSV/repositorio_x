@@ -2,6 +2,30 @@
 
 Site auto-hospedado para enviar arquivos **HTML**, gerar um **link único** e exigir uma **senha de acesso** antes da visualização ou download.
 
+## Demonstração — Auditoria de Transformadores Base 134
+
+O protótipo da auditoria está preservado em
+[`auditoria-transformadores-134/`](auditoria-transformadores-134/README_APRESENTACAO.md).
+Ele contém:
+
+- login demonstrativo por usuário e papel;
+- Análise de SS, Análise por OS e New Base;
+- dashboards financeiro, expurgo automático e análise da IA;
+- mapa aproximado dos transformadores por município;
+- solicitação de expurgo com motivo e comentário obrigatórios;
+- histórico local e manuais em Word/PDF.
+
+Para executar:
+
+```bash
+cd auditoria-transformadores-134
+npm install
+npm run dev
+```
+
+Depois, abra `http://localhost:3000`. As credenciais temporárias estão
+documentadas no README da apresentação.
+
 ## O que ele entrega
 
 - Upload exclusivo de `.html` e `.htm` com limite configurável.

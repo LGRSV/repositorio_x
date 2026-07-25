@@ -4,3 +4,9 @@ data/repository_x.sqlite3-shm
 data/repository_x.sqlite3-wal
 data/uploads/*
 !data/uploads/.gitkeep
+
+# Aplicação de auditoria de transformadores
+auditoria-transformadores-134/node_modules/
+auditoria-transformadores-134/dist/
+auditoria-transformadores-134/.next/
+auditoria-transformadores-134/.wrangler/
