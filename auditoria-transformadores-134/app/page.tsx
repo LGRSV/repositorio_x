@@ -241,10 +241,15 @@ function BarList({ data, total, moneyValues = false }: { data: Pair[]; total?: n
   </div>;
 }
 
+function RequestTag({ record }: { record: AuditRecord }) {
+  const type = record.requestType || record.type;
+  return <b className={`request-tag ${requestTone(type)}`}>{type || "Tipo não informado"}</b>;
+}
+
 function RecordTable({
   records, mode, onOpen, statusOf,
 }: {
-  records: AuditRecord[]; mode: "ss" | "os" | "newbase"; onOpen: (record: AuditRecord) => void;
+  records: AuditRecord[]; mode: "ss" | "os" | "newbase" | "expurgo"; onOpen: (record: AuditRecord) => void;
   statusOf: (record: AuditRecord) => string;
 }) {
   return <div className="table-scroll"><table className="records-table">
@@ -254,6 +259,7 @@ function RecordTable({
       {mode === "ss" && <><th>Leitura da SS</th><th>Evidência</th></>}
       {mode === "os" && <><th>Ação da OS</th><th>Obra / material</th></>}
       {mode === "newbase" && <><th>Consolidado</th><th>Regra / confiança</th><th>Aprovação</th></>}
+      {mode === "expurgo" && <><th>Obra</th><th>Origem da solicitação</th><th>Decisão / regra</th></>}
     </tr></thead>
     <tbody>{records.map((record) => <tr key={record.id} onClick={() => onOpen(record)}>
       <td><strong>{record.ss}</strong><span>{record.os}</span><code>{record.id}</code></td>
@@ -261,6 +267,11 @@ function RecordTable({
       {mode === "ss" && <><td><b className={`condition ${record.category.toLowerCase()}`}>{record.category}</b><span>{record.ssAnalysis.causeHint}</span></td><td><p className="clip">{record.ssAnalysis.evidence || record.ssAnalysis.description}</p></td></>}
       {mode === "os" && <><td><strong>{record.osAnalysis.action}</strong><span>{record.osAnalysis.transformerEvidence}</span></td><td><strong>{record.work.number || "Sem obra"}</strong><span>{record.work.description || record.work.status}</span><small>{record.material.transformers} trafo · {record.material.poles} poste</small></td></>}
       {mode === "newbase" && <><td><b className={`pill ${decisionClass(record.consolidated.decision)}`}>{record.consolidated.decision}</b><span>{record.consolidated.cause}</span><small>{record.consolidated.rationale}</small></td><td><code>{record.consolidated.rule}</code><span>{record.consolidated.confidence}% · {record.consolidated.confidenceBand}</span></td><td><b className={`pill ${statusOf(record) === "APROVADO" ? "good" : statusOf(record) === "REJEITADO" ? "bad" : "warn"}`}>{statusOf(record)}</b><span>{record.consolidated.reviewer.replace("Matheus Gracia", "Mateus Gracia")}</span></td></>}
+      {mode === "expurgo" && <>
+        <td><strong>{record.work.number || "Sem obra gerada"}</strong><span>{record.work.description || record.work.status}</span><small>{record.material.transformers} trafo · {record.material.poles} poste · {money(record.material.value)}</small></td>
+        <td><RequestTag record={record} /><span>Origem {record.origin || "—"}</span><small>{record.requester || "Solicitante não informado"}</small></td>
+        <td><b className={`pill ${decisionClass(record.consolidated.decision)}`}>{record.consolidated.decision}</b><span>{record.consolidated.cause}</span><small><code>{record.consolidated.rule}</code>{record.consolidated.confidence}% · {record.consolidated.confidenceBand}</small></td>
+      </>}
     </tr>)}</tbody>
   </table></div>;
 }
@@ -446,6 +457,8 @@ export default function Page() {
 
     if (module === "auto-expurge") {
       const workRules = data.workRules;
+      const recordById = new Map(data.records.map((record) => [record.id, record]));
+      const openById = (id: string) => { const found = recordById.get(id); if (found) openRecord(found); };
       return <>
       <section className="kpi-grid">
         <Kpi label="Expurgos automáticos" value={data.expurgeDashboard.total} note={`${pct(data.expurgeDashboard.total, data.summary.total)}% da base`} tone="red" />
@@ -460,32 +473,39 @@ export default function Page() {
         <article className="panel"><div className="panel-title"><div><span>Motivos</span><h2>Expurgos por causa</h2></div></div><BarList data={data.expurgeDashboard.byCause} total={data.summary.total} /></article>
         <article className="panel"><div className="panel-title"><div><span>Motor</span><h2>Regras acionadas</h2></div></div><BarList data={data.expurgeDashboard.byRule} /></article>
       </section>
-      <section className="panel"><div className="list-head"><div><span>{data.expurgeDashboard.total} casos</span><strong>Dossiês que acionaram expurgo automático</strong></div></div>
-        <RecordTable records={data.records.filter((record) => record.consolidated.automaticExpurge)} mode="newbase" onOpen={openRecord} statusOf={statusOf} /></section>
+      <section className="panel"><div className="list-head"><div><span>{data.expurgeDashboard.total} casos</span><strong>Dossiês que acionaram expurgo automático</strong></div>
+        <small>SS, OS, obra, origem da solicitação e regra acionada</small></div>
+        <RecordTable records={data.records.filter((record) => record.consolidated.automaticExpurge)} mode="expurgo" onOpen={openRecord} statusOf={statusOf} /></section>
       {workRules ? <section className="panel"><div className="list-head">
         <div><span>{workRules.expense.length + workRules.missing.length + workRules.kindDivergent.length} casos sinalizados</span><strong>Regras de ordem de obra · Manual v0.96</strong></div>
         <small>Prazo contado contra {workRules.referenceDate}</small>
       </div>
         <div className="table-scroll"><table className="records-table">
-          <thead><tr><th>Regra</th><th>Registro</th><th>Situação da obra</th><th>Decisão</th></tr></thead>
+          <thead><tr><th>Regra</th><th>SS / OS</th><th>Obra</th><th>Origem da solicitação</th><th>Situação</th><th>Decisão</th></tr></thead>
           <tbody>
-            {workRules.expense.map((item) => <tr key={`obr1-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+            {workRules.expense.map((item) => <tr key={`obr1-${item.id}`} onClick={() => openById(item.id)}>
               <td><code>R-OBR-01</code><span>Ordem de despesa</span></td>
-              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
-              <td><strong>Obra {item.work}</strong><span>{item.workClass}</span><small>Não imobiliza o ativo</small></td>
+              <td><strong>{item.ss}</strong><span>{recordById.get(item.id)?.os || "—"}</span><code>{item.id}</code></td>
+              <td><strong>{item.work || "Sem obra"}</strong><span>{item.workClass}</span></td>
+              <td>{recordById.get(item.id) ? <RequestTag record={recordById.get(item.id)!} /> : null}<span>Origem {recordById.get(item.id)?.origin || "—"}</span><small>{recordById.get(item.id)?.requester || "—"}</small></td>
+              <td><strong>Não imobiliza o ativo</strong><span>Incorporação a confirmar</span></td>
               <td><b className={`pill ${decisionClass(item.decision)}`}>{item.decision}</b><span>Análise manual obrigatória</span></td>
             </tr>)}
-            {workRules.missing.map((item) => <tr key={`obr2-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+            {workRules.missing.map((item) => <tr key={`obr2-${item.id}`} onClick={() => openById(item.id)}>
               <td><code>R-OBR-02</code><span>Obra não gerada</span></td>
-              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
+              <td><strong>{item.ss}</strong><span>{recordById.get(item.id)?.os || "—"}</span><code>{item.id}</code></td>
+              <td><strong>Sem obra</strong><span>Sem consulta SIAGO</span></td>
+              <td>{recordById.get(item.id) ? <RequestTag record={recordById.get(item.id)!} /> : null}<span>Origem {recordById.get(item.id)?.origin || "—"}</span><small>{recordById.get(item.id)?.requester || "—"}</small></td>
               <td><strong>{item.ssAgeDays ?? "—"} dias sem obra</strong><span>SS aberta em {item.openedAtLabel}</span><small>{item.overdue ? `Acima de ${workRules.deadlineDays} dias` : `Dentro dos ${workRules.deadlineDays} dias`}</small></td>
               <td><b className={`pill ${decisionClass(item.decision)}`}>{item.decision}</b><span>Sem obra não há prova da troca</span></td>
             </tr>)}
-            {workRules.kindDivergent.map((item) => <tr key={`obr3-${item.id}`} onClick={() => { const found = data.records.find((record) => record.id === item.id); if (found) openRecord(found); }}>
+            {workRules.kindDivergent.map((item) => <tr key={`obr3-${item.id}`} onClick={() => openById(item.id)}>
               <td><code>R-OBR-03</code><span>Natureza da obra</span></td>
-              <td><strong>{item.ss}</strong><code>{item.id}</code></td>
-              <td><strong>Obra {item.work}</strong><span>{[item.workNature, item.workKind].filter(Boolean).join(" · ")}</span></td>
-              <td><b className="pill warn">ANÁLISE MANUAL</b><span>Enquadramento de custo divergente</span></td>
+              <td><strong>{item.ss}</strong><span>{recordById.get(item.id)?.os || "—"}</span><code>{item.id}</code></td>
+              <td><strong>{item.work || "Sem obra"}</strong><span>{[item.workNature, item.workKind].filter(Boolean).join(" · ")}</span></td>
+              <td>{recordById.get(item.id) ? <RequestTag record={recordById.get(item.id)!} /> : null}<span>Origem {recordById.get(item.id)?.origin || "—"}</span><small>{recordById.get(item.id)?.requester || "—"}</small></td>
+              <td><strong>Fora de manutenção corretiva emergencial</strong><span>Enquadramento de custo divergente</span></td>
+              <td><b className="pill warn">ANÁLISE MANUAL</b><span>Confirmar antes de contar no indicador</span></td>
             </tr>)}
           </tbody>
         </table></div>
