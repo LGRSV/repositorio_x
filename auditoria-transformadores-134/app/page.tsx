@@ -63,13 +63,13 @@ type DemoUser = {
 type Municipality = { ibge: string; name: string; latitude: number; longitude: number; capital: boolean };
 
 const DEMO_USERS: DemoUser[] = [
-  { id: "matheus-alves", name: "Matheus Alves", role: "Supervisor", initials: "MA", username: "matheus.alves", password: "Supervisor@134", description: "Controle operacional e acompanhamento das equipes.", canApprove: false },
+  { id: "matheus-alves", name: "Matheus Alves", role: "Supervisor", initials: "MA", username: "matheus.alves", password: "Supervisor@134", description: "Controle operacional, acompanhamento das equipes e aprovação.", canApprove: true },
   { id: "joao-antonio", name: "João Antônio", role: "Desenvolvedor", initials: "JA", username: "joao.antonio", password: "Dev@134", description: "Acesso técnico total e configuração do protótipo.", canApprove: false },
   { id: "mateus-gracia", name: "Mateus Gracia", role: "Engenheiro", initials: "MG", username: "mateus.gracia", password: "Engenharia@134", description: "Análise de engenharia e aprovação oficial.", canApprove: true },
   { id: "andressa", name: "Andressa", role: "Analista", initials: "AN", username: "andressa", password: "Analise@134", description: "Análise de SS, OS, SIGCO e consolidação.", canApprove: false },
   { id: "ronnald", name: "Ronnald", role: "Técnico terceiro", initials: "RO", username: "ronnald", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
   { id: "gustavo", name: "Gustavo", role: "Técnico terceiro", initials: "GU", username: "gustavo", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
-  { id: "danillo", name: "Danillo", role: "Coordenador", initials: "DA", username: "danillo", password: "Coordenador@134", description: "Coordenação da operação, acompanhamento das filas e solicitação de expurgo.", canApprove: false },
+  { id: "danillo", name: "Danillo", role: "Coordenador", initials: "DA", username: "danillo", password: "Coordenador@134", description: "Coordenação da operação, acompanhamento das filas e aprovação.", canApprove: true },
   { id: "carlos", name: "Carlos", role: "Desenvolvedor 2", initials: "CA", username: "carlos", password: "Dev2@134", description: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", canApprove: false },
 ];
 
@@ -124,7 +124,7 @@ const TITLES: Record<Module, { eyebrow: string; title: string; description: stri
   expurgos: { eyebrow: "Fila operacional", title: "Expurgos", description: "Propostas de exclusão do indicador, com motivo rastreável." },
   sigco: { eyebrow: "Coerência cadastral", title: "Análise por SIGCO", description: "Códigos que exigem confirmação, correção ou recomendação de abertura com motivo." },
   revisoes: { eyebrow: "Decisão humana", title: "Revisões", description: "Casos com conflito, baixa evidência, obra ausente ou reavaliação obrigatória." },
-  aprovacoes: { eyebrow: "Administração", title: "Aprovações", description: "Somente Mateus Gracia pode oficializar uma análise com comentário." },
+  aprovacoes: { eyebrow: "Administração", title: "Aprovações", description: "Matheus Alves, Danillo e Mateus Gracia podem oficializar uma análise com comentário." },
   importar: { eyebrow: "Fonte controlada", title: "Importar e reconciliar", description: "Carga exclusiva do Painel_134_Completo.xlsx." },
   regras: { eyebrow: "Manual v1.0", title: "Regras de decisão", description: "Critérios operacionais reproduzidos no motor de análise." },
   historico: { eyebrow: "Rastreabilidade", title: "Histórico", description: "Alterações, observações e decisões registradas neste navegador." },
@@ -350,7 +350,7 @@ export default function Page() {
           </button>)}
         </article>
       </section>
-      <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v1.0. O total oficial permanece separado até Mateus Gracia revisar e aprovar cada caso.</p></section>
+      <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v1.0. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
     </>;
 
     if (module === "ss") return <Queue mode="ss" />;
@@ -484,7 +484,7 @@ export default function Page() {
     return <section className="admin-grid">
       <article className="panel profile"><b>{user.initials}</b><div><span>Sessão atual · {user.role}</span><h2>{user.name}</h2><p>{user.description}</p></div></article>
       <article className="panel"><div className="panel-title"><div><span>Governança</span><h2>Separação de responsabilidades</h2></div></div>
-        <div className="permission-list"><div><b>Todos os perfis</b><span>Analisam, comentam e solicitam expurgo.</span></div><div><b>Supervisor</b><span>Acompanha operação e equipes.</span></div><div><b>Engenheiro responsável</b><span>Oficializa com comentário obrigatório.</span></div></div>
+        <div className="permission-list"><div><b>Todos os perfis</b><span>Analisam, comentam e solicitam expurgo.</span></div><div><b>Aprovadores</b><span>Matheus Alves, Danillo e Mateus Gracia.</span></div><div><b>Rastreabilidade</b><span>Registra nome, data e comentário de quem aprovou.</span></div></div>
       </article>
       <article className="panel user-directory wide"><div className="panel-title"><div><span>Acessos da apresentação</span><h2>Usuários e papéis</h2></div></div>
         <div>{DEMO_USERS.map((item) => <article key={item.id}><b>{item.initials}</b><span><strong>{item.name}</strong><small>{item.role}</small><p>{item.description}</p></span>{item.canApprove ? <em>Aprova</em> : null}</article>)}</div>
