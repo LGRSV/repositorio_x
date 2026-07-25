@@ -26,8 +26,9 @@ histórico local e solicitação de expurgo com justificativa obrigatória.
 | `danillo` | `Coordenador@134` | Coordenador |
 | `carlos` | `Dev2@134` | Desenvolvedor 2 |
 
-Todos os perfis podem analisar, comentar e solicitar expurgo. Somente
-Mateus Gracia visualiza as ações de aprovação e rejeição oficial.
+Todos os perfis podem analisar, comentar e solicitar expurgo. Matheus Alves,
+Danillo e Mateus Gracia visualizam as ações de aprovação e rejeição oficial.
+O histórico registra automaticamente quem tomou a decisão, com data e comentário.
 
 ## Limites desta apresentação
 
