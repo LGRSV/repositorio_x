@@ -18,6 +18,7 @@ type AuditRecord = {
   work: {
     number: string; description: string; status: string; contractor: string; terminal: boolean; analyticReason: string;
     analyticReasonSource?: string; analyticConflict?: boolean;
+    openedBy?: string; openedSector?: string; openedAt?: string; openedAtLabel?: string; projectSigco?: string;
     workClass?: string; workNature?: string; workKind?: string; expenseOrder?: boolean;
     ssAgeDays?: number | null; overdue?: boolean; alerts?: string[];
   };
@@ -908,6 +909,7 @@ export default function Page() {
             <div><span>Transformadores / postes / para-raios</span><strong>{selected.material.transformers} / {selected.material.poles} / {selected.material.lightningArresters}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
             <div><span>SIGCO da ocorrência</span><strong>{selected.sigco && selected.sigco !== "#N/A" ? `${selected.sigco}${SIGCO_MEANING[selected.sigco] ? ` · ${SIGCO_MEANING[selected.sigco]}` : ""}` : "Não informado"}</strong></div><div><span>Coerência do SIGCO</span><strong>{selected.consolidated.sigcoStatus}</strong></div>
             <div><span>Total orçado</span><strong>{money(selected.finance.totalBudgeted)}</strong></div><div><span>Total realizado</span><strong>{money(selected.finance.totalRealized)}</strong></div>
+            <div><span>Obra aberta por</span><strong>{selected.work.openedBy || (selected.work.number ? "Não informado no cadastro" : "Sem obra gerada")}{selected.work.openedAtLabel ? ` · ${selected.work.openedAtLabel}` : ""}</strong></div><div><span>Setor responsável</span><strong>{selected.work.openedSector || "—"}</strong></div>
             <div><span>Classe da obra</span><strong>{selected.work.workClass || "Sem obra gerada"}</strong></div><div><span>Natureza / tipo</span><strong>{[selected.work.workNature, selected.work.workKind].filter(Boolean).join(" · ") || "—"}</strong></div>
             <div><span>Dias desde a abertura da SS</span><strong>{selected.work.ssAgeDays ?? "—"}{selected.work.overdue ? " · acima do limite" : ""}</strong></div><div><span>Prova da troca</span><strong>{selected.work.number ? "Obra disponível para consulta SIAGO" : "Sem obra: troca não comprovável"}</strong></div>
           </section>
@@ -916,10 +918,15 @@ export default function Page() {
             // O SIGCO é o da SS/OS — a base não traz código próprio da obra. O que interessa
             // aqui é confrontá-lo com o material que a obra realmente movimentou.
             const confront = sigcoVsMaterial(selected);
-            return <article className={`sigco-box${confront.tone ? ` ${confront.tone}` : ""}`}>
+            const project = (selected.work.projectSigco || "").trim();
+            const projectDiffers = Boolean(project) && project !== (selected.sigco || "").trim();
+            return <article className={`sigco-box${projectDiffers ? " alert" : confront.tone ? ` ${confront.tone}` : ""}`}>
               <div><span>SIGCO {selected.sigco && selected.sigco !== "#N/A" ? selected.sigco : "não informado"} · CONFRONTO COM O MATERIAL DA OBRA</span><strong>{selected.consolidated.sigcoStatus}</strong></div>
               <p>{selected.consolidated.sigcoReason}</p>
               <p>{confront.text}</p>
+              {project ? <p>{projectDiffers
+                ? `Atenção: o projeto da obra está cadastrado com o SIGCO ${project}, diferente do ${selected.sigco || "ausente"} da ocorrência — os dois precisam ser reconciliados.`
+                : `O cadastro da obra registra o mesmo código no projeto (NUM_PROJETO_SIGCO ${project}): ocorrência e obra estão alinhadas.`}</p> : null}
             </article>;
           })()}
           {selected.work.alerts?.length ? <article className="work-alerts"><span>REGRAS DE ORDEM DE OBRA</span><ul>{selected.work.alerts.map((alert) => <li key={alert}>{alert}</li>)}</ul></article> : null}</>}

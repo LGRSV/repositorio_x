@@ -281,7 +281,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-19",
+        "openedAtLabel": "19/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -413,7 +418,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-21",
+        "openedAtLabel": "21/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -548,7 +558,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-02",
+        "openedAtLabel": "02/04/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -680,7 +695,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JHONATTAS ANDRADE MARTINS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-11",
+        "openedAtLabel": "11/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -807,7 +827,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-07",
+        "openedAtLabel": "07/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -939,7 +964,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-06",
+        "openedAtLabel": "06/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1069,7 +1099,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1194,7 +1229,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-05",
+        "openedAtLabel": "05/05/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1320,7 +1360,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-13",
+        "openedAtLabel": "13/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1454,7 +1499,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-04",
+        "openedAtLabel": "04/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1589,7 +1639,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FELIPE DIVINO ALVES MONTEIRO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-13",
+        "openedAtLabel": "13/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1719,7 +1774,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-17",
+        "openedAtLabel": "17/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1850,7 +1910,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "LUANDERSON MARTINS ALMEIDA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-26",
+        "openedAtLabel": "26/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -1975,7 +2040,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-24",
+        "openedAtLabel": "24/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2099,7 +2169,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-13",
+        "openedAtLabel": "13/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2224,7 +2299,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-12",
+        "openedAtLabel": "12/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2356,7 +2436,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-06",
+        "openedAtLabel": "06/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2480,7 +2565,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-09",
+        "openedAtLabel": "09/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2604,7 +2694,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2732,7 +2827,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DENER SOARES DE ALBUQUERQUE",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-04",
+        "openedAtLabel": "04/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2860,7 +2960,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-14",
+        "openedAtLabel": "14/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -2985,7 +3090,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3117,7 +3227,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-06",
+        "openedAtLabel": "06/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3244,7 +3359,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3369,7 +3489,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3496,7 +3621,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3621,7 +3751,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "LUANDERSON MARTINS ALMEIDA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-23",
+        "openedAtLabel": "23/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3753,7 +3888,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "WANDER DA SILVA LEITE",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -3877,7 +4017,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-06",
+        "openedAtLabel": "06/05/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4008,7 +4153,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-21",
+        "openedAtLabel": "21/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4132,7 +4282,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-30",
+        "openedAtLabel": "30/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4257,7 +4412,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-13",
+        "openedAtLabel": "13/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4384,7 +4544,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-11",
+        "openedAtLabel": "11/05/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4512,7 +4677,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-09",
+        "openedAtLabel": "09/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4636,7 +4806,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4761,7 +4936,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-19",
+        "openedAtLabel": "19/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -4889,7 +5069,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5016,7 +5201,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-30",
+        "openedAtLabel": "30/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5146,7 +5336,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5277,7 +5472,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-19",
+        "openedAtLabel": "19/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5404,7 +5604,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-18",
+        "openedAtLabel": "18/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5529,7 +5734,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-18",
+        "openedAtLabel": "18/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5654,7 +5864,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-08",
+        "openedAtLabel": "08/04/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5779,7 +5994,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -5906,7 +6126,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6033,7 +6258,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-22",
+        "openedAtLabel": "22/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6158,7 +6388,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-05",
+        "openedAtLabel": "05/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6288,7 +6523,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6417,7 +6657,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6542,7 +6787,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-24",
+        "openedAtLabel": "24/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6666,7 +6916,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "LUANDERSON MARTINS ALMEIDA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-25",
+        "openedAtLabel": "25/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6791,7 +7046,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-04",
+        "openedAtLabel": "04/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -6922,7 +7182,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-09",
+        "openedAtLabel": "09/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7053,7 +7318,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-02",
+        "openedAtLabel": "02/04/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7187,7 +7457,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-07",
+        "openedAtLabel": "07/04/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7311,7 +7586,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7438,7 +7718,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-04",
+        "openedAtLabel": "04/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7564,7 +7849,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DENER SOARES DE ALBUQUERQUE",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-15",
+        "openedAtLabel": "15/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7694,7 +7984,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-04",
+        "openedAtLabel": "04/05/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7825,7 +8120,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-14",
+        "openedAtLabel": "14/05/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -7949,7 +8249,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-05",
+        "openedAtLabel": "05/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8074,7 +8379,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-30",
+        "openedAtLabel": "30/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8199,7 +8509,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8324,7 +8639,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-13",
+        "openedAtLabel": "13/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8449,7 +8769,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-30",
+        "openedAtLabel": "30/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8574,7 +8899,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-05",
+        "openedAtLabel": "05/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8705,7 +9035,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8834,7 +9169,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-22",
+        "openedAtLabel": "22/01/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -8959,7 +9299,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-27",
+        "openedAtLabel": "27/04/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9091,7 +9436,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-18",
+        "openedAtLabel": "18/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9221,7 +9571,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-05",
+        "openedAtLabel": "05/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9352,7 +9707,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-04",
+        "openedAtLabel": "04/03/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9477,7 +9837,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-19",
+        "openedAtLabel": "19/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9609,7 +9974,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FELIPE DIVINO ALVES MONTEIRO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-12",
+        "openedAtLabel": "12/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9740,7 +10110,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-09",
+        "openedAtLabel": "09/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9873,7 +10248,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-09",
+        "openedAtLabel": "09/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -9998,7 +10378,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -10123,7 +10508,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-24",
+        "openedAtLabel": "24/02/2026",
+        "projectSigco": "8385"
       },
       "material": {
         "transformers": 1,
@@ -10250,7 +10640,12 @@
           "R-OBR-01 · Obra em CLASS_OBRA = DESPESA: não imobiliza o ativo, incorporação a confirmar."
         ],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "COCM - NORTE CADASTRO",
+        "openedAt": "2026-06-18",
+        "openedAtLabel": "18/06/2026",
+        "projectSigco": "8389"
       },
       "material": {
         "transformers": 0,
@@ -10375,7 +10770,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "COCM - CENTRO APROVAR",
+        "openedAt": "2026-05-21",
+        "openedAtLabel": "21/05/2026",
+        "projectSigco": "8389"
       },
       "material": {
         "transformers": 1,
@@ -10506,7 +10906,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-23",
+        "openedAtLabel": "23/04/2026",
+        "projectSigco": "8495"
       },
       "material": {
         "transformers": 1,
@@ -10638,7 +11043,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-09",
+        "openedAtLabel": "09/02/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 1,
@@ -10772,7 +11182,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-22",
+        "openedAtLabel": "22/04/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 0,
@@ -10899,7 +11314,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-29",
+        "openedAtLabel": "29/01/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 1,
@@ -11026,7 +11446,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-12",
+        "openedAtLabel": "12/02/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 1,
@@ -11156,7 +11581,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 1,
@@ -11284,7 +11714,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-10",
+        "openedAtLabel": "10/03/2026",
+        "projectSigco": "8805"
       },
       "material": {
         "transformers": 1,
@@ -11415,7 +11850,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-12",
+        "openedAtLabel": "12/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -11540,7 +11980,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "ALMIR JOSE GOMES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-05",
+        "openedAtLabel": "05/02/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -11664,7 +12109,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "GEST - CADASTRO",
+        "openedAt": "2026-06-15",
+        "openedAtLabel": "15/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -11793,7 +12243,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "COCM - CENTRO CADASTRO",
+        "openedAt": "2026-06-15",
+        "openedAtLabel": "15/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -11922,7 +12377,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "EDSON CURCINO DOS SANTOS",
+        "openedSector": "COCM - CENTRO APROVAR",
+        "openedAt": "2026-06-30",
+        "openedAtLabel": "30/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -12048,7 +12508,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "COCM - CENTRO CADASTRO",
+        "openedAt": "2026-06-30",
+        "openedAtLabel": "30/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -12176,7 +12641,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FILIPE MESQUITA RODRIGUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-12",
+        "openedAtLabel": "12/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -12300,7 +12770,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - CADASTRO",
+        "openedAt": "2026-06-26",
+        "openedAtLabel": "26/06/2026",
+        "projectSigco": "8812"
       },
       "material": {
         "transformers": 1,
@@ -12428,7 +12903,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-12",
+        "openedAtLabel": "12/03/2026",
+        "projectSigco": "8889"
       },
       "material": {
         "transformers": 0,
@@ -12555,7 +13035,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-13",
+        "openedAtLabel": "13/03/2026",
+        "projectSigco": "20497"
       },
       "material": {
         "transformers": 1,
@@ -12691,7 +13176,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-28",
+        "openedAtLabel": "28/05/2026",
+        "projectSigco": "25962"
       },
       "material": {
         "transformers": 1,
@@ -12815,7 +13305,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "COCM - CENTRO CADASTRO",
+        "openedAt": "2026-06-15",
+        "openedAtLabel": "15/06/2026",
+        "projectSigco": "25962"
       },
       "material": {
         "transformers": 1,
@@ -12943,7 +13438,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "COCM - CENTRO APROVAR",
+        "openedAt": "2026-05-22",
+        "openedAtLabel": "22/05/2026",
+        "projectSigco": "25962"
       },
       "material": {
         "transformers": 1,
@@ -13071,7 +13571,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-19",
+        "openedAtLabel": "19/01/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13195,7 +13700,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-02",
+        "openedAtLabel": "02/04/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13326,7 +13836,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "COCM - NORTE APROVAR",
+        "openedAt": "2026-06-26",
+        "openedAtLabel": "26/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13457,7 +13972,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-08",
+        "openedAtLabel": "08/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13582,7 +14102,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-31",
+        "openedAtLabel": "31/03/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13712,7 +14237,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-15",
+        "openedAtLabel": "15/05/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13836,7 +14366,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-12",
+        "openedAtLabel": "12/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -13966,7 +14501,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-07",
+        "openedAtLabel": "07/04/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14091,7 +14631,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-15",
+        "openedAtLabel": "15/04/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14222,7 +14767,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - CADASTRO",
+        "openedAt": "2026-07-01",
+        "openedAtLabel": "01/07/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14346,7 +14896,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JHONATTAS ANDRADE MARTINS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14474,7 +15029,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FLAVIO DE SOUZA PASSOS",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-15",
+        "openedAtLabel": "15/04/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14601,7 +15161,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-01",
+        "openedAtLabel": "01/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14729,7 +15294,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "WALLESON DE OLIVEIRA NUNES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-31",
+        "openedAtLabel": "31/03/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14856,7 +15426,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-21",
+        "openedAtLabel": "21/05/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -14984,7 +15559,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-06-08",
+        "openedAtLabel": "08/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15108,7 +15688,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-02-27",
+        "openedAtLabel": "27/02/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15236,7 +15821,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "COCM - NORTE APROVAR",
+        "openedAt": "2026-06-17",
+        "openedAtLabel": "17/06/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15367,7 +15957,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "DIONE SOUSA MARQUES",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-15",
+        "openedAtLabel": "15/05/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15499,7 +16094,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-04-08",
+        "openedAtLabel": "08/04/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15624,7 +16224,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-13",
+        "openedAtLabel": "13/01/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15755,7 +16360,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-05-20",
+        "openedAtLabel": "20/05/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -15880,7 +16490,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "LUANDERSON MARTINS ALMEIDA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "25983"
       },
       "material": {
         "transformers": 1,
@@ -16004,7 +16619,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-03-24",
+        "openedAtLabel": "24/03/2026",
+        "projectSigco": "61993"
       },
       "material": {
         "transformers": 1,
@@ -16135,7 +16755,12 @@
         "overdue": false,
         "alerts": [],
         "analyticReasonSource": "",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "JOELSON SILVA DE SOUSA",
+        "openedSector": "GEST - ENCERRAMENTO",
+        "openedAt": "2026-01-28",
+        "openedAtLabel": "28/01/2026",
+        "projectSigco": "61993"
       },
       "material": {
         "transformers": 1,
@@ -16267,7 +16892,12 @@
           "R-OBR-02 · Obra ainda não gerada, 47 dias da abertura da SS (dentro do limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -16399,7 +17029,12 @@
           "R-OBR-02 · Obra não gerada há 105 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA + SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -16530,7 +17165,12 @@
           "R-OBR-02 · Obra não gerada há 103 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA + SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -16657,7 +17297,12 @@
           "R-OBR-02 · Obra não gerada há 99 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA + SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -16784,7 +17429,12 @@
           "R-OBR-02 · Obra não gerada há 68 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -16915,7 +17565,12 @@
           "R-OBR-02 · Obra não gerada há 105 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA + SEM MOV. TRAFO",
-        "analyticConflict": true
+        "analyticConflict": true,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -17042,7 +17697,12 @@
           "R-OBR-02 · Obra não gerada há 140 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -17168,7 +17828,12 @@
           "R-OBR-02 · Obra não gerada há 148 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,
@@ -17305,7 +17970,12 @@
           "R-OBR-02 · Obra não gerada há 147 dias da abertura da SS (limite de 60)."
         ],
         "analyticReasonSource": "SEM OBRA",
-        "analyticConflict": false
+        "analyticConflict": false,
+        "openedBy": "",
+        "openedSector": "",
+        "openedAt": "",
+        "openedAtLabel": "",
+        "projectSigco": ""
       },
       "material": {
         "transformers": 0,

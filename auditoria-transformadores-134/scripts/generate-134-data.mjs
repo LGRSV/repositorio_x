@@ -80,6 +80,19 @@ try {
 const conferenceByWork = materialConference.byWork || {};
 const workKey = (value) => text(value).replace(/^0+/, "");
 
+// Cadastro da obra (export "data (98)"): traz o usuário vinculado à abertura da obra, o setor
+// responsável, a data de abertura e o SIGCO do projeto — campos que o Painel_134 não carrega.
+// O arquivo scripts/obra-cadastro-134.json congela apenas as obras da base 134, indexadas pelo
+// número da obra sem zeros à esquerda, que é como o cadastro e a aba Obras se encontram.
+const registryPath = new URL("./obra-cadastro-134.json", import.meta.url);
+let workRegistry = { byWork: {}, source: "", rule: "" };
+try {
+  workRegistry = JSON.parse(await fs.readFile(registryPath, "utf8"));
+} catch (error) {
+  console.warn(`Sem cadastro de obras (${error.message}). As obras saem sem usuário de abertura.`);
+}
+const registryByWork = workRegistry.byWork || {};
+
 function evaluate(base, full, work, fullWork, analytic, index) {
   const ssDescription = text(base["SS(solic)"] || full.DESCRIPTION);
   const osDescription = text(base["OS(exec)"] || full.DESCRICAO_OS);
@@ -89,6 +102,7 @@ function evaluate(base, full, work, fullWork, analytic, index) {
   const asset = normalize([full.NUM_TRAFO, ssDescription, osDescription].join(" "));
   // A aba Obras só vale até a base de itens dizer outra coisa.
   const conferred = conferenceByWork[workKey(work.NUM_OBRA)] || null;
+  const registered = registryByWork[workKey(work.NUM_OBRA)] || null;
   const conferenceNotes = [];
   const reconcile = (sheetValue, conferredValue, label) => {
     const sheetNumber = number(sheetValue);
@@ -291,6 +305,11 @@ function evaluate(base, full, work, fullWork, analytic, index) {
       status: text(work.STATUS) || "Sem obra localizada",
       contractor: text(work.EMPREITEIRA),
       terminal,
+      openedBy: registered?.openedBy || "",
+      openedSector: registered?.sector || "",
+      openedAt: registered?.openedAt || "",
+      openedAtLabel: registered?.openedAt ? dateLabel(registered.openedAt) : "",
+      projectSigco: registered?.sigco || "",
       analyticReason,
       analyticReasonSource: sheetAnalyticReason,
       analyticConflict: Boolean(sheetAnalyticReason) && normalize(sheetAnalyticReason) !== normalize(analyticReason),

@@ -1,0 +1,756 @@
+{
+ "source": "data (98).xlsx — aba Export do cadastro de obras (123.695 obras)",
+ "rule": "NOME = usuario vinculado a abertura da obra no cadastro; SETOR RESPONSAVEL = setor onde a obra esta; DTH_ABERTURA = data de abertura da obra; NUM_PROJETO_SIGCO = SIGCO do projeto da obra.",
+ "byWork": {
+  "112600063": {
+   "openedBy": "FELIPE DIVINO ALVES MONTEIRO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-13",
+   "sigco": "8385"
+  },
+  "112600171": {
+   "openedBy": "FELIPE DIVINO ALVES MONTEIRO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-12",
+   "sigco": "8385"
+  },
+  "112600242": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-10",
+   "sigco": "8805"
+  },
+  "112600271": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-13",
+   "sigco": "8385"
+  },
+  "112600307": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-31",
+   "sigco": "25983"
+  },
+  "112600308": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-31",
+   "sigco": "25983"
+  },
+  "112600317": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-02",
+   "sigco": "8385"
+  },
+  "112600326": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-07",
+   "sigco": "8385"
+  },
+  "112600406": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-27",
+   "sigco": "8385"
+  },
+  "112600512": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "COCM - CENTRO APROVAR",
+   "openedAt": "2026-05-21",
+   "sigco": "8389"
+  },
+  "112600523": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "COCM - CENTRO APROVAR",
+   "openedAt": "2026-05-22",
+   "sigco": "25962"
+  },
+  "112600587": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "COCM - CENTRO CADASTRO",
+   "openedAt": "2026-06-15",
+   "sigco": "8812"
+  },
+  "112600605": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "COCM - CENTRO CADASTRO",
+   "openedAt": "2026-06-15",
+   "sigco": "25962"
+  },
+  "112600636": {
+   "openedBy": "WALLESON DE OLIVEIRA NUNES",
+   "sector": "COCM - CENTRO CADASTRO",
+   "openedAt": "2026-06-30",
+   "sigco": "8812"
+  },
+  "212600107": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "61993"
+  },
+  "212600173": {
+   "openedBy": "JHONATTAS ANDRADE MARTINS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-11",
+   "sigco": "8385"
+  },
+  "212600211": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-18",
+   "sigco": "8385"
+  },
+  "212600216": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-19",
+   "sigco": "8385"
+  },
+  "212600218": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "212600235": {
+   "openedBy": "JHONATTAS ANDRADE MARTINS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "25983"
+  },
+  "212600293": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-13",
+   "sigco": "20497"
+  },
+  "212600323": {
+   "openedBy": "JOELSON SILVA DE SOUSA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-18",
+   "sigco": "8385"
+  },
+  "312600082": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-29",
+   "sigco": "8805"
+  },
+  "312600153": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "312600174": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-04",
+   "sigco": "8385"
+  },
+  "312600177": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-04",
+   "sigco": "8385"
+  },
+  "312600324": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "GEST - CADASTRO",
+   "openedAt": "2026-06-15",
+   "sigco": "8812"
+  },
+  "312600346": {
+   "openedBy": "EDSON CURCINO DOS SANTOS",
+   "sector": "COCM - CENTRO APROVAR",
+   "openedAt": "2026-06-30",
+   "sigco": "8812"
+  },
+  "412600100": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-22",
+   "sigco": "8385"
+  },
+  "412600101": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-22",
+   "sigco": "8385"
+  },
+  "412600113": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8385"
+  },
+  "412600116": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8385"
+  },
+  "412600117": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8385"
+  },
+  "412600118": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8385"
+  },
+  "412600122": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8385"
+  },
+  "412600150": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-05",
+   "sigco": "8385"
+  },
+  "412600153": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-05",
+   "sigco": "8385"
+  },
+  "412600156": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-05",
+   "sigco": "8812"
+  },
+  "412600161": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-05",
+   "sigco": "8385"
+  },
+  "412600162": {
+   "openedBy": "ALMIR JOSE GOMES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-05",
+   "sigco": "8385"
+  },
+  "412600231": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-12",
+   "sigco": "8889"
+  },
+  "412600247": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-06",
+   "sigco": "8385"
+  },
+  "412600272": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-13",
+   "sigco": "8385"
+  },
+  "412600298": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-30",
+   "sigco": "8385"
+  },
+  "412600300": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-30",
+   "sigco": "8385"
+  },
+  "412600301": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-30",
+   "sigco": "8385"
+  },
+  "412600304": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-30",
+   "sigco": "8385"
+  },
+  "412600378": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-15",
+   "sigco": "25983"
+  },
+  "412600427": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-15",
+   "sigco": "25983"
+  },
+  "412600498": {
+   "openedBy": "DIONE SOUSA MARQUES",
+   "sector": "GEST - CADASTRO",
+   "openedAt": "2026-06-26",
+   "sigco": "8812"
+  },
+  "512600035": {
+   "openedBy": "DENER SOARES DE ALBUQUERQUE",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-15",
+   "sigco": "8385"
+  },
+  "512600059": {
+   "openedBy": "DENER SOARES DE ALBUQUERQUE",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-04",
+   "sigco": "8385"
+  },
+  "512600122": {
+   "openedBy": "FLAVIO DE SOUZA PASSOS",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-15",
+   "sigco": "25983"
+  },
+  "612600024": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-09",
+   "sigco": "8385"
+  },
+  "612600050": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-14",
+   "sigco": "8385"
+  },
+  "612600123": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-09",
+   "sigco": "8385"
+  },
+  "612600124": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-09",
+   "sigco": "8385"
+  },
+  "612600125": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-09",
+   "sigco": "8385"
+  },
+  "612600140": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-12",
+   "sigco": "8385"
+  },
+  "612600149": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-12",
+   "sigco": "8805"
+  },
+  "612600195": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-24",
+   "sigco": "8385"
+  },
+  "612600200": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-24",
+   "sigco": "8385"
+  },
+  "612600209": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "612600249": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-06",
+   "sigco": "8385"
+  },
+  "612600251": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-06",
+   "sigco": "8385"
+  },
+  "612600280": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-13",
+   "sigco": "8385"
+  },
+  "612600303": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "8385"
+  },
+  "612600305": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "8385"
+  },
+  "612600312": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "61993"
+  },
+  "612600346": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-02",
+   "sigco": "8385"
+  },
+  "612600368": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-08",
+   "sigco": "8385"
+  },
+  "612600372": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-08",
+   "sigco": "25983"
+  },
+  "612600421": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-23",
+   "sigco": "8495"
+  },
+  "612600464": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-04",
+   "sigco": "8385"
+  },
+  "612600474": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-06",
+   "sigco": "8385"
+  },
+  "612600493": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-14",
+   "sigco": "8385"
+  },
+  "612600651": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - CADASTRO",
+   "openedAt": "2026-07-01",
+   "sigco": "25983"
+  },
+  "662600031": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-13",
+   "sigco": "25983"
+  },
+  "662600036": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-19",
+   "sigco": "25983"
+  },
+  "662600037": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-19",
+   "sigco": "8385"
+  },
+  "662600038": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-19",
+   "sigco": "8385"
+  },
+  "662600047": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-21",
+   "sigco": "8385"
+  },
+  "662600061": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-28",
+   "sigco": "8805"
+  },
+  "662600083": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-09",
+   "sigco": "8805"
+  },
+  "662600095": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-17",
+   "sigco": "8385"
+  },
+  "662600108": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-19",
+   "sigco": "8385"
+  },
+  "662600115": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-24",
+   "sigco": "8385"
+  },
+  "662600125": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "25983"
+  },
+  "662600129": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "662600130": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "662600131": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "662600167": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-13",
+   "sigco": "8385"
+  },
+  "662600175": {
+   "openedBy": "LUANDERSON MARTINS ALMEIDA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-23",
+   "sigco": "8385"
+  },
+  "662600176": {
+   "openedBy": "LUANDERSON MARTINS ALMEIDA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "25983"
+  },
+  "662600184": {
+   "openedBy": "LUANDERSON MARTINS ALMEIDA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-25",
+   "sigco": "8385"
+  },
+  "662600188": {
+   "openedBy": "LUANDERSON MARTINS ALMEIDA",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-26",
+   "sigco": "8385"
+  },
+  "662600213": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-02",
+   "sigco": "25983"
+  },
+  "662600216": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-07",
+   "sigco": "25983"
+  },
+  "662600276": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-05",
+   "sigco": "8385"
+  },
+  "662600287": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-11",
+   "sigco": "8385"
+  },
+  "662600304": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-15",
+   "sigco": "25983"
+  },
+  "662600313": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-20",
+   "sigco": "25983"
+  },
+  "662600319": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-21",
+   "sigco": "25983"
+  },
+  "662600322": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-05-28",
+   "sigco": "25962"
+  },
+  "662600330": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-01",
+   "sigco": "25983"
+  },
+  "662600336": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-08",
+   "sigco": "25983"
+  },
+  "662600346": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-08",
+   "sigco": "25983"
+  },
+  "662600362": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-12",
+   "sigco": "8812"
+  },
+  "662600363": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-12",
+   "sigco": "25983"
+  },
+  "662600370": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "COCM - NORTE APROVAR",
+   "openedAt": "2026-06-17",
+   "sigco": "25983"
+  },
+  "662600394": {
+   "openedBy": "FRANCISCO OLIVEIRA DE CARVALHO",
+   "sector": "COCM - NORTE APROVAR",
+   "openedAt": "2026-06-26",
+   "sigco": "25983"
+  },
+  "712600018": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-07",
+   "sigco": "8385"
+  },
+  "712600060": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-01-21",
+   "sigco": "8385"
+  },
+  "712600120": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-09",
+   "sigco": "8385"
+  },
+  "712600131": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-18",
+   "sigco": "8385"
+  },
+  "712600152": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "712600156": {
+   "openedBy": "WANDER DA SILVA LEITE",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "712600163": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-02-27",
+   "sigco": "8385"
+  },
+  "712600180": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-04",
+   "sigco": "8385"
+  },
+  "712600182": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-04",
+   "sigco": "8385"
+  },
+  "712600242": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "8385"
+  },
+  "712600244": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-03-24",
+   "sigco": "8385"
+  },
+  "712600305": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-04-22",
+   "sigco": "8805"
+  },
+  "712600392": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "GEST - ENCERRAMENTO",
+   "openedAt": "2026-06-12",
+   "sigco": "8812"
+  },
+  "712600405": {
+   "openedBy": "FILIPE MESQUITA RODRIGUES",
+   "sector": "COCM - NORTE CADASTRO",
+   "openedAt": "2026-06-18",
+   "sigco": "8389"
+  }
+ }
+}
