@@ -17,10 +17,14 @@ type AuditRecord = {
   osAnalysis: { description: string; action: string; transformerEvidence: string; evidence: string };
   work: {
     number: string; description: string; status: string; contractor: string; terminal: boolean; analyticReason: string;
+    analyticReasonSource?: string; analyticConflict?: boolean;
     workClass?: string; workNature?: string; workKind?: string; expenseOrder?: boolean;
     ssAgeDays?: number | null; overdue?: boolean; alerts?: string[];
   };
-  material: { transformers: number; poles: number; lightningArresters: number; items: number; value: number };
+  material: {
+    transformers: number; poles: number; lightningArresters: number; items: number; value: number;
+    conference?: MaterialConference;
+  };
   finance: {
     totalBudgeted: number; totalRealized: number; materialBudgeted: number;
     materialRealized: number; laborBudgeted: number; laborRealized: number;
@@ -31,7 +35,37 @@ type AuditRecord = {
     automaticExpurge: boolean; review: boolean; sigcoStatus: string; sigcoReason: string;
     flags: string[]; approvalStatus: string; reviewer: string; official: boolean;
   };
+  fieldAnalysis?: FieldAnalysis;
 };
+
+// Análise por Intervenções: tudo o que a base TMAE/SIGOD registra sobre o transformador
+// da SS — quantas intervenções, quando, causa, leitura do executante e o confronto com
+// a categoria declarada. É a camada de campo que sustenta as regras R-CAMPO-01 a 08.
+type FieldAnalysis = {
+  interventions: number;
+  before: number | null; inWindow: number | null; afterSwap: number | null;
+  daysToNearest: number | null; nearestDate: string; window: string;
+  cause: string; subcause: string; reading: string; confrontation: string;
+  recurrence: string; team: string; executorNote: string;
+  rules: string[];
+  doubtLevel: string; doubtScore: number;
+  pros: Array<{ level: string; text: string }>;
+  cons: string[];
+  inManualReview74: boolean;
+  expurgeReason: string;
+};
+
+// Conferência de material: a base de itens da obra (material_obra) é o árbitro. Cada obra
+// é reagregada item a item — TRANSF DISTR conta como transformador, POSTE como poste,
+// PARA-RAIOS como para-raios; acessórios que só citam a palavra (CAPA PROTETORA TRANSF,
+// CINTA POSTE) não contam. O que a aba Obras dizia é substituído quando diverge.
+type MaterialConference = {
+  status: string; items: number; value: number; valueMatches: boolean;
+  transformerItems: Array<{ codigo: string; descricao: string; qtd: number; valor: number }>;
+  detail: string;
+};
+
+type FieldRule = { id: string; label: string; description: string; count: number; records: string[] };
 
 type Pair = { label: string; value: number };
 type AuditData = {
@@ -52,7 +86,10 @@ type AuditData = {
     month: number; label: string; total: number; burned: number; damaged: number;
     expurged: number; included: number; review: number; realized: number;
   }>;
-  expurgeDashboard: { total: number; value: number; materialValue: number; byCause: Pair[]; byRule: Pair[]; sentToReview: number };
+  expurgeDashboard: {
+    total: number; value: number; materialValue: number; byCause: Pair[]; byRule: Pair[]; sentToReview: number;
+    byFieldRule?: Pair[]; fieldCandidates?: number; fieldStrong?: number;
+  };
   aiDashboard: {
     highConfidence: number; mediumConfidence: number; lowConfidence: number; needsReview: number;
     sigcoAnalysis: number; completeEvidence: number; byDecision: Pair[]; byRule: Pair[];
@@ -65,6 +102,19 @@ type AuditData = {
     kindDivergent: Array<{ id: string; ss: string; work: string; workNature: string; workKind: string }>;
   };
   requestSources?: { byType: Pair[]; byOrigin: Pair[]; byRequester: Pair[] };
+  fieldRules?: FieldRule[];
+  fieldSummary?: {
+    total: number; withDoubt: number; strong: number; medium: number; weak: number;
+    withSignal: number; noIntervention: number; insideReview74: number; outsideReview74: number;
+    confrontation: Pair[]; source: string;
+  };
+  materialConference?: {
+    works: number; matches: number; corrected: number; withoutWork: number;
+    analyticConflicts: number; transformerWorks: number; items: number; value: number;
+    source: string; rule: string;
+    correctedList: Array<{ id: string; ss: string; work: string; detail: string; decision: string; rule: string }>;
+    conflictList: Array<{ id: string; ss: string; work: string; sheet: string; checked: string; transformers: number; value: number }>;
+  };
 };
 
 type Change = { status?: string; comment: string; at: string; actor: string; action: string };
@@ -96,8 +146,20 @@ const EXPURGE_REASONS = [
   "Fiscalização aprovada ou término físico",
   "Obra não gerada há mais de 60 dias da abertura da SS",
   "Obra lançada como ordem de despesa",
+  // Motivos vindos da Análise por Intervenções (base TMAE/SIGOD). Ficam disponíveis como
+  // justificativa rastreável: quem expurgar por um deles deixa registrada a regra de campo.
+  "R-CAMPO-01 — QUEIMADO sem interrupção no período",
+  "R-CAMPO-02 — Campo diverge da categoria da SS",
+  "R-CAMPO-03 — Falha no ramal ou em acessório",
+  "R-CAMPO-04 — Reincidência após a troca",
+  "R-CAMPO-05 — SS duplicada para o mesmo transformador",
+  "R-CAMPO-06 — Obra sem transformador no material",
+  "R-CAMPO-07 — Causa externa registrada em campo",
+  "R-CAMPO-08 — Queima por sobrecarga",
   "Outro motivo técnico",
 ];
+
+const FIELD_RULE_IDS = ["R-CAMPO-01", "R-CAMPO-02", "R-CAMPO-03", "R-CAMPO-04", "R-CAMPO-05", "R-CAMPO-06", "R-CAMPO-07", "R-CAMPO-08"] as const;
 
 const NAV: Array<{ group: string; items: Array<{ id: Module; label: string; code: string }> }> = [
   { group: "Operação", items: [
@@ -241,6 +303,88 @@ function BarList({ data, total, moneyValues = false }: { data: Pair[]; total?: n
   </div>;
 }
 
+// Conferência item a item do material da obra. O que a aba Obras informava vale apenas até
+// a base de itens dizer outra coisa — aqui fica visível o que foi conferido, o que foi
+// corrigido e qual transformador de fato saiu do almoxarifado.
+function MaterialConferenceBox({ record }: { record: AuditRecord }) {
+  const conference = record.material.conference;
+  const conflict = Boolean(record.work.analyticConflict);
+  const sheetReason = (record.work.analyticReasonSource || "").trim();
+  if (!conference && !conflict) return null;
+  return <>
+    {conference ? <article className={`work-alerts${conference.status === "Corrigido" ? " danger" : ""}`}>
+      <span>CONFERÊNCIA COM A BASE DE ITENS DA OBRA</span>
+      <ul>
+        <li><b>{conference.status}</b> — {conference.detail}</li>
+        {record.work.number ? <li>{conference.items} item(ns) na obra · {money(conference.value)}{conference.valueMatches ? " · valor confere com a planilha" : " · valor diverge da planilha"}</li> : null}
+        {conference.transformerItems.map((item) => <li key={`${item.codigo}-${item.descricao}`}>
+          Transformador aplicado: <b>{item.codigo}</b> {item.descricao} · {item.qtd} un · {money(item.valor)}
+        </li>)}
+        {record.work.number && !conference.transformerItems.length
+          ? <li>Nenhum item iniciado por “TRANSF DISTR” nesta obra.</li> : null}
+      </ul>
+    </article> : null}
+    {conflict ? <article className="work-alerts danger">
+      <span>DIVERGÊNCIA CORRIGIDA NO ALERTA ANALÍTICO</span>
+      <ul>
+        <li>A aba Base_Analitica dizia <b>{sheetReason || "—"}</b>.</li>
+        <li>A base de itens comprova {record.material.transformers} transformador(es) e {record.material.poles} poste(s) nesta obra, então o alerta correto é <b>{record.work.analyticReason || "sem alerta"}</b>.</li>
+      </ul>
+    </article> : null}
+  </>;
+}
+
+// Aba "Análise por Intervenções" do dossiê. Mostra tudo o que a base TMAE/SIGOD registra
+// sobre o transformador daquela SS, as regras de campo acionadas, as evidências a favor e
+// contra a dúvida, e permite levar a regra de campo direto para o motivo do expurgo.
+function FieldTab({ record, rules, onUseReason }: { record: AuditRecord; rules: FieldRule[]; onUseReason: (reason: string) => void }) {
+  const field = record.fieldAnalysis;
+  if (!field) {
+    return <><h3>Análise por Intervenções</h3><div className="empty"><strong>Sem cruzamento de campo</strong><span>Este registro não foi confrontado com a base de interrupções TMAE/SIGOD.</span></div></>;
+  }
+  const byId = new Map(rules.map((rule) => [rule.id, rule]));
+  const dash = (value: string | number | null | undefined) => (value === null || value === undefined || value === "" ? "—" : value);
+  return <>
+    <h3>Análise por Intervenções</h3>
+    <article className={`field-box ${normalize(field.doubtLevel || "").toLowerCase() || "sem"}`}>
+      <span>LEITURA DO CAMPO</span>
+      <strong>{field.confrontation || "Sem intervenção registrada"}</strong>
+      <p>
+        {field.interventions} intervenção(ões) registrada(s) no operativo
+        {field.doubtLevel ? ` · dúvida ${field.doubtLevel} (score ${field.doubtScore})` : " · nenhuma evidência de dúvida"}
+        {field.inManualReview74 ? " · já está na revisão manual" : " · fora da revisão manual"}
+      </p>
+    </article>
+    <section className="detail-grid">
+      <div><span>Intervenções no transformador</span><strong>{field.interventions}</strong></div>
+      <div><span>Antes da SS</span><strong>{dash(field.before)}</strong></div>
+      <div><span>Na janela da SS</span><strong>{dash(field.inWindow)}</strong></div>
+      <div><span>Depois da troca</span><strong>{dash(field.afterSwap)}</strong></div>
+      <div><span>Dias até a mais próxima</span><strong>{dash(field.daysToNearest)}</strong></div>
+      <div><span>Data da mais próxima</span><strong>{dash(field.nearestDate)}</strong></div>
+      <div><span>Janela temporal</span><strong>{dash(field.window)}</strong></div>
+      <div><span>Reincidência pós-troca</span><strong>{dash(field.recurrence)}</strong></div>
+      <div><span>Causa SIGOD</span><strong>{dash(field.cause)}</strong></div>
+      <div><span>Subcausa SIGOD</span><strong>{dash(field.subcause)}</strong></div>
+      <div><span>Leitura de campo</span><strong>{dash(field.reading)}</strong></div>
+      <div><span>Equipe</span><strong>{dash(field.team)}</strong></div>
+    </section>
+    <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE EM CAMPO</span><p>{field.executorNote || "Sem observação registrada pela equipe."}</p></article>
+    {field.rules.length ? <article className="work-alerts"><span>REGRAS DE CAMPO ACIONADAS</span><ul>
+      {field.rules.map((id) => <li key={id}><b>{id}</b> — {byId.get(id)?.label || id}: {byId.get(id)?.description || ""}</li>)}
+    </ul></article> : null}
+    {field.pros.length ? <article className="work-alerts danger"><span>EVIDÊNCIAS A FAVOR DA DÚVIDA</span><ul>
+      {field.pros.map((pro) => <li key={pro.text}><b>{pro.level}</b> — {pro.text}</li>)}
+    </ul></article> : null}
+    {field.cons.length ? <article className="work-alerts"><span>EVIDÊNCIAS CONTRA A DÚVIDA</span><ul>
+      {field.cons.map((con) => <li key={con}>{con}</li>)}
+    </ul></article> : null}
+    {field.expurgeReason ? <button type="button" className="field-reason" onClick={() => onUseReason(field.expurgeReason)}>
+      Usar “{field.expurgeReason}” como motivo do expurgo
+    </button> : null}
+  </>;
+}
+
 function RequestTag({ record }: { record: AuditRecord }) {
   const type = record.requestType || record.type;
   return <b className={`request-tag ${requestTone(type)}`}>{type || "Tipo não informado"}</b>;
@@ -283,7 +427,7 @@ export default function Page() {
   const [module, setModule] = useState<Module>("overview");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<AuditRecord | null>(null);
-  const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "historico">("consolidado");
+  const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
   const [expurgeReason, setExpurgeReason] = useState("");
   const [overrides, setOverrides] = useState<Overrides>({});
@@ -322,12 +466,17 @@ export default function Page() {
       record.ss, record.os, record.location, record.sigco, record.category, record.consolidated.decision,
       record.consolidated.cause, record.consolidated.rule, record.work.number,
     ].join(" ")).includes(needle));
-    if (module === "expurgos") return bySearch.filter((record) => record.consolidated.decision === "EXPURGAR");
-    if (module === "sigco") return bySearch.filter((record) => record.consolidated.flags.includes("Análise por SIGCO"));
-    if (module === "revisoes") return bySearch.filter((record) => record.consolidated.review);
-    if (module === "aprovacoes") return bySearch.filter((record) =>
+    // uma busca por "R-CAMPO-03" passa a encontrar os dossiês pela regra de campo acionada
+    const byField = needle && FIELD_RULE_IDS.some((id) => normalize(id).includes(needle))
+      ? data.records.filter((record) => (record.fieldAnalysis?.rules || []).some((id) => normalize(id).includes(needle)))
+      : [];
+    const merged = byField.length ? Array.from(new Set([...bySearch, ...byField])) : bySearch;
+    if (module === "expurgos") return merged.filter((record) => record.consolidated.decision === "EXPURGAR");
+    if (module === "sigco") return merged.filter((record) => record.consolidated.flags.includes("Análise por SIGCO"));
+    if (module === "revisoes") return merged.filter((record) => record.consolidated.review);
+    if (module === "aprovacoes") return merged.filter((record) =>
       (overrides[record.id]?.at(-1)?.status || record.consolidated.approvalStatus) === "PENDENTE");
-    return bySearch;
+    return merged;
   }, [data, query, module, overrides]);
 
   if (!data) return <main className="loading"><i /><span>Carregando os 134 registros…</span></main>;
@@ -400,6 +549,35 @@ export default function Page() {
           </button>)}
         </article>
       </section>
+      {data.materialConference ? <section className="panel conference-panel">
+        <div className="panel-title"><div><span>Conferência de material</span><h2>A base de itens da obra confirma as análises</h2></div><small>{data.materialConference.works} obras conferidas</small></div>
+        <section className="kpi-grid">
+          <Kpi label="Obras batendo item a item" value={`${data.materialConference.matches}/${data.materialConference.works}`} note="Transformadores, postes, para-raios, itens e valor" tone="green" />
+          <Kpi label="Obras corrigidas" value={data.materialConference.corrected} note="A aba Obras contava acessório como equipamento" tone="red" />
+          <Kpi label="Alertas analíticos refeitos" value={data.materialConference.analyticConflicts} note="A Base_Analitica não enxergava o transformador da obra" tone="amber" />
+          <Kpi label="SS sem obra" value={data.materialConference.withoutWork} note="Sem obra não há material a conferir" tone="blue" />
+        </section>
+        <p className="conference-rule">{data.materialConference.rule}</p>
+        <p className="conference-rule">Fonte: {data.materialConference.source} · {data.materialConference.items} itens · {money(data.materialConference.value)}.</p>
+        {data.materialConference.correctedList.length ? <div className="conference-list">
+          <h3>O que foi corrigido</h3>
+          {data.materialConference.correctedList.map((item) => <div key={item.id}>
+            <strong>{item.id} · {item.ss}</strong>
+            <span>Obra {item.work} — {item.detail}</span>
+            <em>Decisão após a correção: {item.decision} ({item.rule})</em>
+          </div>)}
+        </div> : null}
+        {data.materialConference.conflictList.length ? <div className="conference-list">
+          <h3>Alertas analíticos que a planilha errava</h3>
+          {data.materialConference.conflictList.map((item) => <div key={item.id}>
+            <strong>{item.id} · {item.ss}</strong>
+            <span>{item.work
+              ? `Obra ${item.work} — a planilha dizia “${item.sheet}”, a base de itens comprova ${item.transformers} transformador(es) · ${money(item.value)}`
+              : `SS sem obra gerada — a planilha dizia “${item.sheet}”, mas sem obra não há material a acusar`}</span>
+            <em>Alerta corrigido: {item.checked}</em>
+          </div>)}
+        </div> : null}
+      </section> : null}
       <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v0.96. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
     </>;
 
@@ -469,10 +647,33 @@ export default function Page() {
         <Kpi label="Pendência temporal" value={data.summary.temporaryPending ?? 0} note="Dentro do prazo, aguardando obra" tone="amber" />
         <Kpi label="Ordem de despesa" value={data.summary.expenseOrders ?? 0} note="R-OBR-01 · não imobiliza o ativo" tone="ink" />
       </section>
+      {data.fieldSummary ? <section className="kpi-grid">
+        <Kpi label="Candidatos pela Análise por Intervenções" value={data.fieldSummary.withDoubt} note={`${pct(data.fieldSummary.withDoubt, data.summary.total)}% da base tem alguma evidência de campo contrária`} tone="red" />
+        <Kpi label="Evidência FORTE" value={data.fieldSummary.strong} note="Campo contradiz diretamente a categoria declarada" tone="red" />
+        <Kpi label="Fora da revisão manual" value={data.fieldSummary.outsideReview74} note="Casos novos que o cruzamento de campo trouxe" tone="amber" />
+        <Kpi label="SS sem nenhuma intervenção" value={data.fieldSummary.noIntervention} note="Nenhum registro no TMAE/SIGOD no período" tone="blue" />
+      </section> : null}
       <section className="dashboard-columns">
         <article className="panel"><div className="panel-title"><div><span>Motivos</span><h2>Expurgos por causa</h2></div></div><BarList data={data.expurgeDashboard.byCause} total={data.summary.total} /></article>
         <article className="panel"><div className="panel-title"><div><span>Motor</span><h2>Regras acionadas</h2></div></div><BarList data={data.expurgeDashboard.byRule} /></article>
       </section>
+      {data.expurgeDashboard.byFieldRule?.length ? <section className="dashboard-columns">
+        <article className="panel"><div className="panel-title"><div><span>Campo · TMAE/SIGOD</span><h2>Regras de campo acionadas</h2></div><small>{data.fieldSummary?.source}</small></div>
+          <BarList data={data.expurgeDashboard.byFieldRule} total={data.summary.total} />
+          <div className="check-list field-rules">{(data.fieldRules || []).filter((rule) => rule.count).map((rule) => <div key={rule.id}><b>{rule.count}</b><strong>{rule.id} — {rule.label}</strong><span>{rule.description}</span></div>)}</div>
+        </article>
+        <article className="panel"><div className="panel-title"><div><span>Confronto</span><h2>O que o campo disse sobre a categoria</h2></div></div>
+          <BarList data={data.fieldSummary?.confrontation || []} total={data.summary.total} />
+        </article>
+      </section> : null}
+      {data.fieldSummary ? <section className="panel"><div className="list-head">
+        <div><span>{data.fieldSummary.withDoubt} casos</span><strong>Dossiês com evidência de campo contrária à categoria</strong></div>
+        <small>Ordenados pelo score de dúvida da Análise por Intervenções</small></div>
+        <RecordTable
+          records={data.records.filter((record) => (record.fieldAnalysis?.pros?.length || 0) > 0)
+            .slice().sort((a, b) => (b.fieldAnalysis?.doubtScore || 0) - (a.fieldAnalysis?.doubtScore || 0))}
+          mode="newbase" onOpen={openRecord} statusOf={statusOf} />
+      </section> : null}
       <section className="panel"><div className="list-head"><div><span>{data.expurgeDashboard.total} casos</span><strong>Dossiês que acionaram expurgo automático</strong></div>
         <small>SS, OS, obra, origem da solicitação e regra acionada</small></div>
         <RecordTable records={data.records.filter((record) => record.consolidated.automaticExpurge)} mode="expurgo" onOpen={openRecord} statusOf={statusOf} /></section>
@@ -555,6 +756,10 @@ export default function Page() {
         ["R-OBR-02", "SS sem obra gerada", `Até ${data.workRules?.deadlineDays ?? 60} dias da abertura da SS fica PENDENTE TEMPORAL; acima disso, expurgar por falta de prova da troca.`],
         ["R-OBR-03", "Obra fora de manutenção corretiva emergencial", "Alerta obrigatório: CONST_MANUT ≠ MANUTENÇÃO ou TIPO_OBRA divergente muda o enquadramento de custo."],
       ].map(([code, trigger, result]) => <article className="panel rule-card" key={code}><code>{code}</code><h2>{trigger}</h2><p>{result}</p></article>)}
+      {(data.fieldRules || []).map((rule) => <article className="panel rule-card field-rule-card" key={rule.id}>
+        <code>{rule.id}</code><h2>{rule.label}</h2><p>{rule.description}</p>
+        <em>{rule.count} de {data.summary.total} SS acionam esta regra</em>
+      </article>)}
       {data.workRules ? <article className="panel editorial-note wide"><span>REGRAS DE ORDEM DE OBRA · MANUAL v0.96</span><p>
         Prazo contado contra {data.workRules.referenceDate}, a maior data de abertura de SS da base — nunca a data de hoje.
         Nesta carga: {data.workRules.expense.length} obra(s) em despesa, {data.workRules.missing.length} SS sem obra gerada
@@ -562,6 +767,15 @@ export default function Page() {
         e {data.workRules.kindDivergent.length} obra(s) fora de manutenção corretiva emergencial.
       </p></article> : null}
       <article className="panel editorial-note wide"><span>SIGCO</span><p>20497: abalroamento · 25983: análise obrigatória · 8812: queimado · 25962: avariado · 8385: não comprova falha sozinho · #N/A: recomendar abertura/correção com motivo.</p></article>
+      {data.fieldSummary ? <article className="panel editorial-note wide"><span>REGRAS DE CAMPO · R-CAMPO</span><p>
+        As oito regras R-CAMPO nascem do cruzamento das 134 SS com a base de interrupções TMAE/SIGOD ({data.fieldSummary.source}).
+        Elas não decidem sozinhas: marcam onde o que a equipe registrou em campo não sustenta a categoria declarada na SS.
+        Hoje {data.fieldSummary.withDoubt} das {data.summary.total} SS carregam alguma evidência contrária, sendo {data.fieldSummary.strong} com evidência FORTE.
+      </p></article> : null}
+      {data.materialConference ? <article className="panel editorial-note wide"><span>CONFERÊNCIA DE MATERIAL</span><p>
+        {data.materialConference.rule} A aba Obras só vale até a base de itens dizer outra coisa: {data.materialConference.matches} de {data.materialConference.works} obras
+        conferem item a item, {data.materialConference.corrected} precisou de correção e {data.materialConference.analyticConflicts} alerta(s) analítico(s) da Base_Analitica foram refeitos a partir do material conferido.
+      </p></article> : null}
     </section>;
 
     if (module === "historico") return <section className="panel history-panel">
@@ -619,7 +833,11 @@ export default function Page() {
           <i /><strong>{selected.requestType || selected.type}</strong>
           <span>ORIGEM {selected.origin || "—"}</span><span>SOLICITANTE {selected.requester || "—"}</span>
         </div> : null}
-        <nav>{(["consolidado", "ss", "os", "obra", "historico"] as const).map((tab) => <button key={tab} className={detailTab === tab ? "active" : ""} onClick={() => setDetailTab(tab)}>{tab === "obra" ? "Obra / material" : tab}</button>)}</nav>
+        <nav>{(["consolidado", "ss", "os", "obra", "campo", "historico"] as const).map((tab) => <button
+          key={tab}
+          className={`${detailTab === tab ? "active" : ""}${tab === "campo" ? " no-caps" : ""}`.trim()}
+          onClick={() => setDetailTab(tab)}
+        >{tab === "obra" ? "Obra / material" : tab === "campo" ? "Análise por Intervenções" : tab}</button>)}</nav>
         <div className="drawer-body">
           {detailTab === "consolidado" && <>
             <h3>New Base — Análise Consolidada</h3>
@@ -640,12 +858,14 @@ export default function Page() {
           {detailTab === "obra" && <><h3>Obra e material</h3><section className="detail-grid">
             <div><span>Obra</span><strong>{selected.work.number || "Não localizada"}</strong></div><div><span>Status</span><strong>{selected.work.status}</strong></div>
             <div><span>Descrição</span><strong>{selected.work.description || "—"}</strong></div><div><span>Alerta analítico</span><strong>{selected.work.analyticReason || "Sem alerta"}</strong></div>
-            <div><span>Transformadores / postes</span><strong>{selected.material.transformers} / {selected.material.poles}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
+            <div><span>Transformadores / postes / para-raios</span><strong>{selected.material.transformers} / {selected.material.poles} / {selected.material.lightningArresters}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
             <div><span>Total orçado</span><strong>{money(selected.finance.totalBudgeted)}</strong></div><div><span>Total realizado</span><strong>{money(selected.finance.totalRealized)}</strong></div>
             <div><span>Classe da obra</span><strong>{selected.work.workClass || "Sem obra gerada"}</strong></div><div><span>Natureza / tipo</span><strong>{[selected.work.workNature, selected.work.workKind].filter(Boolean).join(" · ") || "—"}</strong></div>
             <div><span>Dias desde a abertura da SS</span><strong>{selected.work.ssAgeDays ?? "—"}{selected.work.overdue ? " · acima do limite" : ""}</strong></div><div><span>Prova da troca</span><strong>{selected.work.number ? "Obra disponível para consulta SIAGO" : "Sem obra: troca não comprovável"}</strong></div>
           </section>
+          <MaterialConferenceBox record={selected} />
           {selected.work.alerts?.length ? <article className="work-alerts"><span>REGRAS DE ORDEM DE OBRA</span><ul>{selected.work.alerts.map((alert) => <li key={alert}>{alert}</li>)}</ul></article> : null}</>}
+          {detailTab === "campo" && <FieldTab record={selected} rules={data.fieldRules || []} onUseReason={setExpurgeReason} />}
           {detailTab === "historico" && <><h3>Histórico do registro</h3>{(overrides[selected.id] || []).length ? <div className="timeline">{overrides[selected.id].slice().reverse().map((item, index) => <div className="timeline-item" key={`${item.at}-${index}`}><i /><div><strong>{item.action}</strong><span>{item.actor} · {new Date(item.at).toLocaleString("pt-BR")}</span><p>{item.comment}</p></div></div>)}</div> : <div className="empty"><strong>Sem alterações</strong><span>A proposta original da IA está preservada.</span></div>}</>}
         </div>
         <footer className="approval-bar">

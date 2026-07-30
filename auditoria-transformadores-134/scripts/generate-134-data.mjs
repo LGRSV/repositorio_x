@@ -65,6 +65,21 @@ const workBySs = new Map(workRows.map((row) => [normalize(row.SS), row]));
 const fullWorkBySs = new Map(fullWorkRows.map((row) => [normalize(row.NUMERO_SS), row]));
 const analyticBySs = new Map(analyticRows.map((row) => [normalize(row.NUMERO_SS), row]));
 
+// Conferência de material: a base de itens da obra (material_obra) é o árbitro. A aba "Obras"
+// traz TRAFOS/POSTES/PARARAIOS já agregados e erra quando um acessório carrega a palavra do
+// equipamento no nome (CINTA POSTE CIRCULAR, CAPA PROTETORA TRANSF). O arquivo
+// scripts/material-conferido-134.json reagrega item a item: TRANSF DISTR conta como
+// transformador, POSTE como poste, PARA-RAIOS como para-raios. Onde diverge, ele manda.
+const conferencePath = new URL("./material-conferido-134.json", import.meta.url);
+let materialConference = { byWork: {}, source: "", rule: "" };
+try {
+  materialConference = JSON.parse(await fs.readFile(conferencePath, "utf8"));
+} catch (error) {
+  console.warn(`Sem conferência de material (${error.message}). As quantidades saem como a aba Obras informou.`);
+}
+const conferenceByWork = materialConference.byWork || {};
+const workKey = (value) => text(value).replace(/^0+/, "");
+
 function evaluate(base, full, work, fullWork, analytic, index) {
   const ssDescription = text(base["SS(solic)"] || full.DESCRIPTION);
   const osDescription = text(base["OS(exec)"] || full.DESCRICAO_OS);
@@ -72,15 +87,44 @@ function evaluate(base, full, work, fullWork, analytic, index) {
   const all = normalize([ssDescription, osDescription, workDescription].join(" "));
   const osOnly = normalize(osDescription);
   const asset = normalize([full.NUM_TRAFO, ssDescription, osDescription].join(" "));
-  const transformerQty = number(work.TRAFOS);
-  const poleQty = number(work.POSTES);
+  // A aba Obras só vale até a base de itens dizer outra coisa.
+  const conferred = conferenceByWork[workKey(work.NUM_OBRA)] || null;
+  const conferenceNotes = [];
+  const reconcile = (sheetValue, conferredValue, label) => {
+    const sheetNumber = number(sheetValue);
+    if (!conferred) return sheetNumber;
+    const checked = number(conferredValue);
+    if (checked !== sheetNumber) conferenceNotes.push(`${label}: a aba Obras dizia ${sheetNumber}, a base de itens comprova ${checked}`);
+    return checked;
+  };
+  const transformerQty = reconcile(work.TRAFOS, conferred?.trafos, "transformadores");
+  const poleQty = reconcile(work.POSTES, conferred?.postes, "postes");
+  const arresterQty = reconcile(work.PARARAIOS, conferred?.pararaios, "para-raios");
+  const itemQty = reconcile(work.ITENS, conferred?.itens, "itens");
   const hasTransformer = transformerQty > 0;
   const terminal = Boolean(
     fullWork.DTH_ENCERRAMENTO_TECNICO || fullWork.DTH_TERMINO_FISICO ||
     fullWork.DTH_FISC_APROVADA || normalize(work.STATUS).includes("ENCERRAMENTO TECNICO") ||
     normalize(work.STATUS).includes("FISCALIZACAO APROVADA"),
   );
-  const workMissing = !text(work.NUM_OBRA);
+  const workNumber = text(work.NUM_OBRA);
+  const workMissing = !workNumber;
+
+  // Alerta analítico recalculado. A aba Base_Analitica traz MOTIVO já pronto, mas reporta
+  // QTD_TRAFO = 0 em quase toda linha — não encontra o transformador da obra e acusa
+  // "SEM MOV. TRAFO" mesmo onde há transformador aplicado. O motivo passa a ser derivado do
+  // material já conferido; o texto original fica preservado em analyticReasonSource para não
+  // perder a rastreabilidade da planilha.
+  const sheetAnalyticReason = text(analytic.MOTIVO);
+  const analyticParts = [];
+  if (workMissing) {
+    analyticParts.push("SEM OBRA");
+  } else {
+    if (transformerQty === 0) analyticParts.push("SEM MOV. TRAFO");
+    if (poleQty > 0) analyticParts.push("COM MOV. POSTE");
+  }
+  const analyticReason = analyticParts.join(" + ");
+
   const workClass = text(fullWork.CLASS_OBRA);
   const workNature = text(fullWork.CONST_MANUT);
   const workKind = text(fullWork.TIPO_OBRA);
@@ -247,7 +291,9 @@ function evaluate(base, full, work, fullWork, analytic, index) {
       status: text(work.STATUS) || "Sem obra localizada",
       contractor: text(work.EMPREITEIRA),
       terminal,
-      analyticReason: text(analytic.MOTIVO),
+      analyticReason,
+      analyticReasonSource: sheetAnalyticReason,
+      analyticConflict: Boolean(sheetAnalyticReason) && normalize(sheetAnalyticReason) !== normalize(analyticReason),
       workClass,
       workNature,
       workKind,
@@ -259,9 +305,23 @@ function evaluate(base, full, work, fullWork, analytic, index) {
     material: {
       transformers: transformerQty,
       poles: poleQty,
-      lightningArresters: number(work.PARARAIOS),
-      items: number(work.ITENS),
+      lightningArresters: arresterQty,
+      items: itemQty,
       value: money(work.VALOR_MAT),
+      conference: workNumber ? {
+        status: conferred ? (conferenceNotes.length ? "Corrigido" : "Confere") : "Obra fora da base de itens",
+        items: conferred ? number(conferred.itens) : 0,
+        value: conferred ? money(conferred.valor) : 0,
+        valueMatches: Boolean(conferred) && Math.abs(money(conferred.valor) - money(work.VALOR_MAT)) < 0.05,
+        transformerItems: conferred?.trafoItens || [],
+        detail: conferred
+          ? (conferenceNotes.join(" · ") || "Transformadores, postes, para-raios, itens e valor conferem item a item com a base de material da obra.")
+          : "Esta obra não aparece na base de itens exportada; as quantidades seguem como a aba Obras informou.",
+      } : {
+        status: "Sem obra",
+        items: 0, value: 0, valueMatches: false, transformerItems: [],
+        detail: "SS sem obra gerada — não há material a conferir.",
+      },
     },
     finance: {
       totalBudgeted: money(fullWork.VAL_TOTAL_ORCADO),
@@ -354,7 +414,7 @@ const data = {
     approved: 0,
     pending: records.length,
     works: new Set(records.map((record) => record.work.number).filter(Boolean)).size,
-    analyticAlerts: analyticRows.length,
+    analyticAlerts: records.filter((record) => record.work.analyticReason).length,
     temporaryPending: records.filter((record) => record.consolidated.decision === "PENDENTE TEMPORAL").length,
     expenseOrders: records.filter((record) => record.work.expenseOrder).length,
     missingWork: records.filter((record) => !record.work.number).length,
@@ -405,6 +465,60 @@ const data = {
     byRequester: counts(records, (record) => record.requester),
   },
 };
+
+// Bloco de conferência: quantas obras batem item a item com a base de material e o que
+// precisou ser corrigido. Serve de prestação de contas no painel da visão geral.
+{
+  const conferred = records.filter((record) => record.work.number && record.material.conference?.status !== "Obra fora da base de itens");
+  const correctedList = records
+    .filter((record) => record.material.conference?.status === "Corrigido")
+    .map((record) => ({
+      id: record.id, ss: record.ss, work: record.work.number,
+      detail: record.material.conference.detail,
+      decision: record.consolidated.decision, rule: record.consolidated.rule,
+    }));
+  const conflictList = records
+    .filter((record) => record.work.analyticConflict)
+    .map((record) => ({
+      id: record.id, ss: record.ss, work: record.work.number,
+      sheet: record.work.analyticReasonSource, checked: record.work.analyticReason || "Sem alerta",
+      transformers: record.material.transformers, value: record.material.conference?.value ?? 0,
+    }));
+  data.materialConference = {
+    works: conferred.length,
+    matches: conferred.filter((record) => record.material.conference?.status === "Confere").length,
+    corrected: correctedList.length,
+    withoutWork: records.filter((record) => !record.work.number).length,
+    analyticConflicts: conflictList.length,
+    transformerWorks: conferred.filter((record) => record.material.transformers > 0).length,
+    items: conferred.reduce((sum, record) => sum + number(record.material.conference?.items), 0),
+    value: money(conferred.reduce((sum, record) => sum + number(record.material.conference?.value), 0)),
+    source: materialConference.source || "",
+    rule: materialConference.rule || "",
+    correctedList,
+    conflictList,
+  };
+}
+
+// Camada "Análise por Intervenções": vem do cruzamento das 134 SS com a base de interrupções
+// TMAE/SIGOD, feito fora deste gerador. O resultado fica congelado em
+// scripts/field-analysis-134.json e é remesclado aqui para que uma regeneração da base não
+// apague as regras R-CAMPO, o dossiê de campo de cada SS nem os painéis do expurgo.
+const fieldPath = new URL("./field-analysis-134.json", import.meta.url);
+try {
+  const field = JSON.parse(await fs.readFile(fieldPath, "utf8"));
+  let matched = 0;
+  for (const record of data.records) {
+    const analysis = field.byRecord[record.id];
+    if (analysis) { record.fieldAnalysis = analysis; matched += 1; }
+  }
+  data.fieldRules = field.fieldRules;
+  data.fieldSummary = field.fieldSummary;
+  Object.assign(data.expurgeDashboard, field.expurgeDashboard);
+  console.log(`Análise por Intervenções remesclada em ${matched}/${data.records.length} registros.`);
+} catch (error) {
+  console.warn(`Sem camada de campo (${error.message}). A base sai sem as regras R-CAMPO.`);
+}
 
 await fs.writeFile(output, `${JSON.stringify(data, null, 2)}\n`);
 console.log(`Gerado ${output}: ${records.length} registros.`);

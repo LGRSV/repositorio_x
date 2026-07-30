@@ -1,0 +1,4297 @@
+{
+  "fieldRules": [
+    {
+      "id": "R-CAMPO-01",
+      "label": "QUEIMADO sem interrupção no período",
+      "description": "SS classificada QUEIMADO, mas o código do transformador não aparece uma única vez nos 68.829 registros de interrupção TMAE/SIGOD de janeiro a julho de 2026. Um transformador queimado desliga cliente obrigatoriamente.",
+      "count": 18,
+      "records": [
+        "ETO-RD-PS 00077/2026",
+        "ETO-RD-PA 00159/2026",
+        "DG-RD-PO 00233/2026",
+        "DG-RD-PO 00401/2026",
+        "DOLP-RD-PA 00155/2026",
+        "DOLP-RD-PA 00551/2026",
+        "ENC-RD-PS 00317/2026",
+        "ETO-RD-AG 00026/2026",
+        "ETO-RD-AG 00585/2026",
+        "ETO-RD-AR 00181/2026",
+        "ETO-RD-AR 00468/2026",
+        "ETO-RD-AR 00763/2026",
+        "ETO-RD-GR 00002/2026",
+        "ETO-RD-GU 00073/2026",
+        "ETO-RD-GU 00129/2026",
+        "ETO-RD-GU 00144/2026",
+        "ETO-RD-GU 00146/2026",
+        "ETO-RD-GU 00440/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-02",
+      "label": "Campo diverge da categoria da SS",
+      "description": "A intervenção registrada em campo aponta causa diferente da categoria atribuída na auditoria.",
+      "count": 20,
+      "records": [
+        "ETO-RD-AG 00069/2026",
+        "DG-RD-PO 00095/2026",
+        "DG-RD-PO 00191/2026",
+        "DG-RD-PO 00433/2026",
+        "DOLP-RD-PA 00237/2026",
+        "DOLP-RD-PA 00635/2026",
+        "ENC-RD-PS 00200/2026",
+        "ENC-RD-PS 00224/2026",
+        "ETO-RD-AG 00047/2026",
+        "ETO-RD-AG 00096/2026",
+        "ETO-RD-AG 00171/2026",
+        "ETO-RD-AG 00196/2026",
+        "ETO-RD-AG 00475/2026",
+        "ETO-RD-AG 00518/2026",
+        "ETO-RD-AG 00526/2026",
+        "ETO-RD-AR 00426/2026",
+        "ETO-RD-AR 00463/2026",
+        "ETO-RD-AR 00473/2026",
+        "ETO-RD-GR 00235/2026",
+        "ETO-RD-GR 00278/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-03",
+      "label": "Falha no ramal ou em acessório",
+      "description": "O campo registra a falha no ramal, na conexão, na emenda ou em acessório (para-raio, elo, chave) — não no transformador.",
+      "count": 9,
+      "records": [
+        "DOLP-RD-PA 00466/2026",
+        "ETO-RD-AG 00492/2026",
+        "ETO-RD-AR 00692/2026",
+        "DOLP-RD-PA 00264/2026",
+        "DOLP-RD-PA 00294/2026",
+        "DOLP-RD-PA 00338/2026",
+        "ETO-RD-AG 00160/2026",
+        "ETO-RD-AG 00627/2026",
+        "ETO-RD-AR 00781/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-04",
+      "label": "Reincidência após a troca",
+      "description": "Há nova intervenção no mesmo operativo depois da troca: a causa é recorrente na rede ou na proteção, não defeito do ativo substituído.",
+      "count": 12,
+      "records": [
+        "ETO-RD-AG 00069/2026",
+        "ETO-RD-AR 00692/2026",
+        "DG-RD-PO 00181/2026",
+        "DOLP-RD-PA 00179/2026",
+        "ETO-RD-AG 00117/2026",
+        "ETO-RD-AG 00271/2026",
+        "ETO-RD-AR 00205/2026",
+        "ETO-RD-AR 00410/2026",
+        "ETO-RD-DP 00040/2026",
+        "ETO-RD-GU 00093/2026",
+        "ETO-RD-GU 00095/2026",
+        "ETO-RD-GU 00534/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-05",
+      "label": "SS duplicada para o mesmo transformador",
+      "description": "O mesmo transformador aparece em mais de uma SS no período; ao menos uma delas é duplicidade de registro.",
+      "count": 5,
+      "records": [
+        "ETO-RD-AG 00069/2026",
+        "ETO-RD-PS 00077/2026",
+        "ENC-RD-PS 00143/2026",
+        "ETO-RD-AG 00339/2026",
+        "ETO-RD-AG 00344/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-06",
+      "label": "Obra sem transformador no material",
+      "description": "A obra vinculada não possui transformador na requisição de material — a substituição não está comprovada.",
+      "count": 12,
+      "records": [
+        "ETO-RD-PS 00077/2026",
+        "DOLP-RD-PA 00466/2026",
+        "ENC-RD-PS 00143/2026",
+        "ETO-RD-AG 00492/2026",
+        "ETO-RD-PA 00159/2026",
+        "DG-RD-PO 00164/2026",
+        "ETO-RD-GR 00430/2026",
+        "ETO-RD-GR 00534/2026",
+        "ETO-RD-GU 00232/2026",
+        "ETO-RD-PA 00161/2026",
+        "ETO-RD-PA 00167/2026",
+        "ETO-RD-PA 00191/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-07",
+      "label": "Causa externa registrada em campo",
+      "description": "A falha é atribuída a agente externo (árvore, animal, terceiro, abalroamento, vandalismo) e não a defeito próprio do ativo.",
+      "count": 2,
+      "records": [
+        "ETO-RD-AG 00117/2026",
+        "ETO-RD-GU 00275/2026"
+      ]
+    },
+    {
+      "id": "R-CAMPO-08",
+      "label": "Queima por sobrecarga",
+      "description": "A causa raiz é dimensionamento ou crescimento de carga, não defeito de fabricação nem avaria.",
+      "count": 5,
+      "records": [
+        "DOLP-RD-PA 00179/2026",
+        "ETO-RD-AR 00473/2026",
+        "DOLP-RD-PA 00209/2026",
+        "ETO-RD-GR 00339/2026",
+        "ETO-RD-GU 00069/2026"
+      ]
+    }
+  ],
+  "fieldSummary": {
+    "total": 134,
+    "withDoubt": 60,
+    "strong": 13,
+    "medium": 35,
+    "weak": 12,
+    "withSignal": 71,
+    "noIntervention": 43,
+    "insideReview74": 25,
+    "outsideReview74": 35,
+    "confrontation": [
+      {
+        "label": "CONFIRMA",
+        "value": 48
+      },
+      {
+        "label": "SEM INTERVENÇÃO REGISTRADA",
+        "value": 43
+      },
+      {
+        "label": "DIVERGE — intervenção diz avaria",
+        "value": 10
+      },
+      {
+        "label": "CONFIRMA (indício)",
+        "value": 9
+      },
+      {
+        "label": "ALERTA — falha era no ramal",
+        "value": 8
+      },
+      {
+        "label": "DIVERGE — intervenção diz queima",
+        "value": 5
+      },
+      {
+        "label": "DIVERGE — indício de queima",
+        "value": 5
+      },
+      {
+        "label": "INCONCLUSIVO",
+        "value": 3
+      },
+      {
+        "label": "CAUSA EXTERNA",
+        "value": 2
+      },
+      {
+        "label": "ALERTA — falha em acessório",
+        "value": 1
+      }
+    ],
+    "source": "TMAE/SIGOD — 68.829 registros de interrupção, 01/01/2026 a 29/07/2026"
+  },
+  "byRecord": {
+    "AUD-134-001": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "FORTE",
+      "doubtScore": 65,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "SS aberta por problema de TENSÃO/TAP (regulação) — não há queima nem avaria física descrita"
+        },
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-002": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 1,
+      "daysToNearest": 68,
+      "nearestDate": "26/03/2026 08:30",
+      "window": "REINCIDÊNCIA (> 60 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "DIVERGE — intervenção diz queima",
+      "recurrence": "SIM",
+      "team": "002OP06",
+      "executorNote": "TRAFO QUEIMADOIntv Auto PPF CH-4000002210",
+      "rules": [
+        "R-CAMPO-02",
+        "R-CAMPO-04",
+        "R-CAMPO-05"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Mesmo trafo com mais de uma SS no período — ao menos uma é duplicidade de registro, não falha nova"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-003": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "26/03/2026 08:30",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "002OP06",
+      "executorNote": "TRAFO QUEIMADOIntv Auto PPF CH-4000002210",
+      "rules": [
+        "R-CAMPO-05"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Mesmo trafo com mais de uma SS no período — ao menos uma é duplicidade de registro, não falha nova"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-05 — SS duplicada para o mesmo transformador"
+    },
+    "AUD-134-004": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "05/02/2026 08:47",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "DIVERGE — intervenção diz queima",
+      "recurrence": "NÃO",
+      "team": "008OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264118333415-1 Equipe 003 - 008OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-005": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-006": {
+      "interventions": 3,
+      "before": 1,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -7,
+      "nearestDate": "23/02/2026 09:29",
+      "window": "ANTES (4 a 30 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "ARVORE DE PEQUENO/ MEDIO PORTE NA REDE / NA FAIXA",
+      "reading": "CAUSA EXTERNA SOBRE O TRAFO",
+      "confrontation": "CAUSA EXTERNA",
+      "recurrence": "NÃO",
+      "team": "003OP13",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264133789759-1 Equipe 003 - 003OP13 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264179220884-1 Equipe 003 - 003OP12 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264201445539-1 Equipe 003 - 089OP01",
+      "rules": [
+        "R-CAMPO-07"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Campo atribui CAUSA EXTERNA sobre o trafo (ARVORE DE PEQUENO/ MEDIO PORTE NA REDE / NA FAIXA) — dano recebido de terceiro ou do meio, não falha própria do ativo"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-07 — Causa externa registrada em campo"
+    },
+    "AUD-134-007": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "18/02/2026 15:39",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "068OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264130157537-1 Equipe 003 - 068OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-008": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "11/04/2026 15:23",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "090OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264062876086-1 Equipe 003 - 090OP01 ||| TRAFO COM BUCHA SECUNDÁRIA QUEBRADA.",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-009": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -2,
+      "nearestDate": "01/02/2026 13:32",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR SOBRECARGA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "096OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264113507188-1 Equipe 003 - 096OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264269093714-1 Equipe 003 - 096OP01",
+      "rules": [
+        "R-CAMPO-04",
+        "R-CAMPO-08"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR SOBRECARGA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-010": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": 5,
+      "nearestDate": "01/03/2026 18:21",
+      "window": "LOGO DEPOIS (4 a 15 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "DIVERGE — indício de queima",
+      "recurrence": "NÃO",
+      "team": "023OP02",
+      "executorNote": "CODIGO INVALIDO:CH/69812946- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264085643354-1 Equipe 003 - 023OP01 ||| CODIGO INVALIDO:CH/5700216064- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264152669390-1 Equipe 003 - 023OP02",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "SS aponta apenas BUCHA danificada/quebrada — componente externo substituível, sem evidência de queima do enrolamento"
+        },
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-011": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-012": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "05/02/2026 10:13",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "002OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264118370531-1 Equipe 003 - 002OP03",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-013": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "19/03/2026 08:11",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "065OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264186341253-1 Equipe 003 - 065OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-014": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "14/02/2026 12:24",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "004OP33",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264079542916-1 Equipe 003 - 053OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264127802883-1 Equipe 003 - 004OP33",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-015": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "09/03/2026 16:20",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "045OP04",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264127847539-1 Equipe 003 - 045OP04 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264168758394-1 Equipe 003 - 045OP04",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-016": {
+      "interventions": 3,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "01/02/2026 19:02",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "004OP32",
+      "executorNote": "CODIGO INVALIDO:TR/3309926- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264085516902-1 Equipe 003 - 004OP18 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264113624016-1 Equipe 003 - 004OP32 ||| CODIGO INVALIDO:TR/5700365013- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264201643587-1 Equipe 003 - 004OP33",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-017": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-018": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-019": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "13/02/2026 16:41",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "FALHA BUCHA DE AT",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "026OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264085965058-1 Equipe 003 - 151OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126787899-1 Equipe 003 - 026OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (FALHA BUCHA DE AT)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (FALHA BUCHA DE AT)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-020": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-021": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "07/01/2026 15:05",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "016OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264069118734-1 Equipe 003 - 016OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-022": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "17/03/2026 07:16",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR SOBRECARGA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "033OP01",
+      "executorNote": "CODIGO INVALIDO:CH/9502408- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264182141404-1 Equipe 003 - 033OP01",
+      "rules": [
+        "R-CAMPO-08"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR SOBRECARGA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-08 — Queima por sobrecarga"
+    },
+    "AUD-134-023": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "02/03/2026 12:29",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "060OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264154680311-1 Equipe 003 - 060OP02 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264526543239-1 Equipe 003 - 060OP01",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-024": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "13/02/2026 18:19",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "046OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126841566-1 Equipe 003 - 046OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-025": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "15/01/2026 19:42",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "021OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264082939343-1 Equipe 003 - 021OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264131852022-1 Equipe 003 - 021OP02",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-026": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "17/02/2026 21:43",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "113OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264073431409-1 Equipe 003 - 111OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264129386988-1 Equipe 003 - 113OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-027": {
+      "interventions": 4,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 3,
+      "daysToNearest": -1,
+      "nearestDate": "12/03/2026 07:34",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "SIM",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264173768402-1 Equipe 003 - 039OP03 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264302835830-1 Equipe 003 - 039OP05 ||| CODIGO INVALIDO:CH/330175703- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264340661076-1 Equipe 003 - 068OP02 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264353596569-1 Equipe 003 - 045OP04",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-028": {
+      "interventions": 3,
+      "before": 1,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "16/02/2026 09:43",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "FALHA BUCHA DE BT",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "111OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126445915-1 Equipe 003 - 009OP37 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264127897142-1 Equipe 003 - 111OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264128555800-1 Equipe 003 - 111OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (FALHA BUCHA DE BT)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-029": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "01/05/2026 06:12",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "004OP27",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264188792880-1 Equipe 003 - 004OP20 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264349014404-1 Equipe 003 - 004OP27",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-030": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-031": {
+      "interventions": 3,
+      "before": 1,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "15/03/2026 13:23",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "148OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264067343251-1 Equipe 003 - 148OP03 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264175700071-1 Equipe 003 - 148OP03 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264177818319-1 Equipe 003 - 148OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-032": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "04/03/2026 17:41",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "DIVERGE — indício de queima",
+      "recurrence": "NÃO",
+      "team": "060OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264161035442-1 Equipe 003 - 060OP02",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-033": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "03/05/2026 11:31",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "119OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264355872743-1 Equipe 003 - 119OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264371810570-1 Equipe 003 - 065OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-034": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "03/01/2026 10:48",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "058OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264062912475-1 Equipe 003 - 058OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-035": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "05/03/2026 14:05",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "087OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264162041140-1 Equipe 003 - 087OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-036": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "12/01/2026 17:00",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "068OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264078386765-1 Equipe 003 - 068OP02",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-037": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "13/01/2026 16:04",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR SOBRECARGA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "052OP08",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264079485820-1 Equipe 003 - 052OP08",
+      "rules": [
+        "R-CAMPO-08"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR SOBRECARGA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-08 — Queima por sobrecarga"
+    },
+    "AUD-134-038": {
+      "interventions": 3,
+      "before": 2,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "15/03/2026 19:18",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "032OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264069640180-1 Equipe 003 - 032OP02 ||| CODIGO INVALIDO:TR/5701076832- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264136406898-1 Equipe 003 - 032OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264178068024-1 Equipe 003 - 032OP02",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-039": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-040": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "14/02/2026 08:38",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "DIVERGE — intervenção diz queima",
+      "recurrence": "NÃO",
+      "team": "013OP04",
+      "executorNote": "TR QUEIMADO",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-041": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "14/02/2026 09:58",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "013OP16",
+      "executorNote": "TRAFO QUEIMADO 5701302085 15kva 19,9kv acesso caminhonete",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-042": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "14/03/2026 09:54",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "008OP05",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264175424797-1 Equipe 003 - 017OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264177104096-1 Equipe 003 - 008OP05",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-043": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "02/04/2026 17:42",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "019OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264250376657-1 Equipe 003 - 019OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-044": {
+      "interventions": 2,
+      "before": 2,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": -27,
+      "nearestDate": "13/02/2026 18:53",
+      "window": "ANTES (4 a 30 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "DIVERGE — indício de queima",
+      "recurrence": "NÃO",
+      "team": "265OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264120241413-1 Equipe 003 - 265OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126883925-1 Equipe 003 - 265OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-045": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "17/01/2026 07:35",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "032OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264085512527-1 Equipe 003 - 032OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264282686076-1 Equipe 003 - 032OP01",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-046": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "12/01/2026 10:32",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "052OP08",
+      "executorNote": "TRAFO E PARA RAIO QUEIMADOS TRAFO 5KVA 7,9KV ACESSO BOM PARA CAMINHONETE BUCHA BT ESTOURADA POR DESCARGA ATIMOSFERICA",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-047": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-048": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -3,
+      "nearestDate": "13/02/2026 16:48",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CAUSA NAO IDENTIFICADA",
+      "subcause": "CAUSA NAO IDENTIFICADA - ESPECIFICAR",
+      "reading": "INCONCLUSIVO",
+      "confrontation": "INCONCLUSIVO",
+      "recurrence": "NÃO",
+      "team": "004OP22",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264123988795-1 Equipe 003 - 004OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126791963-1 Equipe 003 - 004OP22",
+      "rules": [],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Leitura de campo INCONCLUSIVA — a intervenção não confirma queima nem avaria"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-049": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "21/02/2026 09:25",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264133300473-1 Equipe 003 - 039OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-050": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-051": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "16/03/2026 15:40",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264180621887-1 Equipe 003 - 039OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-052": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-053": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-054": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -3,
+      "nearestDate": "23/02/2026 16:22",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "271OP04",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264136405687-1 Equipe 003 - 271OP04",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 85,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        },
+        {
+          "level": "FORTE",
+          "text": "SS aberta por problema de TENSÃO/TAP (regulação) — não há queima nem avaria física descrita"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-055": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-056": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "14/02/2026 16:28",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "DIVERGE — intervenção diz queima",
+      "recurrence": "NÃO",
+      "team": "009OP37",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264127862242-1 Equipe 003 - 009OP37",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-057": {
+      "interventions": 3,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "11/02/2026 16:48",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "SIM",
+      "team": "026OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264123920753-1 Equipe 003 - 026OP02 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264150067599-1 Equipe 003 - 026OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264326173028-1 Equipe 003 - 026OP01",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-058": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "03/01/2026 09:16",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "091OP01",
+      "executorNote": "CODIGO INVALIDO:TR/0310094091- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264062873797-1 Equipe 003 - 091OP01",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-059": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-060": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-061": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": 4,
+      "nearestDate": "03/02/2026 21:10",
+      "window": "LOGO DEPOIS (4 a 15 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "076OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264117118658-1 Equipe 003 - 076OP02",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-062": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "16/03/2026 10:21",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "076OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264113409112-1 Equipe 003 - 076OP03 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264179892350-1 Equipe 003 - 076OP02",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-063": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "19/01/2026 07:23",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "trafo queimado em campo de 10 kva tensão 19.9 kv",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-064": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "04/03/2026 11:54",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR CAUSA NAO IDENTIFICADA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "076OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264117735716-1 Equipe 003 - 003OP14 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264159798982-1 Equipe 003 - 076OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR CAUSA NAO IDENTIFICADA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-065": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "15/03/2026 17:23",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "036OP01",
+      "executorNote": "TRAFO QUEIMADO",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-066": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-067": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "13/03/2026 07:13",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR SOBRECARGA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "DIVERGE — intervenção diz queima",
+      "recurrence": "NÃO",
+      "team": "004OP11",
+      "executorNote": "FOI ENCONTRADO TRABFORMADOR 5710760004 COM VAZAMENTO DE OLHO E COM AMACADO NA LATERALIntv Auto PPF CH-4010006057",
+      "rules": [
+        "R-CAMPO-02",
+        "R-CAMPO-08"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR SOBRECARGA)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (QUEIMADO POR SOBRECARGA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-068": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "14/01/2026 18:58",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "003OP15",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264080634746-1 Equipe 003 - 003OP15 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264084936572-1 Equipe 003 - 003OP12",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-069": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "10/02/2026 08:27",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "DIVERGE — indício de queima",
+      "recurrence": "NÃO",
+      "team": "100OP04",
+      "executorNote": "CODIGO INVALIDO:CH/5711948122- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264122259129-1 Equipe 003 - 100OP04",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-070": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "03/02/2026 12:01",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "048OP02",
+      "executorNote": "CODIGO INVALIDO:TR/5712496048- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264116072700-1 Equipe 003 - 048OP02",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-071": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-072": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "22/02/2026 14:45",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "078OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264133555010-1 Equipe 003 - 078OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-073": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": 7,
+      "nearestDate": "18/02/2026 11:50",
+      "window": "LOGO DEPOIS (4 a 15 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "DIVERGE — indício de queima",
+      "recurrence": "NÃO",
+      "team": "098OP02",
+      "executorNote": "CODIGO INVALIDO:TR/001- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264130111195-1 Equipe 003 - 098OP02",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-074": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-075": {
+      "interventions": 1,
+      "before": 1,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": -23,
+      "nearestDate": "07/01/2026 18:55",
+      "window": "ANTES (4 a 30 d)",
+      "cause": "CAUSA NAO IDENTIFICADA",
+      "subcause": "CAUSA NAO IDENTIFICADA - ESPECIFICAR",
+      "reading": "INCONCLUSIVO",
+      "confrontation": "INCONCLUSIVO",
+      "recurrence": "NÃO",
+      "team": "004OP18",
+      "executorNote": "CODIGO INVALIDO:TR/508738- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264069183321-1 Equipe 003 - 004OP18",
+      "rules": [],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 32,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Leitura de campo INCONCLUSIVA — a intervenção não confirma queima nem avaria"
+        },
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-076": {
+      "interventions": 1,
+      "before": 1,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": -25,
+      "nearestDate": "05/01/2026 14:21",
+      "window": "ANTES (4 a 30 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "004OP11",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264066804852-1 Equipe 003 - 004OP11",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-077": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "21/02/2026 09:15",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264133299291-1 Equipe 003 - 039OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-078": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "13/02/2026 14:27",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR CAUSA NAO IDENTIFICADA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "045OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264126685753-1 Equipe 003 - 045OP02",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR CAUSA NAO IDENTIFICADA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-079": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-080": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-081": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "16/04/2026 11:39",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "SIM",
+      "team": "004OP22",
+      "executorNote": "CONDUTOR PARTIDOIntv Auto PPF TR-5703106004 ||| Intv Auto PPF TR-5703106004",
+      "rules": [
+        "R-CAMPO-03",
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-082": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": 28,
+      "nearestDate": "28/02/2026 13:07",
+      "window": "DEPOIS (16 a 30 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "ARVORE DE PEQUENO/ MEDIO PORTE NA REDE / NA FAIXA",
+      "reading": "CAUSA EXTERNA SOBRE O TRAFO",
+      "confrontation": "CAUSA EXTERNA",
+      "recurrence": "SIM",
+      "team": "107OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264149967267-1 Equipe 003 - 107OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264322506411-1 Equipe 003 - 032OP02",
+      "rules": [
+        "R-CAMPO-04",
+        "R-CAMPO-07"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Campo atribui CAUSA EXTERNA sobre o trafo (ARVORE DE PEQUENO/ MEDIO PORTE NA REDE / NA FAIXA) — dano recebido de terceiro ou do meio, não falha própria do ativo"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-083": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 50,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-084": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "22/01/2026 14:16",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "BANCO REGULADOR/AUTO-BOOSTER",
+      "subcause": "VAZAMENTO DE OLEO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "035OP02",
+      "executorNote": "tr 5701197035 15kva e para raio 19,9 acesso caminhonete equipe 035op02 991092571 leva glv estribo dg-rd-po 95/2026",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-085": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-086": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "23/01/2026 13:32",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264094777172-1 Equipe 003 - 039OP03",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-087": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "17/02/2026 10:57",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "ENTRELACADO",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "122OP46",
+      "executorNote": "Queima de ELO no(a) TR/CH 5761911122. FASE ELO 5h Penalizando cargas da RDR/RDU palmas, Causa cabos entrelaçados passou um caminhao e acertou cabos telefonicos, Equipe122op46 e 122op01",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (ENTRELACADO), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-088": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "05/06/2026 08:59",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "045OP04",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264469518672-1 Equipe 003 - 068OP02 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264480119038-1 Equipe 003 - 045OP04",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-089": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-090": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-091": {
+      "interventions": 1,
+      "before": 1,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": -4,
+      "nearestDate": "06/03/2026 17:43",
+      "window": "ANTES (4 a 30 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "059OP16",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264164943711-1 Equipe 003 - 059OP16",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-092": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "23/06/2026 19:49",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "FALHA BUCHA DE BT",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "256OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264524627589-1 Equipe 003 - 256OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264551073743-1 Equipe 003 - 256OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (FALHA BUCHA DE BT)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (FALHA BUCHA DE BT)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-093": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-094": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-095": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "03/06/2026 07:07",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR CAUSA NAO IDENTIFICADA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "003OP12",
+      "executorNote": "CODIGO INVALIDO:TR/5453541003- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264470043886-1 Equipe 003 - 076OP03 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264471895668-1 Equipe 003 - 003OP12",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR CAUSA NAO IDENTIFICADA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-096": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "18/02/2026 12:33",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CAUSA NAO IDENTIFICADA",
+      "subcause": "CAUSA NAO IDENTIFICADA - ESPECIFICAR",
+      "reading": "INCONCLUSIVO",
+      "confrontation": "INCONCLUSIVO",
+      "recurrence": "NÃO",
+      "team": "036OP01",
+      "executorNote": "TRAF ABERTOTRAF ABERTOTRAF ABERTOIntv Auto PPF TR-5700075036",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 47,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Leitura de campo INCONCLUSIVA — a intervenção não confirma queima nem avaria"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-097": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 50,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Indício de furto, vandalismo ou abalroamento no texto — dano de terceiros"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-098": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-099": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "04/06/2026 21:59",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "010OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264478343962-1 Equipe 003 - 010OP03",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-100": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-101": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-102": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "26/03/2026 08:30",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "002OP06",
+      "executorNote": "TRAFO QUEIMADOIntv Auto PPF CH-4000002210",
+      "rules": [
+        "R-CAMPO-05"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 22,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Mesmo trafo com mais de uma SS no período — ao menos uma é duplicidade de registro, não falha nova"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-05 — SS duplicada para o mesmo transformador"
+    },
+    "AUD-134-103": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": 21,
+      "nearestDate": "15/07/2026 17:48",
+      "window": "DEPOIS (16 a 30 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA EMENDA",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "045OP01",
+      "executorNote": "Intv Auto PPF TR-5700029045",
+      "rules": [
+        "R-CAMPO-03"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 45,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA EMENDA), não no transformador"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-104": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "02/06/2026 09:40",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "068OP02",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264469804173-1 Equipe 003 - 068OP02",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-105": {
+      "interventions": 3,
+      "before": 1,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "04/03/2026 13:34",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "082OP01",
+      "executorNote": "CODIGO INVALIDO:TR/0000000000- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264128594459-1 Equipe 003 - 082OP01 ||| chave aberta com elo queimado penalizando cargas :TR/T- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264159812497-1 Equipe 003 - 082OP01 ||| CODIGO INVALIDO:TR/T- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264177645306-1 Equipe 003 - 082OP01",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-106": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-107": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "09/06/2026 09:49",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "065OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264199796192-1 Equipe 003 - 081OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264494743433-1 Equipe 003 - 065OP01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-108": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "01/04/2026 09:53",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "002OP02",
+      "executorNote": "trafo queimado, aberto nota.",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-109": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-110": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-111": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "FORTE",
+      "doubtScore": 40,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "SS descreve defeito APENAS em acessório (PARA RAIO DANIFICAD) — nenhuma menção a queima ou vazamento do trafo"
+        }
+      ],
+      "cons": [
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-112": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 1,
+      "daysToNearest": 0,
+      "nearestDate": "15/01/2026 08:30",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "028OP05",
+      "executorNote": "||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264194965684-1 Equipe 003 - 028OP01",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-113": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "21/05/2026 08:14",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "080OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264416242714-1 Equipe 003 - 080OP01 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264419204467-1 Equipe 003 - 080OP01",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-114": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "04/02/2026 11:45",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR SOBRECARGA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "026OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264114087479-1 Equipe 003 - 026OP02 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264117708274-1 Equipe 003 - 026OP01",
+      "rules": [
+        "R-CAMPO-08"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR SOBRECARGA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-08 — Queima por sobrecarga"
+    },
+    "AUD-134-115": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "18/05/2026 16:28",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "088OP04",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264410101163-1 Equipe 003 - 088OP04",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-116": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-117": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "17/02/2026 08:03",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+      "reading": "CONFIRMA AVARIA",
+      "confrontation": "DIVERGE — intervenção diz avaria",
+      "recurrence": "NÃO",
+      "team": "039OP03",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264129134128-1 Equipe 003 - 039OP03",
+      "rules": [
+        "R-CAMPO-02"
+      ],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Campo diverge da categoria, mas ainda descreve falha do trafo (VAZAMENTO DE OLEO / TANQUE DETERIORADO)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-02 — Campo diverge da categoria da SS"
+    },
+    "AUD-134-118": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-119": {
+      "interventions": 3,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 1,
+      "daysToNearest": -1,
+      "nearestDate": "12/05/2026 09:49",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR CAUSA NAO IDENTIFICADA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "SIM",
+      "team": "003OP13",
+      "executorNote": "CODIGO INVALIDO:TR/0310221094- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264380348994-1 Equipe 003 - 148OP03 ||| trafo queamado de 75 kva tensao 34.5 kv ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264533925021-1 Equipe 003 - 094OP02",
+      "rules": [
+        "R-CAMPO-04"
+      ],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR CAUSA NAO IDENTIFICADA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-04 — Reincidência após a troca"
+    },
+    "AUD-134-120": {
+      "interventions": 2,
+      "before": 0,
+      "inWindow": 2,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "01/04/2026 17:43",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "004OP33",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264246079135-1 Equipe 003 - 004OP33 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264251148588-1 Equipe 003 - 004OP03",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-121": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-122": {
+      "interventions": 2,
+      "before": 1,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "14/05/2026 08:55",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "002OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264309695226-1 Equipe 003 - 080OP01 ||| Constatado trafo 5720022127 de 15kVA na 19.9kV queimado para-raios bom. Acesso bom. Equipe 002FT01",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-123": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [],
+      "doubtLevel": "",
+      "doubtScore": 0,
+      "pros": [],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": ""
+    },
+    "AUD-134-124": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 28,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": true,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-125": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "19/01/2026 12:55",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "013OP13",
+      "executorNote": "CODIGO INVALIDO:TR/5400380046- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264088230633-1 Equipe 003 - 013OP13",
+      "rules": [],
+      "doubtLevel": "FRACA",
+      "doubtScore": 10,
+      "pros": [
+        {
+          "level": "FRACA",
+          "text": "Campo registrou CÓDIGO INVÁLIDO no PDA — o equipamento efetivamente atendido pode não ser o da SS"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)",
+        "Obra registra troca efetiva de transformador (qtd=1)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": ""
+    },
+    "AUD-134-126": {
+      "interventions": 1,
+      "before": 1,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": -69,
+      "nearestDate": "02/03/2026 08:53",
+      "window": "MUITO ANTES (> 30 d)",
+      "cause": "CONDUTOR DE BT",
+      "subcause": "PARTIDO NA FASE",
+      "reading": "FALHA NO RAMAL, NÃO NO TRAFO",
+      "confrontation": "ALERTA — falha era no ramal",
+      "recurrence": "NÃO",
+      "team": "045OP04",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264155556999-1 Equipe 003 - 045OP04",
+      "rules": [
+        "R-CAMPO-03",
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 70,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (PARTIDO NA FASE), não no transformador"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-127": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01",
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 53,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    },
+    "AUD-134-128": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "13/03/2026 19:12",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "059OP16",
+      "executorNote": "chave aberta com elo queimado penalizando cargas na rural de taquarussu Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264175873358-1 Equipe 003 - 059OP16",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-129": {
+      "interventions": 3,
+      "before": 2,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "18/03/2026 11:14",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "MEIO AMBIENTE",
+      "subcause": "DESCARGA ATMOSFERICA",
+      "reading": "INDÍCIO DE QUEIMA POR DESCARGA",
+      "confrontation": "CONFIRMA (indício)",
+      "recurrence": "NÃO",
+      "team": "059OP17",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264124708098-1 Equipe 003 - 059OP15 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264128546101-1 Equipe 003 - 059OP16 ||| Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264184422215-1 Equipe 003 - 059OP17",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-130": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -1,
+      "nearestDate": "18/04/2026 17:47",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "CHAVE FACA",
+      "subcause": "FALHA EM CONEXAO/LAMINA",
+      "reading": "FALHA EM ACESSÓRIO",
+      "confrontation": "ALERTA — falha em acessório",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "FOI VERIFOCADO DEFEITO NA REDE ALTAIntv Auto PPF CH-0245680059",
+      "rules": [
+        "R-CAMPO-03",
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 70,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "Campo registrou falha no RAMAL/ACESSÓRIO (FALHA EM CONEXAO/LAMINA), não no transformador"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-03 — Falha no ramal ou em acessório"
+    },
+    "AUD-134-131": {
+      "interventions": 1,
+      "before": 0,
+      "inWindow": 1,
+      "afterSwap": 0,
+      "daysToNearest": -2,
+      "nearestDate": "11/03/2026 11:50",
+      "window": "MESMA OCORRÊNCIA (±3 d)",
+      "cause": "TRANSFORMADOR",
+      "subcause": "QUEIMADO POR DESCARGA ATMOSFERICA",
+      "reading": "CONFIRMA QUEIMA",
+      "confrontation": "CONFIRMA",
+      "recurrence": "NÃO",
+      "team": "257OP01",
+      "executorNote": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264172440251-1 Equipe 003 - 257OP01",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Campo CONFIRMA a queima ou avaria (QUEIMADO POR DESCARGA ATMOSFERICA)",
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-132": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 25,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [
+        "Texto da SS descreve defeito do próprio trafo (queima ou vazamento)"
+      ],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-06 — Obra sem transformador no material"
+    },
+    "AUD-134-133": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-05",
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "FORTE",
+      "doubtScore": 112,
+      "pros": [
+        {
+          "level": "FORTE",
+          "text": "SS descreve defeito APENAS em acessório (PARA RAIO DANIFICAD) — nenhuma menção a queima ou vazamento do trafo"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Mesmo trafo com mais de uma SS no período — ao menos uma é duplicidade de registro, não falha nova"
+        },
+        {
+          "level": "MEDIA",
+          "text": "AVARIADO sem nenhum registro de campo e sem descrição de vazamento ou queima na SS — avaria não comprovada por nenhuma fonte"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-05 — SS duplicada para o mesmo transformador"
+    },
+    "AUD-134-134": {
+      "interventions": 0,
+      "before": 0,
+      "inWindow": 0,
+      "afterSwap": 0,
+      "daysToNearest": null,
+      "nearestDate": "",
+      "window": "",
+      "cause": "",
+      "subcause": "",
+      "reading": "",
+      "confrontation": "SEM INTERVENÇÃO REGISTRADA",
+      "recurrence": "NÃO",
+      "team": "",
+      "executorNote": "",
+      "rules": [
+        "R-CAMPO-01",
+        "R-CAMPO-05",
+        "R-CAMPO-06"
+      ],
+      "doubtLevel": "MEDIA",
+      "doubtScore": 75,
+      "pros": [
+        {
+          "level": "MEDIA",
+          "text": "Classificado QUEIMADO mas o código do trafo não aparece uma única vez nos 68.829 registros de interrupção de Jan a Jul; trafo queimado obrigatoriamente desliga cliente"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Mesmo trafo com mais de uma SS no período — ao menos uma é duplicidade de registro, não falha nova"
+        },
+        {
+          "level": "MEDIA",
+          "text": "Obra vinculada não tem transformador no material — a substituição não está comprovada por nenhuma requisição"
+        }
+      ],
+      "cons": [],
+      "inManualReview74": false,
+      "expurgeReason": "R-CAMPO-01 — QUEIMADO sem interrupção no período"
+    }
+  },
+  "expurgeDashboard": {
+    "byFieldRule": [
+      {
+        "label": "R-CAMPO-01",
+        "value": 18
+      },
+      {
+        "label": "R-CAMPO-02",
+        "value": 20
+      },
+      {
+        "label": "R-CAMPO-03",
+        "value": 9
+      },
+      {
+        "label": "R-CAMPO-04",
+        "value": 12
+      },
+      {
+        "label": "R-CAMPO-05",
+        "value": 5
+      },
+      {
+        "label": "R-CAMPO-06",
+        "value": 12
+      },
+      {
+        "label": "R-CAMPO-07",
+        "value": 2
+      },
+      {
+        "label": "R-CAMPO-08",
+        "value": 5
+      }
+    ],
+    "fieldCandidates": 60,
+    "fieldStrong": 13
+  }
+}
