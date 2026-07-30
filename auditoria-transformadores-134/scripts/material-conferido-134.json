@@ -1,0 +1,1884 @@
+{
+ "source": "material_obra.txt (2.358 itens, 192 obras) + material_obra_1295.txt (13.210 itens, 1.257 obras)",
+ "rule": "Transformador = descricao iniciada por 'TRANSF DISTR'. Poste = descricao iniciada por 'POSTE'. Para-raios = descricao iniciada por 'PARA-RAIOS'. Acessorios que apenas citam a palavra (CAPA PROTETORA TRANSF, CINTA POSTE) nao contam como movimentacao do equipamento.",
+ "byWork": {
+  "112600063": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 6,
+   "valor": 21624.32,
+   "trafoItens": [
+    {
+     "codigo": "91085",
+     "descricao": "TRANSF DISTR AER OVI 3F 13,8KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 20881.56
+    },
+    {
+     "codigo": "91086",
+     "descricao": "TRANSF DISTR AER OVI 3F 13,8KV 380/220V 75KVA CL2 4TP",
+     "qtd": 0.0,
+     "valor": 0.0
+    }
+   ]
+  },
+  "112600171": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 12,
+   "valor": 14409.4,
+   "trafoItens": [
+    {
+     "codigo": "91197",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 30KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 13519.65
+    }
+   ]
+  },
+  "112600242": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 10,
+   "valor": 22793.56,
+   "trafoItens": [
+    {
+     "codigo": "90056",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 22003.22
+    }
+   ]
+  },
+  "112600271": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6168.76,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 0.0,
+     "valor": 0.0
+    },
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "112600307": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 17,
+   "valor": 6972.61,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "112600308": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 6,
+   "valor": 6164.2,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "112600317": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 9565.52,
+   "trafoItens": [
+    {
+     "codigo": "90100",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 8180.64
+    }
+   ]
+  },
+  "112600326": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 21,
+   "valor": 23449.76,
+   "trafoItens": [
+    {
+     "codigo": "91085",
+     "descricao": "TRANSF DISTR AER OVI 3F 13,8KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 20881.56
+    }
+   ]
+  },
+  "112600406": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6139.49,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "112600512": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 14,
+   "valor": 29008.38,
+   "trafoItens": [
+    {
+     "codigo": "91201",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 27589.12
+    }
+   ]
+  },
+  "112600523": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 14,
+   "valor": 28785.91,
+   "trafoItens": [
+    {
+     "codigo": "90084",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 0.0,
+     "valor": 0.0
+    },
+    {
+     "codigo": "91201",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 27589.12
+    }
+   ]
+  },
+  "112600587": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 20,
+   "valor": 9145.19,
+   "trafoItens": [
+    {
+     "codigo": "90100",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 8180.64
+    }
+   ]
+  },
+  "112600605": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6136.25,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "112600636": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 16,
+   "valor": 16416.18,
+   "trafoItens": [
+    {
+     "codigo": "91198",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "212600107": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 7,
+   "valor": 6059.77,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600173": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6159.17,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600211": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 5,
+   "valor": 6024.24,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600216": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 7,
+   "valor": 6076.1,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600218": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6153.25,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600235": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6093.39,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "212600293": {
+   "trafos": 1,
+   "postes": 1,
+   "pararaios": 0,
+   "itens": 17,
+   "valor": 31848.65,
+   "trafoItens": [
+    {
+     "codigo": "91201",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 27589.12
+    }
+   ]
+  },
+  "212600323": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 6,
+   "valor": 6030.21,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "312600082": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6207.12,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "312600153": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6128.54,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "312600174": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 9,
+   "valor": 14963.22,
+   "trafoItens": [
+    {
+     "codigo": "90088",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "312600177": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 8,
+   "valor": 14098.19,
+   "trafoItens": [
+    {
+     "codigo": "90062",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 13244.91
+    }
+   ]
+  },
+  "312600324": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6128.54,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "312600346": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 9,
+   "valor": 14963.22,
+   "trafoItens": [
+    {
+     "codigo": "90088",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "412600100": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6225.92,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600101": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 6518.13,
+   "trafoItens": [
+    {
+     "codigo": "91623",
+     "descricao": "TRANSF DISTR AER OVI 1F 7,967KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "412600113": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6242.99,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600116": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6113.32,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600117": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6112.62,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600118": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6104.81,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600122": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 16,
+   "valor": 6370.7,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600150": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 6272.62,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600153": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6240.77,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600156": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 16,
+   "valor": 12820.65,
+   "trafoItens": [
+    {
+     "codigo": "90061",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 30KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 11554.0
+    }
+   ]
+  },
+  "412600161": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6119.0,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600162": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6108.17,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600231": {
+   "trafos": 0,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 9,
+   "valor": 1629.49,
+   "trafoItens": []
+  },
+  "412600247": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 6440.3,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600272": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6350.61,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600298": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 2,
+   "itens": 8,
+   "valor": 6141.43,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600300": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 7,
+   "valor": 6075.61,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600301": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 6,
+   "valor": 6149.53,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600304": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 7,
+   "valor": 6075.61,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600378": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6329.56,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "412600427": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 4,
+   "valor": 23667.51,
+   "trafoItens": [
+    {
+     "codigo": "90084",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 23101.35
+    }
+   ]
+  },
+  "412600498": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 13,
+   "valor": 15137.75,
+   "trafoItens": [
+    {
+     "codigo": "90088",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "512600035": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 5,
+   "valor": 17625.47,
+   "trafoItens": [
+    {
+     "codigo": "91199",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 75KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 16815.43
+    }
+   ]
+  },
+  "512600059": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6952.08,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "512600122": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 2,
+   "valor": 6001.45,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600024": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 6391.22,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600050": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6210.87,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600123": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 9,
+   "valor": 14029.76,
+   "trafoItens": [
+    {
+     "codigo": "90062",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 13244.91
+    }
+   ]
+  },
+  "612600124": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 9,
+   "valor": 14977.8,
+   "trafoItens": [
+    {
+     "codigo": "91198",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "612600125": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 8323.76,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "612600140": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6274.88,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600149": {
+   "trafos": 1,
+   "postes": 1,
+   "pararaios": 3,
+   "itens": 26,
+   "valor": 8529.57,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600195": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 13,
+   "valor": 12367.25,
+   "trafoItens": [
+    {
+     "codigo": "90061",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 30KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 11554.0
+    }
+   ]
+  },
+  "612600200": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 17,
+   "valor": 7741.43,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600209": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6242.98,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600249": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 17,
+   "valor": 7773.82,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "612600251": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 16,
+   "valor": 8153.32,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "612600280": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6664.91,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "612600303": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 8113.09,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "612600305": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 6,
+   "valor": 8142.45,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "612600312": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6700.81,
+   "trafoItens": [
+    {
+     "codigo": "91623",
+     "descricao": "TRANSF DISTR AER OVI 1F 7,967KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "612600346": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6224.42,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600368": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6365.76,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600372": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 7920.12,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600421": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 8,
+   "valor": 27394.5,
+   "trafoItens": [
+    {
+     "codigo": "90057",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 26596.35
+    }
+   ]
+  },
+  "612600464": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 16,
+   "valor": 8041.73,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "612600474": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 8,
+   "valor": 15044.61,
+   "trafoItens": [
+    {
+     "codigo": "90088",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "612600493": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 8323.5,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "612600651": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 11,
+   "valor": 28682.07,
+   "trafoItens": [
+    {
+     "codigo": "90085",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 27730.51
+    }
+   ]
+  },
+  "662600031": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 2,
+   "itens": 14,
+   "valor": 8807.52,
+   "trafoItens": [
+    {
+     "codigo": "90100",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 8180.64
+    }
+   ]
+  },
+  "662600036": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 6,
+   "valor": 6970.82,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600037": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 10506.87,
+   "trafoItens": [
+    {
+     "codigo": "91639",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600038": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 16,
+   "valor": 7267.26,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600047": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 8012.78,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600061": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 4,
+   "valor": 14787.52,
+   "trafoItens": [
+    {
+     "codigo": "91198",
+     "descricao": "TRANSF DISTR AER OVI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "662600083": {
+   "trafos": 1,
+   "postes": 1,
+   "pararaios": 3,
+   "itens": 18,
+   "valor": 8363.51,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600095": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 19,
+   "valor": 7195.13,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "662600108": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 35,
+   "valor": 16302.51,
+   "trafoItens": [
+    {
+     "codigo": "90062",
+     "descricao": "TRANSF DISTR AER OMI 3F 13,8KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 13244.91
+    }
+   ]
+  },
+  "662600115": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 4,
+   "valor": 15485.12,
+   "trafoItens": [
+    {
+     "codigo": "90088",
+     "descricao": "TRANSF DISTR AER OMI 3F 34,5KV 380/220V 45KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 14080.6
+    }
+   ]
+  },
+  "662600125": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6568.93,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600129": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 6601.35,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600130": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 7,
+   "valor": 6132.09,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600131": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 6586.23,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600167": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 8,
+   "valor": 6162.56,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600175": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 6300.82,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600176": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 6,
+   "itens": 16,
+   "valor": 22147.09,
+   "trafoItens": [
+    {
+     "codigo": "91085",
+     "descricao": "TRANSF DISTR AER OVI 3F 13,8KV 380/220V 112,5KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 20881.56
+    }
+   ]
+  },
+  "662600184": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 8559.65,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600188": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 14,
+   "valor": 6282.99,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600213": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 0,
+   "itens": 2,
+   "valor": 7722.4,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600216": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 12,
+   "valor": 6548.87,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600276": {
+   "trafos": 1,
+   "postes": 1,
+   "pararaios": 1,
+   "itens": 20,
+   "valor": 10550.21,
+   "trafoItens": [
+    {
+     "codigo": "91623",
+     "descricao": "TRANSF DISTR AER OVI 1F 7,967KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "662600287": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6273.56,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600304": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 7,
+   "valor": 6057.69,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600313": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 4,
+   "valor": 7964.29,
+   "trafoItens": [
+    {
+     "codigo": "91639",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600319": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6687.49,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600322": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 11,
+   "valor": 8121.14,
+   "trafoItens": [
+    {
+     "codigo": "91639",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600330": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6543.76,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600336": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 0,
+   "itens": 2,
+   "valor": 5825.33,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600346": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 16,
+   "valor": 6775.53,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600362": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 8841.26,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "662600363": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6497.04,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    },
+    {
+     "codigo": "91623",
+     "descricao": "TRANSF DISTR AER OVI 1F 7,967KV 440/220V 15KVA CL2 5TP",
+     "qtd": 0.0,
+     "valor": 0.0
+    }
+   ]
+  },
+  "662600370": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 19,
+   "valor": 7279.48,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "662600394": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 4,
+   "valor": 25604.81,
+   "trafoItens": [
+    {
+     "codigo": "91123",
+     "descricao": "TRANSF DISTR AER OVI 3F 13,8KV 380/220V 150KVA CL2 4TP",
+     "qtd": 1.0,
+     "valor": 25183.1
+    }
+   ]
+  },
+  "712600018": {
+   "trafos": 1,
+   "postes": 1,
+   "pararaios": 3,
+   "itens": 26,
+   "valor": 11056.23,
+   "trafoItens": [
+    {
+     "codigo": "90070",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 25KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 7717.24
+    }
+   ]
+  },
+  "712600060": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6153.54,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600120": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 9,
+   "valor": 6183.08,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600131": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6148.07,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600152": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6341.62,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600156": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 13,
+   "valor": 6297.36,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600163": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 11,
+   "valor": 6238.62,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600180": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 8,
+   "valor": 6344.76,
+   "trafoItens": [
+    {
+     "codigo": "90099",
+     "descricao": "TRANSF DISTR AER OMI 1F 7,969KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 6141.56
+    }
+   ]
+  },
+  "712600182": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 15,
+   "valor": 6461.77,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600242": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 3,
+   "itens": 10,
+   "valor": 6114.69,
+   "trafoItens": [
+    {
+     "codigo": "90069",
+     "descricao": "TRANSF DISTR AER OMI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600244": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 9,
+   "valor": 6068.11,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600305": {
+   "trafos": 0,
+   "postes": 1,
+   "pararaios": 0,
+   "itens": 14,
+   "valor": 5413.93,
+   "trafoItens": []
+  },
+  "712600392": {
+   "trafos": 1,
+   "postes": 0,
+   "pararaios": 1,
+   "itens": 8,
+   "valor": 6097.24,
+   "trafoItens": [
+    {
+     "codigo": "91638",
+     "descricao": "TRANSF DISTR AER OVI 1F 19,919KV 440/220V 15KVA CL2 5TP",
+     "qtd": 1.0,
+     "valor": 5819.26
+    }
+   ]
+  },
+  "712600405": {
+   "trafos": 0,
+   "postes": 0,
+   "pararaios": 19,
+   "itens": 23,
+   "valor": 18136.58,
+   "trafoItens": []
+  }
+ }
+}
