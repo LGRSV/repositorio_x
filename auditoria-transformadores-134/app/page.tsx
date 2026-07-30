@@ -245,6 +245,53 @@ function RequestSource({ record, tab }: { record: AuditRecord; tab: "ss" | "os" 
   </article>;
 }
 
+// O que cada código de SIGCO afirma sobre a ocorrência. É a mesma tabela usada pelo motor
+// para julgar a coerência do código; aqui ela serve para confrontar o código com o material
+// que a obra de fato movimentou.
+const SIGCO_MEANING: Record<string, string> = {
+  "20497": "abalroamento",
+  "25983": "código que exige análise obrigatória",
+  "8812": "transformador queimado",
+  "25962": "transformador avariado",
+  "8385": "código que não comprova falha do transformador",
+};
+
+// Confronto entre o SIGCO da ocorrência e o material conferido da obra. É leitura, não
+// decisão: nenhuma regra do motor depende disto. Serve para o analista ver, na mesma tela,
+// que um código de troca de equipamento não bate com uma obra que não movimentou trafo.
+// O âmbar fica reservado à incoerência de fato — código que afirma algo que o material não
+// sustenta, ou código ausente. Códigos que apenas pedem validação saem em tom neutro, para
+// não contradizer o status de coerência mostrado ao lado.
+function sigcoVsMaterial(record: AuditRecord): { tone: string; text: string } {
+  const code = (record.sigco || "").trim();
+  const meaning = SIGCO_MEANING[code];
+  const { transformers, poles } = record.material;
+  const moved = `A obra movimentou ${transformers} transformador(es) e ${poles} poste(s)`;
+  if (!record.work.number) {
+    return { tone: "", text: "SS sem obra gerada: não há material para confrontar com o código." };
+  }
+  if (!code || code === "#N/A") {
+    return { tone: "alert", text: `Código ausente. ${moved} — a New Base deve recomendar abertura ou correção do SIGCO com motivo.` };
+  }
+  if (code === "8812" || code === "25962") {
+    return transformers > 0
+      ? { tone: "ok", text: `O código aponta ${meaning} e a base de itens comprova ${transformers} transformador(es) movimentado(s) na obra: código e material convergem.` }
+      : { tone: "alert", text: `O código aponta ${meaning}, mas a base de itens não registra nenhum transformador movimentado na obra. Sem troca de equipamento, o código não se sustenta pelo material.` };
+  }
+  if (code === "20497") {
+    return poles > 0 || transformers > 0
+      ? { tone: "ok", text: `O código aponta ${meaning} e ${moved.toLowerCase()}, compatível com dano físico em campo.` }
+      : { tone: "alert", text: `O código aponta ${meaning}, mas a obra não movimentou transformador nem poste — não há material que evidencie o impacto.` };
+  }
+  if (code === "8385") {
+    return { tone: "", text: `${moved} — como 8385 não afirma, sozinho, a falha do equipamento, é o material, e não o código, que sustenta ou não a troca.` };
+  }
+  if (code === "25983") {
+    return { tone: "", text: `25983 é permitido, mas exige análise por SIGCO em qualquer cenário. ${moved} — o material entra como evidência dessa análise, não a dispensa.` };
+  }
+  return { tone: "", text: `${code} é um código sem regra conclusiva no manual. ${moved}; o código precisa ser validado contra a causa e a condição antes de sustentar a decisão.` };
+}
+
 function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -859,11 +906,22 @@ export default function Page() {
             <div><span>Obra</span><strong>{selected.work.number || "Não localizada"}</strong></div><div><span>Status</span><strong>{selected.work.status}</strong></div>
             <div><span>Descrição</span><strong>{selected.work.description || "—"}</strong></div><div><span>Alerta analítico</span><strong>{selected.work.analyticReason || "Sem alerta"}</strong></div>
             <div><span>Transformadores / postes / para-raios</span><strong>{selected.material.transformers} / {selected.material.poles} / {selected.material.lightningArresters}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
+            <div><span>SIGCO da ocorrência</span><strong>{selected.sigco && selected.sigco !== "#N/A" ? `${selected.sigco}${SIGCO_MEANING[selected.sigco] ? ` · ${SIGCO_MEANING[selected.sigco]}` : ""}` : "Não informado"}</strong></div><div><span>Coerência do SIGCO</span><strong>{selected.consolidated.sigcoStatus}</strong></div>
             <div><span>Total orçado</span><strong>{money(selected.finance.totalBudgeted)}</strong></div><div><span>Total realizado</span><strong>{money(selected.finance.totalRealized)}</strong></div>
             <div><span>Classe da obra</span><strong>{selected.work.workClass || "Sem obra gerada"}</strong></div><div><span>Natureza / tipo</span><strong>{[selected.work.workNature, selected.work.workKind].filter(Boolean).join(" · ") || "—"}</strong></div>
             <div><span>Dias desde a abertura da SS</span><strong>{selected.work.ssAgeDays ?? "—"}{selected.work.overdue ? " · acima do limite" : ""}</strong></div><div><span>Prova da troca</span><strong>{selected.work.number ? "Obra disponível para consulta SIAGO" : "Sem obra: troca não comprovável"}</strong></div>
           </section>
           <MaterialConferenceBox record={selected} />
+          {(() => {
+            // O SIGCO é o da SS/OS — a base não traz código próprio da obra. O que interessa
+            // aqui é confrontá-lo com o material que a obra realmente movimentou.
+            const confront = sigcoVsMaterial(selected);
+            return <article className={`sigco-box${confront.tone ? ` ${confront.tone}` : ""}`}>
+              <div><span>SIGCO {selected.sigco && selected.sigco !== "#N/A" ? selected.sigco : "não informado"} · CONFRONTO COM O MATERIAL DA OBRA</span><strong>{selected.consolidated.sigcoStatus}</strong></div>
+              <p>{selected.consolidated.sigcoReason}</p>
+              <p>{confront.text}</p>
+            </article>;
+          })()}
           {selected.work.alerts?.length ? <article className="work-alerts"><span>REGRAS DE ORDEM DE OBRA</span><ul>{selected.work.alerts.map((alert) => <li key={alert}>{alert}</li>)}</ul></article> : null}</>}
           {detailTab === "campo" && <FieldTab record={selected} rules={data.fieldRules || []} onUseReason={setExpurgeReason} />}
           {detailTab === "historico" && <><h3>Histórico do registro</h3>{(overrides[selected.id] || []).length ? <div className="timeline">{overrides[selected.id].slice().reverse().map((item, index) => <div className="timeline-item" key={`${item.at}-${index}`}><i /><div><strong>{item.action}</strong><span>{item.actor} · {new Date(item.at).toLocaleString("pt-BR")}</span><p>{item.comment}</p></div></div>)}</div> : <div className="empty"><strong>Sem alterações</strong><span>A proposta original da IA está preservada.</span></div>}</>}
