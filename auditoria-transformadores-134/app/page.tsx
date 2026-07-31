@@ -4,13 +4,159 @@ import { useEffect, useMemo, useState } from "react";
 import MapView from "./MapView";
 
 type Module =
-  | "overview" | "ss" | "os" | "newbase" | "map" | "financial" | "auto-expurge" | "ai"
+  | "overview" | "universo" | "ativos" | "ss" | "os" | "newbase" | "map" | "financial" | "auto-expurge" | "ai"
   | "expurgos" | "sigco" | "revisoes" | "aprovacoes" | "importar" | "regras"
   | "historico" | "manuais" | "admin";
+
+// Universo consolidado de SS. A base do app deixou de ser so as 134 auditadas: passou a
+// ser o universo inteiro (1.592 SS distintas), dividido em coorte. As 134 continuam
+// existindo como um recorte dentro dele, e sao as unicas com auditoria caso a caso —
+// mas a camada de campo (cruzamento automatico com a base de interrupcao pela chave
+// COD_INS_TRF_TNT) agora cobre as 1.581 SS abertas entre janeiro e julho de 2026.
+type UniverseRecord = {
+  NUMERO_SS: string; COORTE: string; NA_COLETA: string; NA_AMOSTRA_209: string;
+  AUDITADA_134: string; ID_AUDITORIA: string;
+  DECISAO_FINAL: string; EXPURGAR: string; CAMADA: string; DECISAO: string;
+  DECISAO_SITE_134: string; DIVERGE_DO_SITE: string;
+  CATEGORIA: string; CAUSA: string; REGRA: string; MOTIVO: string;
+  NUMERO_OS: string; NUM_OBRA: string; STATUS_OBRA: string; EMPREITEIRA: string;
+  DATA_ABERTURA_SS: string; DATA_ABERTURA_OBRA: string;
+  DIAS_SS_ATE_OBRA: number | null; DIAS_SS_ATE_OS: number | null; IDADE_SS_DIAS: number | null;
+  INVERSAO_OS_ANTES_SS: string;
+  TRAFOS_NO_MATERIAL: number; POSTES_NO_MATERIAL: number; MATERIAL_CONFERIDO: string;
+  SIGCO: string; LOCALIDADE: string; SOLICITANTE: string; ORG_SOLIC: string;
+  COD_EQUIPE: string; ALIMENTADOR: string; NUM_TRAFO: string;
+  CRITICIDADE_SS: string; SITUACAO_SS: string; TIPOSS: string;
+  POTENCIA_RET: string; POTENCIA_INST: string; NA_BASE_GERAL: string;
+  DESCRICAO_SS: string; DESCRICAO_OS: string;
+  // Camada de campo (jan-jul/2026). Nas SS fora do periodo estes campos vem vazios.
+  // DECISAO_COM_CAMPO nunca sobrescreve DECISAO_FINAL: ela existe ao lado, com o motivo
+  // escrito, para que a mudanca seja auditavel caso a caso antes de virar oficial.
+  RECORTE?: string; DECISAO_COM_CAMPO?: string; MUDOU_COM_CAMPO?: string; MOTIVO_DA_MUDANCA?: string;
+  NIVEL_DUVIDA_CAMPO?: string; SCORE_DUVIDA_CAMPO?: number;
+  QTD_INTERVENCOES_CAMPO?: number | null; INTERV_ANTES_DA_SS?: number | null;
+  INTERV_NA_JANELA?: number | null; INTERV_DEPOIS_DA_TROCA?: number | null;
+  DIAS_INTERV_MAIS_PROXIMA?: number | null; JANELA_TEMPORAL?: string; DATA_INTERV_MAIS_PROXIMA?: string;
+  CAUSA_CAMPO?: string; SUBCAUSA_CAMPO?: string; LEITURA_CAMPO?: string; CONFRONTO_CAMPO?: string;
+  REINCIDENCIA_POS_TROCA?: string; SUBCAUSAS_TODAS?: string; OBS_CAMPO?: string;
+  SINAIS_R_CAMPO?: string; EVIDENCIAS_CAMPO?: string; CONTRA_EVIDENCIAS_CAMPO?: string;
+  // Estado explicito das tres analises. A regra e: nenhum campo vazio sem explicacao.
+  // Onde a base nao tem o dado, COBERTURA_* diz o motivo em vez de deixar em branco.
+  COBERTURA_SS?: string; COBERTURA_OS?: string; COBERTURA_MATERIAL?: string;
+  ORIGEM_DESCRICAO_OS?: string; ANALISES_COMPLETAS?: number; TRIPLICE_COMPLETA?: string;
+};
+
+type CohortBlock = {
+  total: number; expurgar: number; incluir: number; revisao: number; pendente: number;
+  byDecision: Pair[]; byRule: Pair[]; byCause: Pair[]; byCategory: Pair[];
+};
+
+type UniverseData = {
+  source: string; referenceDate: string; note: string; limits: string[];
+  totals: {
+    universo: number; coleta: number; amostra209: number; complemento: number;
+    auditadas134: number; expurgar: number;
+    janJun?: number; julho?: number; comCampo?: number;
+    comIntervencao?: number; semIntervencao?: number; mudouComCampo?: number;
+    descricaoSS?: number; descricaoOS?: number; materialConferido?: number; tripliceCompleta?: number;
+  };
+  cohorts: Record<string, CohortBlock>;
+  fieldRules?: Array<{ id: string; title: string; detail: string; count: number }>;
+  coverage?: Array<{ id: string; title: string; detail: string; ok: number; total: number;
+    gaps: Array<{ label: string; count: number }> }>;
+  records: UniverseRecord[];
+};
+
+type Scope = "UNIVERSO" | "JAN-JUN 1510" | "JULHO" | "COLETA" | "AMOSTRA 209" | "COMPLEMENTO" | "AUDITADAS 134";
+
+const SCOPES: Array<{ id: Scope; label: string; note: string }> = [
+  { id: "UNIVERSO", label: "Universo", note: "Todas as SS da base" },
+  { id: "JAN-JUN 1510", label: "Jan–jun 1.510", note: "SS abertas de 01/01 a 30/06/2026" },
+  { id: "JULHO", label: "Julho", note: "SS abertas em julho/2026 — obras ainda abertas" },
+  { id: "COLETA", label: "Coleta", note: "SS que vieram da coleta" },
+  { id: "AMOSTRA 209", label: "Amostra 209", note: "A amostra reprocessada" },
+  { id: "COMPLEMENTO", label: "Complemento", note: "Na base geral, fora das duas listas" },
+  { id: "AUDITADAS 134", label: "Auditadas 134", note: "Únicas com auditoria caso a caso" },
+];
+
+// Colunas da planilha de drill-down, na ordem em que aparecem. Sao as mesmas do
+// universo-ss.json, para que o que o usuario ve na tela e o que ele baixa sejam iguais.
+const SHEET_COLUMNS: Array<{ key: keyof UniverseRecord; label: string; width: number }> = [
+  { key: "NUMERO_SS", label: "SS", width: 22 },
+  { key: "COORTE", label: "Coorte", width: 14 },
+  { key: "AUDITADA_134", label: "Auditada 134", width: 12 },
+  { key: "CAMADA", label: "Camada", width: 28 },
+  { key: "DECISAO_FINAL", label: "Decisão final", width: 18 },
+  { key: "REGRA", label: "Regra", width: 11 },
+  { key: "CAUSA", label: "Causa", width: 26 },
+  { key: "MOTIVO", label: "Motivo", width: 60 },
+  { key: "CATEGORIA", label: "Categoria", width: 14 },
+  { key: "DECISAO", label: "Triagem da base", width: 18 },
+  { key: "DECISAO_SITE_134", label: "Decisão do site (134)", width: 20 },
+  { key: "DIVERGE_DO_SITE", label: "Diverge do site", width: 14 },
+  { key: "NUMERO_OS", label: "OS", width: 22 },
+  { key: "NUM_OBRA", label: "Obra", width: 13 },
+  { key: "STATUS_OBRA", label: "Status da obra", width: 26 },
+  { key: "EMPREITEIRA", label: "Empreiteira", width: 30 },
+  { key: "DATA_ABERTURA_SS", label: "Abertura da SS", width: 13 },
+  { key: "DATA_ABERTURA_OBRA", label: "Abertura da obra", width: 14 },
+  { key: "DIAS_SS_ATE_OBRA", label: "Dias SS→obra", width: 12 },
+  { key: "DIAS_SS_ATE_OS", label: "Dias SS→OS", width: 12 },
+  { key: "IDADE_SS_DIAS", label: "Idade da SS", width: 12 },
+  { key: "TRAFOS_NO_MATERIAL", label: "Trafos no material", width: 14 },
+  { key: "POSTES_NO_MATERIAL", label: "Postes no material", width: 14 },
+  { key: "MATERIAL_CONFERIDO", label: "Material conferido", width: 16 },
+  { key: "SIGCO", label: "SIGCO", width: 10 },
+  { key: "LOCALIDADE", label: "Localidade", width: 22 },
+  { key: "SOLICITANTE", label: "Solicitante da SS", width: 30 },
+  { key: "ORG_SOLIC", label: "Órgão solicitante", width: 14 },
+  { key: "COD_EQUIPE", label: "Equipe da OS", width: 14 },
+  { key: "ALIMENTADOR", label: "Alimentador", width: 14 },
+  { key: "NUM_TRAFO", label: "Nº do trafo", width: 14 },
+  { key: "CRITICIDADE_SS", label: "Criticidade", width: 12 },
+  { key: "SITUACAO_SS", label: "Situação da SS", width: 16 },
+  { key: "TIPOSS", label: "Tipo da SS", width: 22 },
+  { key: "POTENCIA_RET", label: "Potência retirada", width: 14 },
+  { key: "POTENCIA_INST", label: "Potência instalada", width: 14 },
+  // Camada de campo — o que o cruzamento com a base de interrupcao acrescentou.
+  { key: "RECORTE", label: "Recorte", width: 11 },
+  { key: "DECISAO_COM_CAMPO", label: "Decisão com campo", width: 18 },
+  { key: "MUDOU_COM_CAMPO", label: "Mudou?", width: 9 },
+  { key: "MOTIVO_DA_MUDANCA", label: "Motivo da mudança", width: 70 },
+  { key: "NIVEL_DUVIDA_CAMPO", label: "Nível de dúvida", width: 13 },
+  { key: "SCORE_DUVIDA_CAMPO", label: "Score de dúvida", width: 12 },
+  { key: "QTD_INTERVENCOES_CAMPO", label: "Intervenções no trafo", width: 14 },
+  { key: "INTERV_ANTES_DA_SS", label: "Antes da SS", width: 11 },
+  { key: "INTERV_NA_JANELA", label: "Na janela", width: 11 },
+  { key: "INTERV_DEPOIS_DA_TROCA", label: "Depois da troca", width: 13 },
+  { key: "DIAS_INTERV_MAIS_PROXIMA", label: "Dias até a mais próxima", width: 14 },
+  { key: "DATA_INTERV_MAIS_PROXIMA", label: "Data da mais próxima", width: 14 },
+  { key: "JANELA_TEMPORAL", label: "Janela temporal", width: 20 },
+  { key: "CAUSA_CAMPO", label: "Causa em campo", width: 24 },
+  { key: "SUBCAUSA_CAMPO", label: "Subcausa em campo", width: 34 },
+  { key: "LEITURA_CAMPO", label: "Leitura de campo", width: 30 },
+  { key: "CONFRONTO_CAMPO", label: "Confronto com a SS", width: 46 },
+  { key: "REINCIDENCIA_POS_TROCA", label: "Reincidência pós-troca", width: 13 },
+  { key: "SUBCAUSAS_TODAS", label: "Todas as subcausas", width: 50 },
+  { key: "SINAIS_R_CAMPO", label: "Sinais R-CAMPO", width: 30 },
+  { key: "EVIDENCIAS_CAMPO", label: "Evidências de dúvida", width: 80 },
+  { key: "CONTRA_EVIDENCIAS_CAMPO", label: "Contra-evidências", width: 60 },
+  { key: "OBS_CAMPO", label: "Observação do executante", width: 70 },
+  // Cobertura antes dos textos: quem abre a planilha ve primeiro se as tres analises
+  // existem, e so depois o texto. Onde falta, a coluna diz o motivo, nao fica em branco.
+  { key: "TRIPLICE_COMPLETA", label: "SS+OS+material completos", width: 22 },
+  { key: "COBERTURA_SS", label: "Cobertura da SS", width: 34 },
+  { key: "COBERTURA_OS", label: "Cobertura da OS", width: 34 },
+  { key: "COBERTURA_MATERIAL", label: "Cobertura do material", width: 34 },
+  { key: "ORIGEM_DESCRICAO_OS", label: "Origem do texto da OS", width: 28 },
+  { key: "DESCRICAO_SS", label: "Descrição da SS", width: 70 },
+  { key: "DESCRICAO_OS", label: "Descrição da OS", width: 70 },
+];
 
 type AuditRecord = {
   id: string; ss: string; os: string; openedAt: string; openedAtLabel: string; month: number;
   category: string; location: string; type: string; sigco: string;
+  requestType?: string; origin?: string; requester?: string; originReason?: string;
   powerRemoved: number; powerInstalled: number;
   requestType?: string; origin?: string; requester?: string; originReason?: string;
   ssAnalysis: { description: string; category: string; causeHint: string; evidence: string };
@@ -37,6 +183,11 @@ type AuditRecord = {
     flags: string[]; approvalStatus: string; reviewer: string; official: boolean;
   };
   fieldAnalysis?: FieldAnalysis;
+  // preenchidos no cruzamento com o universo
+  universe?: UniverseRecord;
+  cohort?: string;
+  audited134?: boolean;
+  lite?: boolean;
 };
 
 // Análise por Intervenções: tudo o que a base TMAE/SIGOD registra sobre o transformador
@@ -79,6 +230,12 @@ type AuditData = {
     review: number; approved: number; pending: number; works: number; analyticAlerts: number;
     temporaryPending?: number; expenseOrders?: number; missingWork?: number; overdueWork?: number;
   };
+  workRules?: {
+    referenceDate: string; deadlineDays: number;
+    expense: Array<{ id: string; ss: string; work: string; workClass: string; decision: string }>;
+    missing: Array<{ id: string; ss: string; openedAtLabel: string; ssAgeDays: number | null; overdue: boolean; decision: string }>;
+    kindDivergent: Array<{ id: string; ss: string; work: string; workNature: string; workKind: string }>;
+  };
   financial: {
     materialValue: number; totalBudgeted: number; totalRealized: number;
     materialBudgeted: number; materialRealized: number; laborBudgeted: number; laborRealized: number;
@@ -91,24 +248,17 @@ type AuditData = {
     total: number; value: number; materialValue: number; byCause: Pair[]; byRule: Pair[]; sentToReview: number;
     byFieldRule?: Pair[]; fieldCandidates?: number; fieldStrong?: number;
   };
-  aiDashboard: {
-    highConfidence: number; mediumConfidence: number; lowConfidence: number; needsReview: number;
-    sigcoAnalysis: number; completeEvidence: number; byDecision: Pair[]; byRule: Pair[];
-  };
-  records: AuditRecord[];
-  workRules?: {
-    referenceDate: string; deadlineDays: number;
-    expense: Array<{ id: string; ss: string; work: string; workClass: string; decision: string }>;
-    missing: Array<{ id: string; ss: string; openedAtLabel: string; ssAgeDays: number | null; overdue: boolean; decision: string }>;
-    kindDivergent: Array<{ id: string; ss: string; work: string; workNature: string; workKind: string }>;
-  };
-  requestSources?: { byType: Pair[]; byOrigin: Pair[]; byRequester: Pair[] };
   fieldRules?: FieldRule[];
   fieldSummary?: {
     total: number; withDoubt: number; strong: number; medium: number; weak: number;
     withSignal: number; noIntervention: number; insideReview74: number; outsideReview74: number;
     confrontation: Pair[]; source: string;
   };
+  aiDashboard: {
+    highConfidence: number; mediumConfidence: number; lowConfidence: number; needsReview: number;
+    sigcoAnalysis: number; completeEvidence: number; byDecision: Pair[]; byRule: Pair[];
+  };
+  requestSources?: { byType: Pair[]; byOrigin: Pair[]; byRequester: Pair[] };
   materialConference?: {
     works: number; matches: number; corrected: number; withoutWork: number;
     analyticConflicts: number; transformerWorks: number; items: number; value: number;
@@ -116,6 +266,12 @@ type AuditData = {
     correctedList: Array<{ id: string; ss: string; work: string; detail: string; decision: string; rule: string }>;
     conflictList: Array<{ id: string; ss: string; work: string; sheet: string; checked: string; transformers: number; value: number }>;
   };
+  workOrigin?: {
+    note: string; source: string; works: number;
+    requesterRanking: Pair[]; orgRanking: Pair[]; teamRanking: Pair[];
+    contractorRanking: Pair[]; lastMoveRanking: Pair[]; sectorRanking: Pair[];
+  };
+  records: AuditRecord[];
 };
 
 type Change = { status?: string; comment: string; at: string; actor: string; action: string };
@@ -165,6 +321,8 @@ const FIELD_RULE_IDS = ["R-CAMPO-01", "R-CAMPO-02", "R-CAMPO-03", "R-CAMPO-04", 
 const NAV: Array<{ group: string; items: Array<{ id: Module; label: string; code: string }> }> = [
   { group: "Operação", items: [
     { id: "overview", label: "Visão geral", code: "01" },
+    { id: "universo", label: "Universo de SS", code: "1A" },
+    { id: "ativos", label: "Por transformador", code: "1B" },
     { id: "ss", label: "Análise de SS", code: "02" },
     { id: "os", label: "Análise por OS", code: "03" },
     { id: "newbase", label: "New Base", code: "04" },
@@ -191,7 +349,11 @@ const NAV: Array<{ group: string; items: Array<{ id: Module; label: string; code
 ];
 
 const TITLES: Record<Module, { eyebrow: string; title: string; description: string }> = {
-  overview: { eyebrow: "Base 134 · jan–jun/2026", title: "Visão geral", description: "Leitura operacional da carga, das propostas da IA e das pendências." },
+  overview: { eyebrow: "Universo de SS", title: "Visão geral", description: "Leitura operacional da carga, das propostas da IA e das pendências. Todo número é clicável e abre a planilha do recorte." },
+  // O total sai do proprio arquivo em tempo de render (ver pageDescription). Deixar o numero
+  // escrito aqui ja causou o bug de a pagina dizer 1.582 enquanto os cartoes diziam 1.592.
+  ativos: { eyebrow: "Contagem por ativo", title: "Por transformador", description: "Quantas solicitações e quantas intervenções de campo cada código de transformador acumulou no escopo." },
+  universo: { eyebrow: "Base completa", title: "Universo de SS", description: "Toda a base dividida por coorte, com a regra de expurgo aplicada e as 134 auditadas sinalizadas." },
   ss: { eyebrow: "Primeira leitura", title: "Análise de SS", description: "O que foi solicitado, alegado e identificado no texto original da SS." },
   os: { eyebrow: "Execução registrada", title: "Análise por OS", description: "O que a equipe executou e quais evidências foram deixadas na OS." },
   newbase: { eyebrow: "Camada de decisão", title: "New Base — Análise Consolidada", description: "Os 134 casos reunidos com regra, justificativa, confiança e aprovação." },
@@ -301,6 +463,122 @@ function sigcoVsMaterial(record: AuditRecord): { tone: string; text: string } {
   return { tone: "", text: `${code} é um código sem regra conclusiva no manual. ${moved}; o código precisa ser validado contra a causa e a condição antes de sustentar a decisão.` };
 }
 
+const REQUEST_LABEL: Record<string, string> = {
+  "FORMS SUBST DE TRANSFORMADOR": "Forms substituição de transformador",
+  "AVISO DE ANOMALIA": "Aviso de anomalia",
+  "SOLICITAÇÃO DE SERVIÇO": "Solicitação de serviço",
+};
+
+const requestClass = (value?: string) => {
+  const key = (value || "").toUpperCase();
+  if (key.includes("FORMS")) return "forms";
+  if (key.includes("ANOMALIA") || key.includes("SOLICITAÇÃO DE SERVIÇO") || key.includes("SOLICITACAO DE SERVICO")) return "aviso";
+  return "none";
+};
+
+const requestLabel = (value?: string) => REQUEST_LABEL[(value || "").toUpperCase()] || value || "Origem não informada";
+
+const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const dayLabel = (iso: string) => {
+  if (!iso) return "Sem data";
+  const [year, month, day] = iso.slice(0, 10).split("-");
+  return day && month && year ? `${day}/${month}/${year}` : iso;
+};
+
+// As SS fora das 134 nao tem auditoria caso a caso — a base nao guarda isso. Elas viram
+// um registro enxuto (lite = true) com o que existe de fato. O que mudou: as 1.581 SS de
+// jan a jul agora carregam tambem a camada de campo automatica, entao a aba "Análise por
+// Intervenções" deixa de ser exclusiva das 134 e passa a ter lastro para quase todas.
+const splitList = (value?: string) => (value || "").split(" | ").map((item) => item.trim()).filter(Boolean);
+
+function fieldFromUniverse(u: UniverseRecord): FieldAnalysis | undefined {
+  if (u.QTD_INTERVENCOES_CAMPO === null || u.QTD_INTERVENCOES_CAMPO === undefined) return undefined;
+  return {
+    interventions: u.QTD_INTERVENCOES_CAMPO,
+    before: u.INTERV_ANTES_DA_SS ?? null, inWindow: u.INTERV_NA_JANELA ?? null,
+    afterSwap: u.INTERV_DEPOIS_DA_TROCA ?? null,
+    daysToNearest: u.DIAS_INTERV_MAIS_PROXIMA ?? null, nearestDate: u.DATA_INTERV_MAIS_PROXIMA || "",
+    window: u.JANELA_TEMPORAL || "", cause: u.CAUSA_CAMPO || "", subcause: u.SUBCAUSA_CAMPO || "",
+    reading: u.LEITURA_CAMPO || "", confrontation: u.CONFRONTO_CAMPO || "",
+    recurrence: u.REINCIDENCIA_POS_TROCA || "", team: "",
+    executorNote: u.OBS_CAMPO || "",
+    rules: (u.SINAIS_R_CAMPO || "").split(";").map((item) => item.trim()).filter(Boolean),
+    doubtLevel: u.NIVEL_DUVIDA_CAMPO === "SEM DUVIDA" ? "" : (u.NIVEL_DUVIDA_CAMPO || ""),
+    doubtScore: u.SCORE_DUVIDA_CAMPO ?? 0,
+    pros: splitList(u.EVIDENCIAS_CAMPO).map((text) => ({ level: "", text })),
+    cons: splitList(u.CONTRA_EVIDENCIAS_CAMPO),
+    inManualReview74: u.DECISAO_FINAL === "REVISAO MANUAL",
+    expurgeReason: "",
+  };
+}
+
+function liteRecord(u: UniverseRecord): AuditRecord {
+  const iso = (u.DATA_ABERTURA_SS || "").slice(0, 10);
+  const month = iso ? Number(iso.slice(5, 7)) : 0;
+  const decision = u.DECISAO_FINAL || "REVISAO MANUAL";
+  return {
+    fieldAnalysis: fieldFromUniverse(u),
+    id: u.ID_AUDITORIA || `UNI-${u.NUMERO_SS}`,
+    ss: u.NUMERO_SS, os: u.NUMERO_OS || "",
+    openedAt: iso, openedAtLabel: dayLabel(iso), month,
+    category: u.CATEGORIA || "SEM CATEGORIA",
+    location: u.LOCALIDADE || "—", type: u.TIPOSS || "", sigco: u.SIGCO || "",
+    requestType: u.TIPOSS || "", origin: u.ORG_SOLIC || "", requester: u.SOLICITANTE || "",
+    powerRemoved: Number(u.POTENCIA_RET) || 0, powerInstalled: Number(u.POTENCIA_INST) || 0,
+    ssAnalysis: { description: u.DESCRICAO_SS || "", category: u.CATEGORIA || "", causeHint: u.CAUSA || "", evidence: "" },
+    osAnalysis: { description: u.DESCRICAO_OS || "", action: u.CAUSA || "—", transformerEvidence: u.MATERIAL_CONFERIDO || "—", evidence: "" },
+    work: {
+      number: u.NUM_OBRA || "", description: "", status: u.STATUS_OBRA || (u.NUM_OBRA ? "—" : "Sem obra"),
+      contractor: u.EMPREITEIRA || "", terminal: false, analyticReason: "",
+      ssAgeDays: u.IDADE_SS_DIAS, overdue: u.REGRA === "R-PRZ-60" || u.REGRA === "R-OBR-02", alerts: [],
+    },
+    material: {
+      transformers: Number(u.TRAFOS_NO_MATERIAL) || 0, poles: Number(u.POSTES_NO_MATERIAL) || 0,
+      lightningArresters: 0, items: 0, value: 0,
+    },
+    finance: { totalBudgeted: 0, totalRealized: 0, materialBudgeted: 0, materialRealized: 0, laborBudgeted: 0, laborRealized: 0 },
+    consolidated: {
+      decision, condition: u.CATEGORIA || "—", cause: u.CAUSA || "—", action: "—",
+      materialEvidence: u.MATERIAL_CONFERIDO || "—", rule: u.REGRA || "—", rationale: u.MOTIVO || "",
+      confidence: 0, confidenceBand: u.RECORTE && u.RECORTE !== "SEM DATA" ? "Triagem + campo automático" : "Triagem sem campo",
+      automaticExpurge: u.EXPURGAR === "SIM", review: decision === "REVISAO MANUAL",
+      sigcoStatus: u.SIGCO ? "Não avaliado nesta camada" : "SIGCO não informado",
+      sigcoReason: "A conferência de SIGCO só foi feita nas 134 auditadas.",
+      flags: [], approvalStatus: "PENDENTE", reviewer: "—", official: false,
+    },
+    universe: u, cohort: u.COORTE, audited134: false, lite: true,
+  };
+}
+
+const sheetValue = (u: UniverseRecord, key: keyof UniverseRecord) => {
+  const raw = u[key];
+  if (raw === null || raw === undefined || raw === "") return "";
+  return raw;
+};
+
+// Exportacao da planilha do recorte. Sai em CSV com BOM e separador ponto e virgula, que e
+// o que o Excel em portugues espera: abre com duplo clique, sem passo de importacao. Nao
+// usamos biblioteca de xlsx de proposito — o build do Pages roda com o lockfile travado.
+function downloadSheet(rows: UniverseRecord[], title: string) {
+  const safe = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_").slice(0, 60) || "planilha";
+  const head = SHEET_COLUMNS.map((column) => column.label).join(";");
+    const body = rows.map((row) => SHEET_COLUMNS
+      .map((column) => String(sheetValue(row, column.key)).replace(/[;\r\n]+/g, " ").trim())
+      .join(";")).join("\r\n");
+  triggerDownload(new Blob([`\uFEFF${head}\r\n${body}`], { type: "text/csv;charset=utf-8" }), `${safe}.csv`);
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
 function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -323,7 +601,7 @@ function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
       <div className="login-brand"><i>T</i><span>Transforma</span></div>
       <div><span className="login-kicker">AUDITORIA TÉCNICA · BASE 134</span><h1>Decisões rastreáveis, do campo à aprovação.</h1>
         <p>Ambiente demonstrativo para análise de SS, OS, obras, materiais, expurgos e indicadores financeiros.</p></div>
-      <small>Protótipo funcional · dados de janeiro a junho de 2026</small>
+      <small>Protótipo funcional · dados de janeiro a julho de 2026</small>
     </section>
     <section className="login-panel">
       <form onSubmit={submit}>
@@ -344,18 +622,99 @@ function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
   </main>;
 }
 
-function Kpi({ label, value, note, tone = "neutral" }: { label: string; value: string | number; note: string; tone?: string }) {
-  return <article className={`kpi ${tone}`}><span>{label}</span><strong>{value}</strong><small>{note}</small></article>;
+// Todo numero que representa um recorte de SS e clicavel: abre a planilha daquele recorte.
+// Quando o KPI nao tem recorte por tras (um valor financeiro agregado, por exemplo) ele
+// continua sendo um cartao comum, sem cursor de clique, para nao prometer o que nao entrega.
+function Kpi({ label, value, note, tone = "neutral", onClick }: {
+  label: string; value: string | number; note: string; tone?: string; onClick?: () => void;
+}) {
+  const shown = typeof value === "number" ? value.toLocaleString("pt-BR") : value;
+  if (!onClick) return <article className={`kpi ${tone}`}><span>{label}</span><strong>{shown}</strong><small>{note}</small></article>;
+  return <button type="button" className={`kpi ${tone} clickable`} onClick={onClick} title="Abrir a planilha deste recorte">
+    <span>{label}</span><strong>{shown}</strong><small>{note}</small><em className="kpi-open">abrir planilha ↗</em>
+  </button>;
 }
 
-function BarList({ data, total, moneyValues = false }: { data: Pair[]; total?: number; moneyValues?: boolean }) {
+function BarList({ data, total, moneyValues = false, onSelect }: {
+  data: Pair[]; total?: number; moneyValues?: boolean; onSelect?: (label: string) => void;
+}) {
   const max = Math.max(...data.map((item) => item.value), 1);
-  return <div className="bar-list">
-    {data.map((item) => <div className="bar-row" key={item.label}>
-      <div><span>{item.label}</span><strong>{moneyValues ? money(item.value) : item.value}</strong></div>
-      <i><b style={{ width: `${(item.value / max) * 100}%` }} /></i>
-      {total ? <small>{pct(item.value, total)}% da base</small> : null}
-    </div>)}
+  return <div className={`bar-list${onSelect ? " clickable" : ""}`}>
+    {data.map((item) => {
+      const body = <>
+        <div><span>{item.label}</span><strong>{moneyValues ? money(item.value) : item.value}</strong></div>
+        <i><b style={{ width: `${(item.value / max) * 100}%` }} /></i>
+        {total ? <small>{pct(item.value, total)}% da base</small> : null}
+      </>;
+      return onSelect
+        ? <button type="button" className="bar-row" key={item.label} onClick={() => onSelect(item.label)} title="Abrir a planilha deste recorte">{body}</button>
+        : <div className="bar-row" key={item.label}>{body}</div>;
+    })}
+  </div>;
+}
+
+// A "planilha" do recorte. Abre por cima da tela com as mesmas colunas do universo-ss.json,
+// filtro proprio e os dois downloads. O conteudo da tela e o do arquivo baixado sao o mesmo,
+// filtro incluido — se divergissem, o numero da tela deixaria de ser auditavel.
+function DrillSheet({ title, note, rows, onClose, onOpenRecord }: {
+  title: string; note: string; rows: UniverseRecord[];
+  onClose: () => void; onOpenRecord: (ss: string) => void;
+}) {
+  const [needle, setNeedle] = useState("");
+  const [busy, setBusy] = useState("");
+  const visible = useMemo(() => {
+    const key = normalize(needle);
+    if (!key) return rows;
+    return rows.filter((row) => normalize([
+      row.NUMERO_SS, row.NUMERO_OS, row.NUM_OBRA, row.LOCALIDADE, row.REGRA,
+      row.CAUSA, row.DECISAO_FINAL, row.SOLICITANTE, row.EMPREITEIRA, row.COORTE,
+      row.NUM_TRAFO, row.DECISAO_COM_CAMPO, row.SINAIS_R_CAMPO, row.CONFRONTO_CAMPO,
+      row.SUBCAUSA_CAMPO, row.NIVEL_DUVIDA_CAMPO, row.RECORTE,
+    ].join(" ")).includes(key));
+  }, [rows, needle]);
+  // A planilha tem dezenas de colunas (SHEET_COLUMNS.length, hoje 61 — o rodape imprime o
+  // numero real, nao repita ele aqui). Desenhar 1.500 linhas disso trava o celular, entao a tela
+  // mostra as primeiras 300 e o download continua levando tudo o que o filtro selecionou.
+  const CAP = 300;
+  const painted = visible.length > CAP ? visible.slice(0, CAP) : visible;
+  const grab = () => {
+    setBusy("csv");
+    try { downloadSheet(visible, title); } finally { setBusy(""); }
+  };
+  return <div className="drawer-layer sheet-layer">
+    <button className="drawer-backdrop" aria-label="Fechar" onClick={onClose} />
+    <aside className="sheet-panel">
+      <header>
+        <div><span>PLANILHA DO RECORTE</span><h2>{title}</h2><p>{note}</p></div>
+        <button onClick={onClose} aria-label="Fechar">×</button>
+      </header>
+      <div className="sheet-toolbar">
+        <strong>{visible.length}{visible.length !== rows.length ? ` de ${rows.length}` : ""} SS</strong>
+        <label className="search"><span>⌕</span><input value={needle} onChange={(event) => setNeedle(event.target.value)} placeholder="Filtrar SS, OS, obra, regra, local…" /></label>
+        <button className="sheet-download" disabled={Boolean(busy)} onClick={grab}>{busy ? "Gerando…" : "Baixar planilha (CSV para Excel)"}</button>
+      </div>
+      <div className="sheet-scroll">
+        <table className="sheet-table">
+          <thead><tr>{SHEET_COLUMNS.map((column) => <th key={String(column.key)}>{column.label}</th>)}</tr></thead>
+          <tbody>{painted.map((row) => <tr key={row.NUMERO_SS} onClick={() => onOpenRecord(row.NUMERO_SS)} title="Abrir o dossiê desta SS">
+            {SHEET_COLUMNS.map((column) => {
+              const value = sheetValue(row, column.key);
+              const cls = column.key === "DECISAO_FINAL" ? `cell-${decisionClass(String(value))}`
+                : column.key === "DECISAO_COM_CAMPO" && value ? `cell-${decisionClass(String(value))}`
+                : column.key === "MUDOU_COM_CAMPO" && value === "SIM" ? "cell-warn"
+                : column.key === "NIVEL_DUVIDA_CAMPO" && value === "FORTE" ? "cell-bad"
+                : column.key === "AUDITADA_134" && value === "SIM" ? "cell-mark"
+                : column.key === "DIVERGE_DO_SITE" && value === "SIM" ? "cell-warn" : "";
+              return <td key={String(column.key)} className={cls}>{value === "" ? "—" : String(value)}</td>;
+            })}
+          </tr>)}</tbody>
+        </table>
+        {visible.length ? null : <div className="empty"><strong>Nenhuma SS neste filtro</strong><span>Limpe o filtro para ver as {rows.length} SS do recorte.</span></div>}
+      </div>
+      <footer className="sheet-foot">{visible.length > CAP
+        ? `A tela desenha as primeiras ${CAP} linhas para não travar no celular. O arquivo baixado leva as ${visible.length.toLocaleString("pt-BR")} linhas do filtro, com as ${SHEET_COLUMNS.length} colunas.`
+        : `O arquivo baixado tem exatamente as linhas e colunas mostradas aqui, filtro incluído — ${SHEET_COLUMNS.length} colunas.`}</footer>
+    </aside>
   </div>;
 }
 
@@ -478,10 +837,14 @@ function RecordTable({
 
 export default function Page() {
   const [data, setData] = useState<AuditData | null>(null);
+  const [universe, setUniverse] = useState<UniverseData | null>(null);
+  const [scope, setScope] = useState<Scope>("UNIVERSO");
+  const [drill, setDrill] = useState<{ title: string; note: string; rows: UniverseRecord[] } | null>(null);
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [user, setUser] = useState<DemoUser | null>(null);
   const [module, setModule] = useState<Module>("overview");
   const [query, setQuery] = useState("");
+  const [assetQuery, setAssetQuery] = useState("");
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -490,13 +853,60 @@ export default function Page() {
 
   useEffect(() => {
     fetch(assetUrl("auditorias.json")).then((response) => response.json()).then(setData);
+    fetch(assetUrl("universo-ss.json")).then((response) => response.json()).then(setUniverse)
+      .catch(() => setUniverse(null));
     fetch(assetUrl("municipios-to.json")).then((response) => response.json()).then(setMunicipalities);
     const saved = localStorage.getItem("auditoria-134-historico");
     if (saved) Promise.resolve().then(() => setOverrides(JSON.parse(saved)));
     const savedUser = localStorage.getItem("auditoria-134-demo-user");
     const match = DEMO_USERS.find((item) => item.id === savedUser);
     if (match) Promise.resolve().then(() => setUser(match));
+    const savedScope = localStorage.getItem("auditoria-134-escopo") as Scope | null;
+    if (savedScope && SCOPES.some((item) => item.id === savedScope)) Promise.resolve().then(() => setScope(savedScope));
   }, []);
+
+  // Base unica do app: as 134 continuam com o dossie completo e ganham as colunas do
+  // universo; as outras 1.448 entram como registro enxuto. Se o universo-ss.json nao
+  // carregar, o app volta a ser exatamente o que era antes — so as 134.
+  const allRecords = useMemo<AuditRecord[]>(() => {
+    if (!data) return [];
+    if (!universe) return data.records;
+    const rich = new Map(data.records.map((record) => [record.ss, record]));
+    return universe.records.map((row) => {
+      const match = rich.get(row.NUMERO_SS);
+      if (match) return { ...match, universe: row, cohort: row.COORTE, audited134: true, lite: false };
+      return liteRecord(row);
+    });
+  }, [data, universe]);
+
+  const scopedRecords = useMemo(() => {
+    if (scope === "UNIVERSO") return allRecords;
+    if (scope === "AUDITADAS 134") return allRecords.filter((record) => record.audited134);
+    // Os recortes de periodo saem do campo RECORTE, gravado pela data de abertura da SS.
+    // Nao se recalcula a data aqui: se o corte mudar, ele muda em um lugar so, na base.
+    if (scope === "JAN-JUN 1510") return allRecords.filter((record) => record.universe?.RECORTE === "JAN-JUN");
+    if (scope === "JULHO") return allRecords.filter((record) => record.universe?.RECORTE === "JULHO");
+    return allRecords.filter((record) => record.cohort === scope);
+  }, [allRecords, scope]);
+
+  const scopedRows = useMemo(() => scopedRecords
+    .map((record) => record.universe)
+    .filter((row): row is UniverseRecord => Boolean(row)), [scopedRecords]);
+
+  const scopeLabel = SCOPES.find((item) => item.id === scope)?.label || "Universo";
+
+  // Abre a planilha de um recorte. O predicado roda sobre o escopo ativo, entao o que o
+  // usuario ve no cartao e exatamente o que abre — nunca o universo inteiro por engano.
+  const openSheet = (title: string, note: string, filter?: (row: UniverseRecord) => boolean) => {
+    const rows = filter ? scopedRows.filter(filter) : scopedRows;
+    setDrill({ title: `${title} · ${scopeLabel}`, note, rows });
+  };
+  const openSheetFor = (title: string, note: string, records: AuditRecord[]) => {
+    setDrill({
+      title: `${title} · ${scopeLabel}`, note,
+      rows: records.map((record) => record.universe).filter((row): row is UniverseRecord => Boolean(row)),
+    });
+  };
 
   const saveChange = (record: AuditRecord, change: Omit<Change, "at" | "actor">) => {
     const next = {
@@ -518,35 +928,42 @@ export default function Page() {
   const filtered = useMemo(() => {
     if (!data) return [];
     const needle = normalize(query);
-    const bySearch = data.records.filter((record) => !needle || normalize([
+    const bySearch = scopedRecords.filter((record) => !needle || normalize([
       record.ss, record.os, record.location, record.sigco, record.category, record.consolidated.decision,
       record.consolidated.cause, record.consolidated.rule, record.work.number,
     ].join(" ")).includes(needle));
     // uma busca por "R-CAMPO-03" passa a encontrar os dossiês pela regra de campo acionada
     const byField = needle && FIELD_RULE_IDS.some((id) => normalize(id).includes(needle))
-      ? data.records.filter((record) => (record.fieldAnalysis?.rules || []).some((id) => normalize(id).includes(needle)))
+      ? scopedRecords.filter((record) => (record.fieldAnalysis?.rules || []).some((id) => normalize(id).includes(needle)))
       : [];
     const merged = byField.length ? Array.from(new Set([...bySearch, ...byField])) : bySearch;
     if (module === "expurgos") return merged.filter((record) => record.consolidated.decision === "EXPURGAR");
     if (module === "sigco") return merged.filter((record) => record.consolidated.flags.includes("Análise por SIGCO"));
     if (module === "revisoes") return merged.filter((record) => record.consolidated.review);
-    if (module === "aprovacoes") return merged.filter((record) =>
+    // a fila de aprovacao continua sendo so das 134: e o unico lote que passou por campo
+    if (module === "aprovacoes") return merged.filter((record) => record.audited134 !== false).filter((record) =>
       (overrides[record.id]?.at(-1)?.status || record.consolidated.approvalStatus) === "PENDENTE");
     return merged;
-  }, [data, query, module, overrides]);
+  }, [data, scopedRecords, query, module, overrides]);
 
-  if (!data) return <main className="loading"><i /><span>Carregando os 134 registros…</span></main>;
+  if (!data) return <main className="loading"><i /><span>Carregando o universo de SS…</span></main>;
   if (!user) return <DemoLogin onLogin={setUser} />;
 
-  const approved = data.records.filter((record) => statusOf(record) === "APROVADO").length;
+  const audited = allRecords.filter((record) => record.audited134 !== false);
+  const approved = audited.filter((record) => statusOf(record) === "APROVADO").length;
   const title = TITLES[module];
+  // A descricao do modulo Universo carrega o total da base. Ele vem do arquivo, nao de um
+  // literal, para nunca mais existir uma pagina dizendo um numero e os cartoes dizendo outro.
+  const pageDescription = module === "universo" && universe
+    ? `As ${universe.totals.universo.toLocaleString("pt-BR")} SS da base, divididas por coorte e por período, com a regra de expurgo aplicada, a camada de campo em ${(universe.totals.comCampo ?? 0).toLocaleString("pt-BR")} delas e as 134 auditadas sinalizadas.`
+    : title.description;
   const openRecord = (record: AuditRecord) => { setSelected(record); setDetailTab("consolidado"); setComment(""); setExpurgeReason(""); };
   const logout = () => {
     localStorage.removeItem("auditoria-134-demo-user");
     setUser(null);
   };
   const municipalityIndex = new Map(municipalities.map((item) => [normalize(item.name), item]));
-  const mapPoints = Object.values(data.records.reduce<Record<string, {
+  const mapPoints = Object.values(scopedRecords.reduce<Record<string, {
     name: string; total: number; burned: number; damaged: number; expurged: number;
   }>>((acc, record) => {
     const key = normalize(record.location);
@@ -562,6 +979,102 @@ export default function Page() {
     return geo ? [{ ...point, latitude: geo.latitude, longitude: geo.longitude }] : [];
   });
 
+  // Todos os numeros do painel saem daqui — do escopo ativo, nunca de um resumo pre-calculado.
+  // Assim o que o cartao mostra e o que a planilha abre sao literalmente a mesma lista.
+  // O site grava "REVISÃO MANUAL" com acento e o universo grava "REVISAO MANUAL" sem.
+  // Sem esta normalizacao os 75 dossiês auditados sumiriam da contagem de revisao.
+  const decisionOf = (record: AuditRecord) => normalize(record.consolidated.decision).toUpperCase();
+  const isDecision = (record: AuditRecord, value: string) => decisionOf(record) === value;
+  const scoped = {
+    total: scopedRecords.length,
+    audited: scopedRecords.filter((record) => record.audited134 !== false).length,
+    lite: scopedRecords.filter((record) => record.lite).length,
+    burned: scopedRecords.filter((record) => record.category === "QUEIMADO").length,
+    damaged: scopedRecords.filter((record) => record.category === "AVARIADO").length,
+    included: scopedRecords.filter((record) => isDecision(record, "INCLUIR")).length,
+    expurged: scopedRecords.filter((record) => isDecision(record, "EXPURGAR")).length,
+    review: scopedRecords.filter((record) => isDecision(record, "REVISAO MANUAL")).length,
+    pending: scopedRecords.filter((record) => isDecision(record, "PENDENTE TEMPORAL")).length,
+    noWork: scopedRecords.filter((record) => !record.universe?.NUM_OBRA).length,
+    diverging: scopedRows.filter((row) => row.DIVERGE_DO_SITE === "SIM").length,
+    // Camada de campo. "comCampo" conta quem foi cruzado com a base de interrupcao —
+    // e diferente de "audited", que conta so as 134 lidas caso a caso.
+    comCampo: scopedRows.filter((row) => Boolean(row.RECORTE) && row.RECORTE !== "SEM DATA").length,
+    comIntervencao: scopedRows.filter((row) => (row.QTD_INTERVENCOES_CAMPO ?? 0) > 0).length,
+    semIntervencao: scopedRows.filter((row) => row.JANELA_TEMPORAL === "SEM INTERVENCAO").length,
+    campoConfirma: scopedRows.filter((row) => (row.CONFRONTO_CAMPO || "").startsWith("CONFIRMA")).length,
+    campoDiverge: scopedRows.filter((row) => (row.CONFRONTO_CAMPO || "").startsWith("DIVERGE")).length,
+    campoAlerta: scopedRows.filter((row) => (row.CONFRONTO_CAMPO || "").startsWith("ALERTA")).length,
+    duvidaForte: scopedRows.filter((row) => row.NIVEL_DUVIDA_CAMPO === "FORTE").length,
+    reincidencia: scopedRows.filter((row) => row.REINCIDENCIA_POS_TROCA === "SIM").length,
+    mudou: scopedRows.filter((row) => row.MUDOU_COM_CAMPO === "SIM").length,
+    comCampoIncluir: scopedRows.filter((row) => row.DECISAO_COM_CAMPO === "INCLUIR").length,
+    comCampoExpurgar: scopedRows.filter((row) => row.DECISAO_COM_CAMPO === "EXPURGAR").length,
+    comCampoRevisao: scopedRows.filter((row) => row.DECISAO_COM_CAMPO === "REVISAO MANUAL").length,
+    comCampoPendente: scopedRows.filter((row) => row.DECISAO_COM_CAMPO === "PENDENTE TEMPORAL").length,
+    // Cobertura das tres analises dentro do escopo ativo. Estes contadores existem para que a
+    // pergunta "todas tem SS, OS e material?" tenha resposta na tela, e nao na minha palavra.
+    covSS: scopedRows.filter((row) => row.COBERTURA_SS === "ANALISADA").length,
+    covOS: scopedRows.filter((row) => row.COBERTURA_OS === "ANALISADA").length,
+    covMat: scopedRows.filter((row) => row.COBERTURA_MATERIAL === "CONFERIDO").length,
+    covTri: scopedRows.filter((row) => row.TRIPLICE_COMPLETA === "SIM").length,
+  };
+  // O gráfico mensal também sai do escopo ativo, senão ele continuaria contando só as 134
+  // enquanto os cartões acima falam de 1.592 — dois números do mesmo painel se contradizendo.
+  const scopedMonths = (universe ? Array.from({ length: 12 }, (_, index) => index + 1) : data.byMonth.map((item) => item.month))
+    .map((monthNumber) => {
+      const rows = scopedRecords.filter((record) => record.month === monthNumber);
+      return {
+        month: monthNumber,
+        label: data.byMonth.find((item) => item.month === monthNumber)?.label || MONTHS[monthNumber - 1] || String(monthNumber),
+        total: rows.length,
+        burned: rows.filter((record) => record.category === "QUEIMADO").length,
+        damaged: rows.filter((record) => record.category === "AVARIADO").length,
+      };
+    })
+    .filter((month) => month.total > 0);
+
+  const br = (value: number) => value.toLocaleString("pt-BR");
+  // As regras R-CAMPO tem duas fontes: o dossie das 134 (auditorias.json) e o cruzamento
+  // automatico das 1.581 (universo-ss.json). Sao os mesmos ids; o catalogo une os dois para
+  // que a aba de campo saiba descrever a regra venha o registro de onde vier.
+  const fieldRuleCatalog: FieldRule[] = (() => {
+    const merged = new Map<string, FieldRule>((data.fieldRules || []).map((rule) => [rule.id, rule]));
+    (universe?.fieldRules || []).forEach((rule) => {
+      if (!merged.has(rule.id)) merged.set(rule.id, { id: rule.id, label: rule.title, description: rule.detail, count: rule.count, records: [] });
+    });
+    return Array.from(merged.values());
+  })();
+  const scopeNote = universe
+    ? `${br(scoped.total)} SS no escopo · ${br(scoped.comCampo)} com camada de campo · ${br(scoped.audited)} auditadas caso a caso`
+    : `${br(scoped.total)} SS auditadas`;
+  // O periodo tambem sai do escopo: a base tem SS de julho, e o rodape antigo dizia jan-jun.
+  const scopedDates = scopedRows.map((row) => (row.DATA_ABERTURA_SS || "").slice(0, 10)).filter(Boolean).sort();
+  const scopedPeriod = scopedDates.length
+    ? `${dayLabel(scopedDates[0])} — ${dayLabel(scopedDates[scopedDates.length - 1])}`
+    : `${data.meta.period.start} — ${data.meta.period.end}`;
+
+  const changeScope = (next: Scope) => {
+    setScope(next);
+    setQuery("");
+    localStorage.setItem("auditoria-134-escopo", next);
+  };
+
+  const ScopePicker = () => universe ? <section className="scope-picker">
+    <div className="scope-picker-head"><span>Escopo</span><strong>{scopeNote}</strong></div>
+    <div className="scope-picker-tabs">{SCOPES.map((item) => {
+      const count = item.id === "UNIVERSO" ? allRecords.length
+        : item.id === "AUDITADAS 134" ? allRecords.filter((record) => record.audited134).length
+          : item.id === "JAN-JUN 1510" ? allRecords.filter((record) => record.universe?.RECORTE === "JAN-JUN").length
+            : item.id === "JULHO" ? allRecords.filter((record) => record.universe?.RECORTE === "JULHO").length
+              : allRecords.filter((record) => record.cohort === item.id).length;
+      return <button key={item.id} type="button" className={scope === item.id ? "active" : ""}
+        onClick={() => changeScope(item.id)} title={item.note}>
+        <strong>{item.label}</strong><em>{count.toLocaleString("pt-BR")}</em>
+      </button>;
+    })}</div>
+  </section> : null;
+
   const Queue = ({ mode = "newbase" }: { mode?: "ss" | "os" | "newbase" }) => <section className="panel list-panel">
     <div className="list-head"><div><span>{filtered.length} registros</span><strong>{module === "newbase" ? "New Base completa" : title.title}</strong></div>
       <label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar SS, OS, local, SIGCO, regra…" /></label>
@@ -571,45 +1084,65 @@ export default function Page() {
 
   const renderModule = () => {
     if (module === "overview") return <>
+      <ScopePicker />
       <section className="scope-strip">
-        <div><span>Fonte ativa</span><strong>{data.meta.source}</strong></div>
-        <div><span>Período</span><strong>{data.meta.period.start} — {data.meta.period.end}</strong></div>
-        <div><span>Governança</span><strong>{approved} oficiais · {data.summary.total - approved} pendentes</strong></div>
-        <p>{data.meta.note.replace("Matheus Gracia", "Mateus Gracia")}</p>
+        <div><span>Fonte ativa</span><strong>{universe ? universe.source : data.meta.source}</strong></div>
+        <div><span>Período</span><strong>{universe ? scopedPeriod : `${data.meta.period.start} — ${data.meta.period.end}`}</strong></div>
+        <div><span>Governança</span><strong>{approved} oficiais · {audited.length - approved} pendentes</strong></div>
+        <p>{universe
+          ? `O painel roda sobre as ${universe.totals.universo.toLocaleString("pt-BR")} SS da base. Clique em qualquer número para abrir a planilha daquele recorte e baixá-la. As ${br(universe.totals.comCampo ?? 0)} SS abertas de janeiro a julho passaram pela camada de campo (R-CAMPO): o código do transformador foi cruzado contra a base de interrupção. As ${universe.totals.auditadas134} auditadas continuam sendo as únicas lidas caso a caso, e a decisão publicada delas não foi alterada.`
+          : data.meta.note.replace("Matheus Gracia", "Mateus Gracia")}</p>
       </section>
       <section className="kpi-grid">
-        <Kpi label="Base carregada" value={data.summary.total} note="134 SS · 134 OS" tone="ink" />
-        <Kpi label="Queimados na origem" value={data.summary.burned} note={`${pct(data.summary.burned, data.summary.total)}% da carga`} tone="red" />
-        <Kpi label="Avariados na origem" value={data.summary.damaged} note={`${pct(data.summary.damaged, data.summary.total)}% da carga`} tone="blue" />
-        <Kpi label="Proposta: incluir" value={data.summary.included} note="Ainda não oficial" tone="green" />
-        <Kpi label="Proposta: expurgar" value={data.summary.expurged} note={`${data.expurgeDashboard.sentToReview} também em revisão`} tone="red" />
-        <Kpi label="Revisão manual" value={data.summary.review} note="Responsável: Mateus Gracia" tone="amber" />
+        <Kpi label="SS no escopo" value={scoped.total} note={universe ? `Escopo ${scopeLabel}` : "134 SS · 134 OS"} tone="ink"
+          onClick={universe ? () => openSheet("SS no escopo", "Todas as SS do escopo ativo.") : undefined} />
+        <Kpi label="Queimados na origem" value={scoped.burned} note={`${pct(scoped.burned, scoped.total)}% da carga`} tone="red"
+          onClick={universe ? () => openSheetFor("Queimados na origem", "CATEGORIA = QUEIMADO.", scopedRecords.filter((r) => r.category === "QUEIMADO")) : undefined} />
+        <Kpi label="Avariados na origem" value={scoped.damaged} note={`${pct(scoped.damaged, scoped.total)}% da carga`} tone="blue"
+          onClick={universe ? () => openSheetFor("Avariados na origem", "CATEGORIA = AVARIADO.", scopedRecords.filter((r) => r.category === "AVARIADO")) : undefined} />
+        <Kpi label="Proposta: incluir" value={scoped.included} note="Ainda não oficial" tone="green"
+          onClick={universe ? () => openSheetFor("Proposta: incluir", "DECISAO_FINAL = INCLUIR.", scopedRecords.filter((r) => isDecision(r, "INCLUIR"))) : undefined} />
+        <Kpi label="Proposta: expurgar" value={scoped.expurged} note="Sai da base de imobilização" tone="red"
+          onClick={universe ? () => openSheetFor("Proposta: expurgar", "DECISAO_FINAL = EXPURGAR.", scopedRecords.filter((r) => isDecision(r, "EXPURGAR"))) : undefined} />
+        <Kpi label="Revisão manual" value={scoped.review} note="Responsável: Mateus Gracia" tone="amber"
+          onClick={universe ? () => openSheetFor("Revisão manual", "DECISAO_FINAL = REVISAO MANUAL.", scopedRecords.filter((r) => isDecision(r, "REVISAO MANUAL"))) : undefined} />
+        <Kpi label="Pendência temporal" value={scoped.pending} note={`SS sem obra dentro dos ${data.workRules?.deadlineDays ?? 60} dias`} tone="blue"
+          onClick={universe ? () => openSheetFor("Pendência temporal", "DECISAO_FINAL = PENDENTE TEMPORAL.", scopedRecords.filter((r) => isDecision(r, "PENDENTE TEMPORAL"))) : undefined} />
+        <Kpi label="Obra não gerada" value={scoped.noWork} note="SS sem NUM_OBRA na base" tone="red"
+          onClick={universe ? () => openSheet("Obra não gerada", "SS sem número de obra.", (row) => !row.NUM_OBRA) : undefined} />
+        <Kpi label="Com camada de campo" value={scoped.comCampo} note="Cruzadas com a base de interrupção" tone="green"
+          onClick={universe ? () => openSheet("Com camada de campo", "SS abertas de jan a jul/2026, cruzadas com a base de interrupção pelo código do trafo.", (row) => Boolean(row.RECORTE) && row.RECORTE !== "SEM DATA") : undefined} />
+        <Kpi label="A decisão mudaria" value={scoped.mudou} note="Campo x decisão atual — nada foi sobrescrito" tone="amber"
+          onClick={universe ? () => openSheet("A decisão mudaria com o campo", "MUDOU_COM_CAMPO = SIM. A decisão atual continua valendo; a coluna DECISAO_COM_CAMPO é a proposta, com o motivo escrito ao lado.", (row) => row.MUDOU_COM_CAMPO === "SIM") : undefined} />
       </section>
       <section className="dashboard-columns">
-        <article className="panel chart-panel"><div className="panel-title"><div><span>Distribuição mensal</span><h2>Abertura da SS</h2></div><small>Origem: data da SS</small></div>
-          <div className="month-chart">{data.byMonth.map((month) => <div className="month" key={month.month}>
+        <article className="panel chart-panel"><div className="panel-title"><div><span>Distribuição mensal · {scopeLabel}</span><h2>Abertura da SS</h2></div><small>Origem: data da SS · clique para abrir a planilha</small></div>
+          <div className="month-chart">{scopedMonths.map((month) => <button type="button" className="month" key={month.month}
+            onClick={universe ? () => openSheetFor(`SS abertas em ${month.label}`, "Recorte pela data de abertura da SS.", scopedRecords.filter((record) => record.month === month.month)) : undefined}
+            title={universe ? "Abrir a planilha deste mês" : undefined}>
             <strong>{month.total}</strong><div className="stack" title={`${month.burned} queimados · ${month.damaged} avariados`}>
-              <i className="burned" style={{ height: `${(month.burned / Math.max(...data.byMonth.map((item) => item.total))) * 150}px` }} />
-              <i className="damaged" style={{ height: `${(month.damaged / Math.max(...data.byMonth.map((item) => item.total))) * 150}px` }} />
+              <i className="burned" style={{ height: `${(month.burned / Math.max(...scopedMonths.map((item) => item.total), 1)) * 150}px` }} />
+              <i className="damaged" style={{ height: `${(month.damaged / Math.max(...scopedMonths.map((item) => item.total), 1)) * 150}px` }} />
             </div><span>{month.label}</span>
-          </div>)}</div>
+          </button>)}</div>
           <div className="legend"><span><i className="burned" />Queimado</span><span><i className="damaged" />Avariado</span></div>
         </article>
         <article className="panel pipeline"><div className="panel-title"><div><span>Processo</span><h2>Três leituras, uma decisão</h2></div></div>
           {[
-            ["01", "Análise de SS", "Solicitação, condição alegada e causa provável", 134],
-            ["02", "Análise por OS", "Execução, ação e contrapontos", 134],
-            ["03", "New Base", "Consolidação pendente de aprovação", 134],
+            ["01", "Análise de SS", "Solicitação, condição alegada e causa provável", br(scoped.total)],
+            ["02", "Análise por OS", "Execução, ação e contrapontos", br(scoped.total)],
+            ["03", "New Base", "Consolidação pendente de aprovação", br(scoped.total)],
           ].map((item) => <button key={item[0]} onClick={() => setModule(item[0] === "01" ? "ss" : item[0] === "02" ? "os" : "newbase")}>
             <b>{item[0]}</b><span><strong>{item[1]}</strong><small>{item[2]}</small></span><em>{item[3]}</em>
           </button>)}
         </article>
       </section>
       {data.materialConference ? <section className="panel conference-panel">
-        <div className="panel-title"><div><span>Conferência de material</span><h2>A base de itens da obra confirma as análises</h2></div><small>{data.materialConference.works} obras conferidas</small></div>
+        <div className="panel-title"><div><span>Conferência de material · só as 134</span><h2>A base de itens da obra confirma as análises</h2></div><small>{data.materialConference.works} obras conferidas</small></div>
+        {universe ? <p className="scope-warn">Este bloco não acompanha o escopo: a conferência item a item só foi feita nas 134 auditadas.</p> : null}
         <section className="kpi-grid">
           <Kpi label="Obras batendo item a item" value={`${data.materialConference.matches}/${data.materialConference.works}`} note="Transformadores, postes, para-raios, itens e valor" tone="green" />
-          <Kpi label="Obras corrigidas" value={data.materialConference.corrected} note="A aba Obras contava acessório como equipamento" tone="red" />
+          <Kpi label="Obras corrigidas" value={data.materialConference.corrected} note="A planilha de obras contava acessório como equipamento" tone="red" />
           <Kpi label="Alertas analíticos refeitos" value={data.materialConference.analyticConflicts} note="A Base_Analitica não enxergava o transformador da obra" tone="amber" />
           <Kpi label="SS sem obra" value={data.materialConference.withoutWork} note="Sem obra não há material a conferir" tone="blue" />
         </section>
@@ -637,9 +1170,263 @@ export default function Page() {
       <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v0.96. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
     </>;
 
-    if (module === "ss") return <Queue mode="ss" />;
-    if (module === "os") return <Queue mode="os" />;
-    if (module === "newbase" || ["expurgos", "sigco", "revisoes", "aprovacoes"].includes(module)) return <Queue mode="newbase" />;
+    if (module === "universo") {
+      if (!universe) return <section className="panel editorial-note"><span>UNIVERSO INDISPONÍVEL</span><p>O arquivo universo-ss.json não carregou. O app está rodando apenas com as 134 auditadas.</p></section>;
+      const rank = (key: keyof UniverseRecord, limit = 12) => {
+        const counter = new Map<string, number>();
+        scopedRows.forEach((row) => {
+          const value = String(row[key] ?? "").trim() || "—";
+          counter.set(value, (counter.get(value) || 0) + 1);
+        });
+        return Array.from(counter.entries())
+          .map(([label, value]) => ({ label, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, limit);
+      };
+      const rules = rank("REGRA", 16);
+      const causes = rank("CAUSA", 12);
+      const categories = rank("CATEGORIA", 12);
+      const cohortsRank = rank("COORTE", 5);
+      const layers = rank("CAMADA", 3);
+      const confronto = rank("CONFRONTO_CAMPO", 10).filter((item) => item.label !== "—");
+      const janelas = rank("JANELA_TEMPORAL", 6).filter((item) => item.label !== "—");
+      // O ranking de sinais nao sai do rank() porque um registro pode acionar varias regras
+      // ao mesmo tempo: a soma das barras e maior que o total de SS, e isso e correto.
+      const sinais = (universe.fieldRules || []).map((rule) => ({
+        label: rule.id, value: scopedRows.filter((row) => (row.SINAIS_R_CAMPO || "").includes(rule.id)).length,
+      })).filter((item) => item.value > 0).sort((a, b) => b.value - a.value);
+      const ruleById = new Map((universe.fieldRules || []).map((rule) => [rule.id, rule]));
+      // O antes e o depois tem de sair das MESMAS linhas. Se o "antes" contasse o escopo
+      // inteiro e o "depois" so as cruzadas, as 11 SS sem data entrariam de um lado so e a
+      // diferenca apareceria menor do que e. Por isso os dois lados rodam sobre cruzadas.
+      const cruzadas = scopedRows.filter((row) => Boolean(row.RECORTE) && row.RECORTE !== "SEM DATA");
+      const comparativo = ["INCLUIR", "REVISAO MANUAL", "EXPURGAR", "PENDENTE TEMPORAL"].map((label) => [
+        label,
+        cruzadas.filter((row) => row.DECISAO_FINAL === label).length,
+        cruzadas.filter((row) => row.DECISAO_COM_CAMPO === label).length,
+      ] as [string, number, number]);
+      return <>
+        <ScopePicker />
+        <section className="scope-strip">
+          <div><span>Fonte</span><strong>{universe.source}</strong></div>
+          <div><span>Data de referência</span><strong>{universe.referenceDate}</strong></div>
+          <div><span>Escopo ativo</span><strong>{scopeLabel} · {br(scoped.total)} SS</strong></div>
+          <div><span>Período no escopo</span><strong>{scopedPeriod}</strong></div>
+          <p>{universe.note}</p>
+        </section>
+        <section className="kpi-grid">
+          <Kpi label="SS no escopo" value={scoped.total} note={`de ${universe.totals.universo.toLocaleString("pt-BR")} no universo`} tone="ink"
+            onClick={() => openSheet("SS no escopo", "Todas as SS do escopo ativo.")} />
+          <Kpi label="Com camada de campo" value={scoped.comCampo} note="Cruzadas com a base de interrupção" tone="green"
+            onClick={() => openSheet("Com camada de campo", "SS de jan a jul/2026 cruzadas com a base de interrupção pelo código do transformador.", (row) => Boolean(row.RECORTE) && row.RECORTE !== "SEM DATA")} />
+          <Kpi label="Auditadas caso a caso" value={scoped.audited} note="Leitura humana e parecer escrito" tone="ink"
+            onClick={() => openSheet("Auditadas caso a caso", "AUDITADA_134 = SIM.", (row) => row.AUDITADA_134 === "SIM")} />
+          <Kpi label="Marcadas para expurgo" value={scoped.expurged} note={`${pct(scoped.expurged, scoped.total)}% do escopo`} tone="red"
+            onClick={() => openSheet("Marcadas para expurgo", "EXPURGAR = SIM.", (row) => row.EXPURGAR === "SIM")} />
+          <Kpi label="Incluir" value={scoped.included} note="Segue para imobilização" tone="green"
+            onClick={() => openSheet("Incluir", "DECISAO_FINAL = INCLUIR.", (row) => row.DECISAO_FINAL === "INCLUIR")} />
+          <Kpi label="Revisão manual" value={scoped.review} note="Precisa de leitura humana" tone="amber"
+            onClick={() => openSheet("Revisão manual", "DECISAO_FINAL = REVISAO MANUAL.", (row) => row.DECISAO_FINAL === "REVISAO MANUAL")} />
+          <Kpi label="Pendência temporal" value={scoped.pending} note="SS fora do prazo de obra" tone="blue"
+            onClick={() => openSheet("Pendência temporal", "DECISAO_FINAL = PENDENTE TEMPORAL.", (row) => row.DECISAO_FINAL === "PENDENTE TEMPORAL")} />
+          <Kpi label="Divergem do site" value={scoped.diverging} note="Base pura x veredito de campo" tone="red"
+            onClick={() => openSheet("Divergem do site", "DIVERGE_DO_SITE = SIM — a cascata de base chegaria a outra decisão sem a camada de campo.", (row) => row.DIVERGE_DO_SITE === "SIM")} />
+        </section>
+        {/* Cobertura das tres analises. Fica antes da camada de campo de proposito: e a
+            primeira pergunta que alguem faz ao abrir o painel — "isso aqui esta completo?" */}
+        <section className="panel editorial-note wide"><span>COBERTURA DAS TRÊS ANÁLISES · {br(scoped.total)} SS NO ESCOPO</span>
+          <p>Toda SS do escopo passa pela análise do texto da solicitação, pela análise do texto da ordem de serviço executada e pela conferência do material aplicado na obra. Onde alguma das três não existe, o registro <strong>diz o motivo</strong> em vez de aparecer em branco — dá para filtrar por isso na planilha.</p>
+          <p><strong>{br(scoped.covTri)}</strong> das {br(scoped.total)} SS do escopo têm as três completas. As demais estão nos cartões abaixo, com a razão da falta.</p>
+        </section>
+        <section className="coverage-grid">
+          {[
+            { id: "SS", title: "Análise da SS", ok: scoped.covSS, detail: "Texto da solicitação lido e classificado pelo dicionário de regras.",
+              pred: (row: UniverseRecord) => row.COBERTURA_SS === "ANALISADA", key: "COBERTURA_SS" as const },
+            { id: "OS", title: "Análise da OS", ok: scoped.covOS, detail: "Texto da ordem de serviço executada, vindo da coleta ou do export de obras.",
+              pred: (row: UniverseRecord) => row.COBERTURA_OS === "ANALISADA", key: "COBERTURA_OS" as const },
+            { id: "MATERIAL", title: "Material da obra", ok: scoped.covMat, detail: "Itens aplicados na obra, conferidos item a item no export de material.",
+              pred: (row: UniverseRecord) => row.COBERTURA_MATERIAL === "CONFERIDO", key: "COBERTURA_MATERIAL" as const },
+          ].map((axis) => {
+            const falta = scopedRows.filter((row) => !axis.pred(row));
+            const motivos = Array.from(falta.reduce((acc, row) => {
+              const reason = String(row[axis.key] || "—");
+              acc.set(reason, (acc.get(reason) || 0) + 1); return acc;
+            }, new Map<string, number>()).entries()).sort((a, b) => b[1] - a[1]);
+            const pct = scoped.total ? Math.round((axis.ok / scoped.total) * 1000) / 10 : 0;
+            return <article key={axis.id} className={`coverage-card ${falta.length ? "" : "full"}`}>
+              <span>{axis.title}</span>
+              <strong>{br(axis.ok)}<i>/{br(scoped.total)}</i></strong>
+              <div className="coverage-bar"><b style={{ width: `${pct}%` }} /></div>
+              <em>{pct.toLocaleString("pt-BR")}% do escopo</em>
+              <p>{axis.detail}</p>
+              {motivos.length ? <ul>{motivos.map(([reason, count]) => <li key={reason}>
+                <button type="button" onClick={() => openSheet(`${axis.title} — ${reason}`,
+                  `${axis.key} = ${reason}. Registros do escopo em que esta análise não existe, com o motivo.`,
+                  (row) => String(row[axis.key] || "—") === reason)}>{br(count)} · {reason}</button>
+              </li>)}</ul> : <ul><li className="none">Sem lacuna neste escopo.</li></ul>}
+              <button type="button" className="coverage-open" onClick={() => openSheet(axis.title,
+                `${axis.key} — cobertura desta análise no escopo ativo.`, () => true)}>Abrir planilha ↗</button>
+            </article>;
+          })}
+        </section>
+        {scoped.comCampo ? <>
+          <section className="panel editorial-note wide"><span>CAMADA DE CAMPO · {br(scoped.comCampo)} SS CRUZADAS</span>
+            <p>O código do transformador de cada SS foi confrontado com a base de interrupção (21.970 registros em transformador, 16.255 códigos distintos). O que sai daí é: quantas vezes aquele trafo específico desligou cliente, quando, qual causa a equipe registrou em campo e se isso bate com a condição declarada na SS.</p>
+            <p>A decisão publicada não foi sobrescrita. Ela continua em <strong>Decisão final</strong>; a leitura de campo entra ao lado, em <strong>Decisão com campo</strong>, com o motivo escrito caso a caso. Nas 134 auditadas a decisão do site prevalece por regra — nenhuma delas mudou.</p>
+          </section>
+          <section className="kpi-grid">
+            <Kpi label="Com intervenção no trafo" value={scoped.comIntervencao} note="O código aparece na base de interrupção" tone="ink"
+              onClick={() => openSheet("Com intervenção no próprio trafo", "QTD_INTERVENCOES_CAMPO > 0.", (row) => (row.QTD_INTERVENCOES_CAMPO ?? 0) > 0)} />
+            <Kpi label="Sem nenhuma intervenção" value={scoped.semIntervencao} note="Trafo que nunca desligou cliente no período" tone="red"
+              onClick={() => openSheet("Sem nenhuma intervenção", "JANELA_TEMPORAL = SEM INTERVENCAO. Um trafo queimado obrigatoriamente desliga cliente — a ausência é um sinal.", (row) => row.JANELA_TEMPORAL === "SEM INTERVENCAO")} />
+            <Kpi label="Campo confirma a SS" value={scoped.campoConfirma} note="Queima ou avaria registrada em campo" tone="green"
+              onClick={() => openSheet("Campo confirma a SS", "CONFRONTO_CAMPO começa com CONFIRMA.", (row) => (row.CONFRONTO_CAMPO || "").startsWith("CONFIRMA"))} />
+            <Kpi label="Campo diverge da SS" value={scoped.campoDiverge} note="Campo descreve outra condição" tone="amber"
+              onClick={() => openSheet("Campo diverge da SS", "CONFRONTO_CAMPO começa com DIVERGE.", (row) => (row.CONFRONTO_CAMPO || "").startsWith("DIVERGE"))} />
+            <Kpi label="Falha em outro elemento" value={scoped.campoAlerta} note="Campo aponta ramal ou acessório, não o trafo" tone="red"
+              onClick={() => openSheet("Falha em outro elemento da rede", "CONFRONTO_CAMPO começa com ALERTA — o campo registrou condutor, conexão, chave ou acessório.", (row) => (row.CONFRONTO_CAMPO || "").startsWith("ALERTA"))} />
+            <Kpi label="Dúvida forte" value={scoped.duvidaForte} note="Score alto nas regras R-CAMPO" tone="red"
+              onClick={() => openSheet("Dúvida forte", "NIVEL_DUVIDA_CAMPO = FORTE.", (row) => row.NIVEL_DUVIDA_CAMPO === "FORTE")} />
+            <Kpi label="Reincidência pós-troca" value={scoped.reincidencia} note="O trafo voltou a desligar depois da troca" tone="amber"
+              onClick={() => openSheet("Reincidência pós-troca", "REINCIDENCIA_POS_TROCA = SIM — a troca não resolveu a causa.", (row) => row.REINCIDENCIA_POS_TROCA === "SIM")} />
+            <Kpi label="A decisão mudaria" value={scoped.mudou} note="Proposta, não alteração" tone="amber"
+              onClick={() => openSheet("A decisão mudaria com o campo", "MUDOU_COM_CAMPO = SIM. Compare DECISAO_FINAL com DECISAO_COM_CAMPO e leia MOTIVO_DA_MUDANCA.", (row) => row.MUDOU_COM_CAMPO === "SIM")} />
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Antes e depois</span><h2>Decisão atual × decisão com campo</h2></div><small>clique para abrir a planilha</small></div>
+            <div className="compare-grid">{comparativo.map(([label, antes, depois]) => <button key={label} type="button"
+              onClick={() => openSheet(`Decisão com campo: ${label}`, "DECISAO_COM_CAMPO = " + label, (row) => row.DECISAO_COM_CAMPO === label)}>
+              <strong>{label}</strong>
+              <div><em>{br(antes)}</em><i>→</i><em className={depois === antes ? "" : depois > antes ? "up" : "down"}>{br(depois)}</em></div>
+              <small>{depois === antes ? "sem alteração no total" : `${depois > antes ? "+" : ""}${br(depois - antes)} com a leitura de campo`}</small>
+            </button>)}</div>
+          </section>
+          <section className="dashboard-columns">
+            <article className="panel"><div className="panel-title"><div><span>Confronto</span><h2>O que o campo diz sobre a SS</h2></div><small>clique para abrir a planilha</small></div>
+              <BarList data={confronto} total={scoped.comCampo} onSelect={(label) => openSheet(`Confronto: ${label}`, "Recorte por CONFRONTO_CAMPO.", (row) => (row.CONFRONTO_CAMPO || "—") === label)} />
+            </article>
+            <article className="panel"><div className="panel-title"><div><span>Janela</span><h2>Quando a intervenção aconteceu</h2></div><small>clique para abrir a planilha</small></div>
+              <BarList data={janelas} total={scoped.comCampo} onSelect={(label) => openSheet(`Janela ${label}`, "Recorte por JANELA_TEMPORAL.", (row) => (row.JANELA_TEMPORAL || "—") === label)} />
+            </article>
+          </section>
+          {sinais.length ? <section className="panel"><div className="panel-title"><div><span>Regras R-CAMPO</span><h2>Sinais levantados pelo campo</h2></div><small>uma SS pode acionar mais de um sinal</small></div>
+            <BarList data={sinais} total={scoped.comCampo} onSelect={(label) => openSheet(`Sinal ${label}`, ruleById.get(label)?.detail || "Recorte por sinal R-CAMPO.", (row) => (row.SINAIS_R_CAMPO || "").includes(label))} />
+            <div className="rule-legend">{sinais.map((item) => <p key={item.label}><strong>{item.label}</strong> {ruleById.get(item.label)?.title || ""} — {ruleById.get(item.label)?.detail || ""}</p>)}</div>
+          </section> : null}
+        </> : null}
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Coorte</span><h2>De onde a SS veio</h2></div></div>
+            <BarList data={cohortsRank} total={scoped.total} onSelect={(label) => openSheet(`Coorte ${label}`, "Recorte por COORTE.", (row) => row.COORTE === label)} />
+          </article>
+          <article className="panel"><div className="panel-title"><div><span>Camada</span><h2>Profundidade da decisão</h2></div></div>
+            <BarList data={layers} total={scoped.total} onSelect={(label) => openSheet(`Camada ${label}`, "Recorte por CAMADA.", (row) => row.CAMADA === label)} />
+          </article>
+        </section>
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Regras</span><h2>Regra que decidiu</h2></div><small>clique para abrir a planilha</small></div>
+            <BarList data={rules} total={scoped.total} onSelect={(label) => openSheet(`Regra ${label}`, "Recorte por REGRA acionada.", (row) => row.REGRA === label)} />
+          </article>
+          <article className="panel"><div className="panel-title"><div><span>Causas</span><h2>Motivo consolidado</h2></div><small>clique para abrir a planilha</small></div>
+            <BarList data={causes} total={scoped.total} onSelect={(label) => openSheet(`Causa ${label}`, "Recorte por CAUSA.", (row) => row.CAUSA === label)} />
+          </article>
+        </section>
+        <section className="panel"><div className="panel-title"><div><span>Categorias</span><h2>Condição declarada na SS</h2></div><small>clique para abrir a planilha</small></div>
+          <BarList data={categories} total={scoped.total} onSelect={(label) => openSheet(`Categoria ${label}`, "Recorte por CATEGORIA.", (row) => row.CATEGORIA === label)} />
+        </section>
+        <section className="panel editorial-note wide"><span>LIMITES DESTA BASE</span>
+          {universe.limits.map((item, index) => <p key={index}>{item}</p>)}
+        </section>
+      </>;
+    }
+
+    // Visao por codigo do ativo. Ate aqui tudo era contado por SS; esta tela vira a chave e
+    // conta por transformador — quantas SS o mesmo trafo gerou e quantas intervencoes de campo
+    // existem para o codigo dele na base de interrupcao (chave COD_INS_TRF_TNT = NUM_TRAFO).
+    if (module === "ativos") {
+      if (!universe) return <section className="panel editorial-note"><span>UNIVERSO INDISPONÍVEL</span><p>O arquivo universo-ss.json não carregou. Esta tela depende dele.</p></section>;
+      const semCodigo = scopedRows.filter((row) => !String(row.NUM_TRAFO || "").trim()).length;
+      const assets = new Map<string, UniverseRecord[]>();
+      scopedRows.forEach((row) => {
+        const code = String(row.NUM_TRAFO || "").trim();
+        if (code) assets.set(code, [...(assets.get(code) || []), row]);
+      });
+      const soma = (rows: UniverseRecord[], key: keyof UniverseRecord) =>
+        rows.reduce((total, row) => total + (Number(row[key]) || 0), 0);
+      const catalogo = Array.from(assets.entries()).map(([code, rows]) => ({
+        code,
+        rows,
+        ss: rows.length,
+        interv: soma(rows, "QTD_INTERVENCOES_CAMPO"),
+        janela: soma(rows, "INTERV_NA_JANELA"),
+        antes: soma(rows, "INTERV_ANTES_DA_SS"),
+        depois: soma(rows, "INTERV_DEPOIS_DA_TROCA"),
+        reincidente: rows.some((row) => row.REINCIDENCIA_POS_TROCA === "SIM"),
+        auditado: rows.some((row) => row.AUDITADA_134 === "SIM"),
+        local: rows[0].LOCALIDADE || "—",
+        decisoes: Array.from(new Set(rows.map((row) => row.DECISAO_FINAL).filter(Boolean))),
+        subcausas: Array.from(new Set(rows.flatMap((row) => String(row.SUBCAUSAS_TODAS || "").split("|").map((item) => item.trim()).filter(Boolean)))),
+      }));
+      const multi = catalogo.filter((item) => item.ss > 1);
+      const semInterv = catalogo.filter((item) => item.interv === 0);
+      const totalInterv = catalogo.reduce((total, item) => total + item.interv, 0);
+      const needle = normalize(assetQuery).trim();
+      const lista = catalogo
+        .filter((item) => !needle || normalize(item.code).includes(needle) || normalize(item.local).includes(needle))
+        .sort((a, b) => b.interv - a.interv || b.ss - a.ss || a.code.localeCompare(b.code));
+      const CAP = 200;
+      return <>
+        <ScopePicker />
+        <section className="panel editorial-note wide"><span>CONTAGEM POR CÓDIGO DO ATIVO · ESCOPO {scopeLabel.toUpperCase()}</span>
+          <p>Aqui a unidade deixa de ser a solicitação e passa a ser o transformador. A coluna <strong>intervenções</strong> conta os desligamentos que a base de interrupção registrou <strong>no próprio código do trafo</strong>, somados por SS — um trafo com duas SS soma as duas janelas.</p>
+          <p><strong>{br(assets.size)}</strong> transformadores distintos no escopo, <strong>{br(totalInterv)}</strong> intervenções encontradas ao todo e <strong>{br(multi.length)}</strong> com mais de uma SS no período.</p>
+        </section>
+        <section className="kpi-grid">
+          <Kpi label="Transformadores distintos" value={br(assets.size)} note={`${br(scoped.total)} SS no escopo`} tone="ink" />
+          <Kpi label="Intervenções encontradas" value={br(totalInterv)} note="Desligamentos no código do trafo" tone="red"
+            onClick={() => openSheet("Com intervenção no próprio trafo", "QTD_INTERVENCOES_CAMPO > 0.", (row) => (row.QTD_INTERVENCOES_CAMPO ?? 0) > 0)} />
+          <Kpi label="Trafos com mais de uma SS" value={br(multi.length)} note={`${br(multi.reduce((total, item) => total + item.ss, 0))} SS envolvidas`} tone="amber"
+            onClick={() => openSheet("Trafos com mais de uma SS", "Mesmo NUM_TRAFO com duas ou mais solicitações no escopo.",
+              (row) => (assets.get(String(row.NUM_TRAFO || "").trim())?.length || 0) > 1)} />
+          <Kpi label="Trafos sem nenhuma intervenção" value={br(semInterv.length)} note="Nenhum desligamento no período" tone="blue"
+            onClick={() => openSheet("Sem nenhuma intervenção", "Trafos cujo código não aparece na base de interrupção no período.",
+              (row) => (assets.get(String(row.NUM_TRAFO || "").trim())?.reduce((total, item) => total + (item.QTD_INTERVENCOES_CAMPO ?? 0), 0) || 0) === 0)} />
+          <Kpi label="Com reincidência pós-troca" value={br(catalogo.filter((item) => item.reincidente).length)} note="Voltou a desligar depois da substituição" tone="red"
+            onClick={() => openSheet("Reincidência pós-troca", "REINCIDENCIA_POS_TROCA = SIM.", (row) => row.REINCIDENCIA_POS_TROCA === "SIM")} />
+          <Kpi label="SS sem código de ativo" value={br(semCodigo)} note="Não entram nesta contagem" tone="amber"
+            onClick={() => openSheet("SS sem código de ativo", "NUM_TRAFO vazio no export da coleta.", (row) => !String(row.NUM_TRAFO || "").trim())} />
+        </section>
+        <section className="panel list-panel">
+          <div className="list-head">
+            <div><span>{br(lista.length)} transformadores{lista.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span><strong>Ordenados por intervenções encontradas</strong></div>
+            <label className="search"><span>⌕</span><input value={assetQuery} onChange={(event) => setAssetQuery(event.target.value)} placeholder="Buscar código do trafo ou localidade…" /></label>
+          </div>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Código do ativo</th><th>Solicitações</th><th>Intervenções</th><th>Quando</th><th>Campo</th><th>Decisão</th></tr></thead>
+            <tbody>{lista.slice(0, CAP).map((item) => <tr key={item.code}
+              onClick={() => openSheet(`Transformador ${item.code}`, `Todas as SS do escopo cujo NUM_TRAFO é ${item.code}.`,
+                (row) => String(row.NUM_TRAFO || "").trim() === item.code)}>
+              <td><strong>{item.code}</strong><span>{item.local}</span>{item.auditado ? <code>auditado caso a caso</code> : null}</td>
+              <td><strong>{item.ss} SS</strong><span>{item.rows.map((row) => row.NUMERO_SS).join(" · ")}</span></td>
+              <td><strong>{item.interv}</strong><span>{item.interv ? "desligamentos no código do trafo" : "nenhum registro no período"}</span></td>
+              <td><span>{item.antes} antes da SS</span><span>{item.janela} na janela do evento</span><span>{item.depois} depois da troca</span></td>
+              <td>{item.reincidente ? <b className="pill bad">REINCIDENTE</b> : null}<small>{item.subcausas.slice(0, 3).join(" · ") || "Sem causa registrada em campo"}</small></td>
+              <td>{item.decisoes.map((decision) => <b key={decision} className={`pill ${decisionClass(decision)}`}>{decision}</b>)}</td>
+            </tr>)}</tbody>
+          </table></div>
+        </section>
+        <section className="panel editorial-note wide"><span>COMO LER</span>
+          <p>Clique em qualquer linha para abrir a planilha com as SS daquele transformador — de lá dá para abrir o dossiê de cada uma e baixar o recorte. Um trafo com várias intervenções e uma SS só costuma ser o caso mais interessante: o equipamento já vinha desligando cliente antes de alguém abrir a solicitação.</p>
+          <p>A base de interrupção vai até 29/07/2026, então SS abertas no fim de julho podem ter intervenção ainda não registrada. As {br(semCodigo)} SS sem código de ativo no escopo não entram em nenhuma linha desta tela.</p>
+        </section>
+      </>;
+    }
+
+    if (module === "ss") return <><ScopePicker /><Queue mode="ss" /></>;
+    if (module === "os") return <><ScopePicker /><Queue mode="os" /></>;
+    if (module === "aprovacoes") return <>
+      <section className="panel editorial-note"><span>FILA DE APROVAÇÃO · SÓ AS 134</span><p>A aprovação formal existe apenas para as 134 auditadas — são as únicas com veredito de campo. As outras {(allRecords.length - audited.length).toLocaleString("pt-BR")} SS aparecem nas listas e nas planilhas, mas não entram nesta fila.</p></section>
+      <Queue mode="newbase" />
+    </>;
+    if (module === "newbase" || ["expurgos", "sigco", "revisoes"].includes(module)) return <><ScopePicker /><Queue mode="newbase" /></>;
     if (module === "map") return <>
       <section className="map-layout">
         <article className="panel map-panel">
@@ -694,8 +1481,40 @@ export default function Page() {
       const recordById = new Map(data.records.map((record) => [record.id, record]));
       const openById = (id: string) => { const found = recordById.get(id); if (found) openRecord(found); };
       return <>
+      <ScopePicker />
+      {universe ? <>
+        <section className="kpi-grid">
+          <Kpi label="Marcadas para expurgo" value={scoped.expurged} note={`${pct(scoped.expurged, scoped.total)}% do escopo ${scopeLabel}`} tone="red"
+            onClick={() => openSheet("Marcadas para expurgo", "EXPURGAR = SIM.", (row) => row.EXPURGAR === "SIM")} />
+          <Kpi label="Com camada de campo" value={scopedRows.filter((row) => row.EXPURGAR === "SIM" && row.AUDITADA_134 === "SIM").length} note="Expurgo com veredito de campo" tone="ink"
+            onClick={() => openSheet("Expurgo com campo", "EXPURGAR = SIM e AUDITADA_134 = SIM.", (row) => row.EXPURGAR === "SIM" && row.AUDITADA_134 === "SIM")} />
+          <Kpi label="Só triagem de base" value={scopedRows.filter((row) => row.EXPURGAR === "SIM" && row.AUDITADA_134 !== "SIM").length} note="Precisa de confirmação em campo" tone="amber"
+            onClick={() => openSheet("Expurgo só por base", "EXPURGAR = SIM e AUDITADA_134 = NAO.", (row) => row.EXPURGAR === "SIM" && row.AUDITADA_134 !== "SIM")} />
+          <Kpi label="Revisão manual" value={scoped.review} note="Não decidido pela regra" tone="blue"
+            onClick={() => openSheet("Revisão manual", "DECISAO_FINAL = REVISAO MANUAL.", (row) => row.DECISAO_FINAL === "REVISAO MANUAL")} />
+        </section>
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Escopo {scopeLabel}</span><h2>Regra que levou ao expurgo</h2></div><small>clique para abrir a planilha</small></div>
+            <BarList
+              data={Array.from(scopedRows.filter((row) => row.EXPURGAR === "SIM").reduce((acc, row) => {
+                const key = row.REGRA || "—"; acc.set(key, (acc.get(key) || 0) + 1); return acc;
+              }, new Map<string, number>()).entries()).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value)}
+              total={scoped.expurged}
+              onSelect={(label) => openSheet(`Expurgo pela regra ${label}`, "EXPURGAR = SIM com esta REGRA.", (row) => row.EXPURGAR === "SIM" && (row.REGRA || "—") === label)} />
+          </article>
+          <article className="panel"><div className="panel-title"><div><span>Escopo {scopeLabel}</span><h2>Causa do expurgo</h2></div><small>clique para abrir a planilha</small></div>
+            <BarList
+              data={Array.from(scopedRows.filter((row) => row.EXPURGAR === "SIM").reduce((acc, row) => {
+                const key = row.CAUSA || "—"; acc.set(key, (acc.get(key) || 0) + 1); return acc;
+              }, new Map<string, number>()).entries()).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value)}
+              total={scoped.expurged}
+              onSelect={(label) => openSheet(`Expurgo por ${label}`, "EXPURGAR = SIM com esta CAUSA.", (row) => row.EXPURGAR === "SIM" && (row.CAUSA || "—") === label)} />
+          </article>
+        </section>
+      </> : null}
+      {universe ? <section className="panel editorial-note"><span>DAQUI PRA BAIXO · SÓ AS 134</span><p>Os blocos abaixo — valor associado, regras de campo R-CAMPO e confronto com o TMAE/SIGOD — só existem para as 134 SS auditadas. Eles não mudam quando você troca o escopo.</p></section> : null}
       <section className="kpi-grid">
-        <Kpi label="Expurgos automáticos" value={data.expurgeDashboard.total} note={`${pct(data.expurgeDashboard.total, data.summary.total)}% da base`} tone="red" />
+        <Kpi label="Expurgos automáticos" value={data.expurgeDashboard.total} note={`${pct(data.expurgeDashboard.total, data.summary.total)}% das 134`} tone="red" />
         <Kpi label="Valor realizado associado" value={compactMoney(data.expurgeDashboard.value)} note={money(data.expurgeDashboard.value)} tone="ink" />
         <Kpi label="Material associado" value={compactMoney(data.expurgeDashboard.materialValue)} note={money(data.expurgeDashboard.materialValue)} tone="blue" />
         <Kpi label="Também em revisão" value={data.expurgeDashboard.sentToReview} note="Possível furto ou abalroamento" tone="amber" />
@@ -867,15 +1686,18 @@ export default function Page() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><i>T</i><div><strong>Transforma</strong><span>Auditoria · Base 134</span></div></div>
+      <div className="brand"><i>T</i><div><strong>Transforma</strong><span>{universe ? `Auditoria · ${universe.totals.universo.toLocaleString("pt-BR")} SS` : "Auditoria · Base 134"}</span></div></div>
       <nav>{NAV.map((group) => <div className="nav-group" key={group.group}><span>{group.group}</span>{group.items.map((item) => <button className={module === item.id ? "active" : ""} key={item.id} onClick={() => { setModule(item.id); setQuery(""); }}>
-        <b>{item.code}</b><em>{item.label}</em>{item.id === "newbase" ? <small>134</small> : null}
+        <b>{item.code}</b><em>{item.label}</em>
+        {item.id === "universo" && universe ? <small>{universe.totals.universo.toLocaleString("pt-BR")}</small> : null}
+        {item.id === "newbase" ? <small>{scoped.total.toLocaleString("pt-BR")}</small> : null}
+        {item.id === "aprovacoes" ? <small>134</small> : null}
       </button>)}</div>)}</nav>
       <div className="side-user"><b>{user.initials}</b><div><strong>{user.name}</strong><span>{user.role}</span></div><button onClick={logout} title="Sair">↗</button></div>
     </aside>
     <main className="workspace">
-      <header className="page-header"><div><span>{title.eyebrow}</span><h1>{title.title}</h1><p>{title.description}</p></div>
-        <div className="header-meta"><span>{user.role}</span><strong>{user.name}</strong><small>{data.summary.total} registros · demonstração</small></div>
+      <header className="page-header"><div><span>{title.eyebrow}</span><h1>{title.title}</h1><p>{pageDescription}</p></div>
+        <div className="header-meta"><span>{user.role}</span><strong>{user.name}</strong><small>{scoped.total.toLocaleString("pt-BR")} registros · {scopeLabel}</small></div>
       </header>
       {renderModule()}
     </main>
@@ -889,11 +1711,32 @@ export default function Page() {
           <i /><strong>{selected.requestType || selected.type}</strong>
           <span>ORIGEM {selected.origin || "—"}</span><span>SOLICITANTE {selected.requester || "—"}</span>
         </div> : null}
-        <nav>{(["consolidado", "ss", "os", "obra", "campo", "historico"] as const).map((tab) => <button
-          key={tab}
-          className={`${detailTab === tab ? "active" : ""}${tab === "campo" ? " no-caps" : ""}`.trim()}
-          onClick={() => setDetailTab(tab)}
-        >{tab === "obra" ? "Obra / material" : tab === "campo" ? "Análise por Intervenções" : tab}</button>)}</nav>
+        {/* Estado das tres analises nesta SS. Aparece antes de qualquer aba para que ninguem
+            leia uma aba vazia achando que o dado nao existe quando na verdade ele nao foi coletado. */}
+        {selected.universe ? <div className="coverage-strip">
+          {([["SS", selected.universe.COBERTURA_SS, "ANALISADA"],
+             ["OS", selected.universe.COBERTURA_OS, "ANALISADA"],
+             ["MATERIAL", selected.universe.COBERTURA_MATERIAL, "CONFERIDO"]] as const)
+            .filter(([, state]) => Boolean(state))
+            .map(([axis, state, good]) => <b key={axis} className={state === good ? "" : "miss"}
+              title={state === good ? `${axis}: analisada` : `${axis}: ${state}`}>
+              {axis} · {state === good ? "ok" : String(state).toLowerCase()}</b>)}
+        </div> : null}
+        {selected.lite ? <article className="lite-warn">
+          <span>{selected.fieldAnalysis ? "DOSSIÊ AUTOMÁTICO · CAMPO CRUZADO, SEM LEITURA HUMANA" : "DOSSIÊ REDUZIDO · SEM CAMADA DE CAMPO"}</span>
+          <p>{selected.fieldAnalysis
+            ? "Esta SS não está entre as 134 auditadas. Ela tem a camada de campo automática — o código do transformador foi cruzado com a base de interrupção, e a aba Análise por Intervenções mostra o resultado. O que não existe aqui é a leitura humana caso a caso, a conferência item a item do material e a verificação de SIGCO. A decisão continua sendo uma triagem apoiada pelo campo, não um veredito assinado."
+            : "Esta SS não está entre as 134 auditadas. O que você vê aqui vem só das colunas da base — texto da SS e da OS, datas, prazo, material da obra e a regra que a triagem acionou. Não houve conferência item a item, cruzamento com a base de intervenções (R-CAMPO) nem verificação de SIGCO. A decisão é uma triagem, não um veredito."}</p>
+          <em>Coorte {selected.cohort || "—"} · camada {selected.universe?.CAMADA || "BASE"}</em>
+        </article> : null}
+        {selected.universe?.DECISAO_COM_CAMPO ? <article className={`field-decision ${selected.universe.MUDOU_COM_CAMPO === "SIM" ? "changed" : ""}`}>
+          <span>DECISÃO COM A CAMADA DE CAMPO</span>
+          <div><em>{selected.universe.DECISAO_FINAL || "—"}</em><i>→</i><strong>{selected.universe.DECISAO_COM_CAMPO}</strong>
+            <b className={selected.universe.MUDOU_COM_CAMPO === "SIM" ? "pill amber" : "pill"}>{selected.universe.MUDOU_COM_CAMPO === "SIM" ? "mudaria" : "sem mudança"}</b></div>
+          <p>{selected.universe.MOTIVO_DA_MUDANCA}</p>
+          <small>Proposta da camada de campo. A decisão oficial continua sendo a da esquerda até alguém aprovar a mudança.</small>
+        </article> : null}
+        <nav>{(["consolidado", "ss", "os", "obra", "campo", "historico"] as const).map((tab) => <button key={tab} className={`${detailTab === tab ? "active" : ""}${tab === "campo" ? " no-caps" : ""}`.trim()} onClick={() => setDetailTab(tab)}>{tab === "obra" ? "Obra / material" : tab === "campo" ? "Análise por Intervenções" : tab}</button>)}</nav>
         <div className="drawer-body">
           {detailTab === "consolidado" && <>
             <h3>New Base — Análise Consolidada</h3>
@@ -939,10 +1782,12 @@ export default function Page() {
             </article>;
           })()}
           {selected.work.alerts?.length ? <article className="work-alerts"><span>REGRAS DE ORDEM DE OBRA</span><ul>{selected.work.alerts.map((alert) => <li key={alert}>{alert}</li>)}</ul></article> : null}</>}
-          {detailTab === "campo" && <FieldTab record={selected} rules={data.fieldRules || []} onUseReason={setExpurgeReason} />}
+          {detailTab === "campo" && <FieldTab record={selected} rules={fieldRuleCatalog} onUseReason={setExpurgeReason} />}
           {detailTab === "historico" && <><h3>Histórico do registro</h3>{(overrides[selected.id] || []).length ? <div className="timeline">{overrides[selected.id].slice().reverse().map((item, index) => <div className="timeline-item" key={`${item.at}-${index}`}><i /><div><strong>{item.action}</strong><span>{item.actor} · {new Date(item.at).toLocaleString("pt-BR")}</span><p>{item.comment}</p></div></div>)}</div> : <div className="empty"><strong>Sem alterações</strong><span>A proposta original da IA está preservada.</span></div>}</>}
         </div>
-        <footer className="approval-bar">
+        {selected.lite ? <footer className="approval-bar lite">
+          <p>Aprovação e expurgo formal só estão liberados para as 134 SS auditadas. Para decidir esta SS é preciso rodar a camada de campo sobre ela.</p>
+        </footer> : <footer className="approval-bar">
           <label className="reason-field"><span>Motivo do expurgo</span><select value={expurgeReason} onChange={(event) => setExpurgeReason(event.target.value)}>
             <option value="">Selecione uma justificativa</option>
             {EXPURGE_REASONS.map((reason) => <option key={reason}>{reason}</option>)}
@@ -952,8 +1797,19 @@ export default function Page() {
           <button className="expurge-button" disabled={!comment.trim() || !expurgeReason} onClick={() => saveChange(selected, { status: "EXPURGADO", comment: `${expurgeReason}: ${comment.trim()}`, action: "Expurgo solicitado" })}>Expurgar</button>
           {user.canApprove ? <button className="reject-button" disabled={!comment.trim()} onClick={() => saveChange(selected, { status: "REJEITADO", comment, action: "Análise rejeitada" })}>Rejeitar</button> : null}
           {user.canApprove ? <button className="approve-button" disabled={!comment.trim()} onClick={() => saveChange(selected, { status: "APROVADO", comment, action: "Análise aprovada" })}>Aprovar análise</button> : null}
-        </footer>
+        </footer>}
       </aside>
     </div>}
+
+    {drill && <DrillSheet
+      title={drill.title}
+      note={drill.note}
+      rows={drill.rows}
+      onClose={() => setDrill(null)}
+      onOpenRecord={(ss) => {
+        const record = allRecords.find((item) => item.ss === ss);
+        if (record) { setDrill(null); openRecord(record); }
+      }}
+    />}
   </div>;
 }
