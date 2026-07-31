@@ -246,6 +246,14 @@ function RequestSource({ record, tab }: { record: AuditRecord; tab: "ss" | "os" 
   </article>;
 }
 
+// Quem abre a SS e quem abre a obra são times distintos nesta base — 44 solicitantes contra
+// 13 usuários de cadastro. Quando coincidem, vale sinalizar: a mesma pessoa pediu e cadastrou.
+const sameOpener = (record: AuditRecord) => {
+  const ss = normalize(record.requester || "").trim();
+  const work = normalize(record.work.openedBy || "").trim();
+  return Boolean(ss) && ss === work;
+};
+
 // O que cada código de SIGCO afirma sobre a ocorrência. É a mesma tabela usada pelo motor
 // para julgar a coerência do código; aqui ela serve para confrontar o código com o material
 // que a obra de fato movimentou.
@@ -909,7 +917,8 @@ export default function Page() {
             <div><span>Transformadores / postes / para-raios</span><strong>{selected.material.transformers} / {selected.material.poles} / {selected.material.lightningArresters}</strong></div><div><span>Valor de material</span><strong>{money(selected.material.value)}</strong></div>
             <div><span>SIGCO da ocorrência</span><strong>{selected.sigco && selected.sigco !== "#N/A" ? `${selected.sigco}${SIGCO_MEANING[selected.sigco] ? ` · ${SIGCO_MEANING[selected.sigco]}` : ""}` : "Não informado"}</strong></div><div><span>Coerência do SIGCO</span><strong>{selected.consolidated.sigcoStatus}</strong></div>
             <div><span>Total orçado</span><strong>{money(selected.finance.totalBudgeted)}</strong></div><div><span>Total realizado</span><strong>{money(selected.finance.totalRealized)}</strong></div>
-            <div><span>Obra aberta por</span><strong>{selected.work.openedBy || (selected.work.number ? "Não informado no cadastro" : "Sem obra gerada")}{selected.work.openedAtLabel ? ` · ${selected.work.openedAtLabel}` : ""}</strong></div><div><span>Setor responsável</span><strong>{selected.work.openedSector || "—"}</strong></div>
+            <div><span>SS aberta por</span><strong>{selected.requester || "Não informado"}{selected.openedAtLabel ? ` · ${selected.openedAtLabel}` : ""}</strong></div><div><span>Obra aberta por</span><strong>{selected.work.openedBy || (selected.work.number ? "Não informado no cadastro" : "Sem obra gerada")}{selected.work.openedAtLabel ? ` · ${selected.work.openedAtLabel}` : ""}{sameOpener(selected) ? " · mesma pessoa da SS" : ""}</strong></div>
+            <div><span>Origem da SS</span><strong>{selected.origin || "—"}</strong></div><div><span>Setor responsável da obra</span><strong>{selected.work.openedSector || "—"}</strong></div>
             <div><span>Classe da obra</span><strong>{selected.work.workClass || "Sem obra gerada"}</strong></div><div><span>Natureza / tipo</span><strong>{[selected.work.workNature, selected.work.workKind].filter(Boolean).join(" · ") || "—"}</strong></div>
             <div><span>Dias desde a abertura da SS</span><strong>{selected.work.ssAgeDays ?? "—"}{selected.work.overdue ? " · acima do limite" : ""}</strong></div><div><span>Prova da troca</span><strong>{selected.work.number ? "Obra disponível para consulta SIAGO" : "Sem obra: troca não comprovável"}</strong></div>
           </section>
