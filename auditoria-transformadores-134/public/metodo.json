@@ -1,0 +1,178 @@
+{
+ "resumo": {
+  "titulo": "Como esta análise foi feita",
+  "paragrafos": [
+   "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
+   "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
+   "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
+   "O resultado: 1262 para incluir, 184 para leitura humana e 64 fora do indicador, sempre com motivo escrito."
+  ]
+ },
+ "blocos": [
+  {
+   "id": "fato",
+   "titulo": "1. A regra do fato",
+   "paragrafos": [
+    "O casamento é pelo código do transformador contra a base de interrupção, considerando o intervalo inteiro de cada passo da ocorrência, não só o instante de abertura. Das solicitações que casam, 1.022 abrem com o cliente já desligado; ancorar só na abertura da ocorrência perderia 61 casos legítimos.",
+    "O limite de 24 horas foi testado. Entre 12 e 24 horas a densidade é de cerca de 2,4 solicitações por hora; entre 24 e 48 horas cai para 0,7. Alargar a janela para 48 horas traria só 16 casos, e todos duvidosos. Por isso o padrão é 24 horas, ajustável na tela para 12 ou 48."
+   ],
+   "itens": [
+    {
+     "rotulo": "Fato pleno",
+     "texto": "A interrupção foi aberta no próprio transformador, dentro da janela. É a prova mais forte que existe."
+    },
+    {
+     "rotulo": "Fato com ressalva",
+     "texto": "Houve interrupção, mas ela é programada, preventiva, de equipamento especial ou com o defeito aberto em outro equipamento. Conta, mas com alerta."
+    },
+    {
+     "rotulo": "Fato provável",
+     "texto": "A interrupção não casa, mas o atendimento de emergência registra equipe no transformador dentro da janela."
+    },
+    {
+     "rotulo": "Sem fato",
+     "texto": "Nem a interrupção nem o atendimento registram nada na janela. Não é prova de que não aconteceu — é ausência de lastro."
+    }
+   ]
+  },
+  {
+   "id": "tmae",
+   "titulo": "2. Por que a ausência no atendimento não conta contra",
+   "paragrafos": [
+    "A base de atendimento tem dois defeitos conhecidos que impedem tratá-la como contraprova. O arquivo de janeiro termina em 25 e não traz nenhum atendimento de 26 a 31 — são 99 solicitações abertas nesse intervalo. E a chave da base é o código do equipamento onde o defeito foi aberto: quando a equipe abre na chave, o número que aparece é o da chave, não o do transformador abaixo dela.",
+    "Por isso a interrupção é a prova primária e o atendimento apenas corrobora. Estar ausente do atendimento não retém ninguém — mas fica marcado na tela, porque continua sendo informação."
+   ]
+  },
+  {
+   "id": "leitura",
+   "titulo": "3. A regra da leitura",
+   "paragrafos": [
+    "A leitura usa o texto da solicitação e da ordem de serviço, na ordem de precedência do dicionário de regras, com o material da obra como prova de troca. A categoria gravada na base não decide nada: ela está errada em 121 solicitações, e em 21 delas o texto descreve queima com troca comprovada enquanto o rótulo diz outra coisa."
+   ],
+   "itens": [
+    {
+     "rotulo": "Falha",
+     "texto": "O texto e o material descrevem queima ou avaria do transformador."
+    },
+    {
+     "rotulo": "Não é falha",
+     "texto": "O texto descreve furto, abalroamento, preventivo, auxiliar de equipamento especial, construção ou desativação."
+    },
+    {
+     "rotulo": "Indefinida",
+     "texto": "O texto não permite concluir. Nunca decide sozinha: vai para leitura humana."
+    }
+   ]
+  },
+  {
+   "id": "matriz",
+   "titulo": "4. A matriz de decisão",
+   "paragrafos": [
+    "Toda solicitação cai em uma célula. Não existe caso fora da matriz."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "Fato ↓ / Leitura →",
+     "Falha",
+     "Não é falha",
+     "Indefinida"
+    ],
+    "linhas": [
+     [
+      "Fato pleno",
+      "INCLUIR",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Fato com ressalva",
+      "INCLUIR se o material comprova; senão REVISÃO",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Fato provável (só atendimento)",
+      "INCLUIR",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Sem fato",
+      "REVISÃO",
+      "EXCLUIR",
+      "REVISÃO"
+     ]
+    ]
+   },
+   "itens": [
+    {
+     "rotulo": "INCLUIR",
+     "texto": "Conta no indicador de queima e avaria."
+    },
+    {
+     "rotulo": "REVISÃO",
+     "texto": "Espera leitura humana, com o motivo escrito ao lado. Não é expurgo."
+    },
+    {
+     "rotulo": "EXCLUIR",
+     "texto": "Sai do indicador porque a leitura mostrou outra causa. Continua na base, marcado."
+    }
+   ]
+  },
+  {
+   "id": "correcoes",
+   "titulo": "5. O que foi corrigido no caminho",
+   "paragrafos": [
+    "Três auditorias independentes revisaram este trabalho: uma leu a conversa inteira e mapeou as bases, outra releu os 1.510 textos contra o dicionário de regras, e a terceira reprocessou o cruzamento a partir dos arquivos crus. O que elas acharam está aqui, porque quem for auditar isto depois vai perguntar."
+   ],
+   "itens": [
+    {
+     "rotulo": "Ocorrência longa não enfraquece",
+     "texto": "A primeira versão rebaixava a evidência quando a interrupção durava mais de 24 horas. Em 536 dos 540 casos rebaixados o defeito era no próprio transformador — ele fica desligado até a troca, então a duração longa é a assinatura do evento, não uma janela frouxa."
+    },
+    {
+     "rotulo": "Passos da ocorrência",
+     "texto": "Uma ocorrência tem várias janelas de abertura e fechamento. A deduplicação anterior descartava 6.628 delas, e em 14 casos a janela visível não continha a solicitação enquanto outra continha."
+    },
+    {
+     "rotulo": "Nível impossível",
+     "texto": "Havia um nível definido como “mesmo dia, fora das 24 horas” — conjunto vazio por construção, porque mesmo dia já implica menos de 24 horas."
+    },
+    {
+     "rotulo": "Teste do vizinho",
+     "texto": "Antes de dizer que uma solicitação não tem lastro, o sistema procura ocorrência em transformador vizinho do mesmo alimentador. A primeira versão apontava chave e religador como vizinho; agora só considera transformador."
+    },
+    {
+     "rotulo": "Peneira de entrada incompleta",
+     "texto": "A primeira versão só tirava furto, auxiliar, preventivo e particular. Abalroamento, construção, desativação, sobrecarga, TAP e outros passavam direto, e 34 casos que não são queima nem avaria contavam no indicador."
+    },
+    {
+     "rotulo": "Teste vazio",
+     "texto": "A verificação de “equipe não deslocou” dava sempre zero porque o campo de início de deslocamento está preenchido em todas as 62.616 linhas da base. Era tautologia, não constatação."
+    }
+   ]
+  },
+  {
+   "id": "limites",
+   "titulo": "6. O que estas bases não permitem concluir",
+   "itens": [
+    {
+     "rotulo": "Seis dias de janeiro",
+     "texto": "Não existe atendimento registrado de 26 a 31 de janeiro. Precisa de reextração."
+    },
+    {
+     "rotulo": "Dezembro de 2025",
+     "texto": "Solicitações abertas nos primeiros dias de janeiro podem corresponder a ocorrência iniciada em dezembro, mês que não temos."
+    },
+    {
+     "rotulo": "Material",
+     "texto": "61 solicitações não têm material conferido: a obra está fora do export ou não foi gerada."
+    },
+    {
+     "rotulo": "Leitura humana",
+     "texto": "Só 134 solicitações passaram por leitura caso a caso com parecer escrito. O resto é triagem apoiada por campo, não veredito assinado."
+    }
+   ]
+  }
+ ]
+}

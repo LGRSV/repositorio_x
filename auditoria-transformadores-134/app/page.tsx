@@ -639,10 +639,17 @@ const FLUXO_FILTROS: Array<{ id: string; caixa: string; rotulo: string; nota: st
   { id: "e3R", caixa: "3 · SS/OS + material", rotulo: "Retidos no material", nota: "Sem transformador na obra, material não conferido ou OS sem texto.", teste: (r) => r.e3_status === "RETIDO" },
   { id: "e3G", caixa: "3 · SS/OS + material", rotulo: "Material comprova a troca", nota: "Obra conferida com transformador movimentado.", teste: (r) => r.e3_status === "SEGUE" },
   { id: "e4", caixa: "4 · Obra e SIGCO", rotulo: "Com alerta de obra ou SIGCO", nota: "R-OBR-01/02/03 e divergência de código.", teste: (r) => r.e4_status === "ALERTA" },
-  { id: "incluir", caixa: "Saída", rotulo: "INCLUIR", nota: "Passou nas quatro peneiras.", teste: (r) => r.decisao === "INCLUIR" },
-  { id: "revisao", caixa: "Saída", rotulo: "REVISÃO", nota: "Tem sinal contrário e espera leitura humana.", teste: (r) => r.decisao === "REVISÃO" },
-  { id: "investigar", caixa: "Saída", rotulo: "INVESTIGAR", nota: "Sem lastro em nenhuma das duas bases, já com o teste do vizinho aplicado.", teste: (r) => r.decisao === "INVESTIGAR" },
-  { id: "qa", caixa: "Saída", rotulo: "Queimados e avariados", nota: "O que sai limpo do funil e é queima ou avaria.", teste: (r) => r.decisao === "INCLUIR" && (r.categoria === "QUEIMADO" || r.categoria === "AVARIADO") },
+  { id: "f1", caixa: "Fato", rotulo: "Fato pleno", nota: "Interrupção aberta no próprio transformador, dentro da janela.", teste: (r) => r.fato === "F1" },
+  { id: "f0", caixa: "Fato", rotulo: "Fato com ressalva", nota: "Houve interrupção, mas programada, de outro elemento ou de equipamento especial.", teste: (r) => r.fato === "F0" },
+  { id: "f2", caixa: "Fato", rotulo: "Fato provável", nota: "Só o atendimento de emergência registra equipe no trafo na janela.", teste: (r) => r.fato === "F2" },
+  { id: "l2", caixa: "Leitura", rotulo: "Texto diz outra causa", nota: "Furto, abalroamento, preventivo, auxiliar, construção ou desativação.", teste: (r) => r.leitura === "L2" },
+  { id: "l3", caixa: "Leitura", rotulo: "Texto não decide", nota: "Nunca decide sozinho: vai para leitura humana.", teste: (r) => r.leitura === "L3" },
+  { id: "recat", caixa: "Leitura", rotulo: "Categoria corrigida pelo texto", nota: "O rótulo gravado na base não corresponde ao que o texto descreve.", teste: (r) => Boolean(r.categoria_texto) && r.categoria_texto !== r.categoria_gravada },
+  { id: "incluir", caixa: "Saída", rotulo: "INCLUIR", nota: "O campo prova o evento e a leitura confirma que é falha de transformador.", teste: (r) => r.decisao === "INCLUIR" },
+  { id: "revisao", caixa: "Saída", rotulo: "REVISÃO", nota: "Espera leitura humana, com o motivo escrito ao lado. Não é expurgo.", teste: (r) => r.decisao === "REVISÃO" },
+  { id: "excluir", caixa: "Saída", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa: furto, abalroamento, preventivo, auxiliar, construção.", teste: (r) => r.decisao === "EXCLUIR" },
+  { id: "semfato", caixa: "Saída", rotulo: "Sem fato — investigar", nota: "Nem a interrupção nem o atendimento registram nada na janela de 24 horas.", teste: (r) => r.fato === "F3" },
+  { id: "qa", caixa: "Saída", rotulo: "Queimados e avariados", nota: "O que sai limpo do funil e é queima ou avaria pelo texto.", teste: (r) => r.decisao === "INCLUIR" && (r.categoria_texto === "QUEIMADO" || r.categoria_texto === "AVARIADO") },
 ];
 
 const FLUXO_COLUNAS: Array<[string, string]> = [
@@ -1516,7 +1523,9 @@ export default function Page() {
         ["2 · Deslocamento", ["e2G", "e2S", "e2D", "e2R"]],
         ["3 · SS/OS + material", ["e3G", "e3R"]],
         ["4 · Obra e SIGCO", ["e4"]],
-        ["Saída", ["incluir", "revisao", "investigar", "qa"]],
+        ["Fato · o campo registrou?", ["f1", "f0", "f2", "semfato"]],
+        ["Leitura · o texto diz o quê?", ["l2", "l3", "recat"]],
+        ["Saída", ["incluir", "revisao", "excluir", "qa"]],
       ] as const;
       const historicoDoAtivo = fluxoAtivo
         ? fluxo.historico.filter((linha) => String(linha[0]) === fluxoAtivo)
@@ -1608,7 +1617,7 @@ export default function Page() {
               </tr>;
             })}</tbody>
           </table></div> : <div className="table-scroll"><table className="records-table">
-            <thead><tr><th>Identificação</th><th>Estágio 1 · interrupção</th><th>Estágio 2 · deslocamento</th><th>Estágio 3 · material</th><th>Obra e SIGCO</th><th>Decisão</th></tr></thead>
+            <thead><tr><th>Identificação</th><th>Estágio 1 · interrupção</th><th>Estágio 2 · deslocamento</th><th>Estágio 3 · material</th><th>Obra e SIGCO</th><th>Fato</th><th>Decisão</th></tr></thead>
             <tbody>{naTela.slice(0, CAP).map((r) => <tr key={String(r.ss)} onClick={() => setFluxoAtivo(String(r.trafo))}>
               <td><strong>{String(r.ss)}</strong><span>{String(r.os || "sem OS")}</span><code>{String(r.trafo)} · {String(r.localidade)}</code></td>
               <td><b className={`pill ${r.e1_nivel === "A" ? "good" : r.e1_nivel === "B" ? "pend" : r.e1_nivel === "SEM" ? "bad" : "warn"}`}>{String(r.e1_nivel)}</b>
@@ -1617,9 +1626,12 @@ export default function Page() {
               <td><strong>{String(r.e2_status)}</strong><span>{r.at_equipe ? `equipe ${String(r.at_equipe)} · TMA ${r.at_tma}` : "—"}</span><small>{String(r.at_sub || "")}</small></td>
               <td><strong>{String(r.e3_status)}</strong><span>{String(r.e3_motivo || "")}</span><small>{String(r.trafos_material)} trafo no material</small></td>
               <td><strong>{String(r.e4_status)}</strong><small>{String(r.e4_alertas || "sem alerta")}</small></td>
-              <td><b className={`pill ${r.decisao === "INCLUIR" ? "good" : r.decisao === "INVESTIGAR" ? "bad" : r.decisao === "REVISÃO" ? "warn" : "pend"}`}>{String(r.decisao)}</b>
-                {r.expurgo === "SIM" ? <span className="expurgo-tag">expurgo proposto</span> : null}
-                <small>{String(r.solicitante || "")} · {String(r.origem || "")}</small></td>
+              <td><b className={`pill ${r.fato === "F1" ? "good" : r.fato === "F3" ? "bad" : "pend"}`}>{String(r.fato)}</b>
+                <span>{String(r.fato_texto || "").split("—")[0]}</span>
+                <small>{String(r.ressalvas || (r.tmae_corrobora === "não" ? "sem corroboração do atendimento" : ""))}</small></td>
+              <td><b className={`pill ${r.decisao === "INCLUIR" ? "good" : r.decisao === "EXCLUIR" ? "bad" : "warn"}`}>{String(r.decisao)}</b>
+                {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}
+                <small>{String(r.motivo_decisao || "")}</small></td>
             </tr>)}</tbody>
           </table></div>}
           {naTela.length ? null : <div className="empty"><strong>Nenhum registro nesta visão</strong>
