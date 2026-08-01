@@ -667,6 +667,47 @@ function baixaFluxoCSV(linhas: FluxoRegistro[], titulo: string) {
   triggerDownload(new Blob([`\uFEFF${cabec}\r\n${corpo}`], { type: "text/csv;charset=utf-8" }), `${nome || "fluxo"}.csv`);
 }
 
+// Mediana, e não média: o delta da SS e os tempos do TMAE têm cauda longa (SS aberta dias
+// depois da ocorrência), e a média sobre essa cauda deixa de descrever o caso típico.
+function mediana(valores: number[]): number | null {
+  if (!valores.length) return null;
+  const ordem = valores.slice().sort((a, b) => a - b);
+  const meio = Math.floor(ordem.length / 2);
+  return ordem.length % 2 ? ordem[meio] : (ordem[meio - 1] + ordem[meio]) / 2;
+}
+
+const numerosDe = (linhas: FluxoRegistro[], campo: string) => linhas
+  .map((linha) => Number(linha[campo]))
+  .filter((valor) => Number.isFinite(valor));
+
+const umaCasa = (valor: number | null) => (valor === null ? "—" : valor.toLocaleString("pt-BR", { maximumFractionDigits: 1 }));
+const texto = (linha: FluxoRegistro, campo: string) => String(linha[campo] ?? "").trim();
+
+function contaPor(linhas: FluxoRegistro[], chave: (linha: FluxoRegistro) => string, limite = 8): Pair[] {
+  const mapa = new Map<string, number>();
+  linhas.forEach((linha) => {
+    const rotulo = chave(linha);
+    if (!rotulo) return;
+    mapa.set(rotulo, (mapa.get(rotulo) || 0) + 1);
+  });
+  return Array.from(mapa.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, limite);
+}
+
+// O alerta do estágio 4 vem como frase de caso ("R-OBR-02 · obra não gerada, 179 dias…").
+// No agregado interessa o tipo, senão cada SS vira uma categoria de uma linha só.
+function tipoDeAlerta(valor: string): string {
+  const bruto = valor.trim();
+  if (!bruto) return "sem alerta";
+  const regra = bruto.match(/^R-[A-Z]{3}-\d+/);
+  if (regra) return regra[0];
+  const sigco = bruto.match(/^(\d+)\s+espera\s+(.+)$/);
+  if (sigco) return `SIGCO ${sigco[1]} espera ${sigco[2]}`;
+  return bruto;
+}
+
 function Kpi({ label, value, note, tone = "neutral", onClick }: {
   label: string; value: string | number; note: string; tone?: string; onClick?: () => void;
 }) {
@@ -677,8 +718,8 @@ function Kpi({ label, value, note, tone = "neutral", onClick }: {
   </button>;
 }
 
-function BarList({ data, total, moneyValues = false, onSelect }: {
-  data: Pair[]; total?: number; moneyValues?: boolean; onSelect?: (label: string) => void;
+function BarList({ data, total, moneyValues = false, onSelect, totalLabel = "da base" }: {
+  data: Pair[]; total?: number; moneyValues?: boolean; onSelect?: (label: string) => void; totalLabel?: string;
 }) {
   const max = Math.max(...data.map((item) => item.value), 1);
   return <div className={`bar-list${onSelect ? " clickable" : ""}`}>
@@ -686,13 +727,129 @@ function BarList({ data, total, moneyValues = false, onSelect }: {
       const body = <>
         <div><span>{item.label}</span><strong>{moneyValues ? money(item.value) : item.value}</strong></div>
         <i><b style={{ width: `${(item.value / max) * 100}%` }} /></i>
-        {total ? <small>{pct(item.value, total)}% da base</small> : null}
+        {total ? <small>{pct(item.value, total)}% {totalLabel}</small> : null}
       </>;
       return onSelect
         ? <button type="button" className="bar-row" key={item.label} onClick={() => onSelect(item.label)} title="Abrir a planilha deste recorte">{body}</button>
         : <div className="bar-row" key={item.label}>{body}</div>;
     })}
   </div>;
+}
+
+// Indicadores do estágio selecionado. Cada peneira responde a uma pergunta diferente, então
+// o bloco muda com o filtro em vez de repetir os mesmos totais em todas elas. Tudo é contado
+// sobre as linhas que estão na tela — o que o cartão diz é o que a tabela e o CSV levam.
+function FluxoIndicadores({ caixa, rotulo, linhas, janela }: {
+  caixa: string; rotulo: string; linhas: FluxoRegistro[]; janela: number;
+}) {
+  const total = linhas.length;
+  if (!total) return null;
+  const conta = (teste: (linha: FluxoRegistro) => boolean) => linhas.filter(teste).length;
+  const cartoes: Array<{ label: string; value: string | number; note: string; tone: string }> = [];
+  const listas: Array<{ titulo: string; nota: string; dados: Pair[] }> = [];
+
+  if (caixa === "1 · Interrupção") {
+    const deltas = numerosDe(linhas, "e1_delta_h").map(Math.abs);
+    const semCliente = conta((linha) => Number(linha.oc_cons) === 0);
+    cartoes.push(
+      { label: "SS no estágio", value: total, note: rotulo, tone: "ink" },
+      { label: `Mediana do afastamento (janela ${janela}h)`, value: `${umaCasa(mediana(deltas))} h`, note: "Distância entre a abertura da SS e o início da ocorrência", tone: "blue" },
+      { label: "Cliente interrompido zero", value: semCliente, note: `${pct(semCliente, total)}% — ocorrência sem cliente desligado`, tone: "amber" },
+      { label: "Sem ocorrência no ativo", value: conta((linha) => !texto(linha, "oc_num")), note: "O código não aparece na Crítica no semestre", tone: "red" },
+      { label: "Retidos pelos sinais", value: conta((linha) => linha.e1_status === "RETIDO"), note: "Programado, preventivo, sem cliente, outro elemento", tone: "amber" },
+    );
+    listas.push(
+      { titulo: "Distribuição por nível", nota: "Nível recalculado na janela ativa", dados: contaPor(linhas, (linha) => `Nível ${texto(linha, "e1_nivel") || "—"}`) },
+      { titulo: "Elemento do defeito", nota: "Código do elemento na Crítica", dados: contaPor(linhas, (linha) => texto(linha, "oc_prob_ele") || "sem ocorrência") },
+      { titulo: "Causa registrada na Crítica", nota: "Causa da ocorrência", dados: contaPor(linhas, (linha) => texto(linha, "oc_causa") || "sem ocorrência") },
+      { titulo: "Sinais que retiveram a SS", nota: "Só as SS com sinal escrito", dados: contaPor(linhas, (linha) => texto(linha, "e1_sinais")) },
+    );
+  } else if (caixa === "2 · Deslocamento") {
+    const comAtendimento = conta((linha) => Boolean(texto(linha, "at_num")));
+    const deslocou = conta((linha) => linha.at_deslocou === "SIM");
+    cartoes.push(
+      { label: "SS no estágio", value: total, note: rotulo, tone: "ink" },
+      { label: "Com atendimento no TMAE", value: comAtendimento, note: `${pct(comAtendimento, total)}% têm nota no código do trafo`, tone: "green" },
+      { label: "Equipe deslocou", value: deslocou, note: `${pct(deslocou, total)}% com deslocamento registrado`, tone: "green" },
+      { label: "Mediana de TMA", value: `${umaCasa(mediana(numerosDe(linhas, "at_tma")))} min`, note: "Tempo médio de atendimento da nota", tone: "blue" },
+      { label: "Mediana de TMD", value: `${umaCasa(mediana(numerosDe(linhas, "at_tmd")))} min`, note: "Tempo médio de deslocamento", tone: "blue" },
+    );
+    listas.push(
+      { titulo: "Ranking de equipes", nota: "Equipe que atendeu a nota", dados: contaPor(linhas, (linha) => texto(linha, "at_equipe"), 10) },
+      { titulo: "Causa registrada no TMAE", nota: "Causa da nota de atendimento", dados: contaPor(linhas, (linha) => texto(linha, "at_causa") || "sem atendimento") },
+      { titulo: "Subcausa no TMAE", nota: "O que a equipe escreveu como subcausa", dados: contaPor(linhas, (linha) => texto(linha, "at_sub")) },
+    );
+  } else if (caixa === "3 · SS/OS + material") {
+    const comTrafo = conta((linha) => Number(linha.trafos_material) > 0);
+    const semConferencia = conta((linha) => linha.material_conferido !== "SIM");
+    cartoes.push(
+      { label: "SS no estágio", value: total, note: rotulo, tone: "ink" },
+      { label: "Com trafo no material", value: comTrafo, note: `${pct(comTrafo, total)}% com transformador movimentado na obra`, tone: "green" },
+      { label: "Sem conferência de material", value: semConferencia, note: "Obra fora do export ou obra não gerada", tone: "red" },
+      { label: "Sem obra gerada", value: conta((linha) => !texto(linha, "obra")), note: "Sem obra não há material a conferir", tone: "amber" },
+      { label: "Sem texto na OS", value: conta((linha) => !texto(linha, "desc_os")), note: "A OS não descreve o que foi executado", tone: "amber" },
+    );
+    listas.push(
+      { titulo: "Motivo do estágio 3", nota: "O que o material disse sobre a troca", dados: contaPor(linhas, (linha) => texto(linha, "e3_motivo")) },
+      { titulo: "Material conferido", nota: "Situação da conferência item a item", dados: contaPor(linhas, (linha) => texto(linha, "material_conferido") || "não informado") },
+      { titulo: "Categoria declarada na SS", nota: "O que a SS alegou", dados: contaPor(linhas, (linha) => texto(linha, "categoria") || "sem categoria") },
+    );
+  } else if (caixa === "4 · Obra e SIGCO") {
+    const comAlerta = conta((linha) => linha.e4_status === "ALERTA");
+    const regraObra = conta((linha) => /^R-[A-Z]{3}-\d+/.test(texto(linha, "e4_alertas")));
+    cartoes.push(
+      { label: "SS no estágio", value: total, note: rotulo, tone: "ink" },
+      { label: "Com alerta", value: comAlerta, note: `${pct(comAlerta, total)}% do recorte`, tone: "red" },
+      { label: "Alerta de obra (R-OBR)", value: regraObra, note: "Despesa, obra não gerada ou natureza divergente", tone: "amber" },
+      { label: "Divergência de SIGCO", value: comAlerta - regraObra, note: "O código espera uma condição que a base não sustenta", tone: "amber" },
+      { label: "Obra encerrada", value: conta((linha) => texto(linha, "obra_status").includes("ENCERRAMENTO")), note: "Obra já em etapa de encerramento", tone: "blue" },
+    );
+    listas.push(
+      { titulo: "Tipo de alerta", nota: "A frase de cada caso agrupada por tipo", dados: contaPor(linhas, (linha) => tipoDeAlerta(texto(linha, "e4_alertas"))) },
+      { titulo: "Classe da obra", nota: "Imobilização, despesa ou sem cadastro", dados: contaPor(linhas, (linha) => texto(linha, "obra_classe") || "sem cadastro de obra") },
+      { titulo: "Tipo da obra", nota: "Natureza cadastrada no projeto", dados: contaPor(linhas, (linha) => texto(linha, "obra_tipo") || "sem cadastro de obra") },
+    );
+  } else if (caixa === "Saída") {
+    const expurgos = conta((linha) => linha.expurgo === "SIM");
+    cartoes.push(
+      { label: "SS na saída", value: total, note: rotulo, tone: "ink" },
+      { label: "Queimados", value: conta((linha) => linha.categoria === "QUEIMADO"), note: `${pct(conta((linha) => linha.categoria === "QUEIMADO"), total)}% do recorte`, tone: "red" },
+      { label: "Avariados", value: conta((linha) => linha.categoria === "AVARIADO"), note: `${pct(conta((linha) => linha.categoria === "AVARIADO"), total)}% do recorte`, tone: "blue" },
+      { label: "Expurgos propostos", value: expurgos, note: "Proposta de saída do indicador, não decisão", tone: "red" },
+      { label: "Com alerta de obra ou SIGCO", value: conta((linha) => linha.e4_status === "ALERTA"), note: "Entram na saída com ressalva escrita", tone: "amber" },
+    );
+    listas.push(
+      { titulo: "Regra da base", nota: "Regra que a triagem acionou", dados: contaPor(linhas, (linha) => texto(linha, "regra_base") || "sem regra") },
+      { titulo: "Decisão do fluxo", nota: "Resultado das quatro peneiras", dados: contaPor(linhas, (linha) => texto(linha, "decisao")) },
+      { titulo: "Localidade", nota: "Onde a SS foi aberta", dados: contaPor(linhas, (linha) => texto(linha, "localidade"), 10) },
+    );
+  } else {
+    const fora = conta((linha) => linha.e0_status === "RETIDO");
+    cartoes.push(
+      { label: "SS na entrada", value: total, note: rotulo, tone: "ink" },
+      { label: "Fora da base de falha", value: fora, note: "Furto, preventivo, auxiliar e particular", tone: "red" },
+      { label: "Queimados", value: conta((linha) => linha.categoria === "QUEIMADO"), note: "Categoria declarada na SS", tone: "red" },
+      { label: "Avariados", value: conta((linha) => linha.categoria === "AVARIADO"), note: "Categoria declarada na SS", tone: "blue" },
+      { label: "Emergenciais", value: conta((linha) => linha.criticidade === "EMERGENCIAL"), note: "Criticidade registrada na abertura", tone: "amber" },
+    );
+    listas.push(
+      { titulo: "Motivo da saída na entrada", nota: "Só as SS retidas antes das peneiras", dados: contaPor(linhas, (linha) => texto(linha, "e0_motivo")) },
+      { titulo: "Como a solicitação nasceu", nota: "Tipo da SS", dados: contaPor(linhas, (linha) => texto(linha, "tipo_ss") || "não informado") },
+      { titulo: "Origem", nota: "Órgão que abriu a SS", dados: contaPor(linhas, (linha) => texto(linha, "origem") || "não informada") },
+    );
+  }
+
+  return <>
+    <section className="kpi-grid fluxo-kpis">
+      {cartoes.map((cartao) => <Kpi key={cartao.label} label={cartao.label} value={cartao.value} note={cartao.note} tone={cartao.tone} />)}
+    </section>
+    <section className="fluxo-listas">
+      {listas.filter((lista) => lista.dados.length).map((lista) => <article className="panel fluxo-lista" key={lista.titulo}>
+        <div className="panel-title"><div><span>{caixa}</span><h2>{lista.titulo}</h2></div><small>{lista.nota}</small></div>
+        <BarList data={lista.dados} total={total} totalLabel="do filtro" />
+      </article>)}
+    </section>
+  </>;
 }
 
 // A "planilha" do recorte. Abre por cima da tela com as mesmas colunas do universo-ss.json,
@@ -1263,6 +1420,7 @@ export default function Page() {
             })}
           </article>)}
         </section>
+        <FluxoIndicadores caixa={filtro.caixa} rotulo={filtro.rotulo} linhas={selecionadas} janela={fluxo.meta.janelaHoras} />
         <section className="panel list-panel">
           <div className="list-head">
             <div><span>{selecionadas.length.toLocaleString("pt-BR")} registros{selecionadas.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>
