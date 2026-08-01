@@ -649,7 +649,8 @@ const FLUXO_FILTROS: Array<{ id: string; caixa: string; rotulo: string; nota: st
   { id: "revisao", caixa: "Saída", rotulo: "REVISÃO", nota: "Espera leitura humana, com o motivo escrito ao lado. Não é expurgo.", teste: (r) => r.decisao === "REVISÃO" },
   { id: "excluir", caixa: "Saída", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa: furto, abalroamento, preventivo, auxiliar, construção.", teste: (r) => r.decisao === "EXCLUIR" },
   { id: "semfato", caixa: "Saída", rotulo: "Sem fato — investigar", nota: "Nem a interrupção nem o atendimento registram nada na janela de 24 horas.", teste: (r) => r.fato === "F3" },
-  { id: "qa", caixa: "Saída", rotulo: "Queimados e avariados", nota: "O que sai limpo do funil e é queima ou avaria pelo texto.", teste: (r) => r.decisao === "INCLUIR" && (r.categoria_texto === "QUEIMADO" || r.categoria_texto === "AVARIADO") },
+  { id: "qaq", caixa: "Saída", rotulo: "Queimados", nota: "Incluídos cujo texto descreve queima do transformador.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "QUEIMADO" },
+  { id: "qaa", caixa: "Saída", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria: vazamento, bucha, tensão, falta de fase.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
 ];
 
 const FLUXO_COLUNAS: Array<[string, string]> = [
@@ -1525,7 +1526,7 @@ export default function Page() {
         ["4 · Obra e SIGCO", ["e4"]],
         ["Fato · o campo registrou?", ["f1", "f0", "f2", "semfato"]],
         ["Leitura · o texto diz o quê?", ["l2", "l3", "recat"]],
-        ["Saída", ["incluir", "revisao", "excluir", "qa"]],
+        ["Saída", ["incluir", "revisao", "excluir", "qaq", "qaa"]],
       ] as const;
       const historicoDoAtivo = fluxoAtivo
         ? fluxo.historico.filter((linha) => String(linha[0]) === fluxoAtivo)
