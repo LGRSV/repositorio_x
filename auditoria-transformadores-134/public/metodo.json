@@ -1,0 +1,147 @@
+{
+  "_fonte": "Manual de Regras da Auditoria de Transformadores — Base 134, versão 1.0, 25 de julho de 2026. Disponível na aba Manuais em Word e PDF. Este arquivo reproduz o manual na tela; ao publicar uma nova versão do manual, atualize os dois juntos.",
+  "resumo": {
+    "titulo": "Uma decisão só vale se outra pessoa conseguir refazer o caminho",
+    "paragrafos": [
+      "A auditoria parte de 134 registros do Painel_134_Completo.xlsx, com data de competência sempre na abertura da SS e recorte regulamentar de 01/01/2026 a 30/06/2026. Cada SS/OS ocupa uma linha só, e havendo duplicidade ou mais de uma unidade vinculada a consolidação é interrompida para revisão.",
+      "Cada caso é lido em seis dimensões independentes — causa, condição, ação, material, obra e SIGCO — antes de qualquer decisão. O rótulo que veio na base não decide sozinho: “queimado” não explica por que queimou, e “substituído” não prova, por si, que o registro entra no indicador.",
+      "O que as regras produzem é proposta, não número oficial. Inclusão, expurgo e revisão ficam separados dos totais aprovados até Matheus Gracia revisar caso a caso, sempre com comentário e sem sobrescrever a versão anterior."
+    ]
+  },
+  "blocos": [
+    {
+      "id": "escopo",
+      "titulo": "Escopo oficial e unidade de análise",
+      "paragrafos": [
+        "A auditoria desta versão considera somente os 134 registros do Painel_134_Completo.xlsx. O intervalo regulamentar é de 01/01/2026 a 30/06/2026, e o prazo é contado contra a maior data de abertura de SS da base — nunca contra a data de hoje."
+      ],
+      "tabela": {
+        "cabecalho": ["Controle", "Definição oficial"],
+        "linhas": [
+          ["Universo", "134 SS e 134 OS; 89 classificadas como QUEIMADO e 45 como AVARIADO na base recebida."],
+          ["Data de competência", "Data de abertura da SS. Não usar mês da OS, da obra ou do encerramento."],
+          ["Unidade de análise", "Uma linha por SS/OS. Havendo duplicidade ou mais de uma unidade vinculada, interromper a consolidação e revisar."],
+          ["Ativos", "Prefixo 57: transformador · 56: transformador particular · 58: regulador · 79: religador."],
+          ["Aprovação", "Somente Matheus Gracia pode aprovar ou rejeitar a análise consolidada."]
+        ]
+      }
+    },
+    {
+      "id": "fluxo",
+      "titulo": "Fluxo obrigatório: da descrição original à decisão",
+      "tabela": {
+        "cabecalho": ["Etapa", "Entrada", "Saída controlada"],
+        "linhas": [
+          ["Análise de SS", "Descrição integral da solicitação", "Condição alegada, causa indicada, ativo, local, potência e trechos de evidência."],
+          ["Análise por OS", "Descrição integral da execução", "Ação executada, ativo retirado/instalado, substituição ou reparo e contrapontos."],
+          ["New Base — Análise Consolidada", "SS + OS + obra + materiais + SIGCO", "Decisão proposta, regra, justificativa, confiança, alertas, revisão e status de aprovação."]
+        ]
+      },
+      "itens": [
+        { "rotulo": "Ler antes de resumir", "texto": "Nunca resumir a descrição antes de procurar negações, exceções e causas alternativas." },
+        { "rotulo": "Texto original preservado", "texto": "As descrições originais de SS e OS continuam disponíveis no detalhe do registro, sem sobrescrita." },
+        { "rotulo": "Rótulo não decide", "texto": "O rótulo original da base não pode decidir sozinho o resultado da análise." },
+        { "rotulo": "Proposta ≠ decisão", "texto": "A proposta da IA fica separada da decisão oficial aprovada, em todos os painéis." }
+      ]
+    },
+    {
+      "id": "dimensoes",
+      "titulo": "Seis dimensões avaliadas separadamente",
+      "tabela": {
+        "cabecalho": ["Dimensão", "Pergunta que precisa ser respondida"],
+        "linhas": [
+          ["Causa", "O que originou o evento: queima, avaria, sobrecarga, furto, abalroamento, construção ou outra causa?"],
+          ["Condição", "O equipamento estava queimado, avariado, sem defeito comprovado ou indeterminado?"],
+          ["Ação", "Foi substituído, reparado, inspecionado, desativado ou não executado?"],
+          ["Material", "Houve movimentação de transformador? Também houve poste? A consulta foi realmente realizada?"],
+          ["Obra", "Há obra vinculada e qual é o estágio físico/técnico?"],
+          ["SIGCO", "O código é coerente, divergente, não informado ou exige análise obrigatória?"],
+          ["Decisão", "INCLUIR, EXPURGAR ou REVISÃO MANUAL."]
+        ]
+      },
+      "paragrafos": [
+        "Proibição expressa do manual: não inferir causa somente pela condição. “Queimado” não explica por que queimou; “substituído” não prova sozinho que o registro deve entrar no indicador."
+      ]
+    },
+    {
+      "id": "revisao",
+      "titulo": "A fila de revisão não é descarte",
+      "paragrafos": [
+        "A revisão mantém o registro rastreável até Matheus Gracia decidir, com motivo provável derivado da SS e sem alterar o dado original. Trafo no chão ou ausente sem furto explícito, movimentação simultânea de trafo e poste, sobrecarga, TAP e preventivo, ausência de obra localizada, baixa confiança, conflito ou texto genérico — todos param aqui em vez de virar número.",
+        "Quando a obra estiver em encerramento técnico, término físico ou fiscalização aprovada e não existir movimentação de transformador, o registro vai para a base de expurgo com motivo explícito, com o estágio da obra como evidência."
+      ]
+    },
+    {
+      "id": "sigco",
+      "titulo": "Leitura operacional dos códigos SIGCO",
+      "tabela": {
+        "cabecalho": ["Código", "Leitura operacional"],
+        "linhas": [
+          ["20497", "Código corrigido para abalroamento. Se a narrativa não sustentar essa causa, marcar como divergente."],
+          ["25983", "Permitido, mas sempre deve seguir para Análise por SIGCO."],
+          ["8812", "Esperado para transformador queimado; comparar com a condição consolidada."],
+          ["25962", "Esperado para transformador avariado; comparar com a condição consolidada."],
+          ["8385", "Não comprova falha sozinho. Pode ser coerente com finalidade/sobrecarga e requer contexto."],
+          ["#N/A ou vazio", "Recomendar abertura/correção na análise por SIGCO, sempre com motivo."]
+        ]
+      },
+      "paragrafos": [
+        "A IA pode recomendar a abertura ou a correção de FLC e indicar o motivo, mas não pode executar a abertura. A recomendação fica registrada no histórico do caso."
+      ]
+    },
+    {
+      "id": "new-base",
+      "titulo": "New Base: camada de decisão, não substituta das fontes",
+      "paragrafos": [
+        "A New Base contém os 134 registros, um por SS/OS. A soma das decisões precisa sempre resultar em 134 — reconciliação é critério de aceite, não conferência opcional."
+      ],
+      "tabela": {
+        "cabecalho": ["Grupo de campos", "Conteúdo mínimo"],
+        "linhas": [
+          ["Identificação", "ID de auditoria, SS, OS, obra, data de abertura, localidade, potência e SIGCO."],
+          ["Evidência", "Descrição original da SS, descrição original da OS, obra, material e trechos usados pela regra."],
+          ["Decisão", "Condição, causa, ação, decisão, regra aplicada, justificativa e nível de confiança."],
+          ["Governança", "Status de aprovação, responsável, revisão, comentário, data/hora e histórico."],
+          ["Financeiro", "Material, orçamento e realizado, sempre vindos da base de obras."]
+        ]
+      },
+      "itens": [
+        { "rotulo": "PENDENTE", "texto": "Proposta ainda não oficial." },
+        { "rotulo": "APROVADO", "texto": "Decisão oficial e imutável." },
+        { "rotulo": "REJEITADO", "texto": "Devolvido com comentário obrigatório." },
+        { "rotulo": "REABERTO / NOVA REVISÃO", "texto": "Correção sem apagar a versão aprovada." }
+      ]
+    },
+    {
+      "id": "governanca",
+      "titulo": "Aprovação, histórico e controles de qualidade",
+      "tabela": {
+        "cabecalho": ["Controle", "Critério de aceite"],
+        "linhas": [
+          ["Comentário", "Obrigatório para aprovar, rejeitar ou reabrir."],
+          ["Permissão", "Somente o usuário administrador Matheus Gracia aprova."],
+          ["Imutabilidade", "Registro aprovado não é editado; cria-se nova revisão vinculada."],
+          ["Histórico", "Guardar usuário, data/hora, campo alterado, antes/depois, regra e comentário."],
+          ["Oficial x proposta", "Dashboards devem separar base carregada, proposta da IA e totais aprovados."],
+          ["Reconciliação", "A soma das decisões da New Base deve sempre resultar em 134 registros."]
+        ]
+      }
+    },
+    {
+      "id": "checklist",
+      "titulo": "Checklist final antes de fechar a carga",
+      "itens": [
+        { "rotulo": "134 linhas exatas", "texto": "A New Base possui exatamente 134 linhas e uma única linha para cada SS/OS." },
+        { "rotulo": "Competência correta", "texto": "Todas as datas de competência vêm da abertura da SS e estão entre 01/01/2026 e 30/06/2026." },
+        { "rotulo": "Texto original intacto", "texto": "As descrições originais de SS e OS continuam disponíveis sem sobrescrita." },
+        { "rotulo": "Dimensões separadas", "texto": "Condição, causa, ação, material, obra, SIGCO e decisão foram avaliados separadamente." },
+        { "rotulo": "Decisão rastreável", "texto": "Cada decisão proposta apresenta regra, justificativa, confiança e evidência rastreável." },
+        { "rotulo": "Expurgo com motivo", "texto": "Expurgos automáticos possuem motivo; os de possível abalroamento também aparecem em Revisões." },
+        { "rotulo": "SIGCO conferido", "texto": "Casos de sobrecarga/TAP e códigos não conclusivos aparecem em Análise por SIGCO." },
+        { "rotulo": "Financeiro sem estimativa", "texto": "Valores financeiros foram trazidos das abas de obra e não foram estimados pela IA." },
+        { "rotulo": "Proposta fora do oficial", "texto": "Propostas pendentes não foram misturadas com totais oficiais aprovados." },
+        { "rotulo": "Aprovação única", "texto": "Somente Matheus Gracia pode aprovar, rejeitar ou abrir nova revisão, sempre com comentário." }
+      ]
+    }
+  ]
+}
