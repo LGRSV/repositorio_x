@@ -1127,6 +1127,7 @@ export default function Page() {
   const [metodo, setMetodo] = useState<MetodoData | null>(null);
   const [fluxoJanela, setFluxoJanela] = useState(24);
   const [fluxoAba, setFluxoAba] = useState<"todos" | "expurgos">("todos");
+  const [fluxoAtivoBusca, setFluxoAtivoBusca] = useState("");
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -1511,6 +1512,28 @@ export default function Page() {
       const historicoDoAtivo = fluxoAtivo
         ? fluxo.historico.filter((linha) => String(linha[0]) === fluxoAtivo)
         : [];
+      const ssDoAtivo = fluxoAtivo ? fluxoRegistros.filter((r) => String(r.trafo) === fluxoAtivo) : [];
+      const interrupcoesDoAtivo = historicoDoAtivo.filter((linha) => String(linha[4]).startsWith("Interrupção")).length;
+      const atendimentosDoAtivo = historicoDoAtivo.filter((linha) => String(linha[4]).startsWith("Atendimento")).length;
+      // Reincidência é evento que aparece depois da última SS do ativo. O marco é o término da
+      // SS quando existe, senão a abertura — as datas são texto ordenável, então basta comparar.
+      const marcoDaUltimaSS = ssDoAtivo
+        .map((r) => String(r.termino || r.abertura || ""))
+        .filter(Boolean)
+        .sort()
+        .pop() || "";
+      const reincidencias = marcoDaUltimaSS
+        ? historicoDoAtivo.filter((linha) => String(linha[5] || "") > marcoDaUltimaSS)
+        : [];
+      // A busca aceita o código completo ou um pedaço dele; sem correspondência, mostra o vazio
+      // com o código digitado em vez de abrir um histórico de outro ativo por engano.
+      const abrirHistorico = (codigo: string) => {
+        const alvo = codigo.trim();
+        if (!alvo) { setFluxoAtivo(""); return; }
+        const achado = fluxo.historico.find((linha) => String(linha[0]) === alvo)
+          || fluxo.historico.find((linha) => String(linha[0]).includes(alvo));
+        setFluxoAtivo(achado ? String(achado[0]) : alvo);
+      };
       return <>
         <section className="scope-strip">
           <div><span>Base</span><strong>{fluxo.resumo.total.toLocaleString("pt-BR")} SS · jan a jun/2026</strong></div>
@@ -1588,9 +1611,32 @@ export default function Page() {
           {naTela.length ? null : <div className="empty"><strong>Nenhum registro nesta visão</strong>
             <span>{fluxoAba === "expurgos" ? "Este filtro não tem expurgo proposto." : "Limpe a busca para ver as SS do filtro."}</span></div>}
         </section>
+        <section className="panel busca-ativo">
+          <div className="list-head">
+            <div><span>Histórico por ativo</span><strong>Abrir o histórico de um transformador</strong></div>
+            <label className="search"><span>⌕</span><input value={fluxoAtivoBusca}
+              onChange={(event) => setFluxoAtivoBusca(event.target.value)}
+              onKeyDown={(event) => { if (event.key === "Enter") abrirHistorico(fluxoAtivoBusca); }}
+              placeholder="Código do transformador — ex.: 5701034026" /></label>
+            <button className="sheet-download" onClick={() => abrirHistorico(fluxoAtivoBusca)}>Abrir histórico</button>
+          </div>
+          <p className="fluxo-nota">Clicar em qualquer linha da tabela acima abre o mesmo histórico. A busca aceita o código inteiro ou um pedaço dele.</p>
+        </section>
         {fluxoAtivo ? <section className="panel">
           <div className="list-head"><div><span>{historicoDoAtivo.length} eventos</span><strong>Histórico do ativo {fluxoAtivo}</strong></div>
-            <button className="sheet-download secondary" onClick={() => setFluxoAtivo("")}>Fechar</button></div>
+            <button className="sheet-download secondary" onClick={() => { setFluxoAtivo(""); setFluxoAtivoBusca(""); }}>Fechar</button></div>
+          <section className="kpi-grid fluxo-kpis ativo-kpis">
+            <Kpi label="SS deste ativo" value={ssDoAtivo.length} note={ssDoAtivo.length ? ssDoAtivo.map((r) => String(r.ss)).join(" · ") : "Nenhuma SS no recorte jan–jun"} tone="ink" />
+            <Kpi label="Interrupções" value={interrupcoesDoAtivo} note="Eventos da Crítica no código do trafo" tone="red" />
+            <Kpi label="Atendimentos" value={atendimentosDoAtivo} note="Notas do TMAE no código do trafo" tone="blue" />
+            <Kpi label="Reincidência" value={reincidencias.length ? "SIM" : "NÃO"}
+              note={reincidencias.length
+                ? `${reincidencias.length} evento(s) depois de ${marcoDaUltimaSS.slice(0, 16)}`
+                : marcoDaUltimaSS ? `Nenhum evento depois de ${marcoDaUltimaSS.slice(0, 16)}` : "Sem SS para servir de marco"}
+              tone={reincidencias.length ? "amber" : "green"} />
+            <Kpi label="Última SS do ativo" value={marcoDaUltimaSS ? marcoDaUltimaSS.slice(0, 10).split("-").reverse().join("/") : "—"}
+              note="Término da SS, ou a abertura quando não há término" tone="ink" />
+          </section>
           <div className="table-scroll"><table className="records-table">
             <thead><tr><th>Evento</th><th>Quando</th><th>Número</th><th>Papel</th><th>Clientes</th><th>Causa e subcausa</th><th>Equipe</th><th>Observação</th></tr></thead>
             <tbody>{historicoDoAtivo.map((linha, i) => <tr key={i}>

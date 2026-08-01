@@ -370,6 +370,11 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fluxo-caixa b { min-width: 44px; font: 500 15px/1 "Newsreader", serif; }
 .fluxo-caixa em { color: #62656a; font-size: 8px; font-style: normal; line-height: 1.35; }
 .fluxo-nota { margin: 0 20px 12px; color: #6c6f74; font-size: 8.5px; }
+/* Busca de historico por ativo e as contagens do ativo aberto. */
+.busca-ativo { margin-top: 16px; }
+.ativo-kpis { margin: 0 20px 16px; }
+.ativo-kpis .kpi small { line-height: 1.45; }
+
 /* Alternancia todos / so expurgos propostos dentro do filtro ativo. */
 .fluxo-abas { display: flex; flex-wrap: wrap; gap: 6px; }
 .fluxo-abas button { padding: 7px 11px; border: 1px solid var(--line); background: var(--white); color: #62656a; font: 600 7.5px "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
