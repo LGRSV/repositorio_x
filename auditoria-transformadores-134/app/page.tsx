@@ -649,7 +649,7 @@ const FLUXO_COLUNAS: Array<[string, string]> = [
   ["SS", "ss"], ["OS", "os"], ["Obra", "obra"], ["Ativo", "trafo"], ["Categoria", "categoria"],
   ["Decisão", "decisao"], ["Expurgo", "expurgo"], ["Abertura da SS", "abertura"], ["Término", "termino"],
   ["Situação", "situacao"], ["Entrada", "e0_status"], ["Motivo da saída", "e0_motivo"],
-  ["E1 nível", "e1_nivel"], ["E1 situação", "e1_status"], ["E1 sinais", "e1_sinais"], ["E1 delta (h)", "e1_delta_h"],
+  ["E1 nível", "e1_nivel"], ["janela_horas", "janela_horas"], ["E1 situação", "e1_status"], ["E1 sinais", "e1_sinais"], ["E1 delta (h)", "e1_delta_h"],
   ["Conflito", "e1_conflito"], ["Ocorrência", "oc_num"], ["Início oc.", "oc_ini"], ["Fim oc.", "oc_fim"],
   ["Duração (h)", "oc_dur_h"], ["Clientes", "oc_cons"], ["Papel do trafo", "oc_papel"],
   ["Elemento do defeito", "oc_prob_ele"], ["Tipo", "oc_tipo"], ["Causa (Crítica)", "oc_causa"],
@@ -670,6 +670,32 @@ const FLUXO_COLUNAS: Array<[string, string]> = [
   ["Observação (Crítica)", "oc_obs"], ["Observação (TMAE)", "at_obs"],
   ["Descrição da SS", "desc_ss"], ["Descrição da OS", "desc_os"],
 ];
+
+// As datas do fluxo vêm como "AAAA-MM-DD HH:MM". O navegador só entende com o T no meio,
+// e como abertura e ocorrência são lidas do mesmo jeito, a diferença entre elas não depende
+// do fuso — que é o único número usado aqui.
+function paraData(valor: unknown): Date | null {
+  const bruto = String(valor ?? "").trim();
+  if (bruto.length < 16) return null;
+  const data = new Date(`${bruto.slice(0, 10)}T${bruto.slice(11, 16)}`);
+  return Number.isNaN(data.getTime()) ? null : data;
+}
+
+// O nível do estágio 1 é refeito no navegador porque a janela é ajustável: com 12h, 24h ou
+// 48h o mesmo registro pode trocar de peneira, e o arquivo só traz o resultado de 24h.
+function nivelPorJanela(registro: FluxoRegistro, janela: number): string {
+  if (!String(registro.oc_num ?? "").trim()) return "SEM";
+  const abertura = paraData(registro.abertura);
+  const inicio = paraData(registro.oc_ini);
+  if (!abertura || !inicio) return "FORA";
+  const fim = paraData(registro.oc_fim);
+  if (fim && abertura >= inicio && abertura <= fim) return "A";
+  if (Math.abs(abertura.getTime() - inicio.getTime()) / 3600000 <= janela) return "B";
+  if (String(registro.abertura ?? "").slice(0, 10) === String(registro.oc_ini ?? "").slice(0, 10)) return "C";
+  return "FORA";
+}
+
+const JANELAS = [12, 24, 48];
 
 function baixaFluxoCSV(linhas: FluxoRegistro[], titulo: string) {
   const cabec = FLUXO_COLUNAS.map(([rotulo]) => rotulo).join(";");
@@ -1085,6 +1111,7 @@ export default function Page() {
   const [fluxoBusca, setFluxoBusca] = useState("");
   const [fluxoAtivo, setFluxoAtivo] = useState("");
   const [metodo, setMetodo] = useState<MetodoData | null>(null);
+  const [fluxoJanela, setFluxoJanela] = useState(24);
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -1123,6 +1150,30 @@ export default function Page() {
       return liteRecord(row);
     });
   }, [data, universe]);
+
+  // O nivel do estagio 1 depende da janela escolhida, entao a lista do fluxo e reconstruida
+  // a cada troca. A janela viaja junto no registro para sair tambem no CSV.
+  const fluxoRegistros = useMemo<FluxoRegistro[]>(() => (fluxo
+    ? fluxo.registros.map((registro) => ({
+      ...registro,
+      e1_nivel: nivelPorJanela(registro, fluxoJanela),
+      janela_horas: fluxoJanela,
+    }))
+    : []), [fluxo, fluxoJanela]);
+
+  // Quantos trocam de peneira em relacao as 24h do arquivo, e em quantos o recalculo em 24h
+  // nao reproduz o nivel gravado — os dois numeros ficam na tela para ninguem confundi-los.
+  const fluxoJanelaEfeito = useMemo(() => {
+    if (!fluxo) return { mudam: 0, divergem: 0 };
+    let mudam = 0;
+    let divergem = 0;
+    fluxo.registros.forEach((registro) => {
+      const base = nivelPorJanela(registro, 24);
+      if (nivelPorJanela(registro, fluxoJanela) !== base) mudam += 1;
+      if (base !== String(registro.e1_nivel ?? "")) divergem += 1;
+    });
+    return { mudam, divergem };
+  }, [fluxo, fluxoJanela]);
 
   const scopedRecords = useMemo(() => {
     if (scope === "UNIVERSO") return allRecords;
@@ -1425,9 +1476,9 @@ export default function Page() {
     if (module === "fluxo") {
       if (!fluxo) return <section className="panel editorial-note"><span>FLUXO INDISPONÍVEL</span><p>O arquivo fluxo-1510.json não carregou.</p></section>;
       const filtro = FLUXO_FILTROS.find((f) => f.id === fluxoFiltro) || FLUXO_FILTROS[0];
-      const conta = (f: typeof FLUXO_FILTROS[number]) => fluxo.registros.filter(f.teste).length;
+      const conta = (f: typeof FLUXO_FILTROS[number]) => fluxoRegistros.filter(f.teste).length;
       const agulha = normalize(fluxoBusca).trim();
-      const selecionadas = fluxo.registros.filter(filtro.teste).filter((r) => !agulha || normalize([
+      const selecionadas = fluxoRegistros.filter(filtro.teste).filter((r) => !agulha || normalize([
         r.ss, r.os, r.obra, r.trafo, r.solicitante, r.equipe_ss, r.localidade, r.alimentador,
         r.oc_causa, r.oc_sub, r.at_equipe, r.e1_sinais, r.e4_alertas,
       ].join(" ")).includes(agulha));
@@ -1447,9 +1498,18 @@ export default function Page() {
       return <>
         <section className="scope-strip">
           <div><span>Base</span><strong>{fluxo.resumo.total.toLocaleString("pt-BR")} SS · jan a jun/2026</strong></div>
-          <div><span>Janela</span><strong>{fluxo.meta.janelaHoras}h antes e depois</strong></div>
+          <div className="janela-controle"><span>Janela do estágio 1</span>
+            <div className="janela-botoes">{JANELAS.map((horas) => <button key={horas} type="button"
+              className={fluxoJanela === horas ? "ativo" : ""} onClick={() => setFluxoJanela(horas)}
+              title={`Refazer o nível com ${horas}h antes e depois da abertura da SS`}>{horas}h</button>)}</div>
+            <small>{fluxoJanelaEfeito.mudam
+              ? `${br(fluxoJanelaEfeito.mudam)} SS mudam de nível em relação a 24h`
+              : "Mesmo nível da janela de 24h"}</small>
+          </div>
           <div><span>Saída limpa</span><strong>{(fluxo.resumo.decisao["INCLUIR"] || 0).toLocaleString("pt-BR")} incluir</strong></div>
-          <p>Cada caixa é uma peneira. O que fica retido não é expurgo: é fila de revisão com motivo escrito. Clique em qualquer número para abrir a lista e exportar.</p>
+          <p>Cada caixa é uma peneira. O que fica retido não é expurgo: é fila de revisão com motivo escrito.
+            O nível do estágio 1 é refeito no navegador na janela escolhida — os sinais que retêm a SS continuam vindo do arquivo.
+            Em 24h o recálculo reproduz o arquivo em {br(fluxo.resumo.total - fluxoJanelaEfeito.divergem)} das {br(fluxo.resumo.total)} SS.</p>
         </section>
         <section className="fluxo-caixas">
           {caixas.map(([nome, ids]) => <article key={nome} className="fluxo-caixa">
@@ -1464,7 +1524,7 @@ export default function Page() {
             })}
           </article>)}
         </section>
-        <FluxoIndicadores caixa={filtro.caixa} rotulo={filtro.rotulo} linhas={selecionadas} janela={fluxo.meta.janelaHoras} />
+        <FluxoIndicadores caixa={filtro.caixa} rotulo={filtro.rotulo} linhas={selecionadas} janela={fluxoJanela} />
         <section className="panel list-panel">
           <div className="list-head">
             <div><span>{selecionadas.length.toLocaleString("pt-BR")} registros{selecionadas.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>

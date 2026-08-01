@@ -370,6 +370,13 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fluxo-caixa b { min-width: 44px; font: 500 15px/1 "Newsreader", serif; }
 .fluxo-caixa em { color: #62656a; font-size: 8px; font-style: normal; line-height: 1.35; }
 .fluxo-nota { margin: 0 20px 12px; color: #6c6f74; font-size: 8.5px; }
+/* Janela ajustavel do estagio 1, dentro da faixa escura do topo do fluxo. */
+.janela-controle small { display: block; margin-top: 6px; color: #9da0a4; font-size: 7px; line-height: 1.4; }
+.janela-botoes { display: flex; gap: 6px; margin-top: 6px; }
+.janela-botoes button { padding: 5px 10px; border: 1px solid #4d5055; background: transparent; color: #cfd2d6; font: 600 8px "IBM Plex Mono", monospace; }
+.janela-botoes button:hover { border-color: #8d9196; color: #fff; }
+.janela-botoes button.ativo { border-color: var(--red); background: var(--red); color: #fff; }
+
 /* Metodo e decisoes: resumo curto na Visao geral e blocos longos na pagina de Regras. */
 .metodo-resumo { border-left: 3px solid var(--red); }
 .metodo-resumo h2 { margin: 9px 0 0; font: 500 21px/1.15 "Newsreader", serif; }
