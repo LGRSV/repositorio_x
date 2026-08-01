@@ -697,6 +697,9 @@ function nivelPorJanela(registro: FluxoRegistro, janela: number): string {
 
 const JANELAS = [12, 24, 48];
 
+// O rotulo do nivel B cita a janela, que agora e ajustavel — nao pode ficar preso em 24h.
+const rotuloComJanela = (rotulo: string, janela: number) => rotulo.replace("até 24h", `até ${janela}h`);
+
 // Das lacunas declaradas, a do TMAE de 26 a 31 de janeiro e a unica que muda a leitura de um
 // estagio inteiro: sem nota no periodo, "sem atendimento" nao separa quem nao foi de quem foi
 // e nao ficou registrado. Por isso ela sai destacada, e nao como mais um item da lista.
@@ -1569,16 +1572,16 @@ export default function Page() {
               const n = conta(f);
               return <button key={id} className={fluxoFiltro === id || (id === "todos" && !fluxoFiltro) ? "ativo" : ""}
                 onClick={() => { setFluxoFiltro(id); setFluxoAtivo(""); }} title={f.nota}>
-                <b>{n.toLocaleString("pt-BR")}</b><em>{f.rotulo}</em>
+                <b>{n.toLocaleString("pt-BR")}</b><em>{rotuloComJanela(f.rotulo, fluxoJanela)}</em>
               </button>;
             })}
           </article>)}
         </section>
-        <FluxoIndicadores caixa={filtro.caixa} rotulo={filtro.rotulo} linhas={selecionadas} janela={fluxoJanela} />
+        <FluxoIndicadores caixa={filtro.caixa} rotulo={rotuloComJanela(filtro.rotulo, fluxoJanela)} linhas={selecionadas} janela={fluxoJanela} />
         <section className="panel list-panel">
           <div className="list-head">
             <div><span>{naTela.length.toLocaleString("pt-BR")} registros{naTela.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>
-              <strong>{filtro.rotulo}</strong></div>
+              <strong>{rotuloComJanela(filtro.rotulo, fluxoJanela)}</strong></div>
             <div className="fluxo-abas">
               <button type="button" className={fluxoAba === "todos" ? "ativo" : ""} onClick={() => setFluxoAba("todos")}>
                 Todos ({selecionadas.length.toLocaleString("pt-BR")})</button>
@@ -1642,8 +1645,8 @@ export default function Page() {
             <Kpi label="Atendimentos" value={atendimentosDoAtivo} note="Notas do TMAE no código do trafo" tone="blue" />
             <Kpi label="Reincidência" value={reincidencias.length ? "SIM" : "NÃO"}
               note={reincidencias.length
-                ? `${reincidencias.length} evento(s) depois de ${marcoDaUltimaSS.slice(0, 16)}`
-                : marcoDaUltimaSS ? `Nenhum evento depois de ${marcoDaUltimaSS.slice(0, 16)}` : "Sem SS para servir de marco"}
+                ? `${reincidencias.length} evento(s) depois de ${dayLabel(marcoDaUltimaSS)} ${marcoDaUltimaSS.slice(11, 16)}`
+                : marcoDaUltimaSS ? `Nenhum evento depois de ${dayLabel(marcoDaUltimaSS)} ${marcoDaUltimaSS.slice(11, 16)}` : "Sem SS para servir de marco"}
               tone={reincidencias.length ? "amber" : "green"} />
             <Kpi label="Última SS do ativo" value={marcoDaUltimaSS ? marcoDaUltimaSS.slice(0, 10).split("-").reverse().join("/") : "—"}
               note="Término da SS, ou a abertura quando não há término" tone="ink" />
