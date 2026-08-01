@@ -697,6 +697,20 @@ function nivelPorJanela(registro: FluxoRegistro, janela: number): string {
 
 const JANELAS = [12, 24, 48];
 
+// O motivo do expurgo nao mora num campo so: e o primeiro sinal escrito pela peneira que
+// reteve a SS, na ordem em que as peneiras rodam.
+const CAMPOS_DO_MOTIVO: Array<[string, string]> = [
+  ["e0_motivo", "Entrada"], ["e1_sinais", "Estágio 1"], ["e3_motivo", "Estágio 3"], ["e4_alertas", "Estágio 4"],
+];
+
+function motivoDoExpurgo(registro: FluxoRegistro): { origem: string; motivo: string } {
+  for (const [campo, origem] of CAMPOS_DO_MOTIVO) {
+    const valor = String(registro[campo] ?? "").trim();
+    if (valor) return { origem, motivo: valor };
+  }
+  return { origem: "—", motivo: "Sem motivo escrito nas peneiras" };
+}
+
 function baixaFluxoCSV(linhas: FluxoRegistro[], titulo: string) {
   const cabec = FLUXO_COLUNAS.map(([rotulo]) => rotulo).join(";");
   const corpo = linhas.map((linha) => FLUXO_COLUNAS
@@ -1112,6 +1126,7 @@ export default function Page() {
   const [fluxoAtivo, setFluxoAtivo] = useState("");
   const [metodo, setMetodo] = useState<MetodoData | null>(null);
   const [fluxoJanela, setFluxoJanela] = useState(24);
+  const [fluxoAba, setFluxoAba] = useState<"todos" | "expurgos">("todos");
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -1483,6 +1498,7 @@ export default function Page() {
         r.oc_causa, r.oc_sub, r.at_equipe, r.e1_sinais, r.e4_alertas,
       ].join(" ")).includes(agulha));
       const soExpurgo = selecionadas.filter((r) => r.expurgo === "SIM");
+      const naTela = fluxoAba === "expurgos" ? soExpurgo : selecionadas;
       const CAP = 400;
       const caixas = [
         ["Entrada", ["todos", "e0"]],
@@ -1527,16 +1543,36 @@ export default function Page() {
         <FluxoIndicadores caixa={filtro.caixa} rotulo={filtro.rotulo} linhas={selecionadas} janela={fluxoJanela} />
         <section className="panel list-panel">
           <div className="list-head">
-            <div><span>{selecionadas.length.toLocaleString("pt-BR")} registros{selecionadas.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>
+            <div><span>{naTela.length.toLocaleString("pt-BR")} registros{naTela.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>
               <strong>{filtro.rotulo}</strong></div>
+            <div className="fluxo-abas">
+              <button type="button" className={fluxoAba === "todos" ? "ativo" : ""} onClick={() => setFluxoAba("todos")}>
+                Todos ({selecionadas.length.toLocaleString("pt-BR")})</button>
+              <button type="button" className={fluxoAba === "expurgos" ? "ativo" : ""} onClick={() => setFluxoAba("expurgos")}>
+                Só expurgos propostos ({soExpurgo.length.toLocaleString("pt-BR")})</button>
+            </div>
             <label className="search"><span>⌕</span><input value={fluxoBusca} onChange={(event) => setFluxoBusca(event.target.value)} placeholder="SS, OS, obra, ativo, equipe, solicitante, causa…" /></label>
-            <button className="sheet-download" onClick={() => baixaFluxoCSV(selecionadas, filtro.rotulo)}>Baixar CSV ({selecionadas.length})</button>
-            {soExpurgo.length ? <button className="sheet-download secondary" onClick={() => baixaFluxoCSV(soExpurgo, `${filtro.rotulo} — expurgos`)}>Só os expurgos ({soExpurgo.length})</button> : null}
+            <button className="sheet-download" onClick={() => baixaFluxoCSV(naTela, fluxoAba === "expurgos" ? `${filtro.rotulo} — expurgos` : filtro.rotulo)}>Baixar CSV ({naTela.length})</button>
           </div>
-          <p className="fluxo-nota">{filtro.nota}</p>
-          <div className="table-scroll"><table className="records-table">
+          <p className="fluxo-nota">{fluxoAba === "expurgos"
+            ? "Expurgo proposto é proposta de saída do indicador, com o motivo escrito pela peneira que reteve a SS — não é decisão tomada."
+            : filtro.nota}</p>
+          {fluxoAba === "expurgos" ? <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Identificação</th><th>Motivo do expurgo</th><th>Quem pediu</th><th>Quem atendeu</th><th>Obra</th><th>SIGCO</th></tr></thead>
+            <tbody>{naTela.slice(0, CAP).map((r) => {
+              const causa = motivoDoExpurgo(r);
+              return <tr key={String(r.ss)} onClick={() => setFluxoAtivo(String(r.trafo))}>
+                <td><strong>{String(r.ss)}</strong><span>{String(r.os || "sem OS")}</span><code>{String(r.trafo)} · {String(r.localidade)}</code></td>
+                <td><b className="pill bad">{causa.origem}</b><span>{causa.motivo}</span><small>{String(r.decisao)} · {String(r.categoria)}</small></td>
+                <td><strong>{String(r.solicitante || "não informado")}</strong><span>Origem {String(r.origem || "—")}</span><small>Equipe da SS {String(r.equipe_ss || "—")}</small></td>
+                <td><strong>{String(r.at_equipe || "sem atendimento")}</strong><span>{String(r.at_deslocou || "—")}</span><small>{String(r.at_sub || "")}</small></td>
+                <td><strong>{String(r.obra || "sem obra gerada")}</strong><span>{String(r.obra_empreiteira || "—")}</span><small>{String(r.obra_status || "")}</small></td>
+                <td><strong>{String(r.sigco || "—")}</strong><span>projeto {String(r.obra_sigco_proj || "—")}</span><small>{String(r.e4_alertas || "sem alerta")}</small></td>
+              </tr>;
+            })}</tbody>
+          </table></div> : <div className="table-scroll"><table className="records-table">
             <thead><tr><th>Identificação</th><th>Estágio 1 · interrupção</th><th>Estágio 2 · deslocamento</th><th>Estágio 3 · material</th><th>Obra e SIGCO</th><th>Decisão</th></tr></thead>
-            <tbody>{selecionadas.slice(0, CAP).map((r) => <tr key={String(r.ss)} onClick={() => setFluxoAtivo(String(r.trafo))}>
+            <tbody>{naTela.slice(0, CAP).map((r) => <tr key={String(r.ss)} onClick={() => setFluxoAtivo(String(r.trafo))}>
               <td><strong>{String(r.ss)}</strong><span>{String(r.os || "sem OS")}</span><code>{String(r.trafo)} · {String(r.localidade)}</code></td>
               <td><b className={`pill ${r.e1_nivel === "A" ? "good" : r.e1_nivel === "B" ? "pend" : r.e1_nivel === "SEM" ? "bad" : "warn"}`}>{String(r.e1_nivel)}</b>
                 <span>{r.oc_ini ? `${String(r.oc_ini)} · ${r.oc_dur_h}h · ${r.oc_cons} clientes` : "sem ocorrência"}</span>
@@ -1548,7 +1584,9 @@ export default function Page() {
                 {r.expurgo === "SIM" ? <span className="expurgo-tag">expurgo proposto</span> : null}
                 <small>{String(r.solicitante || "")} · {String(r.origem || "")}</small></td>
             </tr>)}</tbody>
-          </table></div>
+          </table></div>}
+          {naTela.length ? null : <div className="empty"><strong>Nenhum registro nesta visão</strong>
+            <span>{fluxoAba === "expurgos" ? "Este filtro não tem expurgo proposto." : "Limpe a busca para ver as SS do filtro."}</span></div>}
         </section>
         {fluxoAtivo ? <section className="panel">
           <div className="list-head"><div><span>{historicoDoAtivo.length} eventos</span><strong>Histórico do ativo {fluxoAtivo}</strong></div>

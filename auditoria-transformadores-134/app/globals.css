@@ -370,6 +370,12 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fluxo-caixa b { min-width: 44px; font: 500 15px/1 "Newsreader", serif; }
 .fluxo-caixa em { color: #62656a; font-size: 8px; font-style: normal; line-height: 1.35; }
 .fluxo-nota { margin: 0 20px 12px; color: #6c6f74; font-size: 8.5px; }
+/* Alternancia todos / so expurgos propostos dentro do filtro ativo. */
+.fluxo-abas { display: flex; flex-wrap: wrap; gap: 6px; }
+.fluxo-abas button { padding: 7px 11px; border: 1px solid var(--line); background: var(--white); color: #62656a; font: 600 7.5px "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
+.fluxo-abas button:hover { border-color: #9f9d99; color: var(--ink); }
+.fluxo-abas button.ativo { border-color: var(--ink); background: var(--ink); color: #fff; }
+
 /* Janela ajustavel do estagio 1, dentro da faixa escura do topo do fluxo. */
 .janela-controle small { display: block; margin-top: 6px; color: #9da0a4; font-size: 7px; line-height: 1.4; }
 .janela-botoes { display: flex; gap: 6px; margin-top: 6px; }
