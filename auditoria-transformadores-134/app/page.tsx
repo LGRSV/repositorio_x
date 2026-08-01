@@ -388,7 +388,7 @@ const NAV: Array<{ group: string; items: Array<{ id: Module; label: string; code
 ];
 
 const TITLES: Record<Module, { eyebrow: string; title: string; description: string }> = {
-  overview: { eyebrow: "Universo de SS", title: "Visão geral", description: "Leitura operacional da carga, das propostas da IA e das pendências. Todo número é clicável e abre a planilha do recorte." },
+  overview: { eyebrow: "Escopo ativo", title: "Visão geral", description: "Leitura operacional da carga, das propostas da IA e das pendências. Todo número é clicável e abre a planilha do recorte." },
   // O total sai do proprio arquivo em tempo de render (ver pageDescription). Deixar o numero
   // escrito aqui ja causou o bug de a pagina dizer 1.582 enquanto os cartoes diziam 1.592.
   fluxo: { eyebrow: "Caixa d'água · 4 estágios", title: "Fluxo das 1.510", description: "As 1.510 SS de jan a jun escorrendo pelos quatro filtros. Cada caixa abre a lista, e toda lista exporta em CSV." },
@@ -696,6 +696,12 @@ function nivelPorJanela(registro: FluxoRegistro, janela: number): string {
 }
 
 const JANELAS = [12, 24, 48];
+
+// Das lacunas declaradas, a do TMAE de 26 a 31 de janeiro e a unica que muda a leitura de um
+// estagio inteiro: sem nota no periodo, "sem atendimento" nao separa quem nao foi de quem foi
+// e nao ficou registrado. Por isso ela sai destacada, e nao como mais um item da lista.
+const LACUNA_TMAE = { inicio: "2026-01-26", fim: "2026-01-31" };
+const lacunaCritica = (texto: string) => /TMAE/i.test(texto) && /26 a 31/.test(texto);
 
 // O motivo do expurgo nao mora num campo so: e o primeiro sinal escrito pela peneira que
 // reteve a SS, na ordem em que as peneiras rodam.
@@ -1513,6 +1519,11 @@ export default function Page() {
         ? fluxo.historico.filter((linha) => String(linha[0]) === fluxoAtivo)
         : [];
       const ssDoAtivo = fluxoAtivo ? fluxoRegistros.filter((r) => String(r.trafo) === fluxoAtivo) : [];
+      const naLacunaTMAE = fluxoRegistros.filter((r) => {
+        const dia = String(r.abertura ?? "").slice(0, 10);
+        return dia >= LACUNA_TMAE.inicio && dia <= LACUNA_TMAE.fim;
+      });
+      const semAtendimentoNaLacuna = naLacunaTMAE.filter((r) => r.e2_status === "SEM ATENDIMENTO").length;
       const interrupcoesDoAtivo = historicoDoAtivo.filter((linha) => String(linha[4]).startsWith("Interrupção")).length;
       const atendimentosDoAtivo = historicoDoAtivo.filter((linha) => String(linha[4]).startsWith("Atendimento")).length;
       // Reincidência é evento que aparece depois da última SS do ativo. O marco é o término da
@@ -1651,9 +1662,28 @@ export default function Page() {
             </tr>)}</tbody>
           </table></div>
         </section> : null}
-        <section className="panel editorial-note wide"><span>FONTES E LACUNAS DESTA ANÁLISE</span>
-          {fluxo.meta.fontes.map((f) => <p key={f}>· {f}</p>)}
-          {fluxo.meta.lacunas.map((l) => <p key={l}><b>Lacuna:</b> {l}</p>)}
+        <section className="panel saude-bases">
+          <div className="panel-title">
+            <div><span>Saúde das bases</span><h2>De onde vem cada número e o que falta</h2></div>
+            <small>{fluxo.meta.fontes.length} fontes lidas · {fluxo.meta.lacunas.length} lacunas conhecidas</small>
+          </div>
+          <div className="saude-colunas">
+            <article>
+              <h3>Fontes lidas</h3>
+              <ul className="saude-fontes">{fluxo.meta.fontes.map((fonte) => <li key={fonte}>{fonte}</li>)}</ul>
+            </article>
+            <article>
+              <h3>Lacunas conhecidas</h3>
+              <ul className="saude-lacunas">{fluxo.meta.lacunas.map((lacuna) => <li key={lacuna} className={lacunaCritica(lacuna) ? "critica" : ""}>
+                <b>{lacunaCritica(lacuna) ? "Lacuna crítica" : "Lacuna"}</b>
+                <span>{lacuna}</span>
+                {lacunaCritica(lacuna) ? <em>
+                  {br(naLacunaTMAE.length)} SS foram abertas entre 26 e 31 de janeiro, e {br(semAtendimentoNaLacuna)} delas estão como “sem atendimento no TMAE”.
+                  Nesse intervalo, ausência de nota não prova ausência de deslocamento — nenhuma dessas SS deve ser expurgada só pelo estágio 2.
+                </em> : null}
+              </li>)}</ul>
+            </article>
+          </div>
         </section>
       </>;
     }
