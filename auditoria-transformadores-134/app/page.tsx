@@ -383,8 +383,8 @@ const TITLES: Record<Module, { eyebrow: string; title: string; description: stri
   universo: { eyebrow: "Base completa", title: "Universo de SS", description: "Toda a base dividida por coorte, com a regra de expurgo aplicada e as 134 auditadas sinalizadas." },
   ss: { eyebrow: "Primeira leitura", title: "Análise de SS", description: "O que foi solicitado, alegado e identificado no texto original da SS." },
   os: { eyebrow: "Execução registrada", title: "Análise por OS", description: "O que a equipe executou e quais evidências foram deixadas na OS." },
-  newbase: { eyebrow: "Camada de decisão", title: "New Base — Análise Consolidada", description: "Os 134 casos reunidos com regra, justificativa, confiança e aprovação." },
-  map: { eyebrow: "Distribuição territorial", title: "Mapa dos transformadores", description: "Visualização municipal aproximada dos 134 atendimentos. Clique em um ponto para consultar os casos." },
+  newbase: { eyebrow: "Camada de decisão", title: "New Base — Análise Consolidada", description: "Os casos do escopo ativo reunidos com regra, justificativa, confiança e aprovação." },
+  map: { eyebrow: "Distribuição territorial", title: "Mapa dos transformadores", description: "Visualização municipal aproximada dos atendimentos do escopo ativo. Clique em um ponto para consultar os casos." },
   financial: { eyebrow: "Valores da obra", title: "Dashboard financeiro", description: "Orçado, realizado e materiais, usando exclusivamente os campos da planilha." },
   "auto-expurge": { eyebrow: "Regras acionadas", title: "Dashboard de Expurgo Automático", description: "Casos elegíveis, motivo, regra e valor associado — ainda sujeitos à governança." },
   ai: { eyebrow: "Qualidade da proposta", title: "Dashboard Análise da IA", description: "Confiança, cobertura de evidência, revisões e regras utilizadas." },
@@ -880,7 +880,9 @@ function RecordTable({
 export default function Page() {
   const [data, setData] = useState<AuditData | null>(null);
   const [universe, setUniverse] = useState<UniverseData | null>(null);
-  const [scope, setScope] = useState<Scope>("UNIVERSO");
+  // O recorte de trabalho é o das 1.510 de jan a jun. O universo inteiro continua a um
+  // clique no seletor, mas quem abre o painel precisa cair no número que está sendo auditado.
+  const [scope, setScope] = useState<Scope>("JAN-JUN 1510");
   const [drill, setDrill] = useState<{ title: string; note: string; rows: UniverseRecord[] } | null>(null);
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [user, setUser] = useState<DemoUser>(VISITANTE);   // identidade só serve para assinar aprovação
@@ -1133,12 +1135,13 @@ export default function Page() {
   const renderModule = () => {
     if (module === "overview") return <>
       <ScopePicker />
-      <section className="scope-strip">
+      <section className="scope-strip cinco">
+        <div><span>Escopo ativo</span><strong>{scopeLabel} · {br(scoped.total)} SS</strong></div>
         <div><span>Fonte ativa</span><strong>{universe ? universe.source : data.meta.source}</strong></div>
         <div><span>Período</span><strong>{universe ? scopedPeriod : `${data.meta.period.start} — ${data.meta.period.end}`}</strong></div>
         <div><span>Governança</span><strong>{approved} oficiais · {audited.length - approved} pendentes</strong></div>
         <p>{universe
-          ? `O painel roda sobre as ${universe.totals.universo.toLocaleString("pt-BR")} SS da base. Clique em qualquer número para abrir a planilha daquele recorte e baixá-la. As ${br(universe.totals.comCampo ?? 0)} SS abertas de janeiro a julho passaram pela camada de campo (R-CAMPO): o código do transformador foi cruzado contra a base de interrupção. As ${universe.totals.auditadas134} auditadas continuam sendo as únicas lidas caso a caso, e a decisão publicada delas não foi alterada.`
+          ? `Todo número desta tela conta as ${br(scoped.total)} SS do escopo ${scopeLabel} — trocar o escopo troca todos eles. Clique em qualquer número para abrir a planilha daquele recorte e baixá-la. ${br(scoped.comCampo)} SS do escopo passaram pela camada de campo (R-CAMPO): o código do transformador foi cruzado contra a base de interrupção. As ${br(scoped.audited)} auditadas caso a caso continuam sendo as únicas com veredito humano, e a decisão publicada delas não foi alterada.`
           : data.meta.note.replace("Matheus Gracia", "Mateus Gracia")}</p>
       </section>
       <section className="kpi-grid">
@@ -1573,11 +1576,11 @@ export default function Page() {
           <MapView points={mapPoints} onSelect={(name) => setQuery(name)} />
         </article>
         <aside className="panel map-summary">
-          <span>LEITURA DO MAPA</span><h2>134 atendimentos</h2>
+          <span>LEITURA DO MAPA</span><h2>{br(scoped.total)} atendimentos</h2>
           <p>O tamanho do círculo acompanha a quantidade de casos. Pontos vermelhos possuem ao menos uma proposta de expurgo.</p>
           <div><b>{mapPoints.length}</b><span>municípios no mapa</span></div>
-          <div><b>{data.summary.burned}</b><span>transformadores queimados</span></div>
-          <div><b>{data.summary.damaged}</b><span>transformadores avariados</span></div>
+          <div><b>{scoped.burned}</b><span>transformadores queimados</span></div>
+          <div><b>{scoped.damaged}</b><span>transformadores avariados</span></div>
           <small>Para chegar ao ponto exato do transformador, a próxima carga deverá trazer latitude e longitude do ativo.</small>
         </aside>
       </section>
@@ -1825,7 +1828,7 @@ export default function Page() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><i>T</i><div><strong>Transforma</strong><span>{universe ? `Auditoria · ${universe.totals.universo.toLocaleString("pt-BR")} SS` : "Auditoria · Base 134"}</span></div></div>
+      <div className="brand"><i>T</i><div><strong>Transforma</strong><span>{universe ? `Auditoria · ${scopeLabel}` : "Auditoria · 1.510 SS"}</span></div></div>
       <nav>{NAV.map((group) => <div className="nav-group" key={group.group}><span>{group.group}</span>{group.items.map((item) => <button className={module === item.id ? "active" : ""} key={item.id} onClick={() => { setModule(item.id); setQuery(""); }}>
         <b>{item.code}</b><em>{item.label}</em>
         {item.id === "universo" && universe ? <small>{universe.totals.universo.toLocaleString("pt-BR")}</small> : null}
