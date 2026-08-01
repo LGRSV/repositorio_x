@@ -370,6 +370,22 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fluxo-caixa b { min-width: 44px; font: 500 15px/1 "Newsreader", serif; }
 .fluxo-caixa em { color: #62656a; font-size: 8px; font-style: normal; line-height: 1.35; }
 .fluxo-nota { margin: 0 20px 12px; color: #6c6f74; font-size: 8.5px; }
+/* Metodo e decisoes: resumo curto na Visao geral e blocos longos na pagina de Regras. */
+.metodo-resumo { border-left: 3px solid var(--red); }
+.metodo-resumo h2 { margin: 9px 0 0; font: 500 21px/1.15 "Newsreader", serif; }
+.metodo-resumo p + p { margin-top: 9px; }
+.metodo-bloco { padding: 20px; }
+.metodo-bloco .panel-title { margin-bottom: 14px; }
+.metodo-paragrafo { margin: 0 0 9px; color: #62656a; font-size: 9px; line-height: 1.65; }
+.metodo-itens { grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); }
+.metodo-itens > div { border-top: 1px solid var(--line); }
+.metodo-itens strong { margin-top: 6px; font: 600 9px/1.4 "DM Sans", sans-serif; }
+.metodo-itens span { margin-top: 6px; font-size: 8px; line-height: 1.55; }
+.metodo-tabela { margin-top: 14px; }
+.metodo-tabela .records-table td span { color: #62656a; font-size: 8.5px; line-height: 1.5; }
+.metodo-tabela .records-table tbody tr { cursor: default; }
+.metodo-tabela .records-table tbody tr:hover { background: transparent; box-shadow: none; }
+
 /* Indicadores do estagio selecionado: cinco cartoes e as quebras daquele filtro. */
 .fluxo-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .fluxo-listas { display: grid; grid-template-columns: repeat(auto-fit, minmax(272px, 1fr)); gap: 16px; margin-bottom: 16px; }

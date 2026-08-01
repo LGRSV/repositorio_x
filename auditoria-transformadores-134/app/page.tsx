@@ -288,6 +288,19 @@ type FluxoData = {
   historico: Array<Array<string | number | null>>;
 };
 
+// Método e decisões da análise, escritos fora do site e lidos de metodo.json. Os três corpos
+// de cada bloco são opcionais: um bloco pode ser só texto, só itens, só tabela ou a mistura.
+type MetodoItem = { rotulo: string; texto: string };
+type MetodoTabela = { cabecalho: string[]; linhas: string[][] };
+type MetodoBloco = {
+  id: string; titulo: string;
+  paragrafos?: string[]; itens?: MetodoItem[]; tabela?: MetodoTabela;
+};
+type MetodoData = {
+  resumo?: { titulo: string; paragrafos: string[] };
+  blocos?: MetodoBloco[];
+};
+
 type Change = { status?: string; comment: string; at: string; actor: string; action: string };
 type Overrides = Record<string, Change[]>;
 type DemoUser = {
@@ -852,6 +865,27 @@ function FluxoIndicadores({ caixa, rotulo, linhas, janela }: {
   </>;
 }
 
+// Os blocos do método, do jeito que vierem do arquivo. Cada bloco é um cartão largo com
+// título; o que não existir no JSON simplesmente não é desenhado.
+function MetodoBlocos({ blocos }: { blocos: MetodoBloco[] }) {
+  if (!blocos.length) return null;
+  return <>{blocos.map((bloco, indice) => <article className="panel metodo-bloco wide" key={bloco.id || indice}>
+    <div className="panel-title"><div><span>Método e decisões</span><h2>{bloco.titulo}</h2></div></div>
+    {(bloco.paragrafos || []).map((paragrafo, i) => <p className="metodo-paragrafo" key={i}>{paragrafo}</p>)}
+    {bloco.itens && bloco.itens.length ? <div className="check-list metodo-itens">
+      {bloco.itens.map((item, i) => <div key={item.rotulo || i}><b>✓</b><strong>{item.rotulo}</strong><span>{item.texto}</span></div>)}
+    </div> : null}
+    {bloco.tabela && bloco.tabela.linhas && bloco.tabela.linhas.length ? <div className="table-scroll metodo-tabela">
+      <table className="records-table">
+        <thead><tr>{(bloco.tabela.cabecalho || []).map((celula, i) => <th key={i}>{celula}</th>)}</tr></thead>
+        <tbody>{bloco.tabela.linhas.map((linha, i) => <tr key={i}>
+          {linha.map((celula, j) => <td key={j}>{j === 0 ? <strong>{celula}</strong> : <span>{celula}</span>}</td>)}
+        </tr>)}</tbody>
+      </table>
+    </div> : null}
+  </article>)}</>;
+}
+
 // A "planilha" do recorte. Abre por cima da tela com as mesmas colunas do universo-ss.json,
 // filtro proprio e os dois downloads. O conteudo da tela e o do arquivo baixado sao o mesmo,
 // filtro incluido — se divergissem, o numero da tela deixaria de ser auditavel.
@@ -1050,6 +1084,7 @@ export default function Page() {
   const [fluxoFiltro, setFluxoFiltro] = useState("");
   const [fluxoBusca, setFluxoBusca] = useState("");
   const [fluxoAtivo, setFluxoAtivo] = useState("");
+  const [metodo, setMetodo] = useState<MetodoData | null>(null);
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -1062,6 +1097,10 @@ export default function Page() {
       .catch(() => setUniverse(null));
     fetch(assetUrl("municipios-to.json")).then((response) => response.json()).then(setMunicipalities);
     fetch(assetUrl("fluxo-1510.json")).then((response) => response.json()).then(setFluxo).catch(() => setFluxo(null));
+    // O metodo.json e gerado fora do site. Enquanto nao existir, o fetch da 404 e as duas
+    // secoes simplesmente nao aparecem — sem mensagem de erro para o leitor.
+    fetch(assetUrl("metodo.json")).then((response) => (response.ok ? response.json() : null))
+      .then(setMetodo).catch(() => setMetodo(null));
     const saved = localStorage.getItem("auditoria-134-historico");
     if (saved) Promise.resolve().then(() => setOverrides(JSON.parse(saved)));
     const savedUser = localStorage.getItem("auditoria-134-usuario");
@@ -1376,6 +1415,11 @@ export default function Page() {
         </div> : null}
       </section> : null}
       <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v0.96. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
+      {metodo?.resumo ? <section className="panel editorial-note wide metodo-resumo">
+        <span>COMO ESTA ANÁLISE FOI FEITA</span>
+        <h2>{metodo.resumo.titulo}</h2>
+        {(metodo.resumo.paragrafos || []).map((paragrafo, indice) => <p key={indice}>{paragrafo}</p>)}
+      </section> : null}
     </>;
 
     if (module === "fluxo") {
@@ -1951,6 +1995,7 @@ export default function Page() {
         {data.materialConference.rule} A aba Obras só vale até a base de itens dizer outra coisa: {data.materialConference.matches} de {data.materialConference.works} obras
         conferem item a item, {data.materialConference.corrected} precisou de correção e {data.materialConference.analyticConflicts} alerta(s) analítico(s) da Base_Analitica foram refeitos a partir do material conferido.
       </p></article> : null}
+      <MetodoBlocos blocos={metodo?.blocos || []} />
     </section>;
 
     if (module === "historico") return <section className="panel history-panel">
