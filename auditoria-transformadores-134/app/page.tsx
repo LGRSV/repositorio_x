@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import MapView from "./MapView";
 
 type Module =
-  | "overview" | "universo" | "ativos" | "ss" | "os" | "newbase" | "map" | "financial" | "auto-expurge" | "ai"
+  | "overview" | "fluxo" | "universo" | "ativos" | "ss" | "os" | "newbase" | "map" | "financial" | "auto-expurge" | "ai"
   | "expurgos" | "sigco" | "revisoes" | "aprovacoes" | "importar" | "regras"
   | "historico" | "manuais" | "admin";
 
@@ -274,24 +274,49 @@ type AuditData = {
   records: AuditRecord[];
 };
 
+// Fluxo das 1.510: o JSON vem pronto do pipeline, uma linha por SS com o resultado de cada
+// estágio. O site não recalcula nada aqui — ele mostra, filtra e exporta o que foi decidido.
+type FluxoRegistro = Record<string, string | number | boolean | null>;
+type FluxoData = {
+  meta: { titulo: string; janelaHoras: number; fontes: string[]; lacunas: string[] };
+  resumo: {
+    total: number; foraDaBase: number; e1: Record<string, number>; e1Retidos: number;
+    e2SemAtendimento: number; e2SemDeslocamento: number; e3Retidos: number; e4Alertas: number;
+    decisao: Record<string, number>; expurgos: number;
+  };
+  registros: FluxoRegistro[];
+  historico: Array<Array<string | number | null>>;
+};
+
 type Change = { status?: string; comment: string; at: string; actor: string; action: string };
 type Overrides = Record<string, Change[]>;
 type DemoUser = {
-  id: string; name: string; role: string; initials: string; username: string; password: string;
+  id: string; name: string; role: string; initials: string;
   description: string; canApprove: boolean;
 };
 type Municipality = { ibge: string; name: string; latitude: number; longitude: number; capital: boolean };
 
-const DEMO_USERS: DemoUser[] = [
-  { id: "matheus-alves", name: "Matheus Alves", role: "Supervisor", initials: "MA", username: "matheus.alves", password: "Supervisor@134", description: "Controle operacional, acompanhamento das equipes e aprovação.", canApprove: true },
-  { id: "joao-antonio", name: "João Antônio", role: "Desenvolvedor", initials: "JA", username: "joao.antonio", password: "Dev@134", description: "Acesso técnico total e configuração do protótipo.", canApprove: false },
-  { id: "mateus-gracia", name: "Mateus Gracia", role: "Engenheiro", initials: "MG", username: "mateus.gracia", password: "Engenharia@134", description: "Análise de engenharia e aprovação oficial.", canApprove: true },
-  { id: "andressa", name: "Andressa", role: "Analista", initials: "AN", username: "andressa", password: "Analise@134", description: "Análise de SS, OS, SIGCO e consolidação.", canApprove: false },
-  { id: "ronnald", name: "Ronnald", role: "Técnico terceiro", initials: "RO", username: "ronnald", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
-  { id: "gustavo", name: "Gustavo", role: "Técnico terceiro", initials: "GU", username: "gustavo", password: "Tecnico@134", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
-  { id: "danillo", name: "Danillo", role: "Coordenador", initials: "DA", username: "danillo", password: "Coordenador@134", description: "Coordenação da operação, acompanhamento das filas e aprovação.", canApprove: true },
-  { id: "carlos", name: "Carlos", role: "Desenvolvedor 2", initials: "CA", username: "carlos", password: "Dev2@134", description: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", canApprove: false },
+// A tela de senha saiu. O login era cosmético — rodava inteiro no navegador e expunha
+// oito senhas em texto puro num repositório público. Quem abre o site lê e exporta tudo;
+// a identificação só é pedida para assinar aprovação, e sem senha.
+const VISITANTE: DemoUser = {
+  id: "visitante", name: "Visitante", role: "Leitura", initials: "VS",
+  description: "Acesso de leitura e exportação. Para aprovar, escolha seu nome na barra lateral.",
+  canApprove: false,
+};
+
+const EQUIPE: DemoUser[] = [
+  VISITANTE,
+  { id: "matheus-alves", name: "Matheus Alves", role: "Supervisor", initials: "MA", description: "Controle operacional, acompanhamento das equipes e aprovação.", canApprove: true },
+  { id: "joao-antonio", name: "João Antônio", role: "Desenvolvedor", initials: "JA", description: "Acesso técnico total e configuração do painel.", canApprove: false },
+  { id: "mateus-gracia", name: "Mateus Gracia", role: "Engenheiro", initials: "MG", description: "Análise de engenharia e aprovação oficial.", canApprove: true },
+  { id: "andressa", name: "Andressa", role: "Analista", initials: "AN", description: "Análise de SS, OS, SIGCO e consolidação.", canApprove: false },
+  { id: "ronnald", name: "Ronnald", role: "Técnico terceiro", initials: "RO", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
+  { id: "gustavo", name: "Gustavo", role: "Técnico terceiro", initials: "GU", description: "Registro técnico, evidências e solicitação de expurgo.", canApprove: false },
+  { id: "danillo", name: "Danillo", role: "Coordenador", initials: "DA", description: "Coordenação da operação, acompanhamento das filas e aprovação.", canApprove: true },
+  { id: "carlos", name: "Carlos", role: "Desenvolvedor 2", initials: "CA", description: "Acesso técnico ao painel, manutenção e apoio à configuração.", canApprove: false },
 ];
+const DEMO_USERS = EQUIPE;
 
 const EXPURGE_REASONS = [
   "Furto, roubo ou vandalismo",
@@ -321,6 +346,7 @@ const FIELD_RULE_IDS = ["R-CAMPO-01", "R-CAMPO-02", "R-CAMPO-03", "R-CAMPO-04", 
 const NAV: Array<{ group: string; items: Array<{ id: Module; label: string; code: string }> }> = [
   { group: "Operação", items: [
     { id: "overview", label: "Visão geral", code: "01" },
+    { id: "fluxo", label: "Fluxo 1.510", code: "0A" },
     { id: "universo", label: "Universo de SS", code: "1A" },
     { id: "ativos", label: "Por transformador", code: "1B" },
     { id: "ss", label: "Análise de SS", code: "02" },
@@ -352,6 +378,7 @@ const TITLES: Record<Module, { eyebrow: string; title: string; description: stri
   overview: { eyebrow: "Universo de SS", title: "Visão geral", description: "Leitura operacional da carga, das propostas da IA e das pendências. Todo número é clicável e abre a planilha do recorte." },
   // O total sai do proprio arquivo em tempo de render (ver pageDescription). Deixar o numero
   // escrito aqui ja causou o bug de a pagina dizer 1.582 enquanto os cartoes diziam 1.592.
+  fluxo: { eyebrow: "Caixa d'água · 4 estágios", title: "Fluxo das 1.510", description: "As 1.510 SS de jan a jun escorrendo pelos quatro filtros. Cada caixa abre a lista, e toda lista exporta em CSV." },
   ativos: { eyebrow: "Contagem por ativo", title: "Por transformador", description: "Quantas solicitações e quantas intervenções de campo cada código de transformador acumulou no escopo." },
   universo: { eyebrow: "Base completa", title: "Universo de SS", description: "Toda a base dividida por coorte, com a regra de expurgo aplicada e as 134 auditadas sinalizadas." },
   ss: { eyebrow: "Primeira leitura", title: "Análise de SS", description: "O que foi solicitado, alegado e identificado no texto original da SS." },
@@ -579,52 +606,67 @@ function triggerDownload(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-function DemoLogin({ onLogin }: { onLogin: (user: DemoUser) => void }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const submit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const match = DEMO_USERS.find((item) =>
-      item.username.toLowerCase() === username.trim().toLowerCase() && item.password === password);
-    if (!match) {
-      setError("Usuário ou senha de demonstração inválidos.");
-      return;
-    }
-    localStorage.setItem("auditoria-134-demo-user", match.id);
-    onLogin(match);
-  };
+// ---------------------------------------------------------------- fluxo das 1.510
+// Os recortes da caixa d'água. Cada um é um filtro sobre a mesma lista: o que a caixa
+// mostra e o que o CSV baixa são exatamente as mesmas linhas.
+const FLUXO_FILTROS: Array<{ id: string; caixa: string; rotulo: string; nota: string; teste: (r: FluxoRegistro) => boolean }> = [
+  { id: "todos", caixa: "Entrada", rotulo: "Todas as SS", nota: "As 1.510 do recorte jan–jun.", teste: () => true },
+  { id: "e0", caixa: "Entrada", rotulo: "Fora da base de falha", nota: "Furto, auxiliar de equipamento especial, preventivo e particular saem antes de tudo.", teste: (r) => r.e0_status === "RETIDO" },
+  { id: "e1A", caixa: "1 · Interrupção", rotulo: "Nível A — dentro da janela", nota: "A SS foi aberta com o cliente desligado. Prova forte.", teste: (r) => r.e1_nivel === "A" },
+  { id: "e1B", caixa: "1 · Interrupção", rotulo: "Nível B — até 24h", nota: "Perto da ocorrência, mas fora dela. Indício.", teste: (r) => r.e1_nivel === "B" },
+  { id: "e1C", caixa: "1 · Interrupção", rotulo: "Nível C — mesmo dia", nota: "Só coincide a data.", teste: (r) => r.e1_nivel === "C" },
+  { id: "e1F", caixa: "1 · Interrupção", rotulo: "Aparece em outra data", nota: "O ativo tem ocorrência no semestre, mas nenhuma perto da SS.", teste: (r) => r.e1_nivel === "FORA" },
+  { id: "e1S", caixa: "1 · Interrupção", rotulo: "Sem nenhuma ocorrência", nota: "O código não aparece na Crítica em seis meses.", teste: (r) => r.e1_nivel === "SEM" },
+  { id: "e1R", caixa: "1 · Interrupção", rotulo: "Retidos pelos sinais", nota: "Programado, preventivo, sem cliente, particular, outro elemento, individual.", teste: (r) => r.e1_status === "RETIDO" },
+  { id: "e2S", caixa: "2 · Deslocamento", rotulo: "Sem atendimento no TMAE", nota: "Nenhuma nota de atendimento no código do trafo.", teste: (r) => r.e2_status === "SEM ATENDIMENTO" },
+  { id: "e2D", caixa: "2 · Deslocamento", rotulo: "Atendimento sem deslocamento", nota: "A nota existe e a equipe não saiu.", teste: (r) => r.e2_status === "ATENDIMENTO SEM DESLOCAMENTO" },
+  { id: "e2R", caixa: "2 · Deslocamento", rotulo: "Atendimento em outra data", nota: "Existe atendimento, mas longe da abertura da SS.", teste: (r) => r.e2_status === "RETIDO" },
+  { id: "e2G", caixa: "2 · Deslocamento", rotulo: "Atendimento casado", nota: "Equipe deslocou na janela da SS.", teste: (r) => r.e2_status === "SEGUE" },
+  { id: "e3R", caixa: "3 · SS/OS + material", rotulo: "Retidos no material", nota: "Sem transformador na obra, material não conferido ou OS sem texto.", teste: (r) => r.e3_status === "RETIDO" },
+  { id: "e3G", caixa: "3 · SS/OS + material", rotulo: "Material comprova a troca", nota: "Obra conferida com transformador movimentado.", teste: (r) => r.e3_status === "SEGUE" },
+  { id: "e4", caixa: "4 · Obra e SIGCO", rotulo: "Com alerta de obra ou SIGCO", nota: "R-OBR-01/02/03 e divergência de código.", teste: (r) => r.e4_status === "ALERTA" },
+  { id: "incluir", caixa: "Saída", rotulo: "INCLUIR", nota: "Passou nas quatro peneiras.", teste: (r) => r.decisao === "INCLUIR" },
+  { id: "revisao", caixa: "Saída", rotulo: "REVISÃO", nota: "Tem sinal contrário e espera leitura humana.", teste: (r) => r.decisao === "REVISÃO" },
+  { id: "investigar", caixa: "Saída", rotulo: "INVESTIGAR", nota: "Sem lastro em nenhuma das duas bases, já com o teste do vizinho aplicado.", teste: (r) => r.decisao === "INVESTIGAR" },
+  { id: "qa", caixa: "Saída", rotulo: "Queimados e avariados", nota: "O que sai limpo do funil e é queima ou avaria.", teste: (r) => r.decisao === "INCLUIR" && (r.categoria === "QUEIMADO" || r.categoria === "AVARIADO") },
+];
 
-  return <main className="login-page">
-    <section className="login-intro">
-      <div className="login-brand"><i>T</i><span>Transforma</span></div>
-      <div><span className="login-kicker">AUDITORIA TÉCNICA · BASE 134</span><h1>Decisões rastreáveis, do campo à aprovação.</h1>
-        <p>Ambiente demonstrativo para análise de SS, OS, obras, materiais, expurgos e indicadores financeiros.</p></div>
-      <small>Protótipo funcional · dados de janeiro a julho de 2026</small>
-    </section>
-    <section className="login-panel">
-      <form onSubmit={submit}>
-        <span>ACESSO AO SISTEMA</span><h2>Entrar</h2><p>Use uma das credenciais temporárias da apresentação.</p>
-        <label>Usuário<input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} placeholder="nome.sobrenome" /></label>
-        <label>Senha<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••••••" /></label>
-        {error ? <strong className="login-error">{error}</strong> : null}
-        <button type="submit">Acessar painel</button>
-      </form>
-      <details className="demo-credentials">
-        <summary>Ver acessos de demonstração</summary>
-        {DEMO_USERS.map((item) => <button key={item.id} onClick={() => { setUsername(item.username); setPassword(item.password); }}>
-          <b>{item.initials}</b><span><strong>{item.name}</strong><small>{item.username} · {item.password}</small></span><em>{item.role}</em>
-        </button>)}
-      </details>
-      <p className="prototype-note">As credenciais desta tela servem apenas para apresentação. A versão definitiva usará autenticação segura e senhas individuais não exibidas.</p>
-    </section>
-  </main>;
+const FLUXO_COLUNAS: Array<[string, string]> = [
+  ["SS", "ss"], ["OS", "os"], ["Obra", "obra"], ["Ativo", "trafo"], ["Categoria", "categoria"],
+  ["Decisão", "decisao"], ["Expurgo", "expurgo"], ["Abertura da SS", "abertura"], ["Término", "termino"],
+  ["Situação", "situacao"], ["Entrada", "e0_status"], ["Motivo da saída", "e0_motivo"],
+  ["E1 nível", "e1_nivel"], ["E1 situação", "e1_status"], ["E1 sinais", "e1_sinais"], ["E1 delta (h)", "e1_delta_h"],
+  ["Conflito", "e1_conflito"], ["Ocorrência", "oc_num"], ["Início oc.", "oc_ini"], ["Fim oc.", "oc_fim"],
+  ["Duração (h)", "oc_dur_h"], ["Clientes", "oc_cons"], ["Papel do trafo", "oc_papel"],
+  ["Elemento do defeito", "oc_prob_ele"], ["Tipo", "oc_tipo"], ["Causa (Crítica)", "oc_causa"],
+  ["Subcausa (Crítica)", "oc_sub"], ["E2 situação", "e2_status"], ["E2 nível", "e2_nivel"],
+  ["E2 delta (h)", "e2_delta_h"], ["Atendimento", "at_num"], ["Início at.", "at_ini"], ["Equipe", "at_equipe"],
+  ["Deslocou", "at_deslocou"], ["TMP", "at_tmp"], ["TMD", "at_tmd"], ["TME", "at_tme"], ["TMA", "at_tma"],
+  ["Causa (TMAE)", "at_causa"], ["Subcausa (TMAE)", "at_sub"], ["E3 situação", "e3_status"],
+  ["E3 motivo", "e3_motivo"], ["Trafos no material", "trafos_material"], ["Material conferido", "material_conferido"],
+  ["E4", "e4_status"], ["Alertas de obra", "e4_alertas"], ["Classe da obra", "obra_classe"],
+  ["Natureza", "obra_natureza"], ["Tipo da obra", "obra_tipo"], ["SIGCO da SS", "sigco"],
+  ["SIGCO do projeto", "obra_sigco_proj"], ["Última movimentação", "obra_ultimo_nome"], ["Setor", "obra_setor"],
+  ["Empreiteira", "obra_empreiteira"], ["Realizado", "obra_realizado"], ["Solicitante", "solicitante"],
+  ["Origem", "origem"], ["Equipe da SS", "equipe_ss"], ["Tipo da solicitação", "tipo_ss"],
+  ["Localidade", "localidade"], ["Alimentador", "alimentador"], ["Pot. retirada", "pot_ret"],
+  ["Pot. instalada", "pot_inst"], ["Ocorrências do ativo", "ocorrencias_ativo"],
+  ["Atendimentos do ativo", "atendimentos_ativo"], ["Teste do vizinho", "vizinho"],
+  ["Decisão da base", "decisao_base"], ["Regra da base", "regra_base"],
+  ["Observação (Crítica)", "oc_obs"], ["Observação (TMAE)", "at_obs"],
+  ["Descrição da SS", "desc_ss"], ["Descrição da OS", "desc_os"],
+];
+
+function baixaFluxoCSV(linhas: FluxoRegistro[], titulo: string) {
+  const cabec = FLUXO_COLUNAS.map(([rotulo]) => rotulo).join(";");
+  const corpo = linhas.map((linha) => FLUXO_COLUNAS
+    .map(([, campo]) => String(linha[campo] ?? "").replace(/[;\r\n]+/g, " ").trim())
+    .join(";")).join("\r\n");
+  const nome = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_").slice(0, 60);
+  triggerDownload(new Blob([`\uFEFF${cabec}\r\n${corpo}`], { type: "text/csv;charset=utf-8" }), `${nome || "fluxo"}.csv`);
 }
 
-// Todo numero que representa um recorte de SS e clicavel: abre a planilha daquele recorte.
-// Quando o KPI nao tem recorte por tras (um valor financeiro agregado, por exemplo) ele
-// continua sendo um cartao comum, sem cursor de clique, para nao prometer o que nao entrega.
 function Kpi({ label, value, note, tone = "neutral", onClick }: {
   label: string; value: string | number; note: string; tone?: string; onClick?: () => void;
 }) {
@@ -841,10 +883,14 @@ export default function Page() {
   const [scope, setScope] = useState<Scope>("UNIVERSO");
   const [drill, setDrill] = useState<{ title: string; note: string; rows: UniverseRecord[] } | null>(null);
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
-  const [user, setUser] = useState<DemoUser | null>(null);
+  const [user, setUser] = useState<DemoUser>(VISITANTE);   // identidade só serve para assinar aprovação
   const [module, setModule] = useState<Module>("overview");
   const [query, setQuery] = useState("");
   const [assetQuery, setAssetQuery] = useState("");
+  const [fluxo, setFluxo] = useState<FluxoData | null>(null);
+  const [fluxoFiltro, setFluxoFiltro] = useState("");
+  const [fluxoBusca, setFluxoBusca] = useState("");
+  const [fluxoAtivo, setFluxoAtivo] = useState("");
   const [selected, setSelected] = useState<AuditRecord | null>(null);
   const [detailTab, setDetailTab] = useState<"consolidado" | "ss" | "os" | "obra" | "campo" | "historico">("consolidado");
   const [comment, setComment] = useState("");
@@ -856,10 +902,11 @@ export default function Page() {
     fetch(assetUrl("universo-ss.json")).then((response) => response.json()).then(setUniverse)
       .catch(() => setUniverse(null));
     fetch(assetUrl("municipios-to.json")).then((response) => response.json()).then(setMunicipalities);
+    fetch(assetUrl("fluxo-1510.json")).then((response) => response.json()).then(setFluxo).catch(() => setFluxo(null));
     const saved = localStorage.getItem("auditoria-134-historico");
     if (saved) Promise.resolve().then(() => setOverrides(JSON.parse(saved)));
-    const savedUser = localStorage.getItem("auditoria-134-demo-user");
-    const match = DEMO_USERS.find((item) => item.id === savedUser);
+    const savedUser = localStorage.getItem("auditoria-134-usuario");
+    const match = EQUIPE.find((item) => item.id === savedUser);
     if (match) Promise.resolve().then(() => setUser(match));
     const savedScope = localStorage.getItem("auditoria-134-escopo") as Scope | null;
     if (savedScope && SCOPES.some((item) => item.id === savedScope)) Promise.resolve().then(() => setScope(savedScope));
@@ -947,7 +994,7 @@ export default function Page() {
   }, [data, scopedRecords, query, module, overrides]);
 
   if (!data) return <main className="loading"><i /><span>Carregando o universo de SS…</span></main>;
-  if (!user) return <DemoLogin onLogin={setUser} />;
+
 
   const audited = allRecords.filter((record) => record.audited134 !== false);
   const approved = audited.filter((record) => statusOf(record) === "APROVADO").length;
@@ -958,9 +1005,10 @@ export default function Page() {
     ? `As ${universe.totals.universo.toLocaleString("pt-BR")} SS da base, divididas por coorte e por período, com a regra de expurgo aplicada, a camada de campo em ${(universe.totals.comCampo ?? 0).toLocaleString("pt-BR")} delas e as 134 auditadas sinalizadas.`
     : title.description;
   const openRecord = (record: AuditRecord) => { setSelected(record); setDetailTab("consolidado"); setComment(""); setExpurgeReason(""); };
-  const logout = () => {
-    localStorage.removeItem("auditoria-134-demo-user");
-    setUser(null);
+  const trocarIdentidade = (id: string) => {
+    const escolhido = EQUIPE.find((item) => item.id === id) || VISITANTE;
+    localStorage.setItem("auditoria-134-usuario", escolhido.id);
+    setUser(escolhido);
   };
   const municipalityIndex = new Map(municipalities.map((item) => [normalize(item.name), item]));
   const mapPoints = Object.values(scopedRecords.reduce<Record<string, {
@@ -1169,6 +1217,97 @@ export default function Page() {
       </section> : null}
       <section className="panel editorial-note"><span>LEITURA DE CONTROLE</span><p>Os números de inclusão, expurgo e revisão são propostas geradas pelas regras do Manual v0.96. O total oficial permanece separado até um dos aprovadores autorizados revisar e aprovar cada caso.</p></section>
     </>;
+
+    if (module === "fluxo") {
+      if (!fluxo) return <section className="panel editorial-note"><span>FLUXO INDISPONÍVEL</span><p>O arquivo fluxo-1510.json não carregou.</p></section>;
+      const filtro = FLUXO_FILTROS.find((f) => f.id === fluxoFiltro) || FLUXO_FILTROS[0];
+      const conta = (f: typeof FLUXO_FILTROS[number]) => fluxo.registros.filter(f.teste).length;
+      const agulha = normalize(fluxoBusca).trim();
+      const selecionadas = fluxo.registros.filter(filtro.teste).filter((r) => !agulha || normalize([
+        r.ss, r.os, r.obra, r.trafo, r.solicitante, r.equipe_ss, r.localidade, r.alimentador,
+        r.oc_causa, r.oc_sub, r.at_equipe, r.e1_sinais, r.e4_alertas,
+      ].join(" ")).includes(agulha));
+      const soExpurgo = selecionadas.filter((r) => r.expurgo === "SIM");
+      const CAP = 400;
+      const caixas = [
+        ["Entrada", ["todos", "e0"]],
+        ["1 · Interrupção", ["e1A", "e1B", "e1C", "e1F", "e1S", "e1R"]],
+        ["2 · Deslocamento", ["e2G", "e2S", "e2D", "e2R"]],
+        ["3 · SS/OS + material", ["e3G", "e3R"]],
+        ["4 · Obra e SIGCO", ["e4"]],
+        ["Saída", ["incluir", "revisao", "investigar", "qa"]],
+      ] as const;
+      const historicoDoAtivo = fluxoAtivo
+        ? fluxo.historico.filter((linha) => String(linha[0]) === fluxoAtivo)
+        : [];
+      return <>
+        <section className="scope-strip">
+          <div><span>Base</span><strong>{fluxo.resumo.total.toLocaleString("pt-BR")} SS · jan a jun/2026</strong></div>
+          <div><span>Janela</span><strong>{fluxo.meta.janelaHoras}h antes e depois</strong></div>
+          <div><span>Saída limpa</span><strong>{(fluxo.resumo.decisao["INCLUIR"] || 0).toLocaleString("pt-BR")} incluir</strong></div>
+          <p>Cada caixa é uma peneira. O que fica retido não é expurgo: é fila de revisão com motivo escrito. Clique em qualquer número para abrir a lista e exportar.</p>
+        </section>
+        <section className="fluxo-caixas">
+          {caixas.map(([nome, ids]) => <article key={nome} className="fluxo-caixa">
+            <span>{nome}</span>
+            {ids.map((id) => {
+              const f = FLUXO_FILTROS.find((item) => item.id === id)!;
+              const n = conta(f);
+              return <button key={id} className={fluxoFiltro === id || (id === "todos" && !fluxoFiltro) ? "ativo" : ""}
+                onClick={() => { setFluxoFiltro(id); setFluxoAtivo(""); }} title={f.nota}>
+                <b>{n.toLocaleString("pt-BR")}</b><em>{f.rotulo}</em>
+              </button>;
+            })}
+          </article>)}
+        </section>
+        <section className="panel list-panel">
+          <div className="list-head">
+            <div><span>{selecionadas.length.toLocaleString("pt-BR")} registros{selecionadas.length > CAP ? ` · mostrando os ${CAP} primeiros` : ""}</span>
+              <strong>{filtro.rotulo}</strong></div>
+            <label className="search"><span>⌕</span><input value={fluxoBusca} onChange={(event) => setFluxoBusca(event.target.value)} placeholder="SS, OS, obra, ativo, equipe, solicitante, causa…" /></label>
+            <button className="sheet-download" onClick={() => baixaFluxoCSV(selecionadas, filtro.rotulo)}>Baixar CSV ({selecionadas.length})</button>
+            {soExpurgo.length ? <button className="sheet-download secondary" onClick={() => baixaFluxoCSV(soExpurgo, `${filtro.rotulo} — expurgos`)}>Só os expurgos ({soExpurgo.length})</button> : null}
+          </div>
+          <p className="fluxo-nota">{filtro.nota}</p>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Identificação</th><th>Estágio 1 · interrupção</th><th>Estágio 2 · deslocamento</th><th>Estágio 3 · material</th><th>Obra e SIGCO</th><th>Decisão</th></tr></thead>
+            <tbody>{selecionadas.slice(0, CAP).map((r) => <tr key={String(r.ss)} onClick={() => setFluxoAtivo(String(r.trafo))}>
+              <td><strong>{String(r.ss)}</strong><span>{String(r.os || "sem OS")}</span><code>{String(r.trafo)} · {String(r.localidade)}</code></td>
+              <td><b className={`pill ${r.e1_nivel === "A" ? "good" : r.e1_nivel === "B" ? "pend" : r.e1_nivel === "SEM" ? "bad" : "warn"}`}>{String(r.e1_nivel)}</b>
+                <span>{r.oc_ini ? `${String(r.oc_ini)} · ${r.oc_dur_h}h · ${r.oc_cons} clientes` : "sem ocorrência"}</span>
+                <small>{String(r.e1_sinais || r.oc_sub || "")}</small></td>
+              <td><strong>{String(r.e2_status)}</strong><span>{r.at_equipe ? `equipe ${String(r.at_equipe)} · TMA ${r.at_tma}` : "—"}</span><small>{String(r.at_sub || "")}</small></td>
+              <td><strong>{String(r.e3_status)}</strong><span>{String(r.e3_motivo || "")}</span><small>{String(r.trafos_material)} trafo no material</small></td>
+              <td><strong>{String(r.e4_status)}</strong><small>{String(r.e4_alertas || "sem alerta")}</small></td>
+              <td><b className={`pill ${r.decisao === "INCLUIR" ? "good" : r.decisao === "INVESTIGAR" ? "bad" : r.decisao === "REVISÃO" ? "warn" : "pend"}`}>{String(r.decisao)}</b>
+                {r.expurgo === "SIM" ? <span className="expurgo-tag">expurgo proposto</span> : null}
+                <small>{String(r.solicitante || "")} · {String(r.origem || "")}</small></td>
+            </tr>)}</tbody>
+          </table></div>
+        </section>
+        {fluxoAtivo ? <section className="panel">
+          <div className="list-head"><div><span>{historicoDoAtivo.length} eventos</span><strong>Histórico do ativo {fluxoAtivo}</strong></div>
+            <button className="sheet-download secondary" onClick={() => setFluxoAtivo("")}>Fechar</button></div>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Evento</th><th>Quando</th><th>Número</th><th>Papel</th><th>Clientes</th><th>Causa e subcausa</th><th>Equipe</th><th>Observação</th></tr></thead>
+            <tbody>{historicoDoAtivo.map((linha, i) => <tr key={i}>
+              <td><strong>{String(linha[4])}</strong><span>{String(linha[1])}</span></td>
+              <td><strong>{String(linha[5] || "—")}</strong><span>{String(linha[6] || "")}</span></td>
+              <td><code>{String(linha[7] || "")}</code></td>
+              <td><span>{String(linha[8] || "")}</span></td>
+              <td><strong>{linha[9] === null ? "—" : String(linha[9])}</strong></td>
+              <td><span>{String(linha[10] || "")}</span></td>
+              <td><span>{String(linha[12] || "")}</span></td>
+              <td><small>{String(linha[11] || "")}</small></td>
+            </tr>)}</tbody>
+          </table></div>
+        </section> : null}
+        <section className="panel editorial-note wide"><span>FONTES E LACUNAS DESTA ANÁLISE</span>
+          {fluxo.meta.fontes.map((f) => <p key={f}>· {f}</p>)}
+          {fluxo.meta.lacunas.map((l) => <p key={l}><b>Lacuna:</b> {l}</p>)}
+        </section>
+      </>;
+    }
 
     if (module === "universo") {
       if (!universe) return <section className="panel editorial-note"><span>UNIVERSO INDISPONÍVEL</span><p>O arquivo universo-ss.json não carregou. O app está rodando apenas com as 134 auditadas.</p></section>;
@@ -1693,7 +1832,10 @@ export default function Page() {
         {item.id === "newbase" ? <small>{scoped.total.toLocaleString("pt-BR")}</small> : null}
         {item.id === "aprovacoes" ? <small>134</small> : null}
       </button>)}</div>)}</nav>
-      <div className="side-user"><b>{user.initials}</b><div><strong>{user.name}</strong><span>{user.role}</span></div><button onClick={logout} title="Sair">↗</button></div>
+      <div className="side-user"><b>{user.initials}</b><div><strong>{user.name}</strong><span>{user.role}</span></div>
+        <select value={user.id} onChange={(event) => trocarIdentidade(event.target.value)} title="Quem é você — usado só para assinar aprovação">
+          {EQUIPE.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </select></div>
     </aside>
     <main className="workspace">
       <header className="page-header"><div><span>{title.eyebrow}</span><h1>{title.title}</h1><p>{pageDescription}</p></div>

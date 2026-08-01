@@ -355,3 +355,17 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .coverage-card { padding: 12px 13px 10px; }
   .coverage-card > strong { font-size: 26px; }
 }
+
+/* Caixa d'água do fluxo das 1.510: cada caixa é uma peneira, cada botão abre a lista. */
+.fluxo-caixas { display: grid; grid-template-columns: repeat(auto-fit, minmax(184px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.fluxo-caixa { display: flex; flex-direction: column; gap: 6px; padding: 13px 12px; background: var(--white); border: 1px solid var(--line); }
+.fluxo-caixa > span { color: var(--red); font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+.fluxo-caixa button { display: flex; align-items: baseline; gap: 8px; width: 100%; border: 0; border-top: 1px solid var(--soft); padding: 7px 2px 5px; background: transparent; text-align: left; }
+.fluxo-caixa button:hover { background: #faf8f5; }
+.fluxo-caixa button.ativo { background: var(--ink); }
+.fluxo-caixa button.ativo b, .fluxo-caixa button.ativo em { color: #fff; }
+.fluxo-caixa b { min-width: 44px; font: 500 15px/1 "Newsreader", serif; }
+.fluxo-caixa em { color: #62656a; font-size: 8px; font-style: normal; line-height: 1.35; }
+.fluxo-nota { margin: 0 20px 12px; color: #6c6f74; font-size: 8.5px; }
+.expurgo-tag { display: inline-block; margin-top: 4px; padding: 2px 5px; background: var(--red-soft); color: var(--red); font: 600 7px "IBM Plex Mono", monospace; }
+.side-user select { width: 100%; grid-column: 1 / -1; margin-top: 8px; border: 1px solid #4a4d52; padding: 5px; background: #2a2d32; color: #cfd2d6; font-size: 8px; }
