@@ -160,24 +160,12 @@ const CLASSES_CURTAS: Array<[string, string, string]> = [
 
 function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
+  classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
+  aoClassificar: (ss: string, classe: string) => void;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
     deslocamento: ["Atendimento", "Equipe e tempos", "Corroboração"],
-    semdesloc: [
-      { id: "todos", rotulo: "Toda a fila", nota: "Interrupção na janela, sem atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
-      { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "Aberta entre 26 e 31/01, quando o arquivo do TMAE não tem registro.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.tmae_gap_jan === "SIM" },
-      { id: "comcliente", rotulo: "Com cliente interrompido", nota: "A interrupção atingiu gente, então houve evento de verdade.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.oc_cons) || 0) > 0 },
-      { id: "proprio", rotulo: "Defeito no próprio trafo", nota: "O campo apontou o transformador como causador.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && texto(r.oc_papel).includes("próprio") },
-      { id: "outroat", rotulo: "Ativo com atendimento em outra data", nota: "A equipe já esteve nesse transformador no semestre.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.atendimentos_ativo) || 0) > 0 },
-    ],
-    profunda: [
-      { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: () => true },
-      { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: () => true },
-      { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: () => true },
-      { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: () => true },
-      { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: () => true },
-    ],
     ssos: ["Leitura do texto", "Material", "Solicitação"],
     obra: ["Obra", "Enquadramento", "Responsáveis"],
     decisao: ["Fato", "Leitura", "Motivo"],
@@ -307,6 +295,20 @@ export default function Page() {
       { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "SS aberta entre 26 e 31 de janeiro, período sem nenhum atendimento no arquivo.", teste: (r) => r.tmae_gap_jan === "SIM" },
       { id: "outra", rotulo: "Atendimento em outra data", nota: "Existe atendimento, mas longe da abertura da SS.", teste: (r) => r.e2_status === "RETIDO" },
     ],
+    semdesloc: [
+      { id: "todos", rotulo: "Toda a fila", nota: "Interrupção na janela, sem atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
+      { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "Aberta entre 26 e 31/01, quando o arquivo do TMAE não tem registro.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.tmae_gap_jan === "SIM" },
+      { id: "comcliente", rotulo: "Com cliente interrompido", nota: "A interrupção atingiu gente, então houve evento de verdade.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.oc_cons) || 0) > 0 },
+      { id: "proprio", rotulo: "Defeito no próprio trafo", nota: "O campo apontou o transformador como causador.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && texto(r.oc_papel).includes("próprio") },
+      { id: "outroat", rotulo: "Ativo com atendimento em outra data", nota: "A equipe já esteve nesse transformador no semestre.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.atendimentos_ativo) || 0) > 0 },
+    ],
+    profunda: [
+      { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: () => true },
+      { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: () => true },
+      { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: () => true },
+      { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: () => true },
+      { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: () => true },
+    ],
     ssos: [
       { id: "falha", rotulo: "Texto diz falha", nota: "Queima ou avaria descrita no texto da SS ou da OS.", teste: (r) => r.leitura === "L1" },
       { id: "outra", rotulo: "Texto diz outra causa", nota: "Furto, abalroamento, preventivo, auxiliar, construção ou desativação.", teste: (r) => r.leitura === "L2" },
@@ -346,7 +348,9 @@ export default function Page() {
       { id: "preventivo", rotulo: "Preventivo e programado", nota: "Não houve defeito.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA") },
       { id: "auxiliar", rotulo: "Auxiliar e particular", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR") },
     ],
-    ativos: [], regras: [], bases: [],
+    ativos: [],
+    regras: [],
+    bases: [], regras: [], bases: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -391,7 +395,7 @@ export default function Page() {
   const classificar = (ss: string, classe: string) => {
     const atual = { ...classificacao };
     if (classe === "LIMPAR") delete atual[ss];
-    else atual[ss] = { classe, quem: usuario.name, quando: new Date().toISOString().slice(0, 16).replace("T", " ") };
+    else atual[ss] = { classe, quem: "análise local", quando: new Date().toISOString().slice(0, 16).replace("T", " ") };
     setClassificacao(atual);
     localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
   };
