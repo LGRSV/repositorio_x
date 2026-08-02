@@ -516,7 +516,7 @@ export default function Page() {
         </section>
         {(fluxo.meta.correcoes || []).length > 0 && (
           <section className="panel editorial-note wide"><span>CORREÇÕES APLICADAS AO CRUZAMENTO</span>
-            <p>Nenhuma delas mudou regra de negócio: são defeitos de cruzamento entre as bases, corrigidos depois da conferência linha a linha. O resultado final da esteira não se moveu — o que mudou foi a verdade do que está escrito em cada caso.</p>
+            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As quatro primeiras são defeitos de cruzamento entre as bases e não mexeram no resultado: o que mudou foi a verdade do que está escrito em cada caso. A quinta é a única que move número, porque desfez exclusões que o campo não sustentava — a saída foi de 874 para <strong>{br(conta((r) => r.cascata === "SAÍDA"))}</strong> e os excluídos de 20 para {br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))}.</p>
             <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
         )}
