@@ -280,7 +280,7 @@ export default function Page() {
       { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM FATO" },
       { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
       { id: "ret_prova", rotulo: "Retidos sem prova de troca", nota: "Chegaram ao fim, mas o material não comprova ou o texto não decide.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
-      { id: "incluir", rotulo: "INCLUIR", nota: "O campo prova o evento e a leitura confirma falha de transformador.", teste: (r) => r.decisao === "INCLUIR" },
+      { id: "incluir", rotulo: "INCLUIR", nota: "Passou nas três peneiras: campo, texto e material.", teste: (r) => r.decisao === "INCLUIR" },
       { id: "revisao", rotulo: "REVISÃO", nota: "Espera leitura humana, com o motivo escrito. Não é expurgo.", teste: (r) => r.decisao === "REVISÃO" },
       { id: "excluir", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa.", teste: (r) => r.decisao === "EXCLUIR" },
       { id: "mudou", rotulo: "Mudou na revisão", nota: "A decisão é diferente da que o funil anterior dava.", teste: (r) => r.mudou_na_revisao === "SIM" },
@@ -294,7 +294,8 @@ export default function Page() {
       { id: "borda", rotulo: "Borda de dezembro", nota: "SS aberta nos primeiros dias de janeiro: a ocorrência pode estar em dezembro de 2025.", teste: (r) => r.fato === "F3" && texto(r.abertura) <= "2026-01-03" },
     ],
     expurgos: [
-      { id: "todos", rotulo: "Todos os excluídos", nota: "Saem do indicador porque a leitura mostrou outra causa.", teste: (r) => r.decisao === "EXCLUIR" },
+      { id: "todos", rotulo: "Excluídos na leitura", nota: "Chegaram ao terceiro estágio e o texto mostrou outra causa.", teste: (r) => r.cascata === "EXCLUÍDO NA LEITURA" },
+      { id: "antes", rotulo: "Outra causa, retidos antes", nota: "O texto também diz outra causa, mas o caso parou numa peneira anterior.", teste: (r) => r.leitura === "L2" && r.cascata !== "EXCLUÍDO NA LEITURA" },
       { id: "furto", rotulo: "Furto e vandalismo", nota: "Vai para o projeto de reposição de ativos furtados.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "FURTADO" },
       { id: "abalroamento", rotulo: "Abalroamento", nota: "Dano de terceiro ou poste.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "ABALROAMENTO" },
       { id: "preventivo", rotulo: "Preventivo e programado", nota: "Não houve defeito.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA") },
@@ -342,7 +343,7 @@ export default function Page() {
     ]},
     { grupo: "Filas", itens: [
       { id: "semfato", rotulo: "Sem fato", codigo: "07", marca: conta((r) => r.fato === "F3") },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "08", marca: conta((r) => r.decisao === "EXCLUIR") },
+      { id: "expurgos", rotulo: "Excluídos", codigo: "08", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
       { id: "ativos", rotulo: "Por transformador", codigo: "09" },
     ]},
     { grupo: "Controle", itens: [
@@ -626,7 +627,8 @@ export default function Page() {
       if (modulo === "expurgos") {
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Excluídos" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="saem do indicador, com motivo" tom="red" aoClicar={() => abrirRecorte("todos")} />
+            <Kpi rotulo="Excluídos na leitura" valor={br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))} nota="passaram pelo campo e o texto mostrou outra causa" tom="red" aoClicar={() => abrirRecorte("todos")} />
+            <Kpi rotulo="Outra causa, retidos antes" valor={br(conta((r) => r.leitura === "L2" && r.cascata !== "EXCLUÍDO NA LEITURA"))} nota="pararam numa peneira anterior" tom="amber" aoClicar={() => abrirRecorte("antes")} />
             <Kpi rotulo="Furto" valor={br(conta((r) => r.decisao === "EXCLUIR" && r.categoria_texto === "FURTADO"))} nota="vai para o projeto 61993" tom="ink" aoClicar={() => abrirRecorte("furto")} />
             <Kpi rotulo="Abalroamento" valor={br(conta((r) => r.decisao === "EXCLUIR" && r.categoria_texto === "ABALROAMENTO"))} nota="dano de terceiro ou poste" tom="amber" aoClicar={() => abrirRecorte("abalroamento")} />
             <Kpi rotulo="Preventivo" valor={br(conta((r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA")))} nota="não houve defeito" tom="blue" aoClicar={() => abrirRecorte("preventivo")} />
