@@ -430,3 +430,22 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fluxo-lista .panel-title > small { max-width: 108px; text-align: right; line-height: 1.4; }
 .expurgo-tag { display: inline-block; margin-top: 4px; padding: 2px 5px; background: var(--red-soft); color: var(--red); font: 600 7px "IBM Plex Mono", monospace; }
 .side-user select { width: 100%; grid-column: 1 / -1; margin-top: 8px; border: 1px solid #4a4d52; padding: 5px; background: #2a2d32; color: #cfd2d6; font-size: 8px; }
+
+/* Caixa d'água da Visão geral: cada linha é uma peneira, com a barra mostrando quanto passou. */
+.caixa-dagua { padding: 21px; }
+.caixa-linha { width: 100%; display: grid; grid-template-columns: 72px minmax(0, 1fr) 120px 46px; align-items: center; gap: 14px; border: 0; border-top: 1px solid var(--soft); padding: 13px 0; background: none; text-align: left; font-family: inherit; }
+.caixa-linha:first-of-type { border-top: 0; }
+.caixa-linha:hover { background: #faf9f7; }
+.caixa-linha > b { font: 500 22px/1 "Newsreader", serif; }
+.caixa-linha strong, .caixa-linha small { display: block; }
+.caixa-linha strong { font-size: 10px; }
+.caixa-linha small { margin-top: 3px; color: #85888c; font-size: 8px; }
+.caixa-linha > i { display: block; height: 6px; overflow: hidden; background: #e7e4df; }
+.caixa-linha > i em { display: block; height: 100%; background: var(--red); }
+.caixa-linha > u { color: #777a7e; font: 500 8px "IBM Plex Mono", monospace; text-decoration: none; text-align: right; }
+
+/* Matriz de decisão: as células com caso são clicáveis e abrem o recorte. */
+.records-table.matriz td { cursor: default; }
+.records-table.matriz td.cell-good, .records-table.matriz td.cell-bad, .records-table.matriz td.cell-warn { cursor: pointer; }
+.records-table.matriz td strong { font: 500 17px/1 "Newsreader", serif; }
+.records-table.matriz td span { margin-top: 4px; font: 600 7px "IBM Plex Mono", monospace; text-transform: uppercase; }
