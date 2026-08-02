@@ -10,7 +10,7 @@ type Modulo =
   | "profunda"
   | "ressalva"
   | "semdesloc"
-  | "semfato" | "expurgos" | "ativos" | "regras" | "bases";
+  | "semfato" | "expurgos" | "ativos" | "regras" | "bases" | "mapa";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -301,6 +301,7 @@ export default function Page() {
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
     visao: [],
     interrupcao: [
+      { id: "todos", rotulo: "Toda a fila", nota: "As 1.510 chegam a esta etapa: ninguém foi filtrado ainda, porque a esteira começa aqui.", teste: () => true },
       { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => ["A", "B", "C"].includes(texto(r.e1_nivel)) },
       { id: "comfato", rotulo: "Viraram fato", nota: "Têm a interrupção na janela e ela não pertence a outra SS. É este o número que segue como prova.", teste: (r) => r.fato === "F1" || r.fato === "F0" },
       { id: "soat", rotulo: "Só com atendimento", nota: "Sem interrupção na janela, mas com equipe registrada no TMAE. Passam a etapa pelo deslocamento, não pelo fato.", teste: (r) => r.fato === "F2" },
@@ -309,6 +310,7 @@ export default function Page() {
       { id: "sem", rotulo: "Sem nenhuma ocorrência", nota: "O código não aparece na base de interrupção em seis meses.", teste: (r) => r.e1_nivel === "SEM" },
     ],
     deslocamento: [
+      { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e chega ao deslocamento.", teste: (r) => r.chega_e2 === "SIM" },
       { id: "corrobora", rotulo: "Atendimento na janela", nota: "Equipe registrada no próprio transformador dentro da janela.", teste: (r) => texto(r.tmae_corrobora) !== "não" },
       { id: "semat", rotulo: "Sem atendimento", nota: "Nenhuma nota no código do trafo. Não é contraprova: a base tem lacuna.", teste: (r) => r.e2_status === "SEM ATENDIMENTO" },
       { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "SS aberta entre 26 e 31 de janeiro, período sem nenhum atendimento no arquivo.", teste: (r) => r.tmae_gap_jan === "SIM" },
@@ -316,7 +318,8 @@ export default function Page() {
       { id: "porocorrencia", rotulo: "Achados pelo número da ocorrência", nota: "Estavam como sem atendimento porque o TMAE grava o elemento onde o defeito foi aberto, não o transformador. Buscando pelo número da ocorrência, a equipe aparece e deslocou.", teste: (r) => r.at2_achado === "SIM" },
     ],
     ressalva: [
-      { id: "todos", rotulo: "Toda a fila", nota: "Passaram nas três peneiras, mas a interrupção tem ressalva.", teste: (r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO" },
+      { id: "fila", rotulo: "Toda a fila", nota: "Quem chega à quarta peneira: passou pela interrupção, pelo deslocamento e pelo material.", teste: (r) => r.cascata === "SAÍDA" || r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO" },
+      { id: "todos", rotulo: "Retidos pela ressalva", nota: "Passaram nas três peneiras, mas a interrupção tem ressalva.", teste: (r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO" },
       { id: "grave", rotulo: "Ressalva grave", nota: "Programada, preventiva ou com equipamento especial na ocorrência.", teste: (r) => Boolean(texto(r.ressalvas_graves)) },
       { id: "semcliente", rotulo: "Sem cliente interrompido", nota: "A interrupção não deixou ninguém sem energia.", teste: (r) => texto(r.ressalvas_medias).includes("nenhum cliente") },
       { id: "outroele", rotulo: "Defeito em outro elemento", nota: "O defeito foi aberto em outro equipamento, não no transformador.", teste: (r) => texto(r.ressalvas_medias).includes("outro equipamento") },
@@ -338,6 +341,7 @@ export default function Page() {
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: () => true },
     ],
     ssos: [
+      { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e pelo deslocamento e chega à leitura do texto e do material.", teste: (r) => r.chega_e3 === "SIM" },
       { id: "falha", rotulo: "Texto diz falha", nota: "Queima ou avaria descrita no texto da SS ou da OS.", teste: (r) => r.leitura === "L1" },
       { id: "outra", rotulo: "Texto diz outra causa", nota: "Furto, abalroamento, preventivo, auxiliar, construção ou desativação.", teste: (r) => r.leitura === "L2" },
       { id: "indef", rotulo: "Texto não decide", nota: "Nunca decide sozinho: vai para leitura humana.", teste: (r) => r.leitura === "L3" },
@@ -348,7 +352,9 @@ export default function Page() {
       { id: "alerta", rotulo: "Com alerta", nota: "R-OBR-01, R-OBR-02, R-OBR-03 ou divergência de SIGCO.", teste: (r) => r.e4_status === "ALERTA" },
       { id: "semobra", rotulo: "Sem obra gerada — análise à parte", nota: "Sem obra não existe consulta de material nem encerramento: o caso sai do fluxo e vai para análise própria.", teste: (r) => !texto(r.obra) },
       { id: "despesa", rotulo: "Obra em despesa", nota: "A obra não imobiliza o ativo.", teste: (r) => normalize(texto(r.obra_classe)).includes("DESPESA") },
-      { id: "sigco", rotulo: "SIGCO divergente", nota: "O código do projeto difere do código da ocorrência.", teste: (r) => texto(r.e4_alertas).includes("SIGCO") },
+      // o alerta é gravado como "8812 espera queimado" — a palavra SIGCO não aparece nele,
+      // e procurá-la deixava este filtro em zero desde sempre
+      { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
@@ -382,7 +388,7 @@ export default function Page() {
     ativos: [],
     mapa: [],
     regras: [],
-    bases: [], regras: [], bases: [],
+    bases: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -451,18 +457,18 @@ export default function Page() {
   const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza"; recorte?: string }> }> = [
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
-      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2 },
-      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: entramE2 - entramE3 },
-      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3 },
-      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", entram: entramE3 - paramE3, param: paramE4 },
+      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2, recorte: "todos" },
+      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: entramE2 - entramE3, recorte: "todos" },
+      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3, recorte: "todos" },
+      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", entram: entramE3 - paramE3, param: paramE4, recorte: "fila" },
       { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)), tom: "cinza" },
-      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA"), tom: "verde" },
+      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA"), tom: "verde", recorte: "saida" },
     ]},
     { grupo: "Quem ficou preso, em detalhe", itens: [
-      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", param: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
+      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", param: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA"), recorte: "todos" },
       { id: "semfato", rotulo: "SS duplicada", codigo: "07b", param: conta((r) => r.cascata === "RETIDO — SS DUPLICADA"), recorte: "duplicada" },
-      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "10", param: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
+      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO"), recorte: "todos" },
+      { id: "expurgos", rotulo: "Excluídos", codigo: "10", param: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"), recorte: "todos" },
       { id: "ativos", rotulo: "Por transformador", codigo: "11" },
       { id: "mapa", rotulo: "Mapa dos ativos", codigo: "12", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
     ]},
@@ -497,6 +503,21 @@ export default function Page() {
   const abrirRecorte = (id: string) => {
     const alvo = recortesDoModulo.find((x) => x.id === id);
     setRecorte(alvo ? { id, rotulo: alvo.rotulo } : null);
+  };
+
+  /* Entrar numa aba pela barra lateral ou pela caixa d'água precisa cair no mesmo universo
+     que o número clicado anuncia. Antes o recorte era limpo na entrada, e toda aba abria com
+     as 1.510 — a barra dizia "Sem interrupção 206" e a tabela mostrava 1.510. O chip "Todas"
+     continua ali para quem quiser sair do recorte de propósito. */
+  const PADRAO: Partial<Record<Modulo, string>> = {
+    interrupcao: "todos", deslocamento: "todos", ssos: "todos", ressalva: "fila",
+    decisao: "saida", semfato: "todos", semdesloc: "todos", expurgos: "todos", profunda: "todos",
+  };
+  const irPara = (id: Modulo, recorteId?: string) => {
+    setModulo(id);
+    setBusca("");
+    const alvo = (RECORTES[id] || []).find((x) => x.id === (recorteId || PADRAO[id]));
+    setRecorte(alvo ? { id: alvo.id, rotulo: alvo.rotulo } : null);
   };
 
   /* ---------------------------------------------------------------- cabeçalhos por módulo */
@@ -552,7 +573,7 @@ export default function Page() {
         </section>
         <section className="panel caixa-dagua">
           <div className="panel-title"><div><span>Caixa d'água</span><h2>Onde cada solicitação para</h2></div><small>clique para abrir o estágio</small></div>
-          {caixas.map(([nome, nota, valor, retido, destino]) => <button key={nome} type="button" className="caixa-linha" onClick={() => { setModulo(destino); setRecorte(null); }}>
+          {caixas.map(([nome, nota, valor, retido, destino]) => <button key={nome} type="button" className="caixa-linha" onClick={() => irPara(destino)}>
             <b>{br(valor)}</b>
             <span><strong>{nome}</strong><small>{nota}{retido ? ` · ${br(retido)} ficam retidos aqui` : ""}</small></span>
             <i><em style={{ width: `${pct(valor, total)}%` }} /></i>
@@ -933,7 +954,7 @@ export default function Page() {
           <button type="button" className="sheet-download" onClick={() => baixarCSV(listadas, recorteAtivo ? recorteAtivo.rotulo : recorte ? recorte.rotulo : titulo.titulo, janela)}>Baixar planilha ({br(listadas.length)})</button>
         </div>
         {recortesDoModulo.length ? <div className="fluxo-abas">
-          <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)}>Todas ({br(comJanela.length)})</button>
+          <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)} title="Sai do recorte desta aba e mostra a base inteira.">Todas as SS ({br(comJanela.length)})</button>
           {recortesDoModulo.map((x) => <button key={x.id} type="button" className={recorte?.id === x.id ? "ativo" : ""}
             onClick={() => abrirRecorte(x.id)} title={x.nota}>{x.rotulo} ({br(registros.filter(x.teste).length)})</button>)}
         </div> : null}
@@ -952,11 +973,7 @@ export default function Page() {
       <nav>{NAV.map((g) => <div className="nav-group" key={g.grupo}>
         <span>{g.grupo}</span>
         {g.itens.map((item) => <button key={item.codigo} className={modulo === item.id && (item.recorte ? recorte?.id === item.recorte : true) ? "active" : ""}
-          onClick={() => {
-            setModulo(item.id); setBusca("");
-            const alvo = item.recorte ? (RECORTES[item.id] || []).find((x) => x.id === item.recorte) : null;
-            setRecorte(alvo ? { id: alvo.id, rotulo: alvo.rotulo } : null);
-          }}>
+          onClick={() => irPara(item.id, item.recorte)}>
           <b>{item.codigo}</b><em>{item.rotulo}</em>
           {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
           {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}

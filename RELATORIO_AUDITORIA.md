@@ -1,6 +1,61 @@
 # Relatório da auditoria automática
 
-## 02/08/2026, 06:45 UTC — `MODO = RELATO` (nada foi commitado nem publicado)
+## 02/08/2026, 07:25 UTC — conserto dos filtros e dos módulos (a pedido do dono, vai para a `main`)
+
+**Defeito:** toda aba abria mostrando as 1.510. Clicar em "Sem interrupção · 206" na barra
+lateral levava a uma tabela de 1.510 linhas, e o primeiro chip dizia "Todas (1.510)" em
+qualquer aba. A causa: entrar num módulo fazia `setRecorte(null)`, e a lista renderizada é
+`comJanela` — a base inteira — quando não há recorte ativo. Só "SS duplicada" escapava,
+porque foi o único item da barra que ganhou a propriedade `recorte`.
+
+**O que mudou em `app/page.tsx`:**
+
+1. `irPara(modulo, recorte?)` centraliza a entrada numa aba e aplica o recorte padrão do
+   módulo. Usado pela barra lateral e pela caixa d'água, que antes limpava o recorte.
+2. Chip "Toda a fila" novo em `interrupcao` (1.510), `deslocamento` (1.301) e `ssos` (1.002)
+   — os três não tinham recorte de escopo nenhum.
+3. `ressalva` ganhou o chip `fila` (952, quem chega à quarta peneira) e o antigo `todos`
+   virou "Retidos pela ressalva" (68), para a aba abrir em quem entra, como as outras.
+4. Filtro "SIGCO divergente" corrigido: testava `e4_alertas.includes("SIGCO")`, e a palavra
+   nunca aparece no campo — o alerta é gravado como `"8812 espera queimado"`. Passou de 0
+   para **126** registros.
+5. `regras` e `bases` estavam declarados duas vezes no literal `RECORTES`; e `"mapa"` faltava
+   no tipo `Modulo` embora `NAV` e `RECORTES` o usem.
+6. O chip de escape virou "Todas as SS (1.510)", com título explicando que sai do recorte.
+
+**Cada número da barra lateral agora bate com o que a aba abre:**
+
+| Aba | Barra lateral | Abre com |
+|---|---|---|
+| Interrupção | 1.510 entram | 1.510 |
+| Deslocamento | 1.301 entram | 1.301 |
+| Análise de SS e OS | 1.002 entram | 1.002 |
+| Ressalva da interrupção | 952 entram | 952 |
+| Decisão final | 884 saem | 884 |
+| Sem interrupção | 206 param | 206 |
+| SS duplicada | 3 param | 3 |
+| Sem deslocamento | 299 param | 299 |
+| Excluídos | 9 param | 9 |
+
+**Verificado três vezes:** (1) os 9 padrões contra a contagem do dado; (2) toda referência a
+recorte — barra lateral, `PADRAO` e os 5 KPIs da visão geral — existe em `RECORTES`, sem id
+duplicado, sem chave duplicada e sem chip zerado; (3) `pnpm install --frozen-lockfile &&
+pnpm run build:pages` passa, e `fluxo-1510.json`, `universo-ss.json`, `auditorias.json` e
+`metodo.json` estão byte a byte intactos.
+
+**Nenhuma análise foi perdida.** Nenhum chip existente foi removido nem teve o universo
+reduzido: os recortes continuam absolutos sobre as 1.510, então cortes que olham para fora da
+fila da aba seguem funcionando — `expurgos.devolvidos` (11 exclusões desfeitas),
+`expurgos.antes` (44 com outra causa retidos antes) e os chips de decisão (884/617/9). A
+chave `fluxo-1510-classificacao` do `localStorage`, onde ficam as suas classificações da
+Análise profunda, não foi tocada.
+
+**Pendente, não aplicado:** as três correções de número do `metodo.json` descritas na rodada
+anterior. Continuam no ar.
+
+---
+
+## 02/08/2026, 06:45 UTC — `MODO = RELATO` (rodada de inspeção)
 
 **Placar: 14 conferem · 2 falham · 1 precisa de olho, de 17 invariantes.**
 
