@@ -54,7 +54,7 @@
   "semFato": 209,
   "mudaram": 434,
   "cascata": {
-   "RETIDO — SEM FATO": 209,
+   "RETIDO — SEM INTERRUPÇÃO NA JANELA": 209,
    "SAÍDA": 942,
    "RETIDO — SEM DESLOCAMENTO": 299,
    "EXCLUÍDO NA LEITURA": 20,
@@ -169,7 +169,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -275,7 +275,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -381,7 +381,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -911,7 +911,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1123,7 +1123,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1229,7 +1229,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1335,7 +1335,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1441,7 +1441,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1547,7 +1547,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1653,7 +1653,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -1971,7 +1971,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -2289,7 +2289,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -2607,7 +2607,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -2819,7 +2819,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -3137,7 +3137,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -4621,7 +4621,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -8755,7 +8755,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -9815,7 +9815,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -10027,7 +10027,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz preventivo, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -10345,7 +10345,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -11511,7 +11511,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -11723,7 +11723,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -12465,7 +12465,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -13631,7 +13631,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -13737,7 +13737,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -14055,7 +14055,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -14373,7 +14373,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -15009,7 +15009,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -15115,7 +15115,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -15857,7 +15857,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -16811,7 +16811,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -18083,7 +18083,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -18189,7 +18189,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -18295,7 +18295,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -20733,7 +20733,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -21051,7 +21051,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -21899,7 +21899,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -22429,7 +22429,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -23171,7 +23171,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -23913,7 +23913,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -24655,7 +24655,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -25079,7 +25079,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -25397,7 +25397,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -25503,7 +25503,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -25927,7 +25927,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -26563,7 +26563,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -26775,7 +26775,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -27623,7 +27623,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -28789,7 +28789,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -29319,7 +29319,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -30803,7 +30803,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -30909,7 +30909,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -31227,7 +31227,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -31651,7 +31651,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -32181,7 +32181,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -33665,7 +33665,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -34195,7 +34195,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -35785,7 +35785,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -37163,7 +37163,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -37269,7 +37269,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -39071,7 +39071,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -39283,7 +39283,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -39601,7 +39601,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -39707,7 +39707,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -40555,7 +40555,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -41933,7 +41933,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -42357,7 +42357,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -42463,7 +42463,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -42887,7 +42887,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -43841,7 +43841,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -44371,7 +44371,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -44689,7 +44689,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -45961,7 +45961,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -46067,7 +46067,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -47551,7 +47551,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -47657,7 +47657,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -50307,7 +50307,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -50731,7 +50731,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -50943,7 +50943,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -51049,7 +51049,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -52427,7 +52427,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -52533,7 +52533,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -54229,7 +54229,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -54865,7 +54865,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -55713,7 +55713,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -56031,7 +56031,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -56137,7 +56137,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -56349,7 +56349,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -56561,7 +56561,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -57409,7 +57409,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -58787,7 +58787,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -59317,7 +59317,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -59423,7 +59423,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -59529,7 +59529,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -60801,7 +60801,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -61013,7 +61013,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -61225,7 +61225,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -62179,7 +62179,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -63027,7 +63027,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -63981,7 +63981,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -65465,7 +65465,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -65571,7 +65571,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -66631,7 +66631,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -71189,7 +71189,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -72885,7 +72885,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -73309,7 +73309,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -74369,7 +74369,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -77655,7 +77655,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -78185,7 +78185,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -79351,7 +79351,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -81153,7 +81153,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -81365,7 +81365,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -82425,7 +82425,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -84333,7 +84333,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -85075,7 +85075,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -85711,7 +85711,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -86559,7 +86559,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -88467,7 +88467,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -88997,7 +88997,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -89315,7 +89315,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -90481,7 +90481,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -91117,7 +91117,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -92919,7 +92919,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -93131,7 +93131,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -93343,7 +93343,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -93661,7 +93661,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -93873,7 +93873,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -94721,7 +94721,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -96417,7 +96417,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -97477,7 +97477,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -100763,7 +100763,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -102671,7 +102671,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -103307,7 +103307,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -105957,7 +105957,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -107547,7 +107547,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -107971,7 +107971,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -110303,7 +110303,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -110409,7 +110409,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -110621,7 +110621,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -111151,7 +111151,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -111681,7 +111681,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -112953,7 +112953,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -113907,7 +113907,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -114013,7 +114013,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -114649,7 +114649,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -115497,7 +115497,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz preventivo, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -115603,7 +115603,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -116027,7 +116027,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -117829,7 +117829,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -118465,7 +118465,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -118571,7 +118571,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -119631,7 +119631,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -120797,7 +120797,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -122599,7 +122599,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -123447,7 +123447,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -123659,7 +123659,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -124083,7 +124083,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -124189,7 +124189,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -125037,7 +125037,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -125461,7 +125461,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -126627,7 +126627,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -129807,7 +129807,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -130761,7 +130761,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -131821,7 +131821,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -132669,7 +132669,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -133517,7 +133517,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -133835,7 +133835,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -134047,7 +134047,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -134683,7 +134683,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -134895,7 +134895,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -135637,7 +135637,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz particular, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -135743,7 +135743,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -135955,7 +135955,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -136273,7 +136273,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -136485,7 +136485,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -138499,7 +138499,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -138605,7 +138605,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz construcao, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -138923,7 +138923,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -139029,7 +139029,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -139241,7 +139241,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -140089,7 +140089,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -140195,7 +140195,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -142633,7 +142633,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -143057,7 +143057,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -143269,7 +143269,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -144011,7 +144011,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -144329,7 +144329,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz desativacao, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -145601,7 +145601,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -146979,7 +146979,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -147085,7 +147085,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -147297,7 +147297,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -147721,7 +147721,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -150053,7 +150053,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -150159,7 +150159,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -151219,7 +151219,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -152067,7 +152067,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -152173,7 +152173,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -152809,7 +152809,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -153233,7 +153233,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz desativacao, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -155353,7 +155353,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -155777,7 +155777,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -155883,7 +155883,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -156201,7 +156201,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -156625,7 +156625,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -156943,7 +156943,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -158109,7 +158109,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. Vai para investigação.",
    "decisao_matriz": "REVISÃO"
   },
@@ -159169,7 +159169,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -159593,7 +159593,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
@@ -159699,7 +159699,7 @@
    "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "RETIDO — SEM FATO",
+   "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência.",
    "decisao_matriz": "EXCLUIR"
   },
