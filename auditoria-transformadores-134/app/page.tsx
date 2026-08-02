@@ -618,12 +618,28 @@ export default function Page() {
         ["Base_Material.xlsx", "Material da obra", "Item a item do que saiu do almoxarifado, com código, descrição, quantidade prevista e realizada e valor.", "0,9 MB"],
         ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão e a causa confirmada.", "0,2 MB"],
       ];
+      // as originais são o arquivo cru, sem filtro e sem recorte: é contra elas que qualquer
+      // número deste site pode ser refeito do zero por quem quiser conferir
+      const ORIGINAIS: Array<[string, string, string, string, string]> = [
+        ["Original_SS_TRAFOS_V4.xlsx", "XLSX", "SS e OS — arquivo de origem", "O arquivo TRAFOS V4 como veio, com as sete abas. A aba BASE GERAL, com 1.581 linhas e 40 colunas, é a que abre este trabalho: é dela que saem as 1.510 do recorte e o horário real de abertura de cada SS.", "2,3 MB"],
+        ["Original_OS.xlsx", "XLSX", "OS e apoio — arquivo de origem", "O arquivo OS como veio, com sete abas: as 134 auditadas (Planilha1), a BASE SS_OS com 9.298 linhas e 64 colunas, dois detalhamentos e uma cópia do TMAE consolidado. É um arquivo de trabalho, não um extrato limpo — está aqui exatamente como foi entregue.", "28,8 MB"],
+        ["Original_Critica_Interrupcoes.zip", "ZIP", "Crítica — interrupção do fornecimento", "Os seis arquivos mensais originais de janeiro a junho de 2026, 76.630 linhas e 64 colunas, delimitados por ponto e vírgula em latin-1. É a base que registra o cliente sem energia: abertura, fechamento, passo, elemento do defeito, elemento interrompido, causa e observação de campo.", "18,7 MB"],
+        ["Original_TMAE_Atendimentos.zip", "ZIP", "TMAE — atendimento de emergência", "O consolidado de janeiro a junho, 62.616 atendimentos e 40 colunas. É a base do deslocamento: quem foi, quando saiu, quando chegou, quanto tempo levou e o que o executante escreveu. Cobre de 01/01 às 00:23 a 30/06 às 23:34, sem nenhum registro entre 26 e 31 de janeiro.", "4,9 MB"],
+        ["Original_Cadastro_Obras.xlsx", "XLSX", "Cadastro de obras e SIGCO", "9.511 obras e 93 colunas: classe, natureza, tipo, projeto SIGCO, empreiteira, setor, responsáveis, valores e datas. É onde se lê o enquadramento de custo — não a causa da falha.", "3,5 MB"],
+        ["Original_Material_SIAGO.zip", "ZIP", "Material do SIAGO", "15.568 linhas de movimentação de almoxarifado por obra, delimitadas por tabulação. É a prova material da troca: se saiu transformador para a obra, houve substituição de equipamento.", "0,1 MB"],
+      ];
       return <>
-        <section className="panel"><div className="panel-title"><div><span>Para baixar</span><h2>As bases usadas, em Excel</h2></div><small>cada uma separada, como saiu da fonte</small></div>
+        <section className="panel"><div className="panel-title"><div><span>Bases originais</span><h2>Como os arquivos chegaram, sem tratamento</h2></div><small>nenhum filtro, nenhuma coluna nova</small></div>
+          <div className="arquivos">{ORIGINAIS.map(([arq, tipo, nome, nota, tam]) => <a key={arq} href={assetUrl(`bases/originais/${arq}`)} download>
+            <b>{tipo}</b><span><strong>{nome}</strong><small>{nota}</small></span><em>{tam}</em>
+          </a>)}</div>
+          <p className="fonte-detalhe">São os arquivos de entrada, byte por byte como foram recebidos: nenhuma linha removida, nenhuma coluna criada, nenhum acento consertado. Servem para refazer qualquer número deste site do zero. Os dois arquivos em ZIP são texto puro em latin-1 — o Excel precisa que se escolha essa codificação e o ponto e vírgula como separador na hora de importar.</p>
+        </section>
+        <section className="panel"><div className="panel-title"><div><span>Bases com o cruzamento</span><h2>O que o trabalho produziu a partir delas</h2></div><small>já recortadas nas 1.510 e ligadas entre si</small></div>
           <div className="arquivos">{ARQUIVOS.map(([arq, nome, nota, tam]) => <a key={arq} href={assetUrl(`bases/${arq}`)} download>
             <b>XLSX</b><span><strong>{nome}</strong><small>{nota}</small></span><em>{tam}</em>
           </a>)}</div>
-          <p className="fonte-detalhe">Os arquivos trazem as linhas das bases originais, filtradas para as 1.510 solicitações do recorte. Nada foi resumido nem recalculado: o que muda em relação à fonte é só o recorte.</p>
+          <p className="fonte-detalhe">Aqui a linha da base original já está amarrada à SS que ela sustenta. O que muda em relação à fonte é o recorte e a ligação: nenhum valor foi resumido ou recalculado. A chave entre a SS e a interrupção é o código do transformador dentro da janela de 24 horas; entre a SS e o atendimento, o código do transformador e, desde a última correção, também o número da ocorrência.</p>
         </section>
         <section className="panel editorial-note wide"><span>DE ONDE VEM CADA NÚMERO</span>
           {fluxo.meta.fontes.map((f) => <p key={f}>· {f}</p>)}
