@@ -371,6 +371,7 @@ export default function Page() {
     expurgos: [
       { id: "todos", rotulo: "Excluídos na leitura", nota: "Chegaram ao terceiro estágio e o texto mostrou outra causa.", teste: (r) => r.cascata === "EXCLUÍDO NA LEITURA" },
       { id: "antes", rotulo: "Outra causa, retidos antes", nota: "O texto também diz outra causa, mas o caso parou numa peneira anterior.", teste: (r) => r.leitura === "L2" && r.cascata !== "EXCLUÍDO NA LEITURA" },
+      { id: "devolvidos", rotulo: "Exclusões desfeitas", nota: "Estavam excluídos como abalroamento ou construção, mas a causa registrada no campo é o próprio transformador. Voltaram para a esteira.", teste: (r) => r.reclassificado_externo === "SIM" },
       { id: "furto", rotulo: "Furto e vandalismo", nota: "Vai para o projeto de reposição de ativos furtados.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "FURTADO" },
       { id: "abalroamento", rotulo: "Abalroamento", nota: "Dano de terceiro ou poste.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "ABALROAMENTO" },
       { id: "preventivo", rotulo: "Preventivo e programado", nota: "Não houve defeito.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA") },
@@ -875,7 +876,13 @@ export default function Page() {
         </section></>;
       }
       if (modulo === "expurgos") {
+        const devolvidos = registros.filter((r) => r.reclassificado_externo === "SIM");
         return <>
+          {devolvidos.length > 0 && (
+            <section className="panel editorial-note wide"><span>EXCLUSÕES DESFEITAS NA REVISÃO</span>
+              <p>{br(devolvidos.length)} casos estavam aqui como abalroamento ou construção porque a palavra <strong>poste</strong> aparecia no texto da SS. Abalroamento é dano de terceiro; poste deteriorado é poste velho. Nesses {br(devolvidos.length)}, a Crítica e o TMAE declaram a mesma causa entre si, e ela é <strong>TRANSFORMADOR</strong> — nove queimados por descarga atmosférica e dois com vazamento de óleo e tanque deteriorado. Nenhum dos treze textos menciona colisão, veículo ou acidente. Voltaram para a esteira com a categoria que o campo declarou. Seguem excluídos só os dois em que o campo aponta para fora do equipamento: poste de BT abalroado e vandalismo de terceiros.</p>
+            </section>
+          )}
           <section className="kpi-grid">
             <Kpi rotulo="Excluídos na leitura" valor={br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))} nota="passaram pelo campo e o texto mostrou outra causa" tom="red" aoClicar={() => abrirRecorte("todos")} />
             <Kpi rotulo="Outra causa, retidos antes" valor={br(conta((r) => r.leitura === "L2" && r.cascata !== "EXCLUÍDO NA LEITURA"))} nota="pararam numa peneira anterior" tom="amber" aoClicar={() => abrirRecorte("antes")} />
@@ -1029,6 +1036,7 @@ export default function Page() {
           </>}
           {abaDossie === "ssos" && <>
             <h3>O que foi pedido e o que foi executado</h3>
+            {texto(aberto.motivo_reclassificacao) ? <article className="work-alerts"><span>EXCLUSÃO DESFEITA</span><ul><li>{texto(aberto.motivo_reclassificacao)}</li></ul></article> : null}
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{texto(aberto.desc_ss) || "Sem texto."}</p></article>
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{texto(aberto.desc_os) || "Sem texto."}</p></article>
             <section className="detail-grid">
