@@ -55,7 +55,7 @@ const decisaoClasse = (v: string) => (v === "INCLUIR" ? "good" : v === "EXCLUIR"
 const fatoClasse = (v: string) => (v === "F1" ? "good" : v === "F3" ? "bad" : "pend");
 
 const FATO_ROTULO: Record<string, string> = {
-  F1: "Fato pleno", F0: "Fato com ressalva", F2: "Fato provável", F3: "Sem fato",
+  F1: "Fato pleno", F0: "Fato com ressalva", F2: "Só atendimento", F3: "Sem interrupção",
   FD: "Fato duplicado",
 };
 const LEITURA_ROTULO: Record<string, string> = {
@@ -301,7 +301,9 @@ export default function Page() {
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
     visao: [],
     interrupcao: [
-      { id: "casou", rotulo: "Casou em até 24h", nota: "A abertura da SS cai dentro da ocorrência ou a até 24 horas dela.", teste: (r) => r.fato === "F1" || r.fato === "F0" },
+      { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => ["A", "B", "C"].includes(texto(r.e1_nivel)) },
+      { id: "comfato", rotulo: "Viraram fato", nota: "Têm a interrupção na janela e ela não pertence a outra SS. É este o número que segue como prova.", teste: (r) => r.fato === "F1" || r.fato === "F0" },
+      { id: "soat", rotulo: "Só com atendimento", nota: "Sem interrupção na janela, mas com equipe registrada no TMAE. Passam a etapa pelo deslocamento, não pelo fato.", teste: (r) => r.fato === "F2" },
       { id: "ressalva", rotulo: "Com ressalva", nota: "Programada, preventiva, sem cliente, de outro elemento ou reclamação individual.", teste: (r) => Boolean(texto(r.ressalvas)) },
       { id: "fora", rotulo: "Aparece em outra data", nota: "O ativo tem ocorrência no semestre, mas nenhuma perto da SS.", teste: (r) => r.e1_nivel === "FORA" },
       { id: "sem", rotulo: "Sem nenhuma ocorrência", nota: "O código não aparece na base de interrupção em seis meses.", teste: (r) => r.e1_nivel === "SEM" },
@@ -693,10 +695,20 @@ export default function Page() {
       if (modulo === "interrupcao") {
         const chegam = registros.filter((r) => r.chega_e1 === "SIM");
         const casados = chegam.filter((r) => r.fato === "F1" || r.fato === "F0");
+        // três números diferentes convivem aqui e a tela precisa reconciliar os três:
+        // quantas têm interrupção na janela, quantas viram fato, quantas seguem para a etapa 2
+        const naJanela = chegam.filter((r) => ["A", "B", "C"].includes(texto(r.e1_nivel)));
+        const duplicadas = naJanela.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
+        const soAtendimento = chegam.filter((r) => r.fato === "F2");
+        const seguem = chegam.filter((r) => r.chega_e2 === "SIM");
         return <>
+          <section className="panel editorial-note wide"><span>COMO LER OS NÚMEROS DESTA ETAPA</span>
+            <p>Esta aba mostra as <strong>{br(chegam.length)}</strong> solicitações do recorte, porque todas passam por aqui — não porque todas tenham interrupção. Destas, <strong>{br(naJanela.length)}</strong> têm interrupção dentro da janela de 24 horas. {br(duplicadas.length)} delas ficam retidas mesmo assim, porque dividem o mesmo evento com outra SS no mesmo transformador e a interrupção prova uma troca, não duas — sobram <strong>{br(casados.length)}</strong> com fato. Somando <strong>{br(soAtendimento.length)}</strong> que não têm interrupção nenhuma mas têm atendimento de equipe no TMAE, <strong>{br(seguem.length)}</strong> seguem para o deslocamento e <strong>{br(chegam.length - seguem.length)}</strong> param aqui. É essa a conta que aparece na caixa d&apos;água.</p>
+          </section>
           <section className="kpi-grid">
-            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="todas as solicitações do recorte" tom="ink" />
-            <Kpi rotulo="Casaram em 24h" valor={br(casados.length)} nota={`${pct(casados.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("casou")} />
+            <Kpi rotulo="Passam por esta etapa" valor={br(chegam.length)} nota="todas do recorte: aqui ninguém foi filtrado ainda" tom="ink" />
+            <Kpi rotulo="Com interrupção na janela" valor={br(naJanela.length)} nota={`${pct(naJanela.length, chegam.length)}% do recorte`} tom="green" aoClicar={() => abrirRecorte("casou")} />
+            <Kpi rotulo="Seguem para o deslocamento" valor={br(seguem.length)} nota={`${br(casados.length)} com fato + ${br(soAtendimento.length)} só com atendimento`} tom="green" />
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
             <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota="o código não aparece em seis meses" tom="red" aoClicar={() => abrirRecorte("sem")} />
