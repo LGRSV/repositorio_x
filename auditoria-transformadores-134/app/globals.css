@@ -511,3 +511,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .narrativa > p { margin: 9px 0 0; font-size: 9.5px; line-height: 1.75; color: #33363b; }
 .narrativa ul { margin: 10px 0 0; padding-left: 15px; }
 .narrativa li { color: var(--red); font-size: 8.5px; line-height: 1.6; }
+
+/* Mapa por ativo: pontos pequenos, um por transformador, cor pela decisão da esteira. */
+.mapa-ativos { height: 620px; border-top: 1px solid var(--line); }
+.mapa-ativos .leaflet-tooltip { font: 500 10px "DM Sans", sans-serif; }
+@media (max-width: 900px) { .mapa-ativos { height: 460px; } }

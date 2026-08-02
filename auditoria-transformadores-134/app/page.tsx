@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import MapaAtivos, { type PontoAtivo } from "./MapaAtivos";
 
 /* ------------------------------------------------------------------ tipos */
 
@@ -187,6 +188,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
     expurgos: ["Motivo da exclusão", "Solicitação", "Obra"],
     visao: ["Fato", "Leitura", "Motivo"],
     ativos: ["Fato", "Leitura", "Motivo"],
+    mapa: ["Fato", "Leitura", "Motivo"],
     regras: ["Fato", "Leitura", "Motivo"],
     bases: ["Fato", "Leitura", "Motivo"],
   };
@@ -370,6 +372,7 @@ export default function Page() {
       { id: "auxiliar", rotulo: "Auxiliar e particular", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR") },
     ],
     ativos: [],
+    mapa: [],
     regras: [],
     bases: [], regras: [], bases: [],
   };
@@ -442,13 +445,14 @@ export default function Page() {
       { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", marca: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
       { id: "expurgos", rotulo: "Excluídos", codigo: "10", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
       { id: "ativos", rotulo: "Por transformador", codigo: "11" },
+      { id: "mapa", rotulo: "Mapa dos ativos", codigo: "12", marca: conta((r) => Boolean(r.lat)) },
     ]},
     { grupo: "Minha análise", itens: [
-      { id: "profunda", rotulo: "Análise profunda", codigo: "12", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
+      { id: "profunda", rotulo: "Análise profunda", codigo: "13", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
     ]},
     { grupo: "Controle", itens: [
-      { id: "regras", rotulo: "Regras e método", codigo: "13" },
-      { id: "bases", rotulo: "Bases usadas", codigo: "14" },
+      { id: "regras", rotulo: "Regras e método", codigo: "14" },
+      { id: "bases", rotulo: "Bases usadas", codigo: "15" },
     ]},
   ];
 
@@ -464,6 +468,7 @@ export default function Page() {
     profunda: { olho: "Minha análise", titulo: "Análise profunda", texto: "O que você classificou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima." },
     semfato: { olho: "Investigação", titulo: "Sem interrupção na janela", texto: "Nem interrupção nem atendimento na janela de 24 horas. Antes de cobrar, o teste do vizinho." },
     expurgos: { olho: "Fora do indicador", titulo: "Excluídos", texto: "Saíram porque a leitura mostrou outra causa. Continuam na base, marcados." },
+    mapa: { olho: "Onde estão", titulo: "Mapa dos ativos", texto: "Um ponto por transformador, na coordenada do próprio ativo — não no centro do município. A cor é a decisão da esteira." },
     ativos: { olho: "Histórico", titulo: "Por transformador", texto: "Tudo o que aconteceu com um código de ativo no semestre, em ordem." },
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
@@ -560,6 +565,35 @@ export default function Page() {
           <tbody>{b.tabela.linhas.map((linha, i) => <tr key={i}>{linha.map((celula, j) => <td key={j}>{j === 0 ? <strong>{celula}</strong> : <span>{celula}</span>}</td>)}</tr>)}</tbody>
         </table></div> : null}
       </section>)}</>;
+    }
+
+    if (modulo === "mapa") {
+      const pontos: PontoAtivo[] = registros
+        .filter((r) => typeof r.lat === "number" && typeof r.lon === "number")
+        .map((r) => ({
+          ss: texto(r.ss), trafo: texto(r.trafo), lat: Number(r.lat), lon: Number(r.lon),
+          localidade: texto(r.localidade), decisao: texto(r.decisao), cascata: texto(r.cascata),
+          categoria: texto(r.categoria_texto), abertura: dataBR(r.abertura),
+        }));
+      const semCoord = total - pontos.length;
+      return <>
+        <section className="kpi-grid">
+          <Kpi rotulo="Pontos no mapa" valor={br(pontos.length)} nota="coordenada do próprio transformador" tom="ink" />
+          <Kpi rotulo="Incluídos" valor={br(pontos.filter((p) => p.decisao === "INCLUIR").length)} nota="verde no mapa" tom="green" />
+          <Kpi rotulo="Em revisão" valor={br(pontos.filter((p) => p.decisao === "REVISÃO").length)} nota="âmbar no mapa" tom="amber" />
+          <Kpi rotulo="Excluídos" valor={br(pontos.filter((p) => p.decisao === "EXCLUIR").length)} nota="vermelho no mapa" tom="red" />
+          <Kpi rotulo="Municípios" valor={br(new Set(pontos.map((p) => p.localidade)).size)} nota="com ao menos um ponto" tom="blue" />
+          <Kpi rotulo="Sem coordenada" valor={br(semCoord)} nota="não aparecem no mapa" tom="ink" />
+        </section>
+        <section className="panel">
+          <div className="panel-title"><div><span>Coordenada do ativo</span><h2>Onde cada transformador está</h2></div><small>clique num ponto para abrir o dossiê</small></div>
+          <MapaAtivos pontos={pontos} aoEscolher={(ss) => {
+            const achado = registros.find((r) => texto(r.ss) === ss);
+            if (achado) { setAberto(achado); setAbaDossie("consolidado"); }
+          }} />
+          <p className="fonte-detalhe">{texto(fluxo.meta.coordenada)}</p>
+        </section>
+      </>;
     }
 
     if (modulo === "bases") {
