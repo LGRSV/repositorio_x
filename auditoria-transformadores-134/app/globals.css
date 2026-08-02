@@ -449,3 +449,17 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .records-table.matriz td.cell-good, .records-table.matriz td.cell-bad, .records-table.matriz td.cell-warn { cursor: pointer; }
 .records-table.matriz td strong { font: 500 17px/1 "Newsreader", serif; }
 .records-table.matriz td span { margin-top: 4px; font: 600 7px "IBM Plex Mono", monospace; text-transform: uppercase; }
+
+/* A história em quadrinhos na aba de Regras: cinco cartões vermelhos, na ordem em que a
+   coisa acontece no mundo real. Mesma tipografia do resto do painel. */
+.quadrinhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); gap: 12px; margin-top: 14px; }
+.quadrinho { position: relative; display: flex; flex-direction: column; padding: 16px 15px 13px; background: var(--red); color: #fff; }
+.quadrinho > b { display: block; font: 500 30px/1 "Newsreader", serif; color: #f0c9cd; }
+.quadrinho h4 { margin: 7px 0 0; font: 500 15px/1.15 "Newsreader", serif; }
+.quadrinho p { flex: 1; margin: 9px 0 0; font-size: 9px; line-height: 1.6; color: #f4e4e6; }
+.quadrinho footer { margin-top: 13px; padding-top: 9px; border-top: 1px solid #c2666e; }
+.quadrinho footer span { display: block; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; color: #f0c9cd; }
+.quadrinho footer em { display: block; margin-top: 4px; font-size: 9px; font-style: italic; color: #fff; }
+.quadrinho::after { content: "→"; position: absolute; top: 50%; right: -11px; z-index: 2; color: var(--red); font-size: 13px; }
+.quadrinho:last-child::after { content: ""; }
+@media (max-width: 900px) { .quadrinho::after { content: ""; } }

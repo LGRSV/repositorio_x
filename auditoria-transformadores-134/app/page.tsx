@@ -23,6 +23,7 @@ type Metodo = {
     id: string; titulo: string; paragrafos?: string[];
     itens?: Array<{ rotulo: string; texto: string }>;
     tabela?: { cabecalho: string[]; linhas: string[][] };
+    quadrinhos?: Array<{ n: string; titulo: string; texto: string; base: string; pergunta: string }>;
   }>;
 };
 
@@ -30,6 +31,17 @@ type Par = { label: string; value: number };
 
 /* ------------------------------------------------------------------ utilidades */
 
+
+// O JSON guarda a data em ISO porque assim ela ordena como texto. Na tela sai em
+// dia/mês/ano, que é como se lê aqui — a conversão fica num lugar só.
+const dataBR = (valor: unknown) => {
+  const v = texto(valor);
+  if (!v) return "—";
+  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+  if (!m) return v;
+  return m[4] ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : `${m[3]}/${m[2]}/${m[1]}`;
+};
+const soData = (valor: unknown) => dataBR(valor).slice(0, 10);
 const br = (v: number) => v.toLocaleString("pt-BR");
 const pct = (v: number, total: number) => (total ? Math.round((v / total) * 100) : 0);
 const normalize = (v: string) => v.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
@@ -163,16 +175,16 @@ function Tabela({ linhas, modo, aoAbrir }: {
     </tr></thead>
     <tbody>{linhas.map((r) => <tr key={texto(r.ss)} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
-      <td><strong>{texto(r.abertura).slice(0, 16)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
+      <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
 
       {modo === "interrupcao" && <>
-        <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{texto(r.oc_ini).slice(0, 16)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
+        <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
         <td><strong>{texto(r.oc_causa) || "—"}</strong><span>{texto(r.oc_sub)}</span><small>{texto(r.oc_papel)}</small></td>
         <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{r.oc_dist_h !== null && r.oc_dist_h !== undefined ? `${r.oc_dist_h}h da abertura` : "—"}</span><small>{texto(r.ressalvas)}</small></td>
       </>}
 
       {modo === "deslocamento" && <>
-        <td><strong>{texto(r.at_num) || "sem atendimento"}</strong><span>{texto(r.at_ini).slice(0, 16)}</span><small>{texto(r.at_causa)}</small></td>
+        <td><strong>{texto(r.at_num) || "sem atendimento"}</strong><span>{dataBR(r.at_ini)}</span><small>{texto(r.at_causa)}</small></td>
         <td><strong>{texto(r.at_equipe) || "—"}</strong><span>{r.at_tma ? `TMA ${r.at_tma} min` : ""}</span><small>{r.at_tmd ? `deslocamento ${r.at_tmd} · execução ${texto(r.at_tme)}` : ""}</small></td>
         <td><strong>{texto(r.tmae_corrobora)}</strong><span>{texto(r.at_sub)}</span><small>{r.tmae_gap_jan === "SIM" ? "aberta na lacuna de 26 a 31 de janeiro" : ""}</small></td>
       </>}
@@ -434,6 +446,14 @@ export default function Page() {
         {b.itens ? <div className="check-list">{b.itens.map((it) => <div key={it.rotulo}>
           <b>·</b><strong>{it.rotulo}</strong><span>{it.texto}</span>
         </div>)}</div> : null}
+        {b.quadrinhos ? <div className="quadrinhos">
+          {b.quadrinhos.map((q) => <article key={q.n} className="quadrinho">
+            <b>{q.n}</b>
+            <h4>{q.titulo}</h4>
+            <p>{q.texto}</p>
+            <footer><span>{q.base}</span><em>{q.pergunta}</em></footer>
+          </article>)}
+        </div> : null}
         {b.tabela ? <div className="table-scroll"><table className="records-table">
           <thead><tr>{b.tabela.cabecalho.map((c) => <th key={c}>{c}</th>)}</tr></thead>
           <tbody>{b.tabela.linhas.map((linha, i) => <tr key={i}>{linha.map((celula, j) => <td key={j}>{j === 0 ? <strong>{celula}</strong> : <span>{celula}</span>}</td>)}</tr>)}</tbody>
@@ -724,8 +744,8 @@ export default function Page() {
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{texto(aberto.oc_num) || "nenhuma"}</strong></div>
               <div><span>Distância da SS</span><strong>{aberto.oc_dist_h !== null ? `${texto(aberto.oc_dist_h)} h` : "—"}</strong></div>
-              <div><span>Início</span><strong>{texto(aberto.oc_ini) || "—"}</strong></div>
-              <div><span>Fim</span><strong>{texto(aberto.oc_fim) || "—"}</strong></div>
+              <div><span>Início</span><strong>{dataBR(aberto.oc_ini)}</strong></div>
+              <div><span>Fim</span><strong>{dataBR(aberto.oc_fim)}</strong></div>
               <div><span>Duração</span><strong>{texto(aberto.oc_dur_h)} h</strong></div>
               <div><span>Clientes interrompidos</span><strong>{texto(aberto.oc_cons)}</strong></div>
               <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel)}</strong></div>
@@ -741,7 +761,7 @@ export default function Page() {
             <section className="detail-grid">
               <div><span>Atendimento</span><strong>{texto(aberto.at_num) || "nenhum"}</strong></div>
               <div><span>Equipe</span><strong>{texto(aberto.at_equipe) || "—"}</strong></div>
-              <div><span>Início</span><strong>{texto(aberto.at_ini) || "—"}</strong></div>
+              <div><span>Início</span><strong>{dataBR(aberto.at_ini)}</strong></div>
               <div><span>Corrobora o fato</span><strong>{texto(aberto.tmae_corrobora)}</strong></div>
               <div><span>Preparação (TMP)</span><strong>{texto(aberto.at_tmp)}</strong></div>
               <div><span>Deslocamento (TMD)</span><strong>{texto(aberto.at_tmd)}</strong></div>
@@ -762,8 +782,8 @@ export default function Page() {
               <div><span>Origem</span><strong>{texto(aberto.origem)}</strong></div>
               <div><span>Equipe da SS</span><strong>{texto(aberto.equipe_ss)}</strong></div>
               <div><span>Tipo da solicitação</span><strong>{texto(aberto.tipo_ss)}</strong></div>
-              <div><span>Abertura</span><strong>{texto(aberto.abertura)}</strong></div>
-              <div><span>Término</span><strong>{texto(aberto.termino) || "—"}</strong></div>
+              <div><span>Abertura</span><strong>{dataBR(aberto.abertura)}</strong></div>
+              <div><span>Término</span><strong>{dataBR(aberto.termino)}</strong></div>
               <div><span>Potência retirada</span><strong>{texto(aberto.pot_ret)} kVA</strong></div>
               <div><span>Potência instalada</span><strong>{texto(aberto.pot_inst)} kVA</strong></div>
               <div><span>Transformadores no material</span><strong>{texto(aberto.trafos_material)}</strong></div>

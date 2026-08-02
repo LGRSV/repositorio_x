@@ -10,6 +10,64 @@
  },
  "blocos": [
   {
+   "id": "historia",
+   "titulo": "Como a coisa acontece de verdade",
+   "paragrafos": [
+    "Antes das regras, o caminho que o caso percorre no mundo real. É contra esta sequência que a auditoria confere se a história fecha."
+   ],
+   "quadrinhos": [
+    {
+     "n": "1",
+     "titulo": "O cliente fica sem energia",
+     "texto": "Alguém liga reclamando. O ativo é interrompido e o evento entra na base de interrupção, com hora de início, hora de religação e quantos clientes ficaram no escuro.",
+     "base": "Crítica · interrupção",
+     "pergunta": "O evento existiu?"
+    },
+    {
+     "n": "2",
+     "titulo": "O DEOP vai a campo",
+     "texto": "A equipe faz o primeiro ataque e vê o que aconteceu no poste: se o transformador queimou, se foi o elo, se caiu galho. Escreve a observação do executante.",
+     "base": "TMAE · atendimento",
+     "pergunta": "Alguém foi lá e o que viu?"
+    },
+    {
+     "n": "3",
+     "titulo": "O COI abre a SS",
+     "texto": "Com o relato na mão, o COI abre a solicitação dizendo que o transformador queimou e manda para o DCMD ou para a empreiteira. É aqui que nasce o texto que a auditoria lê.",
+     "base": "SS · solicitação",
+     "pergunta": "O que foi pedido?"
+    },
+    {
+     "n": "4",
+     "titulo": "A OS é gerada",
+     "texto": "Depois que o serviço foi executado, a ordem de serviço registra o que a equipe fez — e traz a placa do transformador retirado e do instalado.",
+     "base": "OS · execução",
+     "pergunta": "O que foi feito?"
+    },
+    {
+     "n": "5",
+     "titulo": "A obra é gerada",
+     "texto": "Por último vem a obra, que carrega o custo e a movimentação de material. É ela que prova, no almoxarifado, que um transformador de fato saiu.",
+     "base": "Obra · material e SIGCO",
+     "pergunta": "Onde o dinheiro entrou?"
+    }
+   ],
+   "itens": [
+    {
+     "rotulo": "A ordem importa",
+     "texto": "A SS nasce depois do atendimento. Então solicitação aberta antes de a interrupção começar é anomalia, não casamento normal — é o que a auditoria testa na janela."
+    },
+    {
+     "rotulo": "Quem viu foi o executante",
+     "texto": "A observação do TMAE é a evidência mais próxima do poste, e vem antes do texto da SS. Quando as duas discordam, a do campo pesa mais."
+    },
+    {
+     "rotulo": "O material fecha a conta",
+     "texto": "Texto é declaração. Transformador dado baixa no almoxarifado é fato caro e verificável."
+    }
+   ]
+  },
+  {
    "id": "fato",
    "titulo": "1. A regra do fato",
    "paragrafos": [
