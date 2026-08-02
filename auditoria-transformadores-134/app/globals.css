@@ -493,3 +493,14 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .resultado-esteira article em { display: block; margin-top: 5px; color: #b7babd; font-size: 9px; font-style: normal; }
 .resultado-esteira article.total b { color: #f0c9cd; }
 .resultado-esteira > p { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #3a3d42; color: #b0b3b7; font-size: 8.5px; line-height: 1.6; }
+
+/* Downloads das bases e os blocos de detalhe do dossiê. */
+.arquivos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; padding: 0 20px 18px; }
+.arquivos a { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--line); background: #fff; color: inherit; text-decoration: none; }
+.arquivos a:hover { border-color: var(--ink); background: #faf8f5; }
+.arquivos b { display: grid; place-items: center; height: 34px; background: var(--ink); color: #fff; font: 600 7px "IBM Plex Mono", monospace; }
+.arquivos strong { display: block; font-size: 10px; }
+.arquivos small { display: block; margin-top: 4px; color: #7b7e82; font-size: 8px; line-height: 1.5; }
+.arquivos em { color: #8a8d91; font: 500 8px "IBM Plex Mono", monospace; font-style: normal; }
+.fonte-detalhe { margin: 0 20px 14px; color: #85888c; font-size: 8px; }
+.drawer-body .fonte-detalhe { margin: 0 0 8px; }

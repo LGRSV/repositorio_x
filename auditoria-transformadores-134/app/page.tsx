@@ -159,6 +159,19 @@ const CLASSES_CURTAS: Array<[string, string, string]> = [
   ["REGRA", "R", "warn"], ["PROFUNDA", "P", "bad"],
 ];
 
+// Os campos que não cabem na tabela: vêm direto da linha da base, sem resumo nosso.
+function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string; dados?: Detalhe }) {
+  const chaves = Object.keys(dados || {});
+  if (!chaves.length) return null;
+  return <>
+    <h3>{titulo}</h3>
+    <p className="fonte-detalhe">{fonte} · {chaves.length} campos</p>
+    <section className="detail-grid">
+      {chaves.map((k) => <div key={k}><span>{k}</span><strong>{/data|abertura|fechamento|conclus|início|term/i.test(k) ? dataBR(dados![k]) : dados![k]}</strong></div>)}
+    </section>
+  </>;
+}
+
 function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
@@ -550,7 +563,21 @@ export default function Page() {
     }
 
     if (modulo === "bases") {
+      const ARQUIVOS: Array<[string, string, string, string]> = [
+        ["Base_SS_OS.xlsx", "SS e OS", "1.510 solicitações com todos os campos do cadastro, mais o texto integral da SS e da OS.", "0,5 MB"],
+        ["Base_Interrupcoes.xlsx", "Interrupções", "A linha da Crítica de cada SS que casou: datas, duração, clientes, elemento do defeito, causa, subcausa e observação.", "0,3 MB"],
+        ["Base_Atendimentos_TMAE.xlsx", "Atendimentos", "A linha do TMAE: cronologia completa, os quatro tempos, equipe e a observação do executante.", "0,3 MB"],
+        ["Base_Obras_SIGCO.xlsx", "Obras e SIGCO", "O cadastro da obra: classe, natureza, tipo, projeto, empreiteira, setor, valores e datas.", "0,4 MB"],
+        ["Base_Material.xlsx", "Material da obra", "Item a item do que saiu do almoxarifado, com código, descrição, quantidade prevista e realizada e valor.", "0,9 MB"],
+        ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão e a causa confirmada.", "0,2 MB"],
+      ];
       return <>
+        <section className="panel"><div className="panel-title"><div><span>Para baixar</span><h2>As bases usadas, em Excel</h2></div><small>cada uma separada, como saiu da fonte</small></div>
+          <div className="arquivos">{ARQUIVOS.map(([arq, nome, nota, tam]) => <a key={arq} href={assetUrl(`bases/${arq}`)} download>
+            <b>XLSX</b><span><strong>{nome}</strong><small>{nota}</small></span><em>{tam}</em>
+          </a>)}</div>
+          <p className="fonte-detalhe">Os arquivos trazem as linhas das bases originais, filtradas para as 1.510 solicitações do recorte. Nada foi resumido nem recalculado: o que muda em relação à fonte é só o recorte.</p>
+        </section>
         <section className="panel editorial-note wide"><span>DE ONDE VEM CADA NÚMERO</span>
           {fluxo.meta.fontes.map((f) => <p key={f}>· {f}</p>)}
         </section>
@@ -895,6 +922,7 @@ export default function Page() {
             </section>
             <article className="source-text"><span>OBSERVAÇÃO REGISTRADA EM CAMPO</span><p>{texto(aberto.oc_obs) || "Sem observação."}</p></article>
             {texto(aberto.vizinho) ? <article className="work-alerts"><span>TESTE DO VIZINHO</span><ul><li>{texto(aberto.vizinho)}</li></ul></article> : null}
+            <BlocoDetalhe titulo="A linha inteira da interrupção" fonte="Base Crítica CHEIO · interrupção de cliente" dados={aberto.det_interrupcao as Detalhe} />
           </>}
           {abaDossie === "deslocamento" && <>
             <h3>O atendimento da equipe</h3>
@@ -912,6 +940,7 @@ export default function Page() {
             </section>
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
             {aberto.tmae_gap_jan === "SIM" ? <article className="work-alerts danger"><span>LACUNA CONHECIDA</span><ul><li>Esta SS foi aberta entre 26 e 31 de janeiro, período em que o arquivo de atendimento não tem nenhum registro. A ausência aqui não é contraprova.</li></ul></article> : null}
+            <BlocoDetalhe titulo="A linha inteira do atendimento" fonte="Base TMAE · atendimento de emergência" dados={aberto.det_atendimento as Detalhe} />
           </>}
           {abaDossie === "ssos" && <>
             <h3>O que foi pedido e o que foi executado</h3>
@@ -929,6 +958,7 @@ export default function Page() {
               <div><span>Transformadores no material</span><strong>{texto(aberto.trafos_material)}</strong></div>
               <div><span>Material conferido</span><strong>{texto(aberto.material_conferido)}</strong></div>
             </section>
+            <BlocoDetalhe titulo="A linha inteira da solicitação" fonte="Base de SS e OS" dados={aberto.det_ss as Detalhe} />
           </>}
           {abaDossie === "obra" && <>
             <h3>A obra e o enquadramento</h3>
@@ -946,6 +976,7 @@ export default function Page() {
             </section>
             {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>ALERTAS DE OBRA</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>{x}</li>)}</ul></article> : null}
             <article className="editorial-note"><span>SOBRE O NOME DA OBRA</span><p>O cadastro não guarda quem abriu a obra: o nome registrado é o de quem fez a última movimentação. Quem origina o fluxo é o solicitante da SS, porque a obra nasce dela.</p></article>
+            <BlocoDetalhe titulo="A linha inteira da obra" fonte="Cadastro de obras · 93 colunas" dados={aberto.det_obra as Detalhe} />
           </>}
           {abaDossie === "historico" && <>
             <h3>Histórico do transformador {texto(aberto.trafo)}</h3>
