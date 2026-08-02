@@ -448,7 +448,7 @@ export default function Page() {
   const paramE3 = conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA")
     + conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
   const paramE4 = conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO");
-  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza" }> }> = [
+  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza"; recorte?: string }> }> = [
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2 },
@@ -460,6 +460,7 @@ export default function Page() {
     ]},
     { grupo: "Quem ficou preso, em detalhe", itens: [
       { id: "semfato", rotulo: "Sem interrupção", codigo: "07", param: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
+      { id: "semfato", rotulo: "SS duplicada", codigo: "07b", param: conta((r) => r.cascata === "RETIDO — SS DUPLICADA"), recorte: "duplicada" },
       { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
       { id: "expurgos", rotulo: "Excluídos", codigo: "10", param: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
       { id: "ativos", rotulo: "Por transformador", codigo: "11" },
@@ -950,8 +951,12 @@ export default function Page() {
       <div className="brand"><i>T</i><div><strong>Transforma</strong><span>Auditoria · 1.510 SS</span></div></div>
       <nav>{NAV.map((g) => <div className="nav-group" key={g.grupo}>
         <span>{g.grupo}</span>
-        {g.itens.map((item) => <button key={item.id} className={modulo === item.id ? "active" : ""}
-          onClick={() => { setModulo(item.id); setRecorte(null); setBusca(""); }}>
+        {g.itens.map((item) => <button key={item.codigo} className={modulo === item.id && (item.recorte ? recorte?.id === item.recorte : true) ? "active" : ""}
+          onClick={() => {
+            setModulo(item.id); setBusca("");
+            const alvo = item.recorte ? (RECORTES[item.id] || []).find((x) => x.id === item.recorte) : null;
+            setRecorte(alvo ? { id: alvo.id, rotulo: alvo.rotulo } : null);
+          }}>
           <b>{item.codigo}</b><em>{item.rotulo}</em>
           {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
           {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}
