@@ -217,7 +217,7 @@
   },
   {
    "id": "correcoes",
-   "titulo": "5. O que foi corrigido no caminho",
+   "titulo": "6. O que foi corrigido no caminho",
    "paragrafos": [
     "Três auditorias independentes revisaram este trabalho: uma leu a conversa inteira e mapeou as bases, outra releu os 1.510 textos contra o dicionário de regras, e a terceira reprocessou o cruzamento a partir dos arquivos crus. O que elas acharam está aqui, porque quem for auditar isto depois vai perguntar."
    ],
@@ -245,12 +245,17 @@
     {
      "rotulo": "Teste vazio",
      "texto": "A verificação de “equipe não deslocou” dava sempre zero porque o campo de início de deslocamento está preenchido em todas as 62.616 linhas da base. Era tautologia, não constatação."
-    }
+    },
+    "A janela de 24 horas era medida a partir do instante em que a interrupção começou. Numa interrupção longa — que é justamente o perfil do transformador queimado, porque ele fica desligado até ser trocado — o começo fica horas ou dias atrás, e SS abertas logo depois do religamento apareciam como fora da janela. Passou a ser medida contra o intervalo inteiro. Corrigiu 37 casos, 26 deles abertos a menos de 6 horas do religamento; a ETO-RD-GR 00009/2026 foi aberta 1 hora e 12 minutos depois e estava marcada como fora.",
+    "Quando duas SS apontavam para a mesma interrupção, a prova ficava com a que tinha sido aberta primeiro na fila, não com a que casava com o evento. A ocorrência de 26 de março do transformador 5700002210 pertencia a uma SS de 16 de janeiro, 68 dias antes, que nem usava essa prova — e bloqueava as duas SS de março que casavam de verdade. Agora a interrupção pertence à SS mais próxima do evento, e uma SS que não casa na janela não reserva mais nada contra ninguém.",
+    "Quem perdia essa disputa recebia o carimbo de “sem interrupção na janela”, ou seja, o sistema afirmava que não houve apagão quando o próprio registro guardava a ocorrência, o horário, os clientes atingidos e a observação do eletricista. São três casos, e o que existe neles é outra coisa: duas SS abertas para o mesmo transformador e o mesmo evento. Passaram a ser tratados como SS duplicada, com a SS gêmea nomeada. A interrupção continua provando uma troca, não duas — mas o motivo agora está escrito certo.",
+    "O atendimento do TMAE era cruzado só pelo código do transformador. Como o TMAE grava o elemento em que o defeito foi aberto, e não o transformador, todo atendimento aberto na unidade consumidora ou na chave ficava invisível. Passou a ser cruzado também pelo número da ocorrência: 23 casos que constavam como sem atendimento têm equipe identificada que deslocou até o local.",
+    "Nenhuma dessas quatro correções mexeu em regra de negócio: são defeitos de cruzamento entre bases. O resultado da esteira ficou igual — 874 confirmados, 848 queimados e 26 avariados. O que mudou foi a verdade do que está escrito em cada caso."
    ]
   },
   {
    "id": "limites",
-   "titulo": "6. O que estas bases não permitem concluir",
+   "titulo": "7. O que estas bases não permitem concluir",
    "itens": [
     {
      "rotulo": "Seis dias de janeiro",
