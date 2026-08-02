@@ -27,7 +27,7 @@ button { cursor: pointer; }
 .brand > i { width: 36px; height: 42px; display: grid; place-items: center; background: var(--red); font: 500 24px/1 "Newsreader", serif; font-style: normal; }
 .brand strong, .brand span { display: block; }.brand strong { font: 500 20px/1 "Newsreader", serif; }.brand span { margin-top: 4px; color: #96999e; font-size: 9px; }
 .nav-group { margin-top: 20px; }.nav-group > span { display: block; padding: 0 8px 7px; color: #71757a; font: 600 8px/1 "IBM Plex Mono", monospace; letter-spacing: .13em; text-transform: uppercase; }
-.nav-group button { width: 100%; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; border: 0; border-left: 2px solid transparent; padding: 8px 9px; background: transparent; color: #aeb1b5; text-align: left; }
+.nav-group button { width: 100%; display: grid; grid-template-columns: 24px 1fr auto auto; align-items: center; gap: 6px; border: 0; border-left: 2px solid transparent; padding: 8px 9px; background: transparent; color: #aeb1b5; text-align: left; }
 .nav-group button:hover { background: #292c31; color: #fff; }.nav-group button.active { border-left-color: var(--red); background: #303338; color: #fff; }
 .nav-group button b { color: #73777c; font: 600 8px "IBM Plex Mono", monospace; }.nav-group button em { font-size: 10px; font-style: normal; }.nav-group button small { padding: 2px 5px; background: var(--red); color: #fff; font: 600 7px "IBM Plex Mono", monospace; }
 .side-user { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; margin-top: 24px; padding: 14px 8px 0; border-top: 1px solid #3a3d42; }
@@ -521,3 +521,9 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .lista-correcoes { margin: 10px 0 0; padding-left: 16px; }
 .lista-correcoes li { color: #62656a; font-size: 9px; line-height: 1.6; margin-bottom: 6px; }
 .lista-correcoes li::marker { color: var(--red); }
+
+/* a descida da esteira na barra lateral: quantos entram, em cinza, e quantos ficam
+   presos ali, em vermelho. O vermelho é sempre "parou aqui", em qualquer aba. */
+.nav-entram { font: 500 8px/1 "IBM Plex Mono", monospace; font-style: normal; color: #71757a; }
+.nav-group button small.nav-cinza { background: #3d4147; color: #b7babe; }
+.nav-group button small.nav-verde { background: #35634b; color: #fff; }

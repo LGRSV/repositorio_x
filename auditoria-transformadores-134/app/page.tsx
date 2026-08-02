@@ -438,22 +438,32 @@ export default function Page() {
     ["PROFUNDA", "Análise profunda", "bad"],
   ];
 
-  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; marca?: number }> }> = [
-    { grupo: "Fluxo", itens: [
-      { id: "visao", rotulo: "Visão geral", codigo: "01" },
-      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", marca: conta((r) => r.chega_e1 === "SIM") },
-      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", marca: conta((r) => r.chega_e2 === "SIM") },
-      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", marca: conta((r) => r.chega_e3 === "SIM") },
-      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)) },
-      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA") },
+  // A barra lateral mostrava quantos CHEGAM em cada etapa, e por isso dizia "Interrupção
+  // 1.510" — que se lê como "1.510 têm interrupção". Agora ela conta a descida: quantos
+  // entram, em cinza, e quantos ficam presos ali, em vermelho. A corrente fecha:
+  // 1.510 − 209 − 299 − 50 − 68 = 884.
+  const entramE1 = total;
+  const entramE2 = conta((r) => r.chega_e2 === "SIM");
+  const entramE3 = conta((r) => r.chega_e3 === "SIM");
+  const paramE3 = conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA")
+    + conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
+  const paramE4 = conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO");
+  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza" }> }> = [
+    { grupo: "A esteira, de cima para baixo", itens: [
+      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
+      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2 },
+      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: entramE2 - entramE3 },
+      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3 },
+      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", entram: entramE3 - paramE3, param: paramE4 },
+      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)), tom: "cinza" },
+      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA"), tom: "verde" },
     ]},
-    { grupo: "Filas", itens: [
-      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", marca: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
-      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", marca: conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO") },
-      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", marca: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "10", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
+    { grupo: "Quem ficou preso, em detalhe", itens: [
+      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", param: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
+      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
+      { id: "expurgos", rotulo: "Excluídos", codigo: "10", param: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
       { id: "ativos", rotulo: "Por transformador", codigo: "11" },
-      { id: "mapa", rotulo: "Mapa dos ativos", codigo: "12", marca: conta((r) => Boolean(r.lat)) },
+      { id: "mapa", rotulo: "Mapa dos ativos", codigo: "12", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
     ]},
     { grupo: "Minha análise", itens: [
       { id: "profunda", rotulo: "Análise profunda", codigo: "13", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
@@ -942,7 +952,10 @@ export default function Page() {
         <span>{g.grupo}</span>
         {g.itens.map((item) => <button key={item.id} className={modulo === item.id ? "active" : ""}
           onClick={() => { setModulo(item.id); setRecorte(null); setBusca(""); }}>
-          <b>{item.codigo}</b><em>{item.rotulo}</em>{item.marca ? <small>{br(item.marca)}</small> : null}
+          <b>{item.codigo}</b><em>{item.rotulo}</em>
+          {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
+          {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}
+          {item.marca ? <small className={item.tom === "verde" ? "nav-verde" : "nav-cinza"}>{br(item.marca)}</small> : null}
         </button>)}
       </div>)}</nav>
       <div className="side-user"><b>1.5k</b><div><strong>Janeiro a junho</strong><span>de 2026</span></div></div>
