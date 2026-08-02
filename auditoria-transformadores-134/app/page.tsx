@@ -326,6 +326,7 @@ export default function Page() {
       { id: "comcliente", rotulo: "Com cliente interrompido", nota: "A interrupção atingiu gente, então houve evento de verdade.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.oc_cons) || 0) > 0 },
       { id: "proprio", rotulo: "Defeito no próprio trafo", nota: "O campo apontou o transformador como causador.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && texto(r.oc_papel).includes("próprio") },
       { id: "outroat", rotulo: "Ativo com atendimento em outra data", nota: "A equipe já esteve nesse transformador no semestre.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.atendimentos_ativo) || 0) > 0 },
+      { id: "lacuna2025", rotulo: "Provavelmente no histórico de 2025", nota: "A janela de 24 horas retrocede para antes de 01/01/2026 às 01:14, quando a base de interrupção começa.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.borda_2025 === "SIM" },
     ],
     profunda: [
       { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: () => true },
@@ -364,7 +365,7 @@ export default function Page() {
       { id: "todos", rotulo: "Todos sem interrupção", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
       { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.vizinho).startsWith("Nada") },
-      { id: "borda", rotulo: "Borda de dezembro", nota: "SS aberta nos primeiros dias de janeiro: a ocorrência pode estar em dezembro de 2025.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.abertura) <= "2026-01-03" },
+      { id: "borda", rotulo: "Provavelmente no histórico de 2025", nota: "A janela de 24 horas desta SS retrocede para dezembro de 2025, e a base de interrupção só começa em 01/01/2026 às 01:14. No dia 1º de janeiro 52% das SS ficaram sem interrupção, contra 13% de média nos outros dias: a prova está no arquivo que falta.", teste: (r) => r.borda_2025 === "SIM" && r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "duplicada", rotulo: "SS duplicada", nota: "Tem a interrupção dentro da janela, mas divide o mesmo evento e o mesmo transformador com outra SS. A prova fica com a SS mais próxima do evento.", teste: (r) => r.cascata === "RETIDO — SS DUPLICADA" },
     ],
     expurgos: [
@@ -809,6 +810,7 @@ export default function Page() {
             <Kpi rotulo="Defeito no próprio trafo" valor={br(proprioTrafo)} nota="o campo apontou o transformador" tom="red" />
             <Kpi rotulo="O ativo tem atendimento em outra data" valor={br(outroAtendimento)} nota="a equipe já esteve nesse trafo no semestre" tom="amber" />
             <Kpi rotulo="Com material" valor={br(fila.filter((r) => (Number(r.trafos_material) || 0) > 0).length)} nota="a obra movimentou transformador" tom="green" />
+            <Kpi rotulo="Provavelmente em 2025" valor={br(fila.filter((r) => r.borda_2025 === "SIM").length)} nota="a janela retrocede para antes do início da base" tom="blue" aoClicar={() => abrirRecorte("lacuna2025")} />
           </section>
         </>;
       }
@@ -851,7 +853,7 @@ export default function Page() {
           <Kpi rotulo="Sem interrupção na janela" valor={br(conta(aqui))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => aqui(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => aqui(r) && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
-          <Kpi rotulo="Borda de dezembro" valor={br(conta((r) => aqui(r) && texto(r.abertura) <= "2026-01-03"))} nota="a ocorrência pode estar em dez/2025" tom="blue" aoClicar={() => abrirRecorte("borda")} />
+          <Kpi rotulo="Provavelmente em 2025" valor={br(conta((r) => aqui(r) && r.borda_2025 === "SIM"))} nota="a janela retrocede para antes do início da base" tom="blue" aoClicar={() => abrirRecorte("borda")} />
           <Kpi rotulo="Com texto de falha" valor={br(conta((r) => aqui(r) && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
           <Kpi rotulo="SS duplicada" valor={br(duplicadas.length)} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
         </section></>;
@@ -1001,7 +1003,7 @@ export default function Page() {
               <div><span>Subcausa</span><strong>{texto(aberto.at_sub)}</strong></div>
             </section>
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
-            {aberto.tmae_gap_jan === "SIM" ? <article className="work-alerts danger"><span>LACUNA CONHECIDA</span><ul><li>Esta SS foi aberta entre 26 e 31 de janeiro, período em que o arquivo de atendimento não tem nenhum registro. A ausência aqui não é contraprova.</li></ul></article> : null}
+            {texto(aberto.lacuna_base) ? <article className="work-alerts danger"><span>LACUNA CONHECIDA DA BASE</span><ul><li>{texto(aberto.lacuna_base)}</li></ul></article> : null}
             {aberto.at2_achado === "SIM" ? <article className="work-alerts"><span>ATENDIMENTO ACHADO PELO NÚMERO DA OCORRÊNCIA</span><ul>
               <li>{texto(aberto.at2_nota)}</li>
               <li>Nota {texto(aberto.at2_num)} · equipe {texto(aberto.at2_equipe)} · {texto(aberto.at2_causa)}{texto(aberto.at2_sub) ? ` · ${texto(aberto.at2_sub)}` : ""}</li>
