@@ -349,6 +349,9 @@ export default function Page() {
       { id: "semmat", rotulo: "Sem material conferido", nota: "Obra fora do export de material ou obra não gerada.", teste: (r) => r.material_conferido !== "SIM" },
     ],
     obra: [
+      // esta aba fica fora da esteira: lê enquadramento de custo, não causa. Por isso o
+      // universo dela são as 1.510 e não a fila de uma peneira — mas precisa dizer isso.
+      { id: "todos", rotulo: "Toda a fila", nota: "Obra e SIGCO ficam fora da esteira: leem enquadramento de custo, não causa. Por isso esta aba olha as 1.510, e não a fila de uma peneira.", teste: () => true },
       { id: "alerta", rotulo: "Com alerta", nota: "R-OBR-01, R-OBR-02, R-OBR-03 ou divergência de SIGCO.", teste: (r) => r.e4_status === "ALERTA" },
       { id: "semobra", rotulo: "Sem obra gerada — análise à parte", nota: "Sem obra não existe consulta de material nem encerramento: o caso sai do fluxo e vai para análise própria.", teste: (r) => !texto(r.obra) },
       { id: "despesa", rotulo: "Obra em despesa", nota: "A obra não imobiliza o ativo.", teste: (r) => normalize(texto(r.obra_classe)).includes("DESPESA") },
@@ -461,7 +464,7 @@ export default function Page() {
       { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: entramE2 - entramE3, recorte: "todos" },
       { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3, recorte: "todos" },
       { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", entram: entramE3 - paramE3, param: paramE4, recorte: "fila" },
-      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)), tom: "cinza" },
+      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)), tom: "cinza", recorte: "todos" },
       { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA"), tom: "verde", recorte: "saida" },
     ]},
     { grupo: "Quem ficou preso, em detalhe", itens: [
@@ -511,7 +514,8 @@ export default function Page() {
      continua ali para quem quiser sair do recorte de propósito. */
   const PADRAO: Partial<Record<Modulo, string>> = {
     interrupcao: "todos", deslocamento: "todos", ssos: "todos", ressalva: "fila",
-    decisao: "saida", semfato: "todos", semdesloc: "todos", expurgos: "todos", profunda: "todos",
+    obra: "todos", decisao: "saida", semfato: "todos", semdesloc: "todos", expurgos: "todos",
+    profunda: "todos",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
