@@ -1,5 +1,67 @@
 # Relatório da auditoria automática
 
+## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
+
+**Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
+última em aberto — a FALHA 13 já tinha sido fechada no commit `cefdcf5`, que acrescentou
+`"mapa"` ao tipo `Modulo` (o invariante 13 agora confere: NAV=15, RECORTES=15, tipo=15).
+
+A aba Método não tem texto próprio: imprime os blocos do `metodo.json` como estão, e esses
+números não passam pelo dado. Envelheceram quando a correção do dano externo moveu a esteira
+de 874 para 884. Todos os três lugares foram corrigidos, com os valores recalculados de
+`fluxo-1510.json`.
+
+**1. A tabela da cascata** (`blocos.cascata.tabela`) — a segunda peneira dizia receber 1.279 e
+recebe 1.301; a terceira anunciava os números de antes da correção; a quarta peneira não
+existia na tabela.
+
+| Peneira | Recebe | Passa | Fica retido |
+|---|---|---|---|
+| 1 · Interrupção | 1.510 | 1.279 + 22 recuperados pelo atendimento | 206 sem interrupção na janela · 3 SS duplicada |
+| 2 · Deslocamento | 1.301 | 1.002 | 299 — sem atendimento, 83 na lacuna de janeiro |
+| 3 · SS e OS com material | 1.002 | 952 | 41 sem prova de troca · 9 excluídos pela leitura |
+| 4 · Ressalva da interrupção | 952 | 884 | 68 |
+
+A linha 1 também mudou de rótulo: dizia "209 — sem interrupção na janela nas duas bases",
+atribuindo os 209 inteiros a um motivo só. São dois motivos, 206 + 3, e a barra lateral já
+os separava desde o commit `0e8c3b8` — a aba Método era o último lugar que ainda os somava.
+
+**2. A frase de resultado** no bloco *O que foi corrigido no caminho* dizia "O resultado da
+esteira ficou igual — 874 confirmados, 848 queimados e 26 avariados". O commit `1b8741f`
+tinha corrigido essa mesma afirmação no `page.tsx`; aqui ela sobreviveu. Agora separa as
+quatro correções de cruzamento (que de fato não moveram o resultado) da quinta, a do dano
+externo, que moveu: **884 confirmados — 856 queimados e 28 avariados**.
+
+*A redação proposta na rodada anterior não foi usada ao pé da letra:* ela dizia "a saída subiu
+de 874 para 884", e o invariante 14 procura o literal `874` em qualquer lugar do bloco
+`correcoes`, então a própria proposta reprovava no teste. A frase foi reescrita para "a saída
+subiu dez casos e hoje entrega 884 confirmados", que diz a mesma coisa sem o número velho.
+
+**3. O parágrafo de abertura** dava 1.262 / 184 / 64 sem dizer que são os números da **matriz**,
+e não da esteira — quem lia a abertura e depois a barra lateral via 1.262 e 884 sem nada
+explicando a diferença. Agora nomeia as duas leituras e publica as duas: matriz
+1.262/184/64, esteira 884/617/9.
+
+**Verificado:** `python3 scripts/auditoria_invariantes.py` sai com 16 CONFERE, 0 FALHA;
+`pnpm install --frozen-lockfile && pnpm run build:pages` passa (built in 682ms). O diff é de
+um arquivo só — `public/metodo.json`, 12 inserções e 6 remoções. **Nenhum dado foi tocado:**
+`fluxo-1510.json`, `universo-ss.json` e `auditorias.json` estão intactos, e nenhuma regra de
+negócio mudou — isto é texto de apresentação.
+
+**Achado novo, não corrigido — o "121 / 21" do bloco da leitura.** A frase diz que a categoria
+gravada "está errada em 121 solicitações, e em 21 delas o texto descreve queima com troca
+comprovada enquanto o rótulo diz outra coisa". O invariante 14 não cobre esses dois números.
+Tentei reproduzi-los do dado e não cheguei lá: `categoria_gravada ≠ categoria_texto` dá **118**
+(não 121), e o recorte de queima com material comprovado dentro desses 118 dá 108, não 21.
+Provavelmente é drift do mesmo tipo, mas como não consegui reconstruir a definição original
+não reescrevi o número — trocar 121 por um 118 que talvez não seja a mesma pergunta seria
+inventar precisão. Fica registrado para o dono decidir.
+
+**Segue no ar, sem gravidade:** a aba Bases anuncia as `Base_*` em MB decimal e as `Original_*`
+em MiB, duas réguas na mesma tela. É escolha de apresentação, não defeito.
+
+---
+
 ## 02/08/2026, 07:25 UTC — conserto dos filtros e dos módulos (a pedido do dono, vai para a `main`)
 
 **Defeito:** toda aba abria mostrando as 1.510. Clicar em "Sem interrupção · 206" na barra

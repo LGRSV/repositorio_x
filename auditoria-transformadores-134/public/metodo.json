@@ -5,7 +5,7 @@
    "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
    "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
    "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
-   "O resultado: 1.262 para incluir, 184 para leitura humana e 64 fora do indicador, sempre com motivo escrito ao lado do caso."
+   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 884 confirmados, 617 em revisão e 9 excluídos na leitura. Nas duas o motivo fica escrito ao lado do caso."
   ]
  },
  "blocos": [
@@ -198,19 +198,25 @@
       "1 · Interrupção",
       "1.510",
       "1.279 + 22 recuperados pelo atendimento",
-      "209 — sem interrupção na janela nas duas bases"
+      "206 sem interrupção na janela · 3 SS duplicada"
      ],
      [
       "2 · Deslocamento",
-      "1.279",
+      "1.301",
       "1.002",
       "299 — sem atendimento, 83 na lacuna de janeiro"
      ],
      [
       "3 · SS e OS com material",
       "1.002",
-      "942",
-      "20 excluídos pela leitura · 40 sem prova de troca"
+      "952",
+      "41 sem prova de troca · 9 excluídos pela leitura"
+     ],
+     [
+      "4 · Ressalva da interrupção",
+      "952",
+      "884",
+      "68 — a interrupção só vale com ressalva e o material não comprova a troca"
      ]
     ]
    }
@@ -250,7 +256,7 @@
     "Quando duas SS apontavam para a mesma interrupção, a prova ficava com a que tinha sido aberta primeiro na fila, não com a que casava com o evento. A ocorrência de 26 de março do transformador 5700002210 pertencia a uma SS de 16 de janeiro, 68 dias antes, que nem usava essa prova — e bloqueava as duas SS de março que casavam de verdade. Agora a interrupção pertence à SS mais próxima do evento, e uma SS que não casa na janela não reserva mais nada contra ninguém.",
     "Quem perdia essa disputa recebia o carimbo de “sem interrupção na janela”, ou seja, o sistema afirmava que não houve apagão quando o próprio registro guardava a ocorrência, o horário, os clientes atingidos e a observação do eletricista. São três casos, e o que existe neles é outra coisa: duas SS abertas para o mesmo transformador e o mesmo evento. Passaram a ser tratados como SS duplicada, com a SS gêmea nomeada. A interrupção continua provando uma troca, não duas — mas o motivo agora está escrito certo.",
     "O atendimento do TMAE era cruzado só pelo código do transformador. Como o TMAE grava o elemento em que o defeito foi aberto, e não o transformador, todo atendimento aberto na unidade consumidora ou na chave ficava invisível. Passou a ser cruzado também pelo número da ocorrência: 23 casos que constavam como sem atendimento têm equipe identificada que deslocou até o local.",
-    "Nenhuma dessas quatro correções mexeu em regra de negócio: são defeitos de cruzamento entre bases. O resultado da esteira ficou igual — 874 confirmados, 848 queimados e 26 avariados. O que mudou foi a verdade do que está escrito em cada caso.",
+    "Nenhuma dessas quatro correções mexeu em regra de negócio: são defeitos de cruzamento entre bases, e o resultado da esteira não se moveu com elas. Quem moveu foi a quinta correção, a do dano externo: a saída subiu dez casos e hoje entrega 884 confirmados — 856 queimados e 28 avariados. O que as quatro mudaram foi a verdade do que está escrito em cada caso.",
     "A exclusão por dano externo passou a exigir prova de dano externo. O dicionário classificava pela palavra: bastava 'poste' aparecer no texto da SS para o caso virar abalroamento e sair da esteira. Só que abalroamento é dano de terceiro e poste deteriorado é poste velho. Nos 13 casos que estavam assim, a Crítica e o TMAE declaram a mesma causa entre si, e em 11 deles essa causa é TRANSFORMADOR — nove queimados por descarga atmosférica e dois com vazamento de óleo e tanque deteriorado. Nenhum dos 13 textos menciona colisão, veículo ou acidente. Os 11 voltaram para a esteira com a categoria que o campo declarou; seguem excluídos apenas os 2 em que o campo diz poste de BT abalroado e vandalismo de terceiros. O material ter trocado poste junto não conta como prova: trocar o poste na mesma visita não diz que o poste derrubou o transformador."
    ]
   },
