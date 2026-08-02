@@ -498,7 +498,9 @@ export default function Page() {
       const excluidos = conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
       const caixas: Array<[string, string, number, number, Modulo]> = [
         ["Entram", "solicitações de troca de transformador", total, 0, "visao"],
-        ["1 · Interrupção", "o campo registrou o evento na janela de 24 horas", chegaE2, total - chegaE2, "interrupcao"],
+        // quem para aqui para por dois motivos diferentes: não ter interrupção, ou tê-la
+        // e dividir o mesmo evento com outra SS. Vale dizer os dois, não só somar.
+        ["1 · Interrupção", `o campo registrou o evento na janela de 24 horas${conta((r) => r.cascata === "RETIDO — SS DUPLICADA") ? ` · dos que param aqui, ${br(conta((r) => r.cascata === "RETIDO — SS DUPLICADA"))} têm a interrupção mas dividem o evento com outra SS` : ""}`, chegaE2, total - chegaE2, "interrupcao"],
         ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "deslocamento"],
         ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") + conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ssos"],
         ["4 · Ressalva da interrupção", "a interrupção sustenta chamar isso de falha?", saida, conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO"), "ressalva"],
