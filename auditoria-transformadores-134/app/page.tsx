@@ -373,20 +373,35 @@ export default function Page() {
       { id: "avariados", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
     ],
     semfato: [
-      { id: "todos", rotulo: "Todos sem interrupção", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
+      // O universo desta aba é tudo o que a interrupção reteve — os dois motivos juntos —
+      // porque é esse o número que a etapa anuncia na barra. Os motivos viram filtro aqui
+      // dentro, em vez de virarem abas separadas longe da etapa que os produziu.
+      { id: "parados", rotulo: "Tudo que parou aqui", nota: "Os dois motivos de parada da primeira peneira somados: sem interrupção na janela e SS duplicada. É exatamente o número que a etapa da Interrupção anuncia.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" || r.cascata === "RETIDO — SS DUPLICADA" },
+      { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
       { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.vizinho).startsWith("Nada") },
       { id: "borda", rotulo: "Provavelmente no histórico de 2025", nota: "A janela de 24 horas desta SS retrocede para dezembro de 2025, e a base de interrupção só começa em 01/01/2026 às 01:14. No dia 1º de janeiro 52% das SS ficaram sem interrupção, contra 13% de média nos outros dias: a prova está no arquivo que falta.", teste: (r) => r.borda_2025 === "SIM" && r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "duplicada", rotulo: "SS duplicada", nota: "Tem a interrupção dentro da janela, mas divide o mesmo evento e o mesmo transformador com outra SS. A prova fica com a SS mais próxima do evento.", teste: (r) => r.cascata === "RETIDO — SS DUPLICADA" },
     ],
     expurgos: [
+      // Mesma regra da aba anterior: o universo é tudo o que a terceira peneira reteve, para
+      // bater com o número que a etapa anuncia. Antes só os excluídos tinham aba, e os retidos
+      // sem prova de troca — a maioria — não apareciam em lugar nenhum da barra.
+      { id: "parados", rotulo: "Tudo que parou aqui", nota: "Os dois motivos de parada da terceira peneira somados: sem prova de troca e excluídos pela leitura. É exatamente o número que a etapa da Análise de SS e OS anuncia.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" || r.cascata === "EXCLUÍDO NA LEITURA" },
+      { id: "semprova", rotulo: "Sem prova de troca", nota: "Chegaram ao terceiro estágio, mas o material não comprova a troca ou o texto não decide. Não é exclusão: é ausência de prova.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
+      { id: "semprova_mat", rotulo: "Sem prova · material não conferido", nota: "A obra está fora do export de material, ou não chegou a ser gerada.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" && r.material_conferido !== "SIM" },
+      { id: "semprova_texto", rotulo: "Sem prova · texto não decide", nota: "A leitura ficou indefinida, e ela nunca decide sozinha.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" && r.leitura === "L3" },
       { id: "todos", rotulo: "Excluídos na leitura", nota: "Chegaram ao terceiro estágio e o texto mostrou outra causa.", teste: (r) => r.cascata === "EXCLUÍDO NA LEITURA" },
       { id: "antes", rotulo: "Outra causa, retidos antes", nota: "O texto também diz outra causa, mas o caso parou numa peneira anterior.", teste: (r) => r.leitura === "L2" && r.cascata !== "EXCLUÍDO NA LEITURA" },
       { id: "devolvidos", rotulo: "Exclusões desfeitas", nota: "Estavam excluídos como abalroamento ou construção, mas a causa registrada no campo é o próprio transformador. Voltaram para a esteira.", teste: (r) => r.reclassificado_externo === "SIM" },
       { id: "furto", rotulo: "Furto e vandalismo", nota: "Vai para o projeto de reposição de ativos furtados.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "FURTADO" },
       { id: "abalroamento", rotulo: "Abalroamento", nota: "Dano de terceiro ou poste.", teste: (r) => r.decisao === "EXCLUIR" && r.categoria_texto === "ABALROAMENTO" },
       { id: "preventivo", rotulo: "Preventivo e programado", nota: "Não houve defeito.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA") },
-      { id: "auxiliar", rotulo: "Auxiliar e particular", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR") },
+      // Este chip vivia zerado. Não porque os casos sumiram, mas porque a cascata passou a pôr
+      // o fato antes do texto: os quatro param na interrupção e nunca chegam à leitura, então
+      // nunca viram EXCLUIR. Procurá-los pela decisão escondia-os. Agora são achados pelo que
+      // o texto diz, com o motivo de parada real à mostra — como já fazia o chip "retidos antes".
+      { id: "auxiliar", rotulo: "Auxiliar e particular", nota: "Não é unidade de distribuição da concessionária. Nenhum chegou à leitura: todos pararam antes, na interrupção — e é lá que a esteira os deixou, com esse motivo escrito.", teste: (r) => r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR" },
     ],
     ativos: [],
     mapa: [],
@@ -458,29 +473,33 @@ export default function Page() {
     + conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
   const paramE4 = conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO");
   const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza"; recorte?: string }> }> = [
+    /* Cada peneira é seguida imediatamente pela aba de quem ela reteve, e o número da aba é o
+       mesmo que a peneira anuncia. Antes os retidos moravam num grupo separado no fim da barra,
+       e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
+       eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2, recorte: "todos" },
+      { id: "semfato", rotulo: "Parados na interrupção", codigo: "02·1", param: entramE1 - entramE2, recorte: "parados" },
       { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: entramE2 - entramE3, recorte: "todos" },
+      { id: "semdesloc", rotulo: "Parados no deslocamento", codigo: "03·1", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO"), recorte: "todos" },
       { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3, recorte: "todos" },
-      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", entram: entramE3 - paramE3, param: paramE4, recorte: "fila" },
-      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)), tom: "cinza", recorte: "todos" },
+      { id: "expurgos", rotulo: "Parados na análise", codigo: "04·1", param: paramE3, recorte: "parados" },
+      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "05", entram: entramE3 - paramE3, param: paramE4, recorte: "fila" },
+      { id: "ressalva", rotulo: "Retidos pela ressalva", codigo: "05·1", param: paramE4, recorte: "todos" },
       { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA"), tom: "verde", recorte: "saida" },
     ]},
-    { grupo: "Quem ficou preso, em detalhe", itens: [
-      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", param: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA"), recorte: "todos" },
-      { id: "semfato", rotulo: "SS duplicada", codigo: "07b", param: conta((r) => r.cascata === "RETIDO — SS DUPLICADA"), recorte: "duplicada" },
-      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", param: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO"), recorte: "todos" },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "10", param: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"), recorte: "todos" },
-      { id: "ativos", rotulo: "Por transformador", codigo: "11" },
-      { id: "mapa", rotulo: "Mapa dos ativos", codigo: "12", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
+    { grupo: "Fora da esteira", itens: [
+      { id: "obra", rotulo: "Obra e SIGCO", codigo: "07", marca: conta((r) => !texto(r.obra)), tom: "cinza", recorte: "todos" },
+      { id: "ativos", rotulo: "Por transformador", codigo: "08" },
+      { id: "mapa", rotulo: "Mapa dos ativos", codigo: "09", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
     ]},
     { grupo: "Minha análise", itens: [
-      { id: "profunda", rotulo: "Análise profunda", codigo: "13", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
+      { id: "profunda", rotulo: "Análise profunda", codigo: "10", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
     ]},
     { grupo: "Controle", itens: [
-      { id: "regras", rotulo: "Regras e método", codigo: "14" },
-      { id: "bases", rotulo: "Bases usadas", codigo: "15" },
+      { id: "regras", rotulo: "Regras e método", codigo: "11" },
+      { id: "bases", rotulo: "Bases usadas", codigo: "12" },
     ]},
   ];
 
@@ -492,10 +511,10 @@ export default function Page() {
     obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
     decisao: { olho: "Saída do funil", titulo: "Decisão final", texto: "O cruzamento do fato com a leitura, caso a caso, com o motivo escrito." },
     ressalva: { olho: "Fila de revisão", titulo: "Ressalva da interrupção", texto: "Texto e material dizem falha, mas a interrupção tem um sinal que enfraquece: programada, sem cliente, de outro elemento ou de equipamento especial." },
-    semdesloc: { olho: "Fila de revisão", titulo: "Sem deslocamento", texto: "Houve interrupção no transformador e não há atendimento registrado no código dele. Raro, e por isso mesmo suspeito dos dois lados." },
+    semdesloc: { olho: "Parou no estágio 2", titulo: "Parados no deslocamento", texto: "Houve interrupção no transformador e não há atendimento registrado no código dele. Raro, e por isso mesmo suspeito dos dois lados." },
     profunda: { olho: "Minha análise", titulo: "Análise profunda", texto: "O que você classificou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima." },
-    semfato: { olho: "Investigação", titulo: "Sem interrupção na janela", texto: "Nem interrupção nem atendimento na janela de 24 horas. Antes de cobrar, o teste do vizinho." },
-    expurgos: { olho: "Fora do indicador", titulo: "Excluídos", texto: "Saíram porque a leitura mostrou outra causa. Continuam na base, marcados." },
+    semfato: { olho: "Parou no estágio 1", titulo: "Parados na interrupção", texto: "Tudo o que a primeira peneira reteve, pelos dois motivos que ela tem. Os filtros separam cada um — e, antes de cobrar campo, existe o teste do vizinho." },
+    expurgos: { olho: "Parou no estágio 3", titulo: "Parados na análise de SS e OS", texto: "Tudo o que a terceira peneira reteve: quem não tem prova de troca e quem a leitura mostrou ser outra causa. Ninguém sai da base — todos continuam marcados." },
     mapa: { olho: "Onde estão", titulo: "Mapa dos ativos", texto: "Um ponto por transformador, na coordenada do próprio ativo — não no centro do município. A cor é a decisão da esteira." },
     ativos: { olho: "Histórico", titulo: "Por transformador", texto: "Tudo o que aconteceu com um código de ativo no semestre, em ordem." },
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
@@ -514,7 +533,7 @@ export default function Page() {
      continua ali para quem quiser sair do recorte de propósito. */
   const PADRAO: Partial<Record<Modulo, string>> = {
     interrupcao: "todos", deslocamento: "todos", ssos: "todos", ressalva: "fila",
-    obra: "todos", decisao: "saida", semfato: "todos", semdesloc: "todos", expurgos: "todos",
+    obra: "todos", decisao: "saida", semfato: "parados", semdesloc: "todos", expurgos: "parados",
     profunda: "todos",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
@@ -562,8 +581,8 @@ export default function Page() {
           <Kpi rotulo="Solicitações" valor={br(total)} nota="transformador, jan a jun" tom="ink" />
           <Kpi rotulo="Incluir" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota="passaram no fato e na leitura" tom="green" aoClicar={() => { setModulo("decisao"); setRecorte({ id: "incluir", rotulo: "INCLUIR" }); }} />
           <Kpi rotulo="Revisão" valor={br(conta((r) => r.decisao === "REVISÃO"))} nota="esperam leitura humana" tom="amber" aoClicar={() => { setModulo("decisao"); setRecorte({ id: "revisao", rotulo: "REVISÃO" }); }} />
-          <Kpi rotulo="Excluir" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="outra causa comprovada" tom="red" aoClicar={() => { setModulo("expurgos"); setRecorte({ id: "todos", rotulo: "Todos os excluídos" }); }} />
-          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases" tom="red" aoClicar={() => { setModulo("semfato"); setRecorte({ id: "todos", rotulo: "Todos sem fato" }); }} />
+          <Kpi rotulo="Excluir" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="outra causa comprovada" tom="red" aoClicar={() => irPara("expurgos", "todos")} />
+          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases" tom="red" aoClicar={() => irPara("semfato", "todos")} />
           <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => { setModulo("ssos"); setRecorte({ id: "corrigida", rotulo: "Categoria corrigida" }); }} />
         </section>
         <section className="resultado-esteira">
@@ -907,7 +926,7 @@ export default function Page() {
         const duplicadas = registros.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
         return <>
         <section className="panel editorial-note wide"><span>O QUE O TEXTO DESSES CASOS DIZ</span>
-          <p>A ausência de interrupção não significa a mesma coisa em todos eles. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
+          <p>Esta etapa retém por dois motivos: {br(semFato.length)} por não terem interrupção na janela e {br(duplicadas.length)} por SS duplicada, que é o painel abaixo. Dentro dos {br(semFato.length)}, a ausência de interrupção não significa a mesma coisa em todos. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
         </section>
         {duplicadas.length > 0 && (
           <section className="panel editorial-note wide"><span>SAÍRAM DESTA ETAPA NA CORREÇÃO</span>
@@ -990,7 +1009,10 @@ export default function Page() {
     <main className="workspace">
       <header className="page-header">
         <div><span>{titulo.olho}</span><h1>{titulo.titulo}</h1><p>{titulo.texto}</p></div>
-        <div className="header-meta"><span>Recorte</span><strong>{br(total)}</strong><small>solicitações</small></div>
+        {/* O cabeçalho dizia "Recorte 1.510" em qualquer aba, inclusive nas que abrem com 209
+            ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
+            lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
+        <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>
       </header>
       {painel()}
     </main>
