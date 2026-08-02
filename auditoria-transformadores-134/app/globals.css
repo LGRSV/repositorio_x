@@ -504,3 +504,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .arquivos em { color: #8a8d91; font: 500 8px "IBM Plex Mono", monospace; font-style: normal; }
 .fonte-detalhe { margin: 0 20px 14px; color: #85888c; font-size: 8px; }
 .drawer-body .fonte-detalhe { margin: 0 0 8px; }
+
+/* A narrativa do caso: o texto que explica a análise sem jargão, no topo do dossiê. */
+.narrativa { margin-bottom: 14px; padding: 15px 17px; background: #fbfaf8; border: 1px solid var(--line); border-left: 3px solid var(--ink); }
+.narrativa > span { color: var(--red); font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .08em; }
+.narrativa > p { margin: 9px 0 0; font-size: 9.5px; line-height: 1.75; color: #33363b; }
+.narrativa ul { margin: 10px 0 0; padding-left: 15px; }
+.narrativa li { color: var(--red); font-size: 8.5px; line-height: 1.6; }

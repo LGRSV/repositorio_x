@@ -81,7 +81,7 @@ const COLUNAS: Array<[string, string]> = [
   ["SS", "ss"], ["OS", "os"], ["Obra", "obra"], ["Ativo", "trafo"],
   ["Decisão", "decisao"], ["Fato", "fato"], ["Leitura", "leitura"],
   ["Categoria pelo texto", "categoria_texto"], ["Categoria gravada", "categoria_gravada"],
-  ["Motivo da decisão", "motivo_decisao"], ["Abertura da SS", "abertura"], ["Término", "termino"],
+  ["Motivo da decisão", "motivo_decisao"], ["Narrativa da análise", "narrativa"], ["Abertura da SS", "abertura"], ["Término", "termino"],
   ["Situação da SS", "situacao"], ["Criticidade", "criticidade"],
   ["Ocorrência", "oc_num"], ["Início da ocorrência", "oc_ini"], ["Fim da ocorrência", "oc_fim"],
   ["Duração (h)", "oc_dur_h"], ["Clientes interrompidos", "oc_cons"], ["Distância (h)", "oc_dist_h"],
@@ -892,6 +892,12 @@ export default function Page() {
           className={`${abaDossie === id ? "active" : ""} no-caps`.trim()} onClick={() => setAbaDossie(id)}>{rotulo}</button>)}</nav>
         <div className="drawer-body">
           {abaDossie === "consolidado" && <>
+            {texto(aberto.narrativa) ? <article className="narrativa">
+              <span>COMO ESTE CASO FOI ANALISADO</span>
+              <p>{texto(aberto.narrativa)}</p>
+              {Array.isArray(aberto.alertas_narrativa) && (aberto.alertas_narrativa as string[]).length
+                ? <ul>{(aberto.alertas_narrativa as string[]).map((a) => <li key={a}>{a}</li>)}</ul> : null}
+            </article> : null}
             <h3>Como esta solicitação foi decidida</h3>
             <article className="rationale"><span>MOTIVO DA DECISÃO</span><p>{texto(aberto.motivo_decisao)}</p></article>
             <section className="detail-grid">
