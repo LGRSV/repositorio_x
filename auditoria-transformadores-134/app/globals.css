@@ -516,3 +516,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .mapa-ativos { height: 620px; border-top: 1px solid var(--line); }
 .mapa-ativos .leaflet-tooltip { font: 500 10px "DM Sans", sans-serif; }
 @media (max-width: 900px) { .mapa-ativos { height: 460px; } }
+
+/* correções do cruzamento, na visão geral: mesma voz do resto, uma linha por defeito corrigido */
+.lista-correcoes { margin: 10px 0 0; padding-left: 16px; }
+.lista-correcoes li { color: #62656a; font-size: 9px; line-height: 1.6; margin-bottom: 6px; }
+.lista-correcoes li::marker { color: var(--red); }

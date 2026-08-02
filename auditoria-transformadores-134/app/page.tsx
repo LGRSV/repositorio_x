@@ -15,7 +15,7 @@ type Modulo =
 type Registro = Record<string, string | number | boolean | null>;
 
 type Fluxo = {
-  meta: { titulo: string; janelaHoras: number; regra?: string; fontes: string[]; lacunas: string[] };
+  meta: { titulo: string; janelaHoras: number; regra?: string; fontes: string[]; lacunas: string[]; correcoes?: string[] };
   resumo: Record<string, number | Record<string, number>>;
   registros: Registro[];
   historico: Array<Array<string | number | null>>;
@@ -56,6 +56,7 @@ const fatoClasse = (v: string) => (v === "F1" ? "good" : v === "F3" ? "bad" : "p
 
 const FATO_ROTULO: Record<string, string> = {
   F1: "Fato pleno", F0: "Fato com ressalva", F2: "Fato provável", F3: "Sem fato",
+  FD: "Fato duplicado",
 };
 const LEITURA_ROTULO: Record<string, string> = {
   L1: "Texto diz falha", L2: "Texto diz outra causa", L3: "Texto não decide",
@@ -205,7 +206,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
       {modo === "interrupcao" && <>
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
         <td><strong>{texto(r.oc_causa) || "—"}</strong><span>{texto(r.oc_sub)}</span><small>{texto(r.oc_papel)}</small></td>
-        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{r.oc_dist_h !== null && r.oc_dist_h !== undefined ? `${r.oc_dist_h}h da abertura` : "—"}</span><small>{texto(r.ressalvas)}</small></td>
+        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{r.oc_dist_h !== null && r.oc_dist_h !== undefined ? `${r.oc_dist_h}h da borda do intervalo` : "—"}</span><small>{texto(r.ressalvas)}</small></td>
       </>}
 
       {modo === "deslocamento" && <>
@@ -310,6 +311,7 @@ export default function Page() {
       { id: "semat", rotulo: "Sem atendimento", nota: "Nenhuma nota no código do trafo. Não é contraprova: a base tem lacuna.", teste: (r) => r.e2_status === "SEM ATENDIMENTO" },
       { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "SS aberta entre 26 e 31 de janeiro, período sem nenhum atendimento no arquivo.", teste: (r) => r.tmae_gap_jan === "SIM" },
       { id: "outra", rotulo: "Atendimento em outra data", nota: "Existe atendimento, mas longe da abertura da SS.", teste: (r) => r.e2_status === "RETIDO" },
+      { id: "porocorrencia", rotulo: "Achados pelo número da ocorrência", nota: "Estavam como sem atendimento porque o TMAE grava o elemento onde o defeito foi aberto, não o transformador. Buscando pelo número da ocorrência, a equipe aparece e deslocou.", teste: (r) => r.at2_achado === "SIM" },
     ],
     ressalva: [
       { id: "todos", rotulo: "Toda a fila", nota: "Passaram nas três peneiras, mas a interrupção tem ressalva.", teste: (r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO" },
@@ -350,6 +352,7 @@ export default function Page() {
       { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
       { id: "ret_prova", rotulo: "Retidos sem prova de troca", nota: "Chegaram ao fim, mas o material não comprova ou o texto não decide.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
+      { id: "ret_dup", rotulo: "Retidos por SS duplicada", nota: "Mesmo transformador e mesmo evento de outra SS: a interrupção prova uma troca, não duas.", teste: (r) => r.cascata === "RETIDO — SS DUPLICADA" },
       { id: "incluir", rotulo: "INCLUIR", nota: "Passou nas três peneiras: campo, texto e material.", teste: (r) => r.decisao === "INCLUIR" },
       { id: "revisao", rotulo: "REVISÃO", nota: "Espera leitura humana, com o motivo escrito. Não é expurgo.", teste: (r) => r.decisao === "REVISÃO" },
       { id: "excluir", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa.", teste: (r) => r.decisao === "EXCLUIR" },
@@ -358,10 +361,11 @@ export default function Page() {
       { id: "avariados", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
     ],
     semfato: [
-      { id: "todos", rotulo: "Todos sem fato", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => r.fato === "F3" },
-      { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => r.fato === "F3" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
-      { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => r.fato === "F3" && texto(r.vizinho).startsWith("Nada") },
-      { id: "borda", rotulo: "Borda de dezembro", nota: "SS aberta nos primeiros dias de janeiro: a ocorrência pode estar em dezembro de 2025.", teste: (r) => r.fato === "F3" && texto(r.abertura) <= "2026-01-03" },
+      { id: "todos", rotulo: "Todos sem interrupção", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
+      { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
+      { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.vizinho).startsWith("Nada") },
+      { id: "borda", rotulo: "Borda de dezembro", nota: "SS aberta nos primeiros dias de janeiro: a ocorrência pode estar em dezembro de 2025.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.abertura) <= "2026-01-03" },
+      { id: "duplicada", rotulo: "SS duplicada", nota: "Tem a interrupção dentro da janela, mas divide o mesmo evento e o mesmo transformador com outra SS. A prova fica com a SS mais próxima do evento.", teste: (r) => r.cascata === "RETIDO — SS DUPLICADA" },
     ],
     expurgos: [
       { id: "todos", rotulo: "Excluídos na leitura", nota: "Chegaram ao terceiro estágio e o texto mostrou outra causa.", teste: (r) => r.cascata === "EXCLUÍDO NA LEITURA" },
@@ -485,7 +489,7 @@ export default function Page() {
   const painel = () => {
     if (modulo === "visao") {
       const decisoes = ["INCLUIR", "REVISÃO", "EXCLUIR"].map((d) => ({ label: d, value: conta((r) => r.decisao === d) }));
-      const fatos = ["F1", "F0", "F2", "F3"].map((f) => ({ label: FATO_ROTULO[f], value: conta((r) => r.fato === f) }));
+      const fatos = ["F1", "F0", "F2", "F3", "FD"].map((f) => ({ label: FATO_ROTULO[f], value: conta((r) => r.fato === f) }));
       // A cascata é literal: cada peneira só recebe o que a anterior deixou passar.
       const chegaE1 = conta((r) => r.chega_e1 === "SIM");
       const chegaE2 = conta((r) => r.chega_e2 === "SIM");
@@ -506,6 +510,12 @@ export default function Page() {
           <div><span>Saída</span><strong>{br(conta((r) => r.decisao === "INCLUIR"))} incluir</strong></div>
           <p>{fluxo.meta.regra}</p>
         </section>
+        {(fluxo.meta.correcoes || []).length > 0 && (
+          <section className="panel editorial-note wide"><span>CORREÇÕES APLICADAS AO CRUZAMENTO</span>
+            <p>Nenhuma delas mudou regra de negócio: são defeitos de cruzamento entre as bases, corrigidos depois da conferência linha a linha. O resultado final da esteira não se moveu — o que mudou foi a verdade do que está escrito em cada caso.</p>
+            <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
+          </section>
+        )}
         <section className="kpi-grid">
           <Kpi rotulo="Solicitações" valor={br(total)} nota="transformador, jan a jun" tom="ink" />
           <Kpi rotulo="Incluir" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota="passaram no fato e na leitura" tom="green" aoClicar={() => { setModulo("decisao"); setRecorte({ id: "incluir", rotulo: "INCLUIR" }); }} />
@@ -695,6 +705,7 @@ export default function Page() {
             <Kpi rotulo="Com atendimento" valor={br(comAt.length)} nota={`${pct(comAt.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("corrobora")} />
             <Kpi rotulo="Sem atendimento" valor={br(conta((r) => r.e2_status === "SEM ATENDIMENTO"))} nota="não é contraprova: a base tem lacuna" tom="amber" aoClicar={() => abrirRecorte("semat")} />
             <Kpi rotulo="Na lacuna de janeiro" valor={br(conta((r) => r.tmae_gap_jan === "SIM"))} nota="26 a 31/01 sem nenhum registro" tom="red" aoClicar={() => abrirRecorte("lacuna")} />
+            <Kpi rotulo="Achados pela ocorrência" valor={br(conta((r) => r.at2_achado === "SIM"))} nota="equipe deslocou, com o defeito aberto noutro elemento" tom="green" aoClicar={() => abrirRecorte("porocorrencia")} />
             <Kpi rotulo="TMA mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tma) || 0))} min`} nota="atendimento de ponta a ponta" tom="ink" />
             <Kpi rotulo="Deslocamento mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tmd) || 0))} min`} nota="da comunicação até chegar" tom="blue" />
             <Kpi rotulo="Equipes distintas" valor={br(new Set(comAt.map((r) => texto(r.at_equipe))).size)} nota="atenderam as solicitações" tom="ink" />
@@ -820,18 +831,27 @@ export default function Page() {
       }
 
       if (modulo === "semfato") {
-        const semFato = registros.filter((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA");
+        // Só entra aqui quem realmente não tem interrupção própria na janela. Quem tem a
+        // interrupção mas divide o evento com outra SS saiu daqui e virou SS duplicada.
+        const aqui = (r: Registro) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA";
+        const semFato = registros.filter(aqui);
+        const duplicadas = registros.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
         return <>
         <section className="panel editorial-note wide"><span>O QUE O TEXTO DESSES CASOS DIZ</span>
           <p>A ausência de interrupção não significa a mesma coisa em todos eles. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
         </section>
+        {duplicadas.length > 0 && (
+          <section className="panel editorial-note wide"><span>SAÍRAM DESTA ETAPA NA CORREÇÃO</span>
+            <p>{br(duplicadas.length)} SS estavam aqui carimbadas como sem interrupção, mas o próprio registro delas guarda a ocorrência, o horário e a observação do eletricista. O que existe nelas é outra coisa: duas SS abertas para o mesmo transformador e o mesmo evento. A interrupção fica com a SS mais próxima do evento — porque um apagão prova uma troca, não duas — e a outra passa a ser tratada como <strong>SS duplicada</strong>, que é o que ela é. {duplicadas.map((r) => `${texto(r.ss)} (gêmea da ${texto(r.ss_gemea)})`).join(" · ")}.</p>
+          </section>
+        )}
         <section className="kpi-grid">
-          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
-          <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => r.fato === "F3" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
-          <Kpi rotulo="Nada encontrado" valor={br(conta((r) => r.fato === "F3" && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
-          <Kpi rotulo="Borda de dezembro" valor={br(conta((r) => r.fato === "F3" && texto(r.abertura) <= "2026-01-03"))} nota="a ocorrência pode estar em dez/2025" tom="blue" aoClicar={() => abrirRecorte("borda")} />
-          <Kpi rotulo="Com texto de falha" valor={br(conta((r) => r.fato === "F3" && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
-          <Kpi rotulo="Com material" valor={br(conta((r) => r.fato === "F3" && (Number(r.trafos_material) || 0) > 0))} nota="a obra movimentou transformador" tom="ink" />
+          <Kpi rotulo="Sem interrupção na janela" valor={br(conta(aqui))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
+          <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => aqui(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
+          <Kpi rotulo="Nada encontrado" valor={br(conta((r) => aqui(r) && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
+          <Kpi rotulo="Borda de dezembro" valor={br(conta((r) => aqui(r) && texto(r.abertura) <= "2026-01-03"))} nota="a ocorrência pode estar em dez/2025" tom="blue" aoClicar={() => abrirRecorte("borda")} />
+          <Kpi rotulo="Com texto de falha" valor={br(conta((r) => aqui(r) && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
+          <Kpi rotulo="SS duplicada" valor={br(duplicadas.length)} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
         </section></>;
       }
       if (modulo === "expurgos") {
@@ -980,6 +1000,11 @@ export default function Page() {
             </section>
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
             {aberto.tmae_gap_jan === "SIM" ? <article className="work-alerts danger"><span>LACUNA CONHECIDA</span><ul><li>Esta SS foi aberta entre 26 e 31 de janeiro, período em que o arquivo de atendimento não tem nenhum registro. A ausência aqui não é contraprova.</li></ul></article> : null}
+            {aberto.at2_achado === "SIM" ? <article className="work-alerts"><span>ATENDIMENTO ACHADO PELO NÚMERO DA OCORRÊNCIA</span><ul>
+              <li>{texto(aberto.at2_nota)}</li>
+              <li>Nota {texto(aberto.at2_num)} · equipe {texto(aberto.at2_equipe)} · {texto(aberto.at2_causa)}{texto(aberto.at2_sub) ? ` · ${texto(aberto.at2_sub)}` : ""}</li>
+              {texto(aberto.at2_obs) ? <li>Observação do executante: {texto(aberto.at2_obs)}</li> : null}
+            </ul></article> : null}
             <BlocoDetalhe titulo="A linha inteira do atendimento" fonte="Base TMAE · atendimento de emergência" dados={aberto.det_atendimento as Detalhe} />
           </>}
           {abaDossie === "ssos" && <>
