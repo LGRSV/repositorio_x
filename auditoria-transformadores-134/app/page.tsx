@@ -577,11 +577,13 @@ export default function Page() {
               <tbody>{["F1", "F0", "F2", "F3"].map((f) => <tr key={f}>
                 <td><strong>{FATO_ROTULO[f]}</strong></td>
                 {["L1", "L2", "L3"].map((l) => {
-                  const n = celula(f, l);
-                  const dec = registros.find((r) => r.fato === f && r.leitura === l)?.decisao;
-                  return <td key={l} className={n ? `cell-${decisaoClasse(texto(dec))}` : ""}
-                    onClick={() => { if (n) { setBusca(""); setRecorte({ id: `matriz-${f}-${l}`, rotulo: `${FATO_ROTULO[f]} × ${LEITURA_ROTULO[l]}` }); } }}>
-                    <strong>{n ? br(n) : "—"}</strong>{n ? <span>{texto(dec)}</span> : null}</td>;
+                  const dentro = registros.filter((r) => r.fato === f && r.leitura === l);
+                  const composicao = contar(dentro, "decisao", 3);
+                  const dominante = composicao[0]?.label || "";
+                  return <td key={l} className={dentro.length ? `cell-${decisaoClasse(dominante)}` : ""}
+                    onClick={() => { if (dentro.length) { setBusca(""); setRecorte({ id: `matriz-${f}-${l}`, rotulo: `${FATO_ROTULO[f]} × ${LEITURA_ROTULO[l]}` }); } }}>
+                    <strong>{dentro.length ? br(dentro.length) : "—"}</strong>
+                    {dentro.length ? <span>{composicao.map((c) => `${br(c.value)} ${c.label.toLowerCase()}`).join(" · ")}</span> : null}</td>;
                 })}
               </tr>)}</tbody>
             </table></div>
@@ -621,9 +623,9 @@ export default function Page() {
       <section className="panel list-panel">
         <div className="list-head">
           <div><span>{br(listadas.length)} solicitações{listadas.length > CAP ? ` · mostrando as ${CAP} primeiras` : ""}</span>
-            <strong>{recorteAtivo ? recorteAtivo.rotulo : titulo.titulo}</strong></div>
+            <strong>{recorteAtivo ? recorteAtivo.rotulo : recorte ? recorte.rotulo : titulo.titulo}</strong></div>
           <label className="search"><span>⌕</span><input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="SS, OS, obra, ativo, equipe, solicitante, causa…" /></label>
-          <button type="button" className="sheet-download" onClick={() => baixarCSV(listadas, recorteAtivo ? recorteAtivo.rotulo : titulo.titulo, janela)}>Baixar planilha ({br(listadas.length)})</button>
+          <button type="button" className="sheet-download" onClick={() => baixarCSV(listadas, recorteAtivo ? recorteAtivo.rotulo : recorte ? recorte.rotulo : titulo.titulo, janela)}>Baixar planilha ({br(listadas.length)})</button>
         </div>
         {recortesDoModulo.length ? <div className="fluxo-abas">
           <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)}>Todas ({br(comJanela.length)})</button>
