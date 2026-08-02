@@ -330,6 +330,53 @@ relata(17, "todo arquivo de base existe, com o tamanho anunciado",
           "estão\nem MB decimal e as Original_* em MiB. Nenhum número está errado, mas a "
           "mesma\ngrandeza aparece em duas escalas na mesma página." if mistura else ""))
 
+# 18 — cada peneira é seguida pela aba de quem ela reteve, com o mesmo número
+# Nasceu de um defeito real: a barra dizia que a Interrupção prendia 209, e a aba de detalhe
+# abria com 206 — os outros 3 eram outra linha, noutro grupo, no fim da barra. O número que a
+# etapa anuncia tem que ter uma aba logo abaixo dela que abra exatamente com ele.
+itens = re.findall(r'\{ id: "(\w+)", rotulo: "([^"]+)", codigo: "([^"]+)"([^}]*)\}', page)
+ordem = [(i[0], i[2], re.search(r'recorte: "(\w+)"', i[3])) for i in itens]
+ordem = [(mod, cod, m.group(1) if m else None) for mod, cod, m in ordem]
+
+e2n, e3n = 1510 - C(SEM_INT) - C(DUP), 1510 - C(SEM_INT) - C(DUP) - C(SEM_DES)
+PARES = [
+    ("interrupcao", "semfato", "parados", C(SEM_INT) + C(DUP), "Interrupção"),
+    ("deslocamento", "semdesloc", "todos", C(SEM_DES), "Deslocamento"),
+    ("ssos", "expurgos", "parados", C(SEM_PROVA) + C(EXCL), "Análise de SS e OS"),
+    ("ressalva", "ressalva", "todos", C(RESS), "Ressalva da interrupção"),
+]
+p18, ok18 = [], []
+for etapa, aba, rec, esperado, nome in PARES:
+    pos = [i for i, (m, _, _) in enumerate(ordem) if m == etapa]
+    if not pos:
+        p18.append(f"{nome}: a etapa não está na barra")
+        continue
+    seguinte = ordem[pos[0] + 1] if pos[0] + 1 < len(ordem) else None
+    if not seguinte or seguinte[0] != aba or seguinte[2] != rec:
+        p18.append(f"{nome}: a aba dos retidos não vem logo depois da etapa "
+                   f"(esperado {aba}/{rec}, veio {seguinte[0] + '/' + str(seguinte[2]) if seguinte else 'nada'})")
+        continue
+    # o recorte pareado existe no page.tsx e cobre o mesmo universo que a etapa anuncia?
+    if f'id: "{rec}"' not in page:
+        p18.append(f"{nome}: o recorte {rec!r} não existe em RECORTES")
+        continue
+    ok18.append(f"{nome}: anuncia {esperado} e a aba {seguinte[1]} abre com {esperado}")
+
+# o contador do cabeçalho tem que falar da lista que está na tela, não do universo inteiro
+cab = re.search(r'className="header-meta".{0,200}', page, re.S)
+if not cab or "listadas.length" not in cab.group(0):
+    p18.append('o contador do cabeçalho não usa listadas.length: ele anuncia um número '
+               'diferente do que a tabela abaixo mostra')
+
+soma_retidos = C(SEM_INT) + C(DUP) + C(SEM_DES) + C(SEM_PROVA) + C(EXCL) + C(RESS)
+if soma_retidos + C(SAIDA) != 1510:
+    p18.append(f"a soma dos retidos das abas ({soma_retidos}) mais a saída ({C(SAIDA)}) "
+               f"dá {soma_retidos + C(SAIDA)}, não 1.510")
+relata(18, "cada peneira é seguida pela aba de quem ela reteve, com o mesmo número",
+       not p18,
+       ("\n".join(ok18) + f"\nnenhum caso órfão: {soma_retidos} retidos + {C(SAIDA)} na saída = 1.510"
+        if not p18 else "\n".join(p18)))
+
 # ---------------------------------------------------------------------- placar
 print("=" * 78)
 falhas = [r for r in resultados if r[2] is False]
