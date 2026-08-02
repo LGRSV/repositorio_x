@@ -271,11 +271,15 @@ export default function Page() {
     ],
     obra: [
       { id: "alerta", rotulo: "Com alerta", nota: "R-OBR-01, R-OBR-02, R-OBR-03 ou divergência de SIGCO.", teste: (r) => r.e4_status === "ALERTA" },
-      { id: "semobra", rotulo: "Sem obra gerada", nota: "Sem obra não há consulta de material nem encerramento.", teste: (r) => !texto(r.obra) },
+      { id: "semobra", rotulo: "Sem obra gerada — análise à parte", nota: "Sem obra não existe consulta de material nem encerramento: o caso sai do fluxo e vai para análise própria.", teste: (r) => !texto(r.obra) },
       { id: "despesa", rotulo: "Obra em despesa", nota: "A obra não imobiliza o ativo.", teste: (r) => normalize(texto(r.obra_classe)).includes("DESPESA") },
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O código do projeto difere do código da ocorrência.", teste: (r) => texto(r.e4_alertas).includes("SIGCO") },
     ],
     decisao: [
+      { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
+      { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM FATO" },
+      { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
+      { id: "ret_prova", rotulo: "Retidos sem prova de troca", nota: "Chegaram ao fim, mas o material não comprova ou o texto não decide.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
       { id: "incluir", rotulo: "INCLUIR", nota: "O campo prova o evento e a leitura confirma falha de transformador.", teste: (r) => r.decisao === "INCLUIR" },
       { id: "revisao", rotulo: "REVISÃO", nota: "Espera leitura humana, com o motivo escrito. Não é expurgo.", teste: (r) => r.decisao === "REVISÃO" },
       { id: "excluir", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa.", teste: (r) => r.decisao === "EXCLUIR" },
@@ -330,11 +334,11 @@ export default function Page() {
   const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; marca?: number }> }> = [
     { grupo: "Fluxo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01" },
-      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", marca: conta((r) => r.fato === "F1" || r.fato === "F0") },
-      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", marca: conta((r) => texto(r.tmae_corrobora) !== "não") },
-      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", marca: conta((r) => r.leitura === "L1") },
-      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => r.e4_status === "ALERTA") },
-      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.decisao === "INCLUIR") },
+      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", marca: conta((r) => r.chega_e1 === "SIM") },
+      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", marca: conta((r) => r.chega_e2 === "SIM") },
+      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", marca: conta((r) => r.chega_e3 === "SIM") },
+      { id: "obra", rotulo: "Obra e SIGCO", codigo: "05", marca: conta((r) => !texto(r.obra)) },
+      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA") },
     ]},
     { grupo: "Filas", itens: [
       { id: "semfato", rotulo: "Sem fato", codigo: "07", marca: conta((r) => r.fato === "F3") },
@@ -352,7 +356,7 @@ export default function Page() {
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
-    obra: { olho: "Trilha paralela", titulo: "Obra e SIGCO", texto: "A obra existe, nasceu como manutenção corretiva e está no projeto certo?" },
+    obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
     decisao: { olho: "Saída do funil", titulo: "Decisão final", texto: "O cruzamento do fato com a leitura, caso a caso, com o motivo escrito." },
     semfato: { olho: "Investigação", titulo: "Sem fato", texto: "Nem interrupção nem atendimento na janela. Antes de cobrar, o teste do vizinho." },
     expurgos: { olho: "Fora do indicador", titulo: "Excluídos", texto: "Saíram porque a leitura mostrou outra causa. Continuam na base, marcados." },
@@ -373,13 +377,17 @@ export default function Page() {
     if (modulo === "visao") {
       const decisoes = ["INCLUIR", "REVISÃO", "EXCLUIR"].map((d) => ({ label: d, value: conta((r) => r.decisao === d) }));
       const fatos = ["F1", "F0", "F2", "F3"].map((f) => ({ label: FATO_ROTULO[f], value: conta((r) => r.fato === f) }));
-      const caixas: Array<[string, string, number, Modulo]> = [
-        ["Entram", "solicitações de troca de transformador", total, "visao"],
-        ["1 · Interrupção", "o campo registrou o evento", conta((r) => r.fato === "F1" || r.fato === "F0"), "interrupcao"],
-        ["2 · Deslocamento", "houve equipe no transformador", conta((r) => texto(r.tmae_corrobora) !== "não"), "deslocamento"],
-        ["3 · SS e OS", "o texto e o material dizem falha", conta((r) => r.leitura === "L1"), "ssos"],
-        ["4 · Obra e SIGCO", "sem alerta de enquadramento", conta((r) => r.e4_status !== "ALERTA"), "obra"],
-        ["Saem", "contam no indicador de queima e avaria", conta((r) => r.decisao === "INCLUIR"), "decisao"],
+      // A cascata é literal: cada peneira só recebe o que a anterior deixou passar.
+      const chegaE1 = conta((r) => r.chega_e1 === "SIM");
+      const chegaE2 = conta((r) => r.chega_e2 === "SIM");
+      const chegaE3 = conta((r) => r.chega_e3 === "SIM");
+      const saida = conta((r) => r.cascata === "SAÍDA");
+      const caixas: Array<[string, string, number, number, Modulo]> = [
+        ["Entram", "solicitações de troca de transformador", total, 0, "visao"],
+        ["Leitura desqualifica", "furto, abalroamento, preventivo, auxiliar: não são falha", chegaE1, total - chegaE1, "expurgos"],
+        ["1 · Interrupção", "o campo registrou o evento na janela", chegaE2, chegaE1 - chegaE2, "interrupcao"],
+        ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "deslocamento"],
+        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", saida, chegaE3 - saida, "ssos"],
       ];
       return <>
         <section className="scope-strip">
@@ -398,12 +406,13 @@ export default function Page() {
         </section>
         <section className="panel caixa-dagua">
           <div className="panel-title"><div><span>Caixa d'água</span><h2>Onde cada solicitação para</h2></div><small>clique para abrir o estágio</small></div>
-          {caixas.map(([nome, nota, valor, destino]) => <button key={nome} type="button" className="caixa-linha" onClick={() => { setModulo(destino); setRecorte(null); }}>
+          {caixas.map(([nome, nota, valor, retido, destino]) => <button key={nome} type="button" className="caixa-linha" onClick={() => { setModulo(destino); setRecorte(null); }}>
             <b>{br(valor)}</b>
-            <span><strong>{nome}</strong><small>{nota}</small></span>
+            <span><strong>{nome}</strong><small>{nota}{retido ? ` · ${br(retido)} ficam retidos aqui` : ""}</small></span>
             <i><em style={{ width: `${pct(valor, total)}%` }} /></i>
             <u>{pct(valor, total)}%</u>
           </button>)}
+          <p className="fluxo-nota">Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
         </section>
         <section className="dashboard-columns">
           <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Decisão</h2></div></div><Barras dados={decisoes} total={total} /></article>
@@ -482,10 +491,12 @@ export default function Page() {
     /* módulos de estágio: indicadores, quebras e a lista */
     const cabecalho = () => {
       if (modulo === "interrupcao") {
-        const casados = registros.filter((r) => r.fato === "F1" || r.fato === "F0");
+        const chegam = registros.filter((r) => r.chega_e1 === "SIM");
+        const casados = chegam.filter((r) => r.fato === "F1" || r.fato === "F0");
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Casaram em 24h" valor={br(casados.length)} nota={`${pct(casados.length, total)}% do recorte`} tom="green" aoClicar={() => abrirRecorte("casou")} />
+            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="depois da desqualificação pela leitura" tom="ink" />
+            <Kpi rotulo="Casaram em 24h" valor={br(casados.length)} nota={`${pct(casados.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("casou")} />
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
             <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota="o código não aparece em seis meses" tom="red" aoClicar={() => abrirRecorte("sem")} />
@@ -506,10 +517,12 @@ export default function Page() {
         </>;
       }
       if (modulo === "deslocamento") {
-        const comAt = registros.filter((r) => texto(r.at_num));
+        const chegam = registros.filter((r) => r.chega_e2 === "SIM");
+        const comAt = chegam.filter((r) => texto(r.at_num));
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Com atendimento" valor={br(comAt.length)} nota={`${pct(comAt.length, total)}% do recorte`} tom="green" aoClicar={() => abrirRecorte("corrobora")} />
+            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="passaram pela interrupção" tom="ink" />
+            <Kpi rotulo="Com atendimento" valor={br(comAt.length)} nota={`${pct(comAt.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("corrobora")} />
             <Kpi rotulo="Sem atendimento" valor={br(conta((r) => r.e2_status === "SEM ATENDIMENTO"))} nota="não é contraprova: a base tem lacuna" tom="amber" aoClicar={() => abrirRecorte("semat")} />
             <Kpi rotulo="Na lacuna de janeiro" valor={br(conta((r) => r.tmae_gap_jan === "SIM"))} nota="26 a 31/01 sem nenhum registro" tom="red" aoClicar={() => abrirRecorte("lacuna")} />
             <Kpi rotulo="TMA mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tma) || 0))} min`} nota="atendimento de ponta a ponta" tom="ink" />
@@ -525,9 +538,11 @@ export default function Page() {
         </>;
       }
       if (modulo === "ssos") {
+        const chegam = registros.filter((r) => r.chega_e3 === "SIM");
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Texto diz falha" valor={br(conta((r) => r.leitura === "L1"))} nota="queima ou avaria descrita" tom="green" aoClicar={() => abrirRecorte("falha")} />
+            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="passaram pela interrupção e pelo deslocamento" tom="ink" />
+            <Kpi rotulo="Texto diz falha" valor={br(chegam.filter((r) => r.leitura === "L1").length)} nota={`${pct(chegam.filter((r) => r.leitura === "L1").length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("falha")} />
             <Kpi rotulo="Outra causa" valor={br(conta((r) => r.leitura === "L2"))} nota="furto, abalroamento, preventivo, auxiliar" tom="red" aoClicar={() => abrirRecorte("outra")} />
             <Kpi rotulo="Não decide" valor={br(conta((r) => r.leitura === "L3"))} nota="vai para leitura humana" tom="amber" aoClicar={() => abrirRecorte("indef")} />
             <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o rótulo gravado não bate com o texto" tom="blue" aoClicar={() => abrirRecorte("corrigida")} />
@@ -544,9 +559,12 @@ export default function Page() {
       }
       if (modulo === "obra") {
         return <>
+          <section className="panel warning-note wide"><strong>Esta tela não decide</strong>
+            <p>Obra e SIGCO dizem se o custo foi enquadrado certo, não se o transformador queimou. Por isso ficam fora da cascata: um alerta aqui não retém o caso no fluxo, ele acompanha o registro como observação. A única exceção é a obra não existir — sem obra não há consulta de material nem encerramento, e aí o caso vai para análise à parte.</p>
+          </section>
           <section className="kpi-grid">
-            <Kpi rotulo="Com alerta" valor={br(conta((r) => r.e4_status === "ALERTA"))} nota="R-OBR ou SIGCO divergente" tom="red" aoClicar={() => abrirRecorte("alerta")} />
-            <Kpi rotulo="Sem obra gerada" valor={br(conta((r) => !texto(r.obra)))} nota="sem obra não há prova de troca" tom="amber" aoClicar={() => abrirRecorte("semobra")} />
+            <Kpi rotulo="Sem obra gerada" valor={br(conta((r) => !texto(r.obra)))} nota="vão para análise à parte" tom="red" aoClicar={() => abrirRecorte("semobra")} />
+            <Kpi rotulo="Com alerta" valor={br(conta((r) => r.e4_status === "ALERTA"))} nota="observação, não retenção" tom="amber" aoClicar={() => abrirRecorte("alerta")} />
             <Kpi rotulo="Obra em despesa" valor={br(conta((r) => normalize(texto(r.obra_classe)).includes("DESPESA")))} nota="não imobiliza o ativo" tom="red" aoClicar={() => abrirRecorte("despesa")} />
             <Kpi rotulo="SIGCO divergente" valor={br(conta((r) => texto(r.e4_alertas).includes("SIGCO")))} nota="código da SS diferente do projeto" tom="blue" aoClicar={() => abrirRecorte("sigco")} />
             <Kpi rotulo="Empreiteiras" valor={br(new Set(registros.map((r) => texto(r.obra_empreiteira)).filter(Boolean)).size)} nota="executaram as obras" tom="ink" />

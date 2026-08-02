@@ -120,6 +120,49 @@
    ]
   },
   {
+   "id": "cascata",
+   "titulo": "5. A ordem das peneiras",
+   "paragrafos": [
+    "O fluxo é uma cascata: cada peneira só recebe o que a anterior deixou passar. Antes de tudo, a leitura desqualifica — furto, abalroamento, preventivo, auxiliar de equipamento especial, construção e desativação não são falha de transformador e saem em qualquer ponto, sem precisar de campo.",
+    "O que sobra desce na ordem: a interrupção prova que o evento existiu; o deslocamento mostra que houve equipe no código do transformador; e o texto com o material comprovam a troca. Quem não passa numa peneira fica retido ali, com o motivo escrito, e não segue para a seguinte.",
+    "Obra e SIGCO ficam fora da cascata. Eles dizem se o custo foi enquadrado certo, não se o transformador queimou — um alerta ali acompanha o registro como observação e não retém o caso. A única exceção é a obra não existir: sem obra não há consulta de material nem encerramento, e o caso vai para análise à parte."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "Peneira",
+     "Recebe",
+     "Passa",
+     "Fica retido"
+    ],
+    "linhas": [
+     [
+      "Leitura desqualifica",
+      "1.510",
+      "1.446",
+      "64 — o texto descreve outra causa"
+     ],
+     [
+      "1 · Interrupção",
+      "1.446",
+      "1.248 + 21 recuperados pelo atendimento",
+      "177 — sem fato nas duas bases"
+     ],
+     [
+      "2 · Deslocamento",
+      "1.248",
+      "961",
+      "287 — sem atendimento, 81 na lacuna de janeiro"
+     ],
+     [
+      "3 · SS e OS com material",
+      "982",
+      "942",
+      "40 — o material não comprova ou o texto não decide"
+     ]
+    ]
+   }
+  },
+  {
    "id": "correcoes",
    "titulo": "5. O que foi corrigido no caminho",
    "paragrafos": [
