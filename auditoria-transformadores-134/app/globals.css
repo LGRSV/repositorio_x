@@ -484,3 +484,12 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .classificar-linha button.marcado.warn { border-color: var(--amber); background: var(--amber); color: #fff; }
 .classificar-linha button.marcado.bad { border-color: var(--red); background: var(--red); color: #fff; }
 .col-classificar > span { display: block; margin-top: 4px; color: #85888c; font-size: 7px; text-transform: uppercase; }
+
+/* O resultado da esteira: o número que a auditoria entrega, em destaque no topo. */
+.resultado-esteira { margin-bottom: 16px; padding: 20px 22px; background: var(--ink); color: #fff; }
+.resultado-esteira > span { display: block; color: #83878c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+.resultado-esteira > div { display: flex; flex-wrap: wrap; gap: 34px; margin-top: 12px; }
+.resultado-esteira article b { display: block; font: 500 34px/1 "Newsreader", serif; }
+.resultado-esteira article em { display: block; margin-top: 5px; color: #b7babd; font-size: 9px; font-style: normal; }
+.resultado-esteira article.total b { color: #f0c9cd; }
+.resultado-esteira > p { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #3a3d42; color: #b0b3b7; font-size: 8.5px; line-height: 1.6; }

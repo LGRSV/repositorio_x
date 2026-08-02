@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 type Modulo =
   | "visao" | "interrupcao" | "deslocamento" | "ssos" | "obra" | "decisao"
   | "profunda"
+  | "ressalva"
   | "semdesloc"
   | "semfato" | "expurgos" | "ativos" | "regras" | "bases";
 
@@ -295,6 +296,13 @@ export default function Page() {
       { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "SS aberta entre 26 e 31 de janeiro, período sem nenhum atendimento no arquivo.", teste: (r) => r.tmae_gap_jan === "SIM" },
       { id: "outra", rotulo: "Atendimento em outra data", nota: "Existe atendimento, mas longe da abertura da SS.", teste: (r) => r.e2_status === "RETIDO" },
     ],
+    ressalva: [
+      { id: "todos", rotulo: "Toda a fila", nota: "Passaram nas três peneiras, mas a interrupção tem ressalva.", teste: (r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO" },
+      { id: "grave", rotulo: "Ressalva grave", nota: "Programada, preventiva ou com equipamento especial na ocorrência.", teste: (r) => Boolean(texto(r.ressalvas_graves)) },
+      { id: "semcliente", rotulo: "Sem cliente interrompido", nota: "A interrupção não deixou ninguém sem energia.", teste: (r) => texto(r.ressalvas_medias).includes("nenhum cliente") },
+      { id: "outroele", rotulo: "Defeito em outro elemento", nota: "O defeito foi aberto em outro equipamento, não no transformador.", teste: (r) => texto(r.ressalvas_medias).includes("outro equipamento") },
+      { id: "individual", rotulo: "Reclamação individual", nota: "Um cliente só reclamou; não foi interrupção coletiva.", teste: (r) => texto(r.ressalvas_medias).includes("um cliente só") },
+    ],
     semdesloc: [
       { id: "todos", rotulo: "Toda a fila", nota: "Interrupção na janela, sem atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
       { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "Aberta entre 26 e 31/01, quando o arquivo do TMAE não tem registro.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.tmae_gap_jan === "SIM" },
@@ -417,16 +425,17 @@ export default function Page() {
     ]},
     { grupo: "Filas", itens: [
       { id: "semfato", rotulo: "Sem interrupção", codigo: "07", marca: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
-      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "08", marca: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "09", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
-      { id: "ativos", rotulo: "Por transformador", codigo: "10" },
+      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "08", marca: conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO") },
+      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "09", marca: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
+      { id: "expurgos", rotulo: "Excluídos", codigo: "10", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
+      { id: "ativos", rotulo: "Por transformador", codigo: "11" },
     ]},
     { grupo: "Minha análise", itens: [
-      { id: "profunda", rotulo: "Análise profunda", codigo: "11", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
+      { id: "profunda", rotulo: "Análise profunda", codigo: "12", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
     ]},
     { grupo: "Controle", itens: [
-      { id: "regras", rotulo: "Regras e método", codigo: "12" },
-      { id: "bases", rotulo: "Bases usadas", codigo: "13" },
+      { id: "regras", rotulo: "Regras e método", codigo: "13" },
+      { id: "bases", rotulo: "Bases usadas", codigo: "14" },
     ]},
   ];
 
@@ -437,6 +446,7 @@ export default function Page() {
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
     obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
     decisao: { olho: "Saída do funil", titulo: "Decisão final", texto: "O cruzamento do fato com a leitura, caso a caso, com o motivo escrito." },
+    ressalva: { olho: "Fila de revisão", titulo: "Ressalva da interrupção", texto: "Texto e material dizem falha, mas a interrupção tem um sinal que enfraquece: programada, sem cliente, de outro elemento ou de equipamento especial." },
     semdesloc: { olho: "Fila de revisão", titulo: "Sem deslocamento", texto: "Houve interrupção no transformador e não há atendimento registrado no código dele. Raro, e por isso mesmo suspeito dos dois lados." },
     profunda: { olho: "Minha análise", titulo: "Análise profunda", texto: "O que você classificou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima." },
     semfato: { olho: "Investigação", titulo: "Sem interrupção na janela", texto: "Nem interrupção nem atendimento na janela de 24 horas. Antes de cobrar, o teste do vizinho." },
@@ -468,7 +478,8 @@ export default function Page() {
         ["Entram", "solicitações de troca de transformador", total, 0, "visao"],
         ["1 · Interrupção", "o campo registrou o evento na janela de 24 horas", chegaE2, total - chegaE2, "interrupcao"],
         ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "deslocamento"],
-        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", saida, chegaE3 - saida, "ssos"],
+        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") + conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ssos"],
+        ["4 · Ressalva da interrupção", "a interrupção sustenta chamar isso de falha?", saida, conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO"), "ressalva"],
       ];
       return <>
         <section className="scope-strip">
@@ -484,6 +495,15 @@ export default function Page() {
           <Kpi rotulo="Excluir" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="outra causa comprovada" tom="red" aoClicar={() => { setModulo("expurgos"); setRecorte({ id: "todos", rotulo: "Todos os excluídos" }); }} />
           <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases" tom="red" aoClicar={() => { setModulo("semfato"); setRecorte({ id: "todos", rotulo: "Todos sem fato" }); }} />
           <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => { setModulo("ssos"); setRecorte({ id: "corrigida", rotulo: "Categoria corrigida" }); }} />
+        </section>
+        <section className="resultado-esteira">
+          <span>Resultado da esteira</span>
+          <div>
+            <article><b>{br(conta((r) => r.confirmado === "QUEIMADO"))}</b><em>queimados</em></article>
+            <article><b>{br(conta((r) => r.confirmado === "AVARIADO"))}</b><em>avariados</em></article>
+            <article className="total"><b>{br(conta((r) => Boolean(texto(r.confirmado))))}</b><em>transformadores com causa confirmada</em></article>
+          </div>
+          <p>Campo, texto e material contam a mesma história e a interrupção não tem ressalva. Os outros {br(total - conta((r) => Boolean(texto(r.confirmado))))} não são negativa: estão nas filas de revisão, cada um com o motivo escrito.</p>
         </section>
         <section className="panel caixa-dagua">
           <div className="panel-title"><div><span>Caixa d'água</span><h2>Onde cada solicitação para</h2></div><small>clique para abrir o estágio</small></div>
