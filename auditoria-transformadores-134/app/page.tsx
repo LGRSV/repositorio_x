@@ -489,7 +489,7 @@ export default function Page() {
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
             <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota="o código não aparece em seis meses" tom="red" aoClicar={() => abrirRecorte("sem")} />
-            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota="entre a SS e a ocorrência" tom="ink" />
+            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota={`da SS até a ocorrência — ${br(conta((r) => Number(r.oc_dist_h) === 0))} abrem dentro dela`} tom="ink" />
             <Kpi rotulo="Clientes interrompidos" valor={br(registros.reduce((s, r) => s + (Number(r.oc_cons) || 0), 0))} nota="somados nas ocorrências casadas" tom="ink" />
           </section>
           <section className="janela-controle">
@@ -673,8 +673,9 @@ export default function Page() {
           <span>{LEITURA_ROTULO[texto(aberto.leitura)]}</span>
           <em>{texto(aberto.categoria_texto)}</em>
         </div>
-        <nav>{["consolidado", "interrupção", "deslocamento", "ss e os", "obra", "histórico"].map((t) => <button key={t}
-          className={abaDossie === t ? "active" : ""} onClick={() => setAbaDossie(t)}>{t}</button>)}</nav>
+        <nav>{([["consolidado", "Consolidado"], ["interrupcao", "Interrupção"], ["deslocamento", "Deslocamento"],
+                ["ssos", "SS e OS"], ["obra", "Obra e SIGCO"], ["historico", "Histórico do ativo"]] as const).map(([id, rotulo]) => <button key={id}
+          className={`${abaDossie === id ? "active" : ""} no-caps`.trim()} onClick={() => setAbaDossie(id)}>{rotulo}</button>)}</nav>
         <div className="drawer-body">
           {abaDossie === "consolidado" && <>
             <h3>Como esta solicitação foi decidida</h3>
@@ -691,7 +692,7 @@ export default function Page() {
             </section>
             {texto(aberto.ressalvas) ? <article className="work-alerts"><span>RESSALVAS</span><ul>{texto(aberto.ressalvas).split(" · ").map((x) => <li key={x}>{x}</li>)}</ul></article> : null}
           </>}
-          {abaDossie === "interrupção" && <>
+          {abaDossie === "interrupcao" && <>
             <h3>O que a base de interrupção registra</h3>
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{texto(aberto.oc_num) || "nenhuma"}</strong></div>
@@ -725,7 +726,7 @@ export default function Page() {
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
             {aberto.tmae_gap_jan === "SIM" ? <article className="work-alerts danger"><span>LACUNA CONHECIDA</span><ul><li>Esta SS foi aberta entre 26 e 31 de janeiro, período em que o arquivo de atendimento não tem nenhum registro. A ausência aqui não é contraprova.</li></ul></article> : null}
           </>}
-          {abaDossie === "ss e os" && <>
+          {abaDossie === "ssos" && <>
             <h3>O que foi pedido e o que foi executado</h3>
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{texto(aberto.desc_ss) || "Sem texto."}</p></article>
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{texto(aberto.desc_os) || "Sem texto."}</p></article>
@@ -759,7 +760,7 @@ export default function Page() {
             {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>ALERTAS DE OBRA</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>{x}</li>)}</ul></article> : null}
             <article className="editorial-note"><span>SOBRE O NOME DA OBRA</span><p>O cadastro não guarda quem abriu a obra: o nome registrado é o de quem fez a última movimentação. Quem origina o fluxo é o solicitante da SS, porque a obra nasce dela.</p></article>
           </>}
-          {abaDossie === "histórico" && <>
+          {abaDossie === "historico" && <>
             <h3>Histórico do transformador {texto(aberto.trafo)}</h3>
             <section className="detail-grid">
               <div><span>Ocorrências no semestre</span><strong>{texto(aberto.ocorrencias_ativo)}</strong></div>
