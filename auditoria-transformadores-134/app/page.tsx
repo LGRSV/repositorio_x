@@ -611,7 +611,7 @@ export default function Page() {
               <thead><tr><th>Evento</th><th>Quando</th><th>Número</th><th>Papel</th><th>Clientes</th><th>Causa</th><th>Observação</th></tr></thead>
               <tbody>{historicoDoAtivo.map((l, i) => <tr key={i}>
                 <td><strong>{texto(l[4])}</strong><span>{texto(l[1])}</span></td>
-                <td><strong>{texto(l[5]).slice(0, 16) || "—"}</strong><span>{texto(l[6]).slice(0, 16)}</span></td>
+                <td><strong>{dataBR(l[5])}</strong><span>{texto(l[6]) ? `até ${dataBR(l[6])}` : ""}</span></td>
                 <td><code>{texto(l[7])}</code></td>
                 <td><span>{texto(l[8])}</span></td>
                 <td><strong>{l[9] === null ? "—" : texto(l[9])}</strong></td>
@@ -988,7 +988,7 @@ export default function Page() {
               <thead><tr><th>Evento</th><th>Quando</th><th>Causa</th><th>Equipe</th></tr></thead>
               <tbody>{fluxo.historico.filter((l) => texto(l[0]) === texto(aberto.trafo)).map((l, i) => <tr key={i}>
                 <td><strong>{texto(l[4])}</strong><code>{texto(l[7])}</code></td>
-                <td><strong>{texto(l[5]).slice(0, 16)}</strong><span>{texto(l[6]).slice(0, 16)}</span></td>
+                <td><strong>{dataBR(l[5])}</strong><span>{texto(l[6]) ? `até ${dataBR(l[6])}` : ""}</span></td>
                 <td><span>{texto(l[10])}</span></td>
                 <td><span>{texto(l[12]) || "—"}</span></td>
               </tr>)}</tbody>
