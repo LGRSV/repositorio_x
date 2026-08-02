@@ -463,3 +463,24 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .quadrinho::after { content: "→"; position: absolute; top: 50%; right: -11px; z-index: 2; color: var(--red); font-size: 13px; }
 .quadrinho:last-child::after { content: ""; }
 @media (max-width: 900px) { .quadrinho::after { content: ""; } }
+
+/* Classificação do analista: fica ao lado da decisão do fluxo, nunca por cima dela. */
+.classificar { padding: 11px 22px; background: #fbfaf8; border-bottom: 1px solid var(--soft); }
+.classificar > span { display: block; color: var(--muted); font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.classificar > div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.classificar button { border: 1px solid var(--line); padding: 6px 10px; background: #fff; color: #52565b; font-size: 8px; font-weight: 600; }
+.classificar button:hover { border-color: var(--ink); color: var(--ink); }
+.classificar button.marcado.good { border-color: var(--green); background: var(--green); color: #fff; }
+.classificar button.marcado.pend { border-color: var(--blue); background: var(--blue); color: #fff; }
+.classificar button.marcado.warn { border-color: var(--amber); background: var(--amber); color: #fff; }
+.classificar button.marcado.bad { border-color: var(--red); background: var(--red); color: #fff; }
+.classificar button.limpar { border-style: dashed; color: #8a8d91; }
+.classificar em { display: block; margin-top: 7px; color: #85888c; font-size: 7.5px; font-style: normal; }
+.col-classificar { min-width: 122px; }
+.classificar-linha { display: flex; gap: 3px; }
+.classificar-linha button { width: 24px; border: 1px solid var(--line); padding: 4px 0; background: #fff; color: #6c6f74; font: 600 8px "IBM Plex Mono", monospace; }
+.classificar-linha button.marcado.good { border-color: var(--green); background: var(--green); color: #fff; }
+.classificar-linha button.marcado.pend { border-color: var(--blue); background: var(--blue); color: #fff; }
+.classificar-linha button.marcado.warn { border-color: var(--amber); background: var(--amber); color: #fff; }
+.classificar-linha button.marcado.bad { border-color: var(--red); background: var(--red); color: #fff; }
+.col-classificar > span { display: block; margin-top: 4px; color: #85888c; font-size: 7px; text-transform: uppercase; }

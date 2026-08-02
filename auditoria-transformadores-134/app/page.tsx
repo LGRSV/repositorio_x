@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 
 type Modulo =
   | "visao" | "interrupcao" | "deslocamento" | "ssos" | "obra" | "decisao"
+  | "profunda"
+  | "semdesloc"
   | "semfato" | "expurgos" | "ativos" | "regras" | "bases";
 
 type Registro = Record<string, string | number | boolean | null>;
@@ -151,12 +153,31 @@ function Barras({ dados, total, aoSelecionar }: {
 
 /* A tabela é a mesma em todas as abas; o que muda são as três colunas do meio, que
    contam a história daquele estágio. */
-function Tabela({ linhas, modo, aoAbrir }: {
+const CLASSES_CURTAS: Array<[string, string, string]> = [
+  ["QUEIMADO", "Q", "good"], ["AVARIADO", "A", "pend"],
+  ["REGRA", "R", "warn"], ["PROFUNDA", "P", "bad"],
+];
+
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
     deslocamento: ["Atendimento", "Equipe e tempos", "Corroboração"],
+    semdesloc: [
+      { id: "todos", rotulo: "Toda a fila", nota: "Interrupção na janela, sem atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
+      { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "Aberta entre 26 e 31/01, quando o arquivo do TMAE não tem registro.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.tmae_gap_jan === "SIM" },
+      { id: "comcliente", rotulo: "Com cliente interrompido", nota: "A interrupção atingiu gente, então houve evento de verdade.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.oc_cons) || 0) > 0 },
+      { id: "proprio", rotulo: "Defeito no próprio trafo", nota: "O campo apontou o transformador como causador.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && texto(r.oc_papel).includes("próprio") },
+      { id: "outroat", rotulo: "Ativo com atendimento em outra data", nota: "A equipe já esteve nesse transformador no semestre.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.atendimentos_ativo) || 0) > 0 },
+    ],
+    profunda: [
+      { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: () => true },
+      { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: () => true },
+      { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: () => true },
+      { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: () => true },
+      { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: () => true },
+    ],
     ssos: ["Leitura do texto", "Material", "Solicitação"],
     obra: ["Obra", "Enquadramento", "Responsáveis"],
     decisao: ["Fato", "Leitura", "Motivo"],
@@ -171,7 +192,7 @@ function Tabela({ linhas, modo, aoAbrir }: {
   return <div className="table-scroll"><table className="records-table">
     <thead><tr>
       <th>Identificação</th><th>Data e local</th>
-      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th>
+      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th><th>Minha classificação</th>
     </tr></thead>
     <tbody>{linhas.map((r) => <tr key={texto(r.ss)} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
@@ -222,6 +243,13 @@ function Tabela({ linhas, modo, aoAbrir }: {
       <td><b className={`pill ${decisaoClasse(texto(r.decisao))}`}>{texto(r.decisao)}</b>
         {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}
       </td>
+      <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
+        <div className="classificar-linha">{CLASSES_CURTAS.map(([id, curto, tom]) => <button key={id} type="button"
+          title={id}
+          className={classificacoes[texto(r.ss)]?.classe === id ? `marcado ${tom}` : tom}
+          onClick={() => aoClassificar(texto(r.ss), id)}>{curto}</button>)}</div>
+        {classificacoes[texto(r.ss)] ? <span>{classificacoes[texto(r.ss)].classe.toLowerCase()}</span> : null}
+      </td>
     </tr>)}</tbody>
   </table></div>;
 }
@@ -237,11 +265,16 @@ export default function Page() {
   const [aberto, setAberto] = useState<Registro | null>(null);
   const [abaDossie, setAbaDossie] = useState("consolidado");
   const [ativo, setAtivo] = useState("");
+  // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
+  // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
+  const [classificacao, setClassificacao] = useState<Record<string, { classe: string; quem: string; quando: string }>>({});
   const [janela, setJanela] = useState(24);
 
   useEffect(() => {
     fetch(assetUrl("fluxo-1510.json")).then((r) => r.json()).then(setFluxo).catch(() => setFluxo(null));
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
+    const salvo = localStorage.getItem("fluxo-1510-classificacao");
+    if (salvo) Promise.resolve().then(() => setClassificacao(JSON.parse(salvo)));
   }, []);
 
   const registros = fluxo?.registros ?? [];
@@ -289,7 +322,7 @@ export default function Page() {
     ],
     decisao: [
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
-      { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM FATO" },
+      { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
       { id: "ret_prova", rotulo: "Retidos sem prova de troca", nota: "Chegaram ao fim, mas o material não comprova ou o texto não decide.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
       { id: "incluir", rotulo: "INCLUIR", nota: "Passou nas três peneiras: campo, texto e material.", teste: (r) => r.decisao === "INCLUIR" },
@@ -320,12 +353,23 @@ export default function Page() {
   const recorteAtivo = recorte && recortesDoModulo.find((x) => x.id === recorte.id);
   const agulha = normalize(busca).trim();
 
+  const filtraProfunda = (linha: Registro, recorte: string) => {
+    const marca = classificacao[texto(linha.ss)];
+    if (!marca) return false;
+    if (recorte === "q") return marca.classe === "QUEIMADO";
+    if (recorte === "a") return marca.classe === "AVARIADO";
+    if (recorte === "r") return marca.classe === "REGRA";
+    if (recorte === "p") return marca.classe === "PROFUNDA";
+    return true;
+  };
   const listadas = useMemo(() => {
     let base = comJanela;
     // a matriz de decisão cria um recorte próprio (fato × leitura) que não está em RECORTES
     if (recorte?.id.startsWith("matriz-")) {
       const [, f, l] = recorte.id.split("-");
       base = base.filter((r) => r.fato === f && r.leitura === l);
+    } else if (modulo === "profunda") {
+      base = base.filter((r) => filtraProfunda(r, recorte?.id || "todos"));
     } else if (recorteAtivo) {
       base = base.filter(recorteAtivo.teste);
     }
@@ -334,7 +378,7 @@ export default function Page() {
       r.ss, r.os, r.obra, r.trafo, r.localidade, r.alimentador, r.solicitante, r.origem,
       r.equipe_ss, r.at_equipe, r.categoria_texto, r.oc_causa, r.oc_sub, r.decisao, r.motivo_decisao,
     ].join(" ")).includes(agulha));
-  }, [comJanela, recorte, recorteAtivo, agulha]);
+  }, [comJanela, recorte, recorteAtivo, agulha, modulo, classificacao]);
 
   if (!fluxo) return <main className="loading"><i /><span>Carregando as 1.510 solicitações…</span></main>;
 
@@ -343,6 +387,20 @@ export default function Page() {
   const CAP = 300;
   const historicoDoAtivo = ativo ? fluxo.historico.filter((l) => texto(l[0]) === ativo) : [];
   const ssDoAtivo = ativo ? registros.filter((r) => texto(r.trafo) === ativo) : [];
+
+  const classificar = (ss: string, classe: string) => {
+    const atual = { ...classificacao };
+    if (classe === "LIMPAR") delete atual[ss];
+    else atual[ss] = { classe, quem: usuario.name, quando: new Date().toISOString().slice(0, 16).replace("T", " ") };
+    setClassificacao(atual);
+    localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
+  };
+  const CLASSES: Array<[string, string, string]> = [
+    ["QUEIMADO", "Queimado", "good"],
+    ["AVARIADO", "Avariado", "pend"],
+    ["REGRA", "Vale a regra do fluxo", "warn"],
+    ["PROFUNDA", "Análise profunda", "bad"],
+  ];
 
   const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; marca?: number }> }> = [
     { grupo: "Fluxo", itens: [
@@ -354,13 +412,17 @@ export default function Page() {
       { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: conta((r) => r.cascata === "SAÍDA") },
     ]},
     { grupo: "Filas", itens: [
-      { id: "semfato", rotulo: "Sem fato", codigo: "07", marca: conta((r) => r.fato === "F3") },
-      { id: "expurgos", rotulo: "Excluídos", codigo: "08", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
-      { id: "ativos", rotulo: "Por transformador", codigo: "09" },
+      { id: "semfato", rotulo: "Sem interrupção", codigo: "07", marca: conta((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA") },
+      { id: "semdesloc", rotulo: "Sem deslocamento", codigo: "08", marca: conta((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO") },
+      { id: "expurgos", rotulo: "Excluídos", codigo: "09", marca: conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") },
+      { id: "ativos", rotulo: "Por transformador", codigo: "10" },
+    ]},
+    { grupo: "Minha análise", itens: [
+      { id: "profunda", rotulo: "Análise profunda", codigo: "11", marca: Object.values(classificacao).filter((c) => c.classe === "PROFUNDA").length },
     ]},
     { grupo: "Controle", itens: [
-      { id: "regras", rotulo: "Regras e método", codigo: "10" },
-      { id: "bases", rotulo: "Bases usadas", codigo: "11" },
+      { id: "regras", rotulo: "Regras e método", codigo: "12" },
+      { id: "bases", rotulo: "Bases usadas", codigo: "13" },
     ]},
   ];
 
@@ -371,7 +433,9 @@ export default function Page() {
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
     obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
     decisao: { olho: "Saída do funil", titulo: "Decisão final", texto: "O cruzamento do fato com a leitura, caso a caso, com o motivo escrito." },
-    semfato: { olho: "Investigação", titulo: "Sem fato", texto: "Nem interrupção nem atendimento na janela. Antes de cobrar, o teste do vizinho." },
+    semdesloc: { olho: "Fila de revisão", titulo: "Sem deslocamento", texto: "Houve interrupção no transformador e não há atendimento registrado no código dele. Raro, e por isso mesmo suspeito dos dois lados." },
+    profunda: { olho: "Minha análise", titulo: "Análise profunda", texto: "O que você classificou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima." },
+    semfato: { olho: "Investigação", titulo: "Sem interrupção na janela", texto: "Nem interrupção nem atendimento na janela de 24 horas. Antes de cobrar, o teste do vizinho." },
     expurgos: { olho: "Fora do indicador", titulo: "Excluídos", texto: "Saíram porque a leitura mostrou outra causa. Continuam na base, marcados." },
     ativos: { olho: "Histórico", titulo: "Por transformador", texto: "Tudo o que aconteceu com um código de ativo no semestre, em ordem." },
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
@@ -414,7 +478,7 @@ export default function Page() {
           <Kpi rotulo="Incluir" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota="passaram no fato e na leitura" tom="green" aoClicar={() => { setModulo("decisao"); setRecorte({ id: "incluir", rotulo: "INCLUIR" }); }} />
           <Kpi rotulo="Revisão" valor={br(conta((r) => r.decisao === "REVISÃO"))} nota="esperam leitura humana" tom="amber" aoClicar={() => { setModulo("decisao"); setRecorte({ id: "revisao", rotulo: "REVISÃO" }); }} />
           <Kpi rotulo="Excluir" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="outra causa comprovada" tom="red" aoClicar={() => { setModulo("expurgos"); setRecorte({ id: "todos", rotulo: "Todos os excluídos" }); }} />
-          <Kpi rotulo="Sem fato" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases" tom="red" aoClicar={() => { setModulo("semfato"); setRecorte({ id: "todos", rotulo: "Todos sem fato" }); }} />
+          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases" tom="red" aoClicar={() => { setModulo("semfato"); setRecorte({ id: "todos", rotulo: "Todos sem fato" }); }} />
           <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => { setModulo("ssos"); setRecorte({ id: "corrigida", rotulo: "Categoria corrigida" }); }} />
         </section>
         <section className="panel caixa-dagua">
@@ -629,14 +693,55 @@ export default function Page() {
           </section>
         </>;
       }
+      if (modulo === "semdesloc") {
+        const fila = registros.filter((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO");
+        const naLacuna = fila.filter((r) => r.tmae_gap_jan === "SIM").length;
+        const comCliente = fila.filter((r) => (Number(r.oc_cons) || 0) > 0).length;
+        const proprioTrafo = fila.filter((r) => texto(r.oc_papel).includes("próprio")).length;
+        const outroAtendimento = fila.filter((r) => (Number(r.atendimentos_ativo) || 0) > 0).length;
+        return <>
+          <section className="panel editorial-note wide"><span>O QUE ESTA FILA É</span>
+            <p>Houve interrupção no transformador dentro da janela, mas não há atendimento registrado no código dele. É raro e merece desconfiança dos dois lados: pode ser nota não lançada, pode ser atendimento gravado sob outro equipamento — a chave do TMAE é o elemento onde o defeito foi aberto —, e pode ser lacuna de arquivo.</p>
+            <p>Antes de cobrar qualquer coisa: <strong>{br(naLacuna)}</strong> destas SS foram abertas entre 26 e 31 de janeiro, período em que o arquivo do TMAE não tem um único registro. Essas não provam nada até a reextração chegar.</p>
+          </section>
+          <section className="kpi-grid">
+            <Kpi rotulo="Nesta fila" valor={br(fila.length)} nota="interrupção sim, atendimento não" tom="amber" aoClicar={() => abrirRecorte("todos")} />
+            <Kpi rotulo="Na lacuna de janeiro" valor={br(naLacuna)} nota="26 a 31/01, sem arquivo" tom="blue" aoClicar={() => abrirRecorte("lacuna")} />
+            <Kpi rotulo="Com cliente interrompido" valor={br(comCliente)} nota="a interrupção atingiu gente" tom="ink" />
+            <Kpi rotulo="Defeito no próprio trafo" valor={br(proprioTrafo)} nota="o campo apontou o transformador" tom="red" />
+            <Kpi rotulo="O ativo tem atendimento em outra data" valor={br(outroAtendimento)} nota="a equipe já esteve nesse trafo no semestre" tom="amber" />
+            <Kpi rotulo="Com material" valor={br(fila.filter((r) => (Number(r.trafos_material) || 0) > 0).length)} nota="a obra movimentou transformador" tom="green" />
+          </section>
+        </>;
+      }
+
+      if (modulo === "profunda") {
+        const marcadas = registros.filter((r) => classificacao[texto(r.ss)]);
+        const porClasse = (c: string) => marcadas.filter((r) => classificacao[texto(r.ss)].classe === c).length;
+        return <>
+          <section className="panel editorial-note wide"><span>SUA ANÁLISE</span>
+            <p>O que você classificou fica aqui, ao lado da decisão do fluxo — nunca por cima dela. A marcação é gravada neste navegador, com o seu nome e a hora, e aparece em todas as listas.</p>
+            <p>Marque <strong>Queimado</strong> ou <strong>Avariado</strong> quando bater o martelo, <strong>Vale a regra do fluxo</strong> quando concordar com o que o sistema decidiu, e <strong>Análise profunda</strong> quando o caso precisar de campo ou de documento que não temos.</p>
+          </section>
+          <section className="kpi-grid">
+            <Kpi rotulo="Classificadas por você" valor={br(marcadas.length)} nota={`de ${br(total)} no recorte`} tom="ink" aoClicar={() => abrirRecorte("todos")} />
+            <Kpi rotulo="Queimado" valor={br(porClasse("QUEIMADO"))} nota="martelo batido" tom="green" aoClicar={() => abrirRecorte("q")} />
+            <Kpi rotulo="Avariado" valor={br(porClasse("AVARIADO"))} nota="martelo batido" tom="blue" aoClicar={() => abrirRecorte("a")} />
+            <Kpi rotulo="Vale a regra" valor={br(porClasse("REGRA"))} nota="concorda com o fluxo" tom="amber" aoClicar={() => abrirRecorte("r")} />
+            <Kpi rotulo="Análise profunda" valor={br(porClasse("PROFUNDA"))} nota="precisa de campo ou documento" tom="red" aoClicar={() => abrirRecorte("p")} />
+            <Kpi rotulo="Ainda sem sua leitura" valor={br(total - marcadas.length)} nota="seguem só com a decisão do fluxo" tom="ink" />
+          </section>
+        </>;
+      }
+
       if (modulo === "semfato") {
-        const semFato = registros.filter((r) => r.cascata === "RETIDO — SEM FATO");
+        const semFato = registros.filter((r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA");
         return <>
         <section className="panel editorial-note wide"><span>O QUE O TEXTO DESSES CASOS DIZ</span>
           <p>A ausência de interrupção não significa a mesma coisa em todos eles. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
         </section>
         <section className="kpi-grid">
-          <Kpi rotulo="Sem fato" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
+          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => r.fato === "F3" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => r.fato === "F3" && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
           <Kpi rotulo="Borda de dezembro" valor={br(conta((r) => r.fato === "F3" && texto(r.abertura) <= "2026-01-03"))} nota="a ocorrência pode estar em dez/2025" tom="blue" aoClicar={() => abrirRecorte("borda")} />
@@ -680,7 +785,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
@@ -719,6 +824,17 @@ export default function Page() {
           <span>{FATO_ROTULO[texto(aberto.fato)]}</span>
           <span>{LEITURA_ROTULO[texto(aberto.leitura)]}</span>
           <em>{texto(aberto.categoria_texto)}</em>
+        </div>
+        <div className="classificar">
+          <span>Sua classificação</span>
+          <div>{CLASSES.map(([id, rotulo, tom]) => <button key={id}
+            className={classificacao[texto(aberto.ss)]?.classe === id ? `marcado ${tom}` : tom}
+            onClick={() => classificar(texto(aberto.ss), id)}>{rotulo}</button>)}
+            {classificacao[texto(aberto.ss)] ? <button className="limpar" onClick={() => classificar(texto(aberto.ss), "LIMPAR")}>limpar</button> : null}
+          </div>
+          <em>{classificacao[texto(aberto.ss)]
+            ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
+            : "A decisão do fluxo continua registrada. Isto é a sua leitura ao lado dela."}</em>
         </div>
         <nav>{([["consolidado", "Consolidado"], ["interrupcao", "Interrupção"], ["deslocamento", "Deslocamento"],
                 ["ssos", "SS e OS"], ["obra", "Obra e SIGCO"], ["historico", "Histórico do ativo"]] as const).map(([id, rotulo]) => <button key={id}
