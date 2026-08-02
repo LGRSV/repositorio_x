@@ -382,10 +382,10 @@ export default function Page() {
       const chegaE2 = conta((r) => r.chega_e2 === "SIM");
       const chegaE3 = conta((r) => r.chega_e3 === "SIM");
       const saida = conta((r) => r.cascata === "SAÍDA");
+      const excluidos = conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
       const caixas: Array<[string, string, number, number, Modulo]> = [
         ["Entram", "solicitações de troca de transformador", total, 0, "visao"],
-        ["Leitura desqualifica", "furto, abalroamento, preventivo, auxiliar: não são falha", chegaE1, total - chegaE1, "expurgos"],
-        ["1 · Interrupção", "o campo registrou o evento na janela", chegaE2, chegaE1 - chegaE2, "interrupcao"],
+        ["1 · Interrupção", "o campo registrou o evento na janela de 24 horas", chegaE2, total - chegaE2, "interrupcao"],
         ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "deslocamento"],
         ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", saida, chegaE3 - saida, "ssos"],
       ];
@@ -412,7 +412,7 @@ export default function Page() {
             <i><em style={{ width: `${pct(valor, total)}%` }} /></i>
             <u>{pct(valor, total)}%</u>
           </button>)}
-          <p className="fluxo-nota">Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
+          <p className="fluxo-nota">Furto, abalroamento, preventivo e auxiliar são separados no terceiro estágio, na leitura do texto — {br(excluidos)} casos. Antes disso ninguém é descartado por categoria: o campo fala primeiro. Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
         </section>
         <section className="dashboard-columns">
           <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Decisão</h2></div></div><Barras dados={decisoes} total={total} /></article>
@@ -495,7 +495,7 @@ export default function Page() {
         const casados = chegam.filter((r) => r.fato === "F1" || r.fato === "F0");
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="depois da desqualificação pela leitura" tom="ink" />
+            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="todas as solicitações do recorte" tom="ink" />
             <Kpi rotulo="Casaram em 24h" valor={br(casados.length)} nota={`${pct(casados.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("casou")} />
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
@@ -543,7 +543,7 @@ export default function Page() {
           <section className="kpi-grid">
             <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="passaram pela interrupção e pelo deslocamento" tom="ink" />
             <Kpi rotulo="Texto diz falha" valor={br(chegam.filter((r) => r.leitura === "L1").length)} nota={`${pct(chegam.filter((r) => r.leitura === "L1").length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("falha")} />
-            <Kpi rotulo="Outra causa" valor={br(conta((r) => r.leitura === "L2"))} nota="furto, abalroamento, preventivo, auxiliar" tom="red" aoClicar={() => abrirRecorte("outra")} />
+            <Kpi rotulo="Outra causa" valor={br(chegam.filter((r) => r.leitura === "L2").length)} nota="furto, abalroamento, preventivo, auxiliar — separados aqui" tom="red" aoClicar={() => abrirRecorte("outra")} />
             <Kpi rotulo="Não decide" valor={br(conta((r) => r.leitura === "L3"))} nota="vai para leitura humana" tom="amber" aoClicar={() => abrirRecorte("indef")} />
             <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o rótulo gravado não bate com o texto" tom="blue" aoClicar={() => abrirRecorte("corrigida")} />
             <Kpi rotulo="Material comprova" valor={br(conta((r) => (Number(r.trafos_material) || 0) > 0))} nota="transformador movimentado na obra" tom="green" />
@@ -609,14 +609,19 @@ export default function Page() {
         </>;
       }
       if (modulo === "semfato") {
-        return <section className="kpi-grid">
+        const semFato = registros.filter((r) => r.cascata === "RETIDO — SEM FATO");
+        return <>
+        <section className="panel editorial-note wide"><span>O QUE O TEXTO DESSES CASOS DIZ</span>
+          <p>A ausência de interrupção não significa a mesma coisa em todos eles. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
+        </section>
+        <section className="kpi-grid">
           <Kpi rotulo="Sem fato" valor={br(conta((r) => r.fato === "F3"))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => r.fato === "F3" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => r.fato === "F3" && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
           <Kpi rotulo="Borda de dezembro" valor={br(conta((r) => r.fato === "F3" && texto(r.abertura) <= "2026-01-03"))} nota="a ocorrência pode estar em dez/2025" tom="blue" aoClicar={() => abrirRecorte("borda")} />
           <Kpi rotulo="Com texto de falha" valor={br(conta((r) => r.fato === "F3" && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
           <Kpi rotulo="Com material" valor={br(conta((r) => r.fato === "F3" && (Number(r.trafos_material) || 0) > 0))} nota="a obra movimentou transformador" tom="ink" />
-        </section>;
+        </section></>;
       }
       if (modulo === "expurgos") {
         return <>

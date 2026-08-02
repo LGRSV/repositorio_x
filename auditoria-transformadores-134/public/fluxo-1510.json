@@ -17,7 +17,7 @@
    "As SS abertas nos primeiros dias de janeiro podem ter ocorrência em dezembro de 2025, mês que não temos."
   ],
   "regra": "Primeiro o fato: o código do ativo tem que casar com a janela da ocorrência ou do atendimento em até 24 horas da abertura da SS. Depois a leitura do texto e do material. A leitura nunca cria fato.",
-  "cascata": "A leitura desqualifica em qualquer ponto: furto, abalroamento, preventivo e auxiliar saem antes. O resto desce peneira por peneira — interrupção, deslocamento, texto e material. Obra e SIGCO não decidem: são leitura de enquadramento ao lado do fluxo."
+  "cascata": "A cascata começa pelo fato: interrupção, depois deslocamento. A leitura do texto e do material vem no terceiro estágio e é lá que furto, abalroamento, preventivo e auxiliar são separados. Obra e SIGCO não decidem causa."
  },
  "resumo": {
   "total": 1510,
@@ -54,10 +54,10 @@
   "semFato": 209,
   "mudaram": 434,
   "cascata": {
-   "RETIDO — SEM FATO": 177,
+   "RETIDO — SEM FATO": 209,
    "SAÍDA": 942,
-   "RETIDO — SEM DESLOCAMENTO": 287,
-   "EXCLUÍDO PELA LEITURA": 64,
+   "RETIDO — SEM DESLOCAMENTO": 299,
+   "EXCLUÍDO NA LEITURA": 20,
    "RETIDO — SEM PROVA DE TROCA": 40
   }
  },
@@ -3836,11 +3836,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GR 00013/2026",
@@ -4046,11 +4046,11 @@
    "decisao_anterior": "REVISÃO",
    "motivo_decisao": "Sem casamento na Crítica; TMAE registra atendimento no trafo em ±24h; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GU 00010/2026",
@@ -9191,11 +9191,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve furtado — não é falha de transformador."
   },
   {
    "ss": "ENC-RD-PS 00018/2026",
@@ -9926,11 +9926,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz preventivo, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-DP 00025/2026",
@@ -13496,11 +13496,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AG 00026/2026",
@@ -17591,11 +17591,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GU 00048/2026",
@@ -21371,11 +21371,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "DOLP-RD-PA 00068/2026",
@@ -26306,11 +26306,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ENC-RD-PS 00091/2026",
@@ -30191,11 +30191,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "DG-RD-PO 00080/2026",
@@ -38381,11 +38381,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo. A SS foi aberta entre 26 e 31 de janeiro, período sem nenhum registro no arquivo."
   },
   {
    "ss": "DG-RD-PO 00117/2026",
@@ -39326,11 +39326,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00129/2026",
@@ -42476,11 +42476,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "DG-RD-PO 00131/2026",
@@ -43211,11 +43211,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo. A SS foi aberta entre 26 e 31 de janeiro, período sem nenhum registro no arquivo."
   },
   {
    "ss": "ENC-RD-PS 00155/2026",
@@ -50561,11 +50561,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00210/2026",
@@ -53186,11 +53186,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AR 00218/2026",
@@ -55601,11 +55601,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (TRAFO AUXILIAR); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve trafo auxiliar — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-DP 00094/2026",
@@ -56021,11 +56021,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (TRAFO AUXILIAR); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve trafo auxiliar — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência."
   },
   {
    "ss": "DG-RD-PO 00164/2026",
@@ -56861,11 +56861,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00251/2026",
@@ -57176,11 +57176,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-GU 00180/2026",
@@ -58856,11 +58856,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00261/2026",
@@ -64211,11 +64211,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve furtado — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AG 00175/2026",
@@ -75551,11 +75551,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "DG-RD-PO 00205/2026",
@@ -75656,11 +75656,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ENC-RD-PS 00249/2026",
@@ -76916,11 +76916,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00236/2026",
@@ -77861,11 +77861,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GU 00239/2026",
@@ -79436,11 +79436,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-GR 00264/2026",
@@ -80381,11 +80381,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GR 00277/2026",
@@ -81221,11 +81221,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-GR 00279/2026",
@@ -85421,11 +85421,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (CONSTRUCAO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve construcao — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve construcao — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GR 00297/2026",
@@ -89621,11 +89621,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00285/2026",
@@ -92036,11 +92036,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AG 00257/2026",
@@ -96761,11 +96761,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve furtado — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GU 00317/2026",
@@ -112826,11 +112826,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00557/2026",
@@ -114401,11 +114401,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz preventivo, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AG 00344/2026",
@@ -114926,11 +114926,11 @@
    "decisao_anterior": "REVISÃO",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GR 00389/2026",
@@ -116711,11 +116711,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (TRAFO AUXILIAR); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve trafo auxiliar — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz trafo auxiliar, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GR 00393/2026",
@@ -121436,11 +121436,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz abalroamento, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00431/2026",
@@ -124166,11 +124166,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "DOLP-RD-PA 00437/2026",
@@ -125636,11 +125636,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve furtado — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-DP 00242/2026",
@@ -129836,11 +129836,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve furtado — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AR 00694/2026",
@@ -129941,11 +129941,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-GR 00436/2026",
@@ -132356,11 +132356,11 @@
    "decisao_anterior": "REVISÃO",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AG 00435/2026",
@@ -132776,11 +132776,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00471/2026",
@@ -133826,11 +133826,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (PREVENTIVO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "DOLP-RD-PA 00488/2026",
@@ -134351,11 +134351,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (PARTICULAR); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve particular — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz particular, o que costuma explicar a ausência."
   },
   {
    "ss": "DOLP-RD-PA 00493/2026",
@@ -137291,11 +137291,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (CONSTRUCAO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve construcao — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz construcao, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00761/2026",
@@ -138446,11 +138446,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ENC-RD-PS 00490/2026",
@@ -141281,11 +141281,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ENC-RD-PS 00503/2026",
@@ -142961,11 +142961,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (DESATIVACAO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve desativacao — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz desativacao, o que costuma explicar a ausência."
   },
   {
    "ss": "ENC-RD-PS 00509/2026",
@@ -144326,11 +144326,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AG 00510/2026",
@@ -145901,11 +145901,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ENC-RD-PS 00516/2026",
@@ -146321,11 +146321,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00882/2026",
@@ -151256,11 +151256,11 @@
    "decisao_anterior": "REVISÃO",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (SOBRECARGA); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve sobrecarga — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-AR 00952/2026",
@@ -151361,11 +151361,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00603/2026",
@@ -151781,11 +151781,11 @@
    "decisao_anterior": "INVESTIGAR",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (DESATIVACAO); material=não → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve desativacao — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz desativacao, o que costuma explicar a ausência."
   },
   {
    "ss": "ENC-RD-PS 00566/2026",
@@ -153776,11 +153776,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-AR 00987/2026",
@@ -154301,11 +154301,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 00992/2026",
@@ -157031,11 +157031,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve preventivo — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM DESLOCAMENTO",
+   "cascata_motivo": "A interrupção existe, mas não há atendimento no código do trafo."
   },
   {
    "ss": "ETO-RD-AR 01030/2026",
@@ -157556,11 +157556,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-AG 00644/2026",
@@ -157661,11 +157661,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-AR 01037/2026",
@@ -158081,11 +158081,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GR 00659/2026",
@@ -158186,11 +158186,11 @@
    "decisao_anterior": "FORA DA BASE DE FALHA",
    "motivo_decisao": "Ativo ausente da Crítica e do TMAE na janela; texto indica não-falha (FURTADO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
+   "chega_e1": "SIM",
    "chega_e2": "NÃO",
    "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve furtado — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "cascata": "RETIDO — SEM FATO",
+   "cascata_motivo": "Nem a interrupção nem o atendimento registram nada na janela de 24 horas. O texto diz furtado, o que costuma explicar a ausência."
   },
   {
    "ss": "ETO-RD-GU 00682/2026",
@@ -158396,11 +158396,11 @@
    "decisao_anterior": "INCLUIR",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   },
   {
    "ss": "ETO-RD-GU 00685/2026",
@@ -158606,11 +158606,11 @@
    "decisao_anterior": "REVISÃO",
    "motivo_decisao": "Crítica casa com a abertura da SS; texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR",
    "mudou_na_revisao": "SIM",
-   "chega_e1": "NÃO",
-   "chega_e2": "NÃO",
-   "chega_e3": "NÃO",
-   "cascata": "EXCLUÍDO PELA LEITURA",
-   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador. Sai em qualquer ponto do fluxo."
+   "chega_e1": "SIM",
+   "chega_e2": "SIM",
+   "chega_e3": "SIM",
+   "cascata": "EXCLUÍDO NA LEITURA",
+   "cascata_motivo": "O texto descreve abalroamento — não é falha de transformador."
   }
  ],
  "historico": [
