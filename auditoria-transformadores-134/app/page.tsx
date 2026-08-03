@@ -10,9 +10,50 @@ type Modulo =
   | "profunda"
   | "ressalva"
   | "semdesloc"
-  | "semfato" | "expurgos" | "ativos" | "regras" | "bases" | "mapa";
+  | "semfato" | "expurgos" | "ativos" | "regras" | "revisao" | "bases" | "mapa";
 
 type Registro = Record<string, string | number | boolean | null>;
+
+/* A aba "Revisão da auditoria" não guarda texto nenhum aqui dentro: tudo vem do
+   public/revisao.json, gerado por scripts/gerar_revisao.py a partir dos vereditos
+   da revisão caso a caso. Chegou veredito novo, roda o script e a aba se atualiza. */
+type CasoRevisto = {
+  ss: string; grupo: string; atual: string; correta: string; claro: string; muda: boolean;
+  motivo: string; evidencia: string; origem: string; localidade: string; abertura: string;
+  trafo: string; equipe: string; obra: string; categoria: string; desc_ss: string;
+};
+type Revisao = {
+  meta: {
+    gerado: string; universo: number; revisadas: number; cobertura_pct: number; mudam: number;
+    confirmadas: number; sem_resposta: number; saida_hoje: number;
+    fontes: Record<string, number>; postura: string; regra_de_ouro: string;
+  };
+  falsos_positivos: { n: number; nota: string; casos: CasoRevisto[] };
+  grupos: Array<{
+    id: string; familia: string; rotulo: string; de: string; para: string; n: number;
+    esteira_fez: string; por_que_errado: string; afeta_saida: boolean;
+    exemplo: { ss: string; trecho: string; motivo: string }; ss: string[];
+  }>;
+  sem_resposta: Array<{ ss: string; atual: string; falta: string }>;
+  confirmado: { n: number; nota: string; por_categoria: Array<{ categoria: string; n: number }> };
+  cenarios: Array<{
+    id: string; rotulo: string; descricao: string; entram: number; saem: number;
+    saida: number; base: string;
+  }>;
+  revisores: {
+    site: null | {
+      veredito: string; resumo: string; funciona?: string[];
+      quebra?: Array<{ titulo: string; aba: string; o_que: string; reproduzir: string; conserto: string }>;
+      incomoda?: Array<{ titulo: string; aba: string; o_que: string; reproduzir: string; conserto: string }>;
+    };
+    numeros: null | {
+      veredito: string; resumo: string; confirmado?: string[]; suspeitas?: string[];
+      achados?: Array<{ titulo: string; gravidade: string; numero: string; criterio: string; reproduzir: string }>;
+      perguntas?: Array<{ pergunta: string; resposta: string }>;
+    };
+  };
+  casos: CasoRevisto[];
+};
 
 type Fluxo = {
   meta: { titulo: string; janelaHoras: number; regra?: string; fontes: string[]; lacunas: string[]; correcoes?: string[] };
@@ -264,6 +305,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
 export default function Page() {
   const [fluxo, setFluxo] = useState<Fluxo | null>(null);
   const [metodo, setMetodo] = useState<Metodo | null>(null);
+  const [revisao, setRevisao] = useState<Revisao | null>(null);
+  const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   const [busca, setBusca] = useState("");
   const [recorte, setRecorte] = useState<{ id: string; rotulo: string } | null>(null);
@@ -278,6 +321,7 @@ export default function Page() {
   useEffect(() => {
     fetch(assetUrl("fluxo-1510.json")).then((r) => r.json()).then(setFluxo).catch(() => setFluxo(null));
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
+    fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
     if (salvo) Promise.resolve().then(() => setClassificacao(JSON.parse(salvo)));
   }, []);
@@ -300,6 +344,9 @@ export default function Page() {
 
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
     visao: [],
+    // A revisão não filtra registros da esteira: ela tem os próprios chips, montados a partir
+    // das famílias de motivo do revisao.json. Fica vazio aqui de propósito.
+    revisao: [],
     interrupcao: [
       { id: "todos", rotulo: "Toda a fila", nota: "As 1.510 chegam a esta etapa: ninguém foi filtrado ainda, porque a esteira começa aqui.", teste: () => true },
       { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => ["A", "B", "C"].includes(texto(r.e1_nivel)) },
@@ -502,6 +549,7 @@ export default function Page() {
     ]},
     { grupo: "Controle", itens: [
       { id: "regras", rotulo: "Regras e método", codigo: "11" },
+      { id: "revisao", rotulo: "Revisão da auditoria", codigo: "11·1", marca: revisao?.meta.mudam, tom: "cinza" },
       { id: "bases", rotulo: "Bases usadas", codigo: "12" },
     ]},
   ];
@@ -521,6 +569,7 @@ export default function Page() {
     mapa: { olho: "Onde estão", titulo: "Mapa dos ativos", texto: "Um ponto por transformador, na coordenada do próprio ativo — não no centro do município. A cor é a decisão da esteira." },
     ativos: { olho: "Histórico", titulo: "Por transformador", texto: "Tudo o que aconteceu com um código de ativo no semestre, em ordem." },
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
+    revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
   };
 
@@ -642,6 +691,159 @@ export default function Page() {
           <tbody>{b.tabela.linhas.map((linha, i) => <tr key={i}>{linha.map((celula, j) => <td key={j}>{j === 0 ? <strong>{celula}</strong> : <span>{celula}</span>}</td>)}</tr>)}</tbody>
         </table></div> : null}
       </section>)}</>;
+    }
+
+    if (modulo === "revisao") {
+      if (!revisao) return <section className="panel editorial-note"><span>REVISÃO</span><p>O arquivo revisao.json não carregou.</p></section>;
+      const m = revisao.meta;
+      /* Os chips são as famílias de motivo, não as SS. Um motivo pode valer para dois pares
+         de categoria (parou na peneira errada acontece vindo da 3 e vindo da 4), e quem lê
+         quer o motivo, não o par. */
+      const familias = Array.from(new Set(revisao.grupos.map((g) => g.familia)))
+        .map((f) => ({ id: f, rotulo: revisao.grupos.find((g) => g.familia === f)!.rotulo,
+                       n: revisao.grupos.filter((g) => g.familia === f).reduce((s, g) => s + g.n, 0) }));
+      const casosDoRecorte = recorteRev === "todos" ? revisao.casos
+        : recorteRev === "falsos" ? revisao.falsos_positivos.casos
+        : revisao.casos.filter((c) => c.grupo === recorteRev);
+      const gruposDoRecorte = recorteRev === "todos" ? revisao.grupos
+        : recorteRev === "falsos" ? revisao.grupos.filter((g) => g.de === "SAÍDA")
+        : revisao.grupos.filter((g) => g.familia === recorteRev);
+      const baixar = () => {
+        const cab = ["SS", "Motivo", "Categoria hoje", "Categoria correta", "Claro?", "Por que",
+                     "Trecho do registro", "Trafo", "Abertura", "Localidade", "Equipe", "Obra", "Origem"];
+        const corpo = casosDoRecorte.map((c) => [c.ss, c.grupo, c.atual, c.correta, c.claro, c.motivo,
+          c.evidencia, c.trafo, c.abertura, c.localidade, c.equipe, c.obra, c.origem]
+          .map((v) => String(v ?? "").replace(/[;\r\n]+/g, " ").trim()).join(";")).join("\r\n");
+        const blob = new Blob([`﻿${cab.join(";")}\r\n${corpo}`], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `revisao_${recorteRev}.csv`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      };
+      const revA = revisao.revisores.site;
+      const revB = revisao.revisores.numeros;
+      return <>
+        <section className="kpi-grid">
+          <Kpi rotulo="Revisadas caso a caso" valor={br(m.revisadas)} nota={`de ${br(m.universo)} · ${m.cobertura_pct}% da base`} tom={m.revisadas >= m.universo ? "green" : "amber"} />
+          <Kpi rotulo="Mudam de categoria" valor={br(m.mudam)} nota="com fundamento no próprio registro" tom="blue" aoClicar={() => setRecorteRev("todos")} />
+          <Kpi rotulo="Falsos positivos da saída" valor={br(revisao.falsos_positivos.n)} nota="passaram e não deveriam" tom="red" aoClicar={() => setRecorteRev("falsos")} />
+          <Kpi rotulo="Confirmadas como estão" valor={br(m.confirmadas)} nota="relidas e mantidas" tom="green" />
+          <Kpi rotulo="Sem resposta" valor={br(m.sem_resposta)} nota="falta dado para decidir" tom="amber" />
+        </section>
+
+        <section className="panel editorial-note wide">
+          <span>COMO ESTA REVISÃO FOI FEITA</span>
+          <p>{m.postura}</p>
+          <p><strong>Regra de ouro.</strong> {m.regra_de_ouro}</p>
+          <p className="fluxo-nota">Gerado em {m.gerado} a partir dos vereditos gravados caso a caso. Esta aba não guarda texto próprio: tudo o que está aqui sai do arquivo de vereditos.</p>
+        </section>
+
+        <section className="panel editorial-note wide">
+          <span>O EFEITO SOBRE O NÚMERO DE HOJE</span>
+          <p>A saída da esteira hoje é <strong>{br(m.saida_hoje)}</strong>. Nenhum cenário abaixo está aplicado — são escolhas do dono da auditoria, não conserto de defeito.</p>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Cenário</th><th>O que muda</th><th>Entram</th><th>Saem</th><th>Saída</th><th>De onde vem a conta</th></tr></thead>
+            <tbody>{revisao.cenarios.map((c) => <tr key={c.id}>
+              <td><strong>{c.id} · {c.rotulo}</strong></td>
+              <td><span>{c.descricao}</span></td>
+              <td><span>{c.entram ? `+${br(c.entram)}` : "—"}</span></td>
+              <td><span>{c.saem ? `−${br(c.saem)}` : "—"}</span></td>
+              <td><strong>{br(c.saida)}</strong></td>
+              <td><span>{c.base}</span></td>
+            </tr>)}</tbody>
+          </table></div>
+        </section>
+
+        {gruposDoRecorte.map((g) => <section key={g.id} className={`panel editorial-note wide${g.afeta_saida ? " destaque" : ""}`}>
+          <span>{g.rotulo.toUpperCase()} · {br(g.n)} {g.n === 1 ? "CASO" : "CASOS"}</span>
+          <p><strong>O que a esteira fez.</strong> {g.esteira_fez}</p>
+          <p><strong>Por que está errado.</strong> {g.por_que_errado}</p>
+          <p><strong>De</strong> {g.de} <strong>para</strong> {g.para}.</p>
+          <p className="fluxo-nota"><strong>Exemplo — {g.exemplo.ss}:</strong> {g.exemplo.trecho}</p>
+        </section>)}
+
+        {revisao.sem_resposta.length ? <section className="panel editorial-note wide">
+          <span>O QUE FICOU SEM RESPOSTA · {br(revisao.sem_resposta.length)}</span>
+          <p>Casos em que a revisão não conseguiu decidir com o que existe hoje. Ficam listados em vez de escondidos.</p>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>SS</th><th>Categoria hoje</th><th>O que falta para decidir</th></tr></thead>
+            <tbody>{revisao.sem_resposta.map((s) => <tr key={s.ss}>
+              <td><strong>{s.ss}</strong></td><td><span>{s.atual}</span></td><td><span>{s.falta}</span></td>
+            </tr>)}</tbody>
+          </table></div>
+        </section> : null}
+
+        <section className="panel editorial-note wide">
+          <span>O QUE FOI CONFIRMADO COMO CORRETO · {br(revisao.confirmado.n)}</span>
+          <p>{revisao.confirmado.nota} Confirmar o que está certo é resultado tão útil quanto contestar — sem esta seção, quem lê a lista de mudanças acha que tudo está errado.</p>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Categoria</th><th>Confirmadas</th></tr></thead>
+            <tbody>{revisao.confirmado.por_categoria.map((c) => <tr key={c.categoria}>
+              <td><strong>{c.categoria}</strong></td><td><span>{br(c.n)}</span></td>
+            </tr>)}</tbody>
+          </table></div>
+        </section>
+
+        {revB ? <section className="panel editorial-note wide">
+          <span>REVISOR DOS NÚMEROS · {revB.veredito.replaceAll("_", " ")}</span>
+          <p>{revB.resumo}</p>
+          {(revB.achados || []).length ? <div className="check-list">{(revB.achados || []).map((a, i) =>
+            <div key={i}><b>·</b><strong>{a.gravidade} — {a.titulo}</strong><span>{a.numero} {a.criterio}</span></div>)}</div> : null}
+          {(revB.confirmado || []).length ? <><p><strong>Confirmado como correto:</strong></p>
+            <div className="check-list">{(revB.confirmado || []).map((c, i) => <div key={i}><b>·</b><span>{c}</span></div>)}</div></> : null}
+          {(revB.suspeitas || []).length ? <><p><strong>Suspeitas não confirmadas</strong> — ficam aqui justamente por não terem prova:</p>
+            <div className="check-list">{(revB.suspeitas || []).map((s, i) => <div key={i}><b>·</b><span>{s}</span></div>)}</div></> : null}
+          {(revB.perguntas || []).length ? <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>O que a plateia pergunta</th><th>A resposta honesta</th></tr></thead>
+            <tbody>{(revB.perguntas || []).map((p, i) => <tr key={i}>
+              <td><strong>{p.pergunta}</strong></td><td><span>{p.resposta}</span></td></tr>)}</tbody>
+          </table></div> : null}
+        </section> : null}
+
+        {revA ? <section className="panel editorial-note wide">
+          <span>REVISOR DO SITE · {revA.veredito.replaceAll("_", " ")}</span>
+          <p>{revA.resumo}</p>
+          {(revA.quebra || []).length ? <><p><strong>Quebra a apresentação:</strong></p>
+            <div className="check-list">{(revA.quebra || []).map((q, i) =>
+              <div key={i}><b>·</b><strong>{q.titulo} ({q.aba})</strong><span>{q.o_que} — conserto: {q.conserto}</span></div>)}</div></> : null}
+          {(revA.incomoda || []).length ? <><p><strong>Incomoda, mas dá para viver:</strong></p>
+            <div className="check-list">{(revA.incomoda || []).map((q, i) =>
+              <div key={i}><b>·</b><strong>{q.titulo} ({q.aba})</strong><span>{q.o_que}</span></div>)}</div></> : null}
+          {(revA.funciona || []).length ? <><p><strong>O que funciona bem:</strong></p>
+            <div className="check-list">{(revA.funciona || []).map((f, i) => <div key={i}><b>·</b><span>{f}</span></div>)}</div></> : null}
+        </section> : null}
+
+        <section className="panel list-panel">
+          <div className="list-head">
+            <div><span>{br(casosDoRecorte.length)} {casosDoRecorte.length === 1 ? "caso" : "casos"}</span>
+              <strong>{recorteRev === "todos" ? "Todas as mudanças" : recorteRev === "falsos" ? "Falsos positivos da saída" : familias.find((f) => f.id === recorteRev)?.rotulo}</strong></div>
+            <button type="button" className="sheet-download" onClick={baixar}>Baixar planilha ({br(casosDoRecorte.length)})</button>
+          </div>
+          <div className="fluxo-abas">
+            <button type="button" className={recorteRev === "todos" ? "ativo" : ""} onClick={() => setRecorteRev("todos")}
+              title="Todas as solicitações que mudam de categoria.">Todas as mudanças ({br(revisao.casos.length)})</button>
+            <button type="button" className={recorteRev === "falsos" ? "ativo" : ""} onClick={() => setRecorteRev("falsos")}
+              title="Casos que chegaram à saída e não deveriam.">Falsos positivos ({br(revisao.falsos_positivos.n)})</button>
+            {familias.map((f) => <button key={f.id} type="button" className={recorteRev === f.id ? "ativo" : ""}
+              onClick={() => setRecorteRev(f.id)} title={f.rotulo}>{f.rotulo} ({br(f.n)})</button>)}
+          </div>
+          {recorteRev === "falsos" ? <p className="fluxo-nota">{revisao.falsos_positivos.nota}</p> : null}
+          {casosDoRecorte.length ? <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>SS</th><th>Hoje</th><th>Deve ser</th><th>Por que</th><th>Trecho do registro</th><th>Trafo</th><th>Localidade</th><th>Aberta em</th></tr></thead>
+            <tbody>{casosDoRecorte.map((c) => <tr key={c.ss}>
+              <td><strong>{c.ss}</strong>{c.claro === "NAO_CLARO" ? <span> · sem resposta</span> : null}</td>
+              <td><span>{c.atual}</span></td>
+              <td><span>{c.correta}</span></td>
+              <td><span>{c.motivo}</span></td>
+              <td><span>{c.evidencia}</span></td>
+              <td><span>{c.trafo}</span></td>
+              <td><span>{c.localidade}</span></td>
+              <td><span>{c.abertura}</span></td>
+            </tr>)}</tbody>
+          </table></div> : <div className="empty"><strong>Nenhum caso neste recorte</strong><span>Escolha outro filtro acima.</span></div>}
+        </section>
+      </>;
     }
 
     if (modulo === "mapa") {

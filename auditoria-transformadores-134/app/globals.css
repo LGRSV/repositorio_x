@@ -527,3 +527,9 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .nav-entram { font: 500 8px/1 "IBM Plex Mono", monospace; font-style: normal; color: #71757a; }
 .nav-group button small.nav-cinza { background: #3d4147; color: #b7babe; }
 .nav-group button small.nav-verde { background: #35634b; color: #fff; }
+
+/* A aba de revisão destaca os grupos que mexem no número final da esteira. O bloco continua
+   sendo uma nota editorial como as outras: só ganha a barra vermelha à esquerda, para o
+   leitor achar de longe o que altera a saída sem ter que ler grupo por grupo. */
+.editorial-note.destaque { border-left: 3px solid var(--red); }
+.editorial-note.destaque > span { color: var(--red); }
