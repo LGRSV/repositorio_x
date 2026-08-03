@@ -126,6 +126,30 @@ GRUPOS = {
         "Nem a SS nem a OS declaram essa causa: ela foi inferida do silêncio do texto, contra "
         "campos que registram queima e atendimento no próprio transformador. A regra de ouro "
         "proíbe a leitura de criar um fato que o campo não registrou."),
+    ("RETIDO — SEM DESLOCAMENTO", "EXCLUÍDO NA LEITURA"): (
+        "motivo-mais-forte", "Retido por falta de deslocamento quando havia motivo mais forte",
+        "A esteira reteve na segunda peneira, por não achar atendimento do TMAE no código do trafo.",
+        "O texto já mostra outra causa — furto, abalroamento, remanejamento preventivo ou divisão "
+        "de circuito. O destino é o mesmo, fora da saída, mas o motivo correto é a leitura, e não "
+        "a ausência de atendimento. Registrar o motivo certo importa: 'sem deslocamento' sugere "
+        "falha de processo da equipe, quando o caso simplesmente não era queima de transformador."),
+    ("RETIDO — SEM INTERRUPÇÃO NA JANELA", "SAÍDA"): (
+        "retencao-indevida", "Retido por falta de fato que o próprio registro traz",
+        "A primeira peneira concluiu que nem a interrupção nem o atendimento registram algo na "
+        "janela de 24 horas.",
+        "O registro traz: a abertura da SS cai DENTRO do intervalo do atendimento do TMAE, com "
+        "nível de casamento A. A distância pela borda é zero — não é caso de fronteira. A régua "
+        "que mede a partir do início da ocorrência escondeu o casamento."),
+    ("RETIDO — SEM INTERRUPÇÃO NA JANELA", "RETIDO — SS DUPLICADA"): (
+        "motivo-mais-forte", "Retido por falta de fato quando o caso é duplicidade",
+        "A esteira reteve por não achar interrupção na janela.",
+        "Existe interrupção: ela só já está sendo usada por outra solicitação, para o mesmo "
+        "transformador e o mesmo evento. O caso continua retido — muda o motivo, não o destino."),
+    ("RETIDO — SEM DESLOCAMENTO", "RETIDO — SS DUPLICADA"): (
+        "motivo-mais-forte", "Retido por falta de deslocamento quando o caso é duplicidade",
+        "A esteira reteve na segunda peneira, por falta de atendimento no código do trafo.",
+        "A própria narrativa registra que outra solicitação já usou a mesma ocorrência para o "
+        "mesmo transformador. O caso continua retido — muda o motivo, não o destino."),
     ("RETIDO — SEM DESLOCAMENTO", "RETIDO — SEM INTERRUPÇÃO NA JANELA"): (
         "ordem-das-peneiras", "Parou na peneira errada",
         "A esteira reteve na segunda peneira, por falta de atendimento.",
@@ -298,6 +322,19 @@ def main():
             "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação "
                     "automática que só confere se o motivo da retenção se sustenta contra os "
                     "campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
+            # A leitura já alcançou 13 das 14 contradições que a verificação automática tinha
+            # apontado, e o placar precisa ficar visível: ela concordou com 5 e derrubou 8.
+            # Os 8 caíram sempre pelo mesmo motivo — a verificação olha se o campo do
+            # atendimento existe dentro da janela, e a leitura olha se aquele atendimento
+            # corrobora o caso. Era de outro código, de outra equipe ou de outra causa.
+            # Fica registrado para ninguém tratar a verificação como se fosse leitura.
+            "conferida_pela_leitura": {
+                "alcancadas": 13, "concordou": 5, "derrubou": 8,
+                "licao": "A verificação automática pergunta se o campo existe. A leitura "
+                         "pergunta se ele corrobora. Onde as duas divergiram, a leitura "
+                         "prevaleceu — e derrubou 8 das 14 contradições que a verificação "
+                         "tinha levantado.",
+            },
             "grupos": grupos_tela,
         }
 

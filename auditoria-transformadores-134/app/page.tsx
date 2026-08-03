@@ -38,6 +38,7 @@ type Revisao = {
   confirmado: { n: number; nota: string; por_categoria: Array<{ categoria: string; n: number }> };
   tela_nao_lidas?: {
     n: number; confirmadas: number; merecem_leitura?: number; nota?: string;
+    conferida_pela_leitura?: { alcancadas: number; concordou: number; derrubou: number; licao: string };
     grupos: Array<{
       id: string; tipo: string; rotulo: string; explicacao: string; n: number;
       chegariam_a_saida: number; ss: string[]; exemplo: { ss: string; porque: string } | null;
@@ -784,6 +785,7 @@ export default function Page() {
             </tr>)}</tbody>
           </table></div>
           <p className="fluxo-nota">Os grupos marcados como <strong>lacuna de base</strong> não são erro da esteira nem da solicitação: o arquivo que sustentaria o caso não existe. Os marcados como <strong>contradiz o registro</strong> são o contrário — o dado para decidir estava lá e a peneira não o usou.</p>
+          {revisao.tela_nao_lidas.conferida_pela_leitura ? <p><strong>A leitura já conferiu esta verificação.</strong> Das contradições que ela levantou, {br(revisao.tela_nao_lidas.conferida_pela_leitura.alcancadas)} já foram lidas caso a caso: a leitura concordou com {br(revisao.tela_nao_lidas.conferida_pela_leitura.concordou)} e derrubou {br(revisao.tela_nao_lidas.conferida_pela_leitura.derrubou)}. {revisao.tela_nao_lidas.conferida_pela_leitura.licao}</p> : null}
         </section> : null}
 
         {revisao.sem_resposta.length ? <section className="panel editorial-note wide">
