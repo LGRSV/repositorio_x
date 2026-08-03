@@ -1,6 +1,6 @@
 {
  "meta": {
-  "gerado": "2026-08-03 18:59",
+  "gerado": "2026-08-03 19:45",
   "universo": 1510,
   "revisadas": 1510,
   "cobertura_pct": 100.0,
@@ -1449,6 +1449,20 @@
     }
    ]
   }
+ },
+ "conferencia_dos_achados": {
+  "nota": "Os achados do revisor dos números foram reconferidos contra os arquivos crus, linha a linha, com um parser independente. Um deles não reproduz, e fica registrado aqui em vez de ser publicado como fato — foi exatamente esse o erro de um revisor anterior nesta auditoria.",
+  "itens": [
+   {
+    "achado": "A ingestão da Crítica perde ocorrências: 51 das 207 retidas por 'sem interrupção na janela' teriam ocorrência no código do trafo dentro de 24 h no arquivo bruto",
+    "gravidade_alegada": "ALTA",
+    "veredito": "NÃO REPRODUZ",
+    "o_que_eu_medi": "Reli os seis arquivos da Crítica com o leitor de CSV do Python, latin-1, separador ponto e vírgula. Das 71.082 linhas, ZERO têm contagem de campo diferente do cabeçalho — o mecanismo alegado, 5.548 linhas perdidas por aspas soltas na observação, não aparece. Com o transformador como elemento do DEFEITO, achei 1 caso, e o site já tinha o número da ocorrência nele. Abrindo para o transformador em QUALQUER papel — defeito, interrompido ou manobrado —, achei 17, dos quais 9 o site já tinha e 8 são novos. Nenhuma leitura chega perto de 51.",
+    "por_que_a_diferenca_importa": "Dos 17, dezesseis têm o transformador como elemento FECHADO: ele foi manobrado para religar o trecho, não é o defeituoso. Ser usado na manobra não é prova de que queimou. Só 1 tem o defeito aberto no próprio transformador, e esse já estava contabilizado.",
+    "o_que_sobra_de_verdade": "8 casos novos, todos com o trafo em papel secundário na ocorrência. Merecem leitura individual antes de qualquer coisa, e não sustentam a faixa de 877 a 925 que o revisor propôs.",
+    "arquivo": "revisao/checagem_51.json"
+   }
+  ]
  },
  "casos": [
   {

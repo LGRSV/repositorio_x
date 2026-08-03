@@ -62,6 +62,13 @@ type Revisao = {
       perguntas?: Array<{ pergunta: string; resposta: string }>;
     };
   };
+  conferencia_dos_achados?: null | {
+    nota: string;
+    itens: Array<{
+      achado: string; gravidade_alegada: string; veredito: string; o_que_eu_medi: string;
+      por_que_a_diferenca_importa: string; o_que_sobra_de_verdade: string;
+    }>;
+  };
   casos: CasoRevisto[];
 };
 
@@ -831,6 +838,17 @@ export default function Page() {
             <tbody>{(revB.perguntas || []).map((p, i) => <tr key={i}>
               <td><strong>{p.pergunta}</strong></td><td><span>{p.resposta}</span></td></tr>)}</tbody>
           </table></div> : null}
+        </section> : null}
+
+        {revisao.conferencia_dos_achados?.itens.length ? <section className="panel editorial-note wide destaque">
+          <span>CONFERÊNCIA DOS ACHADOS DO REVISOR</span>
+          <p>{revisao.conferencia_dos_achados.nota}</p>
+          {revisao.conferencia_dos_achados.itens.map((c, i) => <div key={i}>
+            <p><strong>Alegado ({c.gravidade_alegada}):</strong> {c.achado}</p>
+            <p><strong>Veredito: {c.veredito}.</strong> {c.o_que_eu_medi}</p>
+            <p><strong>Por que a diferença importa.</strong> {c.por_que_a_diferenca_importa}</p>
+            <p><strong>O que sobra de verdade.</strong> {c.o_que_sobra_de_verdade}</p>
+          </div>)}
         </section> : null}
 
         {revA ? <section className="panel editorial-note wide">

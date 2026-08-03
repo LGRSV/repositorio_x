@@ -358,6 +358,16 @@ def main():
         with open(caminho, encoding="utf-8") as fh:
             return json.load(fh)
 
+    # ---- a conferência dos achados do revisor dos números
+    # Revisor não é oráculo. O achado mais grave desta rodada foi reconferido contra o arquivo
+    # cru com um parser independente e não reproduziu. Publicar isso ao lado do achado é o que
+    # impede a aba de virar caixa de eco: quem lê vê a alegação E a medição que a contesta.
+    caminho_conf = os.path.join(REV, "conferencia_revisor_b.json")
+    conferencia = None
+    if os.path.exists(caminho_conf):
+        with open(caminho_conf, encoding="utf-8") as fh:
+            conferencia = json.load(fh)
+
     saida_json = {
         "meta": {
             "gerado": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -402,6 +412,7 @@ def main():
         "verificacao_aferida": aferida,
         "cenarios": cenarios,
         "revisores": {"site": revisor("revisor_a.json"), "numeros": revisor("revisor_b.json")},
+        "conferencia_dos_achados": conferencia,
         "casos": mudam_ricos,
     }
 
