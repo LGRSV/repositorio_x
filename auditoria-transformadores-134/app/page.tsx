@@ -333,12 +333,15 @@ export default function Page() {
       { id: "outroat", rotulo: "Ativo com atendimento em outra data", nota: "A equipe já esteve nesse transformador no semestre.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && (Number(r.atendimentos_ativo) || 0) > 0 },
       { id: "lacuna2025", rotulo: "Provavelmente no histórico de 2025", nota: "A janela de 24 horas retrocede para antes de 01/01/2026 às 01:14, quando a base de interrupção começa.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" && r.borda_2025 === "SIM" },
     ],
+    /* Os cinco testes eram `() => true`, então cada chip anunciava 1.510 e abria vazio: o
+       filtro de verdade é filtraProfunda, que lê a classificação do localStorage. Agora o
+       teste é o mesmo que a lista usa, e o número do chip é o número que ele entrega. */
     profunda: [
-      { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: () => true },
-      { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: () => true },
-      { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: () => true },
-      { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: () => true },
-      { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: () => true },
+      { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: (r) => Boolean(classificacao[texto(r.ss)]) },
+      { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "QUEIMADO" },
+      { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" },
+      { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
+      { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
     ],
     ssos: [
       { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e pelo deslocamento e chega à leitura do texto e do material.", teste: (r) => r.chega_e3 === "SIM" },
@@ -555,14 +558,17 @@ export default function Page() {
       const chegaE3 = conta((r) => r.chega_e3 === "SIM");
       const saida = conta((r) => r.cascata === "SAÍDA");
       const excluidos = conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
+      /* Cada linha mostra quantos SOBREVIVEM à peneira, então o clique tem de abrir a aba de
+         quem sobreviveu — não a etapa que os produziu. Antes clicar em 1.300 na linha da
+         Interrupção abria a fila de 1.510: o número clicado nunca era o número que aparecia. */
       const caixas: Array<[string, string, number, number, Modulo]> = [
-        ["Entram", "solicitações de troca de transformador", total, 0, "visao"],
+        ["Entram", "solicitações de troca de transformador", total, 0, "interrupcao"],
         // quem para aqui para por dois motivos diferentes: não ter interrupção, ou tê-la
         // e dividir o mesmo evento com outra SS. Vale dizer os dois, não só somar.
-        ["1 · Interrupção", `o campo registrou o evento na janela de 24 horas${conta((r) => r.cascata === "RETIDO — SS DUPLICADA") ? ` · dos que param aqui, ${br(conta((r) => r.cascata === "RETIDO — SS DUPLICADA"))} têm a interrupção mas dividem o evento com outra SS` : ""}`, chegaE2, total - chegaE2, "interrupcao"],
-        ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "deslocamento"],
-        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") + conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ssos"],
-        ["4 · Ressalva da interrupção", "a interrupção sustenta chamar isso de falha?", saida, conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO"), "ressalva"],
+        ["1 · Interrupção", `o campo registrou o evento na janela de 24 horas${conta((r) => r.cascata === "RETIDO — SS DUPLICADA") ? ` · dos que param aqui, ${br(conta((r) => r.cascata === "RETIDO — SS DUPLICADA"))} têm a interrupção mas dividem o evento com outra SS` : ""}`, chegaE2, total - chegaE2, "deslocamento"],
+        ["2 · Deslocamento", "houve equipe no código do transformador", chegaE3, chegaE2 - chegaE3, "ssos"],
+        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") + conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ressalva"],
+        ["4 · Ressalva da interrupção", "a interrupção sustenta chamar isso de falha?", saida, conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO"), "decisao"],
       ];
       return <>
         <section className="scope-strip">
@@ -834,7 +840,10 @@ export default function Page() {
             <Kpi rotulo="Sem obra gerada" valor={br(conta((r) => !texto(r.obra)))} nota="vão para análise à parte" tom="red" aoClicar={() => abrirRecorte("semobra")} />
             <Kpi rotulo="Com alerta" valor={br(conta((r) => r.e4_status === "ALERTA"))} nota="observação, não retenção" tom="amber" aoClicar={() => abrirRecorte("alerta")} />
             <Kpi rotulo="Obra em despesa" valor={br(conta((r) => normalize(texto(r.obra_classe)).includes("DESPESA")))} nota="não imobiliza o ativo" tom="red" aoClicar={() => abrirRecorte("despesa")} />
-            <Kpi rotulo="SIGCO divergente" valor={br(conta((r) => texto(r.e4_alertas).includes("SIGCO")))} nota="código da SS diferente do projeto" tom="blue" aoClicar={() => abrirRecorte("sigco")} />
+            {/* O cartão media com "SIGCO" e o chip com "espera": o alerta é gravado como
+                "8812 espera queimado", então o cartão marcava 0 e abria 126. Agora os dois
+                fazem a mesma pergunta ao mesmo campo. */}
+            <Kpi rotulo="SIGCO divergente" valor={br(conta((r) => texto(r.e4_alertas).includes("espera")))} nota="código da SS diferente do projeto" tom="blue" aoClicar={() => abrirRecorte("sigco")} />
             <Kpi rotulo="Empreiteiras" valor={br(new Set(registros.map((r) => texto(r.obra_empreiteira)).filter(Boolean)).size)} nota="executaram as obras" tom="ink" />
             <Kpi rotulo="Realizado" valor={`R$ ${br(Math.round(registros.reduce((s, r) => s + (Number(r.obra_realizado) || 0), 0)))}`} nota="soma do custo das obras" tom="ink" />
           </section>
@@ -956,7 +965,10 @@ export default function Page() {
             <Kpi rotulo="Furto" valor={br(conta((r) => r.decisao === "EXCLUIR" && r.categoria_texto === "FURTADO"))} nota="vai para o projeto 61993" tom="ink" aoClicar={() => abrirRecorte("furto")} />
             <Kpi rotulo="Abalroamento" valor={br(conta((r) => r.decisao === "EXCLUIR" && r.categoria_texto === "ABALROAMENTO"))} nota="dano de terceiro ou poste" tom="amber" aoClicar={() => abrirRecorte("abalroamento")} />
             <Kpi rotulo="Preventivo" valor={br(conta((r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "PREVENTIVO" || r.categoria_texto === "SOBRECARGA")))} nota="não houve defeito" tom="blue" aoClicar={() => abrirRecorte("preventivo")} />
-            <Kpi rotulo="Auxiliar e particular" valor={br(conta((r) => r.decisao === "EXCLUIR" && (r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR")))} nota="não é unidade de distribuição" tom="ink" aoClicar={() => abrirRecorte("auxiliar")} />
+            {/* Mesmo defeito do SIGCO: o cartão exigia decisão EXCLUIR e marcava 0, enquanto o
+                chip acha os 4 pelo texto. Os quatro param na interrupção e nunca chegam à
+                leitura, então nunca viram EXCLUIR — quem procurava pela decisão não achava. */}
+            <Kpi rotulo="Auxiliar e particular" valor={br(conta((r) => r.categoria_texto === "TRAFO AUXILIAR" || r.categoria_texto === "PARTICULAR"))} nota="não é unidade de distribuição" tom="ink" aoClicar={() => abrirRecorte("auxiliar")} />
             <Kpi rotulo="Com fato de campo" valor={br(conta((r) => r.decisao === "EXCLUIR" && r.fato !== "F3"))} nota="houve interrupção, mas a causa é outra" tom="amber" />
           </section>
           <section className="panel editorial-note wide"><span>COMO LER ESTA FILA</span>
