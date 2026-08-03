@@ -1,6 +1,6 @@
 {
  "meta": {
-  "gerado": "2026-08-03 15:44",
+  "gerado": "2026-08-03 17:45",
   "universo": 1510,
   "revisadas": 1071,
   "cobertura_pct": 70.9,
@@ -638,6 +638,189 @@
    {
     "categoria": "RETIDO — SS DUPLICADA",
     "n": 2
+   }
+  ]
+ },
+ "tela_nao_lidas": {
+  "n": 439,
+  "confirmadas": 334,
+  "merecem_leitura": 105,
+  "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação automática que só confere se o motivo da retenção se sustenta contra os campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
+  "grupos": [
+   {
+    "id": "tela-4",
+    "tipo": "contradiz",
+    "rotulo": "Retido por falta de deslocamento, mas há atendimento com deslocamento",
+    "explicacao": "A segunda peneira disse que não havia atendimento do TMAE no código do trafo. O próprio registro traz o número do atendimento, dentro da janela, com a equipe deslocada.",
+    "n": 8,
+    "chegariam_a_saida": 8,
+    "ss": [
+     "ETO-RD-GR 00017/2026",
+     "ETO-RD-GU 00021/2026",
+     "DOLP-RD-PA 00044/2026",
+     "ETO-RD-AR 00304/2026",
+     "ENC-RD-PS 00340/2026",
+     "ENC-RD-PS 00380/2026",
+     "ENC-RD-PS 00449/2026",
+     "ETO-RD-AG 00490/2026"
+    ],
+    "exemplo": {
+     "ss": "ETO-RD-GR 00017/2026",
+     "porque": "TMAE 20264064454406 a 21.05 h da borda, deslocou"
+    }
+   },
+   {
+    "id": "tela-1",
+    "tipo": "contradiz",
+    "rotulo": "Retido por falta de fato, mas há registro dentro da janela",
+    "explicacao": "A primeira peneira disse que não havia nem interrupção nem atendimento em 24 h. Medindo pela borda mais próxima em vez do início da ocorrência, há.",
+    "n": 6,
+    "chegariam_a_saida": 6,
+    "ss": [
+     "ETO-RD-GU 00017/2026",
+     "ETO-RD-GR 00048/2026",
+     "ETO-RD-GR 00050/2026",
+     "ENC-RD-PS 00079/2026",
+     "ETO-RD-GR 00082/2026",
+     "ETO-RD-AR 00141/2026"
+    ],
+    "exemplo": {
+     "ss": "ETO-RD-GU 00017/2026",
+     "porque": "TMAE a 0.0 h da borda (o campo e1_delta_h diz None)"
+    }
+   },
+   {
+    "id": "tela-5",
+    "tipo": "lacuna",
+    "rotulo": "Retido por falta de deslocamento, mas a SS caiu no vão do TMAE",
+    "explicacao": "Mesmo vão de 26 a 31 de janeiro, agora barrando na segunda peneira.",
+    "n": 69,
+    "chegariam_a_saida": 51,
+    "ss": [
+     "ETO-RD-DP 00073/2026",
+     "ETO-RD-DP 00074/2026",
+     "ETO-RD-GU 00125/2026",
+     "DG-RD-PO 00115/2026",
+     "DG-RD-PO 00116/2026",
+     "DG-RD-PO 00117/2026",
+     "DG-RD-PO 00118/2026",
+     "DOLP-RD-PA 00143/2026",
+     "ENC-RD-PS 00135/2026",
+     "DG-RD-PO 00121/2026",
+     "ENC-RD-PS 00142/2026",
+     "ENC-RD-PS 00143/2026",
+     "ENC-RD-PS 00144/2026",
+     "ETO-RD-GR 00139/2026",
+     "ETO-RD-GU 00136/2026",
+     "ETO-RD-GU 00137/2026",
+     "DG-RD-PO 00123/2026",
+     "DOLP-RD-PA 00149/2026",
+     "DOLP-RD-PA 00150/2026",
+     "DOLP-RD-PA 00155/2026",
+     "ENC-RD-PS 00146/2026",
+     "ENC-RD-PS 00147/2026",
+     "ENC-RD-PS 00148/2026",
+     "ETO-RD-AR 00176/2026",
+     "ETO-RD-AR 00180/2026",
+     "ETO-RD-GR 00146/2026",
+     "ETO-RD-GU 00141/2026",
+     "DG-RD-PO 00126/2026",
+     "DG-RD-PO 00127/2026",
+     "DG-RD-PO 00129/2026",
+     "DG-RD-PO 00131/2026",
+     "DOLP-RD-PA 00159/2026",
+     "DOLP-RD-PA 00160/2026",
+     "DOLP-RD-PA 00163/2026",
+     "ENC-RD-PS 00153/2026",
+     "ENC-RD-PS 00154/2026",
+     "ENC-RD-PS 00155/2026",
+     "ENC-RD-PS 00157/2026",
+     "ENC-RD-PS 00158/2026",
+     "ENC-RD-PS 00159/2026",
+     "ETO-RD-AG 00114/2026",
+     "ETO-RD-AR 00181/2026",
+     "ETO-RD-AR 00182/2026",
+     "ETO-RD-AR 00191/2026",
+     "ETO-RD-AR 00192/2026",
+     "ETO-RD-AR 00193/2026",
+     "ETO-RD-GR 00151/2026",
+     "ETO-RD-GR 00152/2026",
+     "ETO-RD-GU 00142/2026",
+     "ETO-RD-GU 00143/2026",
+     "ETO-RD-GU 00144/2026",
+     "ETO-RD-GU 00145/2026",
+     "ETO-RD-GU 00148/2026",
+     "DG-RD-PO 00138/2026",
+     "DOLP-RD-PA 00164/2026",
+     "DOLP-RD-PA 00165/2026",
+     "ENC-RD-PS 00161/2026",
+     "ENC-RD-PS 00162/2026",
+     "ENC-RD-PS 00163/2026",
+     "ETO-RD-AR 00194/2026",
+     "ETO-RD-AR 00198/2026",
+     "ETO-RD-AR 00199/2026",
+     "ETO-RD-GR 00153/2026",
+     "ETO-RD-GR 00155/2026",
+     "ETO-RD-GR 00156/2026",
+     "ETO-RD-GR 00157/2026",
+     "ETO-RD-GR 00158/2026",
+     "ETO-RD-GU 00151/2026",
+     "ETO-RD-GU 00153/2026"
+    ],
+    "exemplo": {
+     "ss": "ETO-RD-DP 00073/2026",
+     "porque": "TMAE sem registro de 26 a 31/jan"
+    }
+   },
+   {
+    "id": "tela-3",
+    "tipo": "lacuna",
+    "rotulo": "Retido por falta de fato, mas a SS caiu no vão do TMAE",
+    "explicacao": "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro. Não é ausência de atendimento: é ausência de arquivo.",
+    "n": 14,
+    "chegariam_a_saida": 11,
+    "ss": [
+     "DOLP-RD-PA 00138/2026",
+     "ENC-RD-PS 00138/2026",
+     "ETO-RD-AG 00104/2026",
+     "ETO-RD-GR 00140/2026",
+     "ETO-RD-GR 00142/2026",
+     "DG-RD-PO 00125/2026",
+     "DG-RD-PO 00130/2026",
+     "ENC-RD-PS 00156/2026",
+     "ETO-RD-AG 00117/2026",
+     "ETO-RD-AR 00188/2026",
+     "ETO-RD-GU 00146/2026",
+     "ETO-RD-GU 00147/2026",
+     "ETO-RD-DP 00082/2026",
+     "ETO-RD-DP 00084/2026"
+    ],
+    "exemplo": {
+     "ss": "DOLP-RD-PA 00138/2026",
+     "porque": "TMAE sem registro de 26 a 31/jan"
+    }
+   },
+   {
+    "id": "tela-2",
+    "tipo": "lacuna",
+    "rotulo": "Retido por falta de fato, mas a janela retrocede para 2025",
+    "explicacao": "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria esses casos ficou no arquivo de dezembro, que não temos.",
+    "n": 8,
+    "chegariam_a_saida": 8,
+    "ss": [
+     "DG-RD-PO 00001/2026",
+     "DG-RD-PO 00003/2026",
+     "ENC-RD-PS 00003/2026",
+     "ETO-RD-DP 00004/2026",
+     "ETO-RD-GR 00001/2026",
+     "ETO-RD-GR 00002/2026",
+     "ETO-RD-GR 00004/2026",
+     "ETO-RD-GU 00004/2026"
+    ],
+    "exemplo": {
+     "ss": "DG-RD-PO 00001/2026",
+     "porque": "a base de interrupção começa em 01/01/2026 01:14"
+    }
    }
   ]
  },

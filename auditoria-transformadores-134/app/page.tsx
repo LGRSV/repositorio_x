@@ -36,6 +36,13 @@ type Revisao = {
   }>;
   sem_resposta: Array<{ ss: string; atual: string; falta: string }>;
   confirmado: { n: number; nota: string; por_categoria: Array<{ categoria: string; n: number }> };
+  tela_nao_lidas?: {
+    n: number; confirmadas: number; merecem_leitura?: number; nota?: string;
+    grupos: Array<{
+      id: string; tipo: string; rotulo: string; explicacao: string; n: number;
+      chegariam_a_saida: number; ss: string[]; exemplo: { ss: string; porque: string } | null;
+    }>;
+  };
   cenarios: Array<{
     id: string; rotulo: string; descricao: string; entram: number; saem: number;
     saida: number; base: string;
@@ -762,6 +769,22 @@ export default function Page() {
           <p><strong>De</strong> {g.de} <strong>para</strong> {g.para}.</p>
           <p className="fluxo-nota"><strong>Exemplo — {g.exemplo.ss}:</strong> {g.exemplo.trecho}</p>
         </section>)}
+
+        {revisao.tela_nao_lidas?.grupos.length ? <section className="panel editorial-note wide">
+          <span>AS QUE AINDA NÃO FORAM LIDAS · {br(revisao.tela_nao_lidas.n)}</span>
+          <p>{revisao.tela_nao_lidas.nota}</p>
+          <p><strong>{br(revisao.tela_nao_lidas.confirmadas)}</strong> tiveram a retenção confirmada pelos próprios campos do registro. <strong>{br(revisao.tela_nao_lidas.merecem_leitura || 0)}</strong> não, e entram na fila de leitura pelos motivos abaixo.</p>
+          <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>O que a verificação achou</th><th>Casos</th><th>Chegariam à saída</th><th>Por quê</th></tr></thead>
+            <tbody>{revisao.tela_nao_lidas.grupos.map((g) => <tr key={g.id}>
+              <td><strong>{g.rotulo}</strong>{g.tipo === "contradiz" ? <span> · contradiz o registro</span> : <span> · lacuna de base</span>}</td>
+              <td><span>{br(g.n)}</span></td>
+              <td><span>{br(g.chegariam_a_saida)}</span></td>
+              <td><span>{g.explicacao}{g.exemplo ? ` Exemplo — ${g.exemplo.ss}: ${g.exemplo.porque}.` : ""}</span></td>
+            </tr>)}</tbody>
+          </table></div>
+          <p className="fluxo-nota">Os grupos marcados como <strong>lacuna de base</strong> não são erro da esteira nem da solicitação: o arquivo que sustentaria o caso não existe. Os marcados como <strong>contradiz o registro</strong> são o contrário — o dado para decidir estava lá e a peneira não o usou.</p>
+        </section> : null}
 
         {revisao.sem_resposta.length ? <section className="panel editorial-note wide">
           <span>O QUE FICOU SEM RESPOSTA · {br(revisao.sem_resposta.length)}</span>

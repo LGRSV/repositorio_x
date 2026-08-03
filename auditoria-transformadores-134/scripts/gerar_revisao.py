@@ -250,6 +250,53 @@ def main():
                                   "troca e não recebem ressalva."),
     }]
 
+    # ---- a tela determinística das que ainda não foram lidas
+    # Não é leitura caso a caso e não pode ser apresentada como se fosse. Ela só pergunta se o
+    # MOTIVO da retenção se sustenta contra os campos do próprio registro. Confirma ou contradiz.
+    ROTULOS = {
+        "1": ("contradiz", "Retido por falta de fato, mas há registro dentro da janela",
+              "A primeira peneira disse que não havia nem interrupção nem atendimento em 24 h. "
+              "Medindo pela borda mais próxima em vez do início da ocorrência, há."),
+        "2": ("lacuna", "Retido por falta de fato, mas a janela retrocede para 2025",
+              "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria "
+              "esses casos ficou no arquivo de dezembro, que não temos."),
+        "3": ("lacuna", "Retido por falta de fato, mas a SS caiu no vão do TMAE",
+              "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro. Não é ausência de "
+              "atendimento: é ausência de arquivo."),
+        "4": ("contradiz", "Retido por falta de deslocamento, mas há atendimento com deslocamento",
+              "A segunda peneira disse que não havia atendimento do TMAE no código do trafo. "
+              "O próprio registro traz o número do atendimento, dentro da janela, com a equipe deslocada."),
+        "5": ("lacuna", "Retido por falta de deslocamento, mas a SS caiu no vão do TMAE",
+              "Mesmo vão de 26 a 31 de janeiro, agora barrando na segunda peneira."),
+    }
+    caminho_tela = os.path.join(REV, "tela_439.json")
+    tela = {"n": 0, "confirmadas": 0, "grupos": []}
+    if os.path.exists(caminho_tela):
+        with open(caminho_tela, encoding="utf-8") as fh:
+            bruto = json.load(fh)
+        grupos_tela = []
+        for chave, itens in sorted(bruto.items()):
+            n = chave.split(" ")[0]
+            tipo, rotulo, explicacao = ROTULOS.get(n, ("contradiz", chave, ""))
+            chegariam = [i for i in itens if i.get("e3") == "SEGUE" and i.get("e4") == "OK"]
+            grupos_tela.append({
+                "id": f"tela-{n}", "tipo": tipo, "rotulo": rotulo, "explicacao": explicacao,
+                "n": len(itens), "chegariam_a_saida": len(chegariam),
+                "ss": [i["ss"] for i in itens],
+                "exemplo": {"ss": itens[0]["ss"], "porque": itens[0]["porque"]} if itens else None,
+            })
+        grupos_tela.sort(key=lambda g: (g["tipo"] != "contradiz", -g["n"]))
+        marcadas = sum(g["n"] for g in grupos_tela)
+        tela = {
+            "n": len(registros) - len(casos),
+            "confirmadas": len(registros) - len(casos) - marcadas,
+            "merecem_leitura": marcadas,
+            "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação "
+                    "automática que só confere se o motivo da retenção se sustenta contra os "
+                    "campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
+            "grupos": grupos_tela,
+        }
+
     def revisor(nome):
         caminho = os.path.join(REV, nome)
         if not os.path.exists(caminho):
@@ -289,6 +336,7 @@ def main():
             "por_categoria": [{"categoria": k, "n": v}
                               for k, v in sorted(conf_por_cat.items(), key=lambda x: -x[1]) if k],
         },
+        "tela_nao_lidas": tela,
         "cenarios": cenarios,
         "revisores": {"site": revisor("revisor_a.json"), "numeros": revisor("revisor_b.json")},
         "casos": mudam_ricos,
@@ -302,6 +350,9 @@ def main():
     print(f"  mudam {len(mudam)} · confirmadas {len(confirmados)} · sem resposta {len(naoclaro)}")
     print(f"  falsos positivos da saída: {len(falsos)}")
     print(f"  grupos de motivo: {len(grupos)}")
+    if tela["grupos"]:
+        print(f"  tela das não lidas: {tela['confirmadas']} confirmadas, "
+              f"{tela['merecem_leitura']} merecem leitura, em {len(tela['grupos'])} grupos")
     for c in cenarios:
         print(f"  cenário {c['id']}: saída {saida_hoje} → {c['saida']}")
     print(f"  gravado em {SAIDA} ({os.path.getsize(SAIDA)//1024} KB)")
