@@ -34,7 +34,8 @@ type Revisao = {
     esteira_fez: string; por_que_errado: string; afeta_saida: boolean;
     exemplo: { ss: string; trecho: string; motivo: string }; ss: string[];
   }>;
-  sem_resposta: Array<{ ss: string; atual: string; falta: string }>;
+  sem_resposta: Array<{ ss: string; atual: string; na_saida?: boolean; falta: string }>;
+  sem_resposta_resumo?: { n: number; na_saida: number; nota: string; onde: Array<{ categoria: string; n: number }> };
   confirmado: { n: number; nota: string; por_categoria: Array<{ categoria: string; n: number }> };
   verificacao_aferida?: null | {
     nota: string; licao: string; lacunas_licao: string;
@@ -792,10 +793,15 @@ export default function Page() {
         {revisao.sem_resposta.length ? <section className="panel editorial-note wide">
           <span>O QUE FICOU SEM RESPOSTA · {br(revisao.sem_resposta.length)}</span>
           <p>Casos em que a revisão não conseguiu decidir com o que existe hoje. Ficam listados em vez de escondidos.</p>
+          {revisao.sem_resposta_resumo ? <>
+            <p>{revisao.sem_resposta_resumo.nota}</p>
+            <p><strong>{br(revisao.sem_resposta_resumo.na_saida)} dos {br(revisao.sem_resposta_resumo.n)} estão na SAÍDA</strong> e vêm primeiro na lista. Onde os demais estão parados: {revisao.sem_resposta_resumo.onde.filter((o) => o.categoria !== "SAÍDA").map((o) => `${o.categoria.toLowerCase()} (${br(o.n)})`).join(" · ")}.</p>
+          </> : null}
           <div className="table-scroll"><table className="records-table">
             <thead><tr><th>SS</th><th>Categoria hoje</th><th>O que falta para decidir</th></tr></thead>
             <tbody>{revisao.sem_resposta.map((s) => <tr key={s.ss}>
-              <td><strong>{s.ss}</strong></td><td><span>{s.atual}</span></td><td><span>{s.falta}</span></td>
+              <td><strong>{s.ss}</strong>{s.na_saida ? <span> · na saída</span> : null}</td>
+              <td><span>{s.atual}</span></td><td><span>{s.falta}</span></td>
             </tr>)}</tbody>
           </table></div>
         </section> : null}

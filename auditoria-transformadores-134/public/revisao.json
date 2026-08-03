@@ -1,6 +1,6 @@
 {
  "meta": {
-  "gerado": "2026-08-03 18:14",
+  "gerado": "2026-08-03 18:44",
   "universo": 1510,
   "revisadas": 1510,
   "cobertura_pct": 100.0,
@@ -638,256 +638,333 @@
  ],
  "sem_resposta": [
   {
-   "ss": "ETO-RD-DP 00156/2026",
-   "atual": "RETIDO — RESSALVA DA INTERRUPÇÃO",
-   "falta": "Arbitro: confirmo o NAO_CLARO do verificador — a hesitacao e legitima e este caso NAO e o mesmo perfil de 00005/00408. Conferi os dois precedentes que delimitam a zona: nas SAIDA, 21 casos com e2 RETIDO sobreviveram, todos at SIM + corrobora=ocorrencia com delta entre +24h e +57h; no B3, os 6 retidos com at SIM tem corrobora='não'. Este caso e at SIM + corrobora=ocorrencia com +73,55h — entre os dois precedentes — e …"
+   "ss": "DOLP-RD-PA 00288/2026",
+   "atual": "SAÍDA",
+   "na_saida": true,
+   "falta": "Caso mais fragil do lote. A SS abriu em 23/02 21:46 e a UNICA ocorrencia da Critica comeca 17h24 DEPOIS (24/02 15:10-17:00), com janela identica a do atendimento TMAE cuja observacao diz \"EQUIPE DE MANUTENCAO FEZ A TROCA DO TRAFO\" - ou seja, a interrupcao usada como lastro parece ser o desligamento de execucao da troca, nao a falha. Somam-se: 32 clientes na ocorrencia contra \"cliente penalizado 01\" no texto, papel so…"
   },
   {
    "ss": "ETO-RD-AG 00008/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "ARBITRADO — confirmo o verificador: ele entendeu o caso e não interpretou mal regra nem campo. A contradição é real e é campo contra campo, na MESMA linha: oc_causa/oc_sub=TRANSFORMADOR/QUEIMADO POR DESCARGA ATMOSFERICA e oc_papel=\"defeito no próprio trafo\" contra a observação idêntica nas duas bases (oc_obs=at_obs) \"...FOI REALIZADO TESTE A VAZIO TRAFO TA NORMAL, DEFEITO NA BT.\" Um registro autocontraditório não dem…"
   },
   {
    "ss": "ETO-RD-AG 00162/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "Não dá para fechar com o que está no registro. A ocorrência casada tem causa POSTE DE BT/QUEBRADO — único caso assim entre as 884 SAÍDAs — e o TMAE traz CONDUTOR DE BT/PARTIDO NA CONEXAO, enquanto o campo oc_papel diz 'defeito no próprio trafo'. Os dois campos do mesmo registro se contradizem sobre de quem é o defeito, e é justamente isso que a peneira 4 ('de outro elemento') deveria decidir. Falta: (a) o conteúdo da…"
-  },
-  {
-   "ss": "DOLP-RD-PA 00288/2026",
-   "atual": "SAÍDA",
-   "falta": "Caso mais fragil do lote. A SS abriu em 23/02 21:46 e a UNICA ocorrencia da Critica comeca 17h24 DEPOIS (24/02 15:10-17:00), com janela identica a do atendimento TMAE cuja observacao diz \"EQUIPE DE MANUTENCAO FEZ A TROCA DO TRAFO\" - ou seja, a interrupcao usada como lastro parece ser o desligamento de execucao da troca, nao a falha. Somam-se: 32 clientes na ocorrencia contra \"cliente penalizado 01\" no texto, papel so…"
   },
   {
    "ss": "ETO-RD-AG 00257/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "Mantenho a categoria por ora, mas o caso não está decidido. A única interrupção que sustenta a peneira 1 é um evento de 3 MINUTOS (07/03 21:22-21:25) que começa 10h21 DEPOIS da abertura da SS (e1_delta_h=-10.34) e depois de o atendimento do TMAE já ter terminado (06/03 16:03 + 18h58 = 07/03 11:01, exatamente a hora da abertura) — ou seja, a ocorrência que 'casa' não pode ter motivado a SS e mais parece a manobra de r…"
   },
   {
    "ss": "ETO-RD-AR 00452/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "NÃO CLARO — é o caso mais frágil do lote. A interrupção que sustentou a peneira 1 tem causa CONDUTOR DE BT / PARTIDO NA FASE (49 clientes) e o próprio TMAE também fecha em CONDUTOR DE BT: o campo, duas vezes, atribui o evento a outro elemento, e a única afirmação de queima do transformador é a declaração da equipe no texto da SS — exatamente o que a regra de ouro proíbe transformar em fato. Contra isso, o oc_papel di…"
   },
   {
    "ss": "ETO-RD-AR 00780/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "Unico caso do lote em que nao consigo fechar so com o registro. Tres sinais se somam na mesma direcao: (a) categoria_gravada = TRAFO AUXILIAR, e trafo auxiliar e alimentacao de equipamento, nao trafo de distribuicao; (b) o texto da SS registra que ha equipamento especial no mesmo ponto - 'chave religadora com defeito em um dos estajos' -, que e justamente o cenario da ressalva de equipamento especial da peneira 4; (c…"
   },
   {
    "ss": "ETO-RD-DP 00375/2026",
    "atual": "SAÍDA",
+   "na_saida": true,
    "falta": "Único caso do lote em que não consigo fechar. A ocorrência lastro (20264517444381) tem causa CONEXAO/JUMPER, subcausa CRUZAMENTO BT (FLY-TAP BT), 534 clientes em 1h39, e o único registro de campo do TMAE é 'FASE B OPERADO EM CAMPO DA CHAVE 0300002101' — ação em chave, não no trafo. 534 clientes é o máximo absoluto das 884 saídas da esteira, 4x o segundo colocado (132), num trafo de 75 kVA cujos pares na base ficam en…"
-  },
-  {
-   "ss": "ENC-RD-PS 00016/2026",
-   "atual": "EXCLUÍDO NA LEITURA",
-   "falta": "O verificador entendeu bem: o texto declara furto e isso sustenta a exclusão por ora, mas a OS traz placa completa do trafo RETIRADO (série 373581, Toshiba 03/2000) e a Crítica registra 3 dias de vazamento de óleo no próprio trafo — falta verificar se a placa veio do equipamento físico ou do cadastro; se veio do físico, o furto cai e o caso volta às peneiras com casamento pleno."
-  },
-  {
-   "ss": "ETO-RD-GR 00205/2026",
-   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "falta": "Bem julgado: a própria SS avisa que o cadastro registra o ativo sob o código 5700036153, e como a Crítica e o TMAE podem ter gravado o evento sob o código cadastral, falta consultar as duas bases por 5700036153 dentro das 24h antes de fechar a retenção."
-  },
-  {
-   "ss": "DOLP-RD-PA 00429/2026",
-   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "falta": "Bem julgado: o texto aponta o 5764409122 como o trafo com vazamento e toda a busca foi feita no 5700354122, cuja única ocorrência trata de cabos de fibra e fica 25h08 fora — falta consultar a Crítica e o TMAE sob o 5764409122 e explicar os 112 kVA do texto contra os 10 kVA do material antes de fechar a retenção."
-  },
-  {
-   "ss": "ETO-RD-GU 00440/2026",
-   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "falta": "Verificador certo em manter e em marcar NAO_CLARO: a OS cita a interrupção 20264266691405 e ninguém a buscou por número — buscar não cria fato, verifica se o campo registrou sob outra chave, exatamente o padrão da correção que recuperou 23 casos; falta essa busca, e se a ocorrência existir e couber na janela o caso vira SAÍDA ou SS DUPLICADA."
-  },
-  {
-   "ss": "ETO-RD-GR 00400/2026",
-   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "falta": "Verificador certo em marcar NAO_CLARO: campo gravado e SS apontam abalroamento (troca de poste e trafo) mas a OS diz trafo queimado — ao contrário do 00259, aqui há documento afirmando queima, então falta a prova externa (fotos, laudo, motivo da troca do poste) para decidir; se abalroamento se confirmar, vira EXCLUÍDO NA LEITURA."
-  },
-  {
-   "ss": "ETO-RD-AG 00047/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "DERRUBO a mudança para SAÍDA: o verificador acertou que o analista mediu da borda errada (2h31 da abertura, não 24,43h), mas errou o fato central — o atendimento termina 5h25 ANTES de a ocorrência sequer começar, não encosta nela, e o registro do TMAE aponta outra OS sem confirmar o código do trafo; coincidência de equipe e causa é declaração, não fato, e a regra de ouro proíbe criar o deslocamento a partir dela — o …"
-  },
-  {
-   "ss": "ETO-RD-DP 00167/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "DERRUBO a mudança para SAÍDA, mantendo a crítica de método: a conta do verificador está certa — o intervalo do atendimento engloba a ocorrência e termina 1h44 antes da abertura, e o analista repetiu o defeito de medir do início (102,73h) — mas o registro do TMAE está amarrado a outra OS e não confirma o código do trafo, e a equipe citada no texto da SS não cria esse fato; o caso fica retido e NAO_CLARO até a busca pe…"
-  },
-  {
-   "ss": "DG-RD-PO 00295/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "A ocorrência é registrada como manobra/remanejamento sem programação prévia (sinal de ressalva), mas o texto da OS fala em substituição por sobrecarga; não dá para saber com segurança se é falha real ou puro remanejamento — mas de qualquer forma o caso já fica retido antes disso, por falta de deslocamento confirmado no código."
-  },
-  {
-   "ss": "ETO-RD-AG 00114/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real de que não houve deslocamento."
-  },
-  {
-   "ss": "ETO-RD-AG 00490/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "O atendimento achado tem causa/subcausa idênticas, cita o mesmo trafo e a mesma equipe que a própria ocorrência (081OP01), terminando 1 minuto antes do início da ocorrência — pode ser o deslocamento real sob chave diferente, mas códigos de equipe se repetem por região e não há como confirmar com certeza."
-  },
-  {
-   "ss": "ETO-RD-AR 00176/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00180/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE; o único atendimento achado é de março (mesma equipe citada, mas 45 dias depois), o que não descarta que um deslocamento real de janeiro tenha ficado fora do arquivo."
-  },
-  {
-   "ss": "ETO-RD-AR 00181/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00182/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); o único atendimento achado é de janeiro mas em código diferente e sem confirmar o trafo."
-  },
-  {
-   "ss": "ETO-RD-AR 00191/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00192/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00193/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00194/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00198/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-AR 00199/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); o único atendimento achado é de junho e não confirma o trafo."
-  },
-  {
-   "ss": "ETO-RD-DP 00073/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 26/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-DP 00074/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 26/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00139/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 28/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00146/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00151/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00152/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE; a ausência de atendimento pode ser falha de arquivo, e a ressalva de zero clientes não muda essa incerteza."
-  },
-  {
-   "ss": "ETO-RD-GR 00153/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE; a ausência de atendimento pode ser falha de arquivo, e a ressalva de zero clientes não muda essa incerteza."
-  },
-  {
-   "ss": "ETO-RD-GR 00155/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00156/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real (categoria gravada como abalroamento foi corretamente descartada pela leitura, que achou queimado no texto)."
-  },
-  {
-   "ss": "ETO-RD-GR 00157/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
-  },
-  {
-   "ss": "ETO-RD-GR 00158/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE; o único atendimento achado é 3 semanas depois e não confirma o trafo, mas a lacuna de janeiro já torna a ausência inconclusiva por si só."
-  },
-  {
-   "ss": "ETO-RD-GU 00137/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE não tem nenhum registro de ninguém nesses dias, então SEM ATENDIMENTO aqui não prova que não houve deslocamento — falta informação real para decidir com certeza, mas não há prova para promover a SAÍDA."
-  },
-  {
-   "ss": "ETO-RD-GU 00142/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período para nenhum ativo, então a ausência aqui não prova falta de deslocamento."
-  },
-  {
-   "ss": "ETO-RD-GU 00143/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período. Além disso, e1 tem ressalva de manobra (só relevante se chegasse à quarta peneira)."
-  },
-  {
-   "ss": "ETO-RD-GU 00144/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
-  },
-  {
-   "ss": "ETO-RD-GU 00145/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
-  },
-  {
-   "ss": "ETO-RD-GU 00153/2026",
-   "atual": "RETIDO — SEM DESLOCAMENTO",
-   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
   },
   {
    "ss": "DG-RD-PO 00001/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
    "falta": "SS aberta na madrugada de 1/jan; a janela de 24h retrocede a 31/dez/2025, período ausente da base (borda_2025=SIM). Não há como confirmar nem descartar uma ocorrência real nessa lacuna — mas também não há prova para promover a SAÍDA."
   },
   {
    "ss": "DG-RD-PO 00003/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
    "falta": "SS aberta em 1/jan, mesma lacuna de borda (dez/2025). Há um candidato próximo no mesmo alimentador mas com código diferente, explicitamente não confirmado — não sustenta promoção a SAÍDA."
+  },
+  {
+   "ss": "DG-RD-PO 00295/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "A ocorrência é registrada como manobra/remanejamento sem programação prévia (sinal de ressalva), mas o texto da OS fala em substituição por sobrecarga; não dá para saber com segurança se é falha real ou puro remanejamento — mas de qualquer forma o caso já fica retido antes disso, por falta de deslocamento confirmado no código."
+  },
+  {
+   "ss": "DOLP-RD-PA 00429/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
+   "falta": "Bem julgado: o texto aponta o 5764409122 como o trafo com vazamento e toda a busca foi feita no 5700354122, cuja única ocorrência trata de cabos de fibra e fica 25h08 fora — falta consultar a Crítica e o TMAE sob o 5764409122 e explicar os 112 kVA do texto contra os 10 kVA do material antes de fechar a retenção."
   },
   {
    "ss": "ENC-RD-PS 00003/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
    "falta": "SS aberta na madrugada de 1/jan; a janela de 24h retrocede a 31/dez/2025, período ausente da base (borda_2025=SIM). Não há como confirmar nem descartar uma ocorrência real nessa lacuna."
+  },
+  {
+   "ss": "ENC-RD-PS 00016/2026",
+   "atual": "EXCLUÍDO NA LEITURA",
+   "na_saida": false,
+   "falta": "O verificador entendeu bem: o texto declara furto e isso sustenta a exclusão por ora, mas a OS traz placa completa do trafo RETIRADO (série 373581, Toshiba 03/2000) e a Crítica registra 3 dias de vazamento de óleo no próprio trafo — falta verificar se a placa veio do equipamento físico ou do cadastro; se veio do físico, o furto cai e o caso volta às peneiras com casamento pleno."
   },
   {
    "ss": "ENC-RD-PS 00156/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
    "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período para nenhum ativo, então a ausência de atendimento aqui não é prova contra o deslocamento — falta informação real para decidir com certeza."
+  },
+  {
+   "ss": "ETO-RD-AG 00047/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "DERRUBO a mudança para SAÍDA: o verificador acertou que o analista mediu da borda errada (2h31 da abertura, não 24,43h), mas errou o fato central — o atendimento termina 5h25 ANTES de a ocorrência sequer começar, não encosta nela, e o registro do TMAE aponta outra OS sem confirmar o código do trafo; coincidência de equipe e causa é declaração, não fato, e a regra de ouro proíbe criar o deslocamento a partir dela — o …"
+  },
+  {
+   "ss": "ETO-RD-AG 00114/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real de que não houve deslocamento."
+  },
+  {
+   "ss": "ETO-RD-AG 00490/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "O atendimento achado tem causa/subcausa idênticas, cita o mesmo trafo e a mesma equipe que a própria ocorrência (081OP01), terminando 1 minuto antes do início da ocorrência — pode ser o deslocamento real sob chave diferente, mas códigos de equipe se repetem por região e não há como confirmar com certeza."
+  },
+  {
+   "ss": "ETO-RD-AR 00176/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00180/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE; o único atendimento achado é de março (mesma equipe citada, mas 45 dias depois), o que não descarta que um deslocamento real de janeiro tenha ficado fora do arquivo."
+  },
+  {
+   "ss": "ETO-RD-AR 00181/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00182/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); o único atendimento achado é de janeiro mas em código diferente e sem confirmar o trafo."
+  },
+  {
+   "ss": "ETO-RD-AR 00191/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00192/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00193/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00194/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00198/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-AR 00199/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); o único atendimento achado é de junho e não confirma o trafo."
+  },
+  {
+   "ss": "ETO-RD-DP 00073/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 26/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-DP 00074/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 26/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-DP 00156/2026",
+   "atual": "RETIDO — RESSALVA DA INTERRUPÇÃO",
+   "na_saida": false,
+   "falta": "Arbitro: confirmo o NAO_CLARO do verificador — a hesitacao e legitima e este caso NAO e o mesmo perfil de 00005/00408. Conferi os dois precedentes que delimitam a zona: nas SAIDA, 21 casos com e2 RETIDO sobreviveram, todos at SIM + corrobora=ocorrencia com delta entre +24h e +57h; no B3, os 6 retidos com at SIM tem corrobora='não'. Este caso e at SIM + corrobora=ocorrencia com +73,55h — entre os dois precedentes — e …"
+  },
+  {
+   "ss": "ETO-RD-DP 00167/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "DERRUBO a mudança para SAÍDA, mantendo a crítica de método: a conta do verificador está certa — o intervalo do atendimento engloba a ocorrência e termina 1h44 antes da abertura, e o analista repetiu o defeito de medir do início (102,73h) — mas o registro do TMAE está amarrado a outra OS e não confirma o código do trafo, e a equipe citada no texto da SS não cria esse fato; o caso fica retido e NAO_CLARO até a busca pe…"
   },
   {
    "ss": "ETO-RD-GR 00048/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
    "falta": "O campo do TMAE (e2) mostra casamento válido (SEGUE, nível A): a SS foi aberta em 08/01 18:03, DENTRO do intervalo do atendimento (06/01 15:58 a 09/01 16:33), equipe deslocada, causa TRANSFORMADOR/QUEIMADO POR DESCARGA ATMOSFERICA batendo com o relato. O único ressalva registrado ('nenhum cliente interrompido') pertence a uma ocorrência de Crítica bem distante (fevereiro, candidato já rejeitado), não à evidência do T…"
+  },
+  {
+   "ss": "ETO-RD-GR 00139/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 28/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-GR 00146/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 29/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-GR 00151/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-GR 00152/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE; a ausência de atendimento pode ser falha de arquivo, e a ressalva de zero clientes não muda essa incerteza."
+  },
+  {
+   "ss": "ETO-RD-GR 00153/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE; a ausência de atendimento pode ser falha de arquivo, e a ressalva de zero clientes não muda essa incerteza."
+  },
+  {
+   "ss": "ETO-RD-GR 00155/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-GR 00156/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real (categoria gravada como abalroamento foi corretamente descartada pela leitura, que achou queimado no texto)."
+  },
+  {
+   "ss": "ETO-RD-GR 00157/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 31/01, dentro do vazio conhecido do TMAE (26-31/jan); a ausência de atendimento pode ser falha de arquivo, não prova real."
+  },
+  {
+   "ss": "ETO-RD-GR 00158/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta em 30/01, dentro do vazio conhecido do TMAE; o único atendimento achado é 3 semanas depois e não confirma o trafo, mas a lacuna de janeiro já torna a ausência inconclusiva por si só."
+  },
+  {
+   "ss": "ETO-RD-GR 00205/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
+   "falta": "Bem julgado: a própria SS avisa que o cadastro registra o ativo sob o código 5700036153, e como a Crítica e o TMAE podem ter gravado o evento sob o código cadastral, falta consultar as duas bases por 5700036153 dentro das 24h antes de fechar a retenção."
+  },
+  {
+   "ss": "ETO-RD-GR 00400/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
+   "falta": "Verificador certo em marcar NAO_CLARO: campo gravado e SS apontam abalroamento (troca de poste e trafo) mas a OS diz trafo queimado — ao contrário do 00259, aqui há documento afirmando queima, então falta a prova externa (fotos, laudo, motivo da troca do poste) para decidir; se abalroamento se confirmar, vira EXCLUÍDO NA LEITURA."
+  },
+  {
+   "ss": "ETO-RD-GU 00137/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE não tem nenhum registro de ninguém nesses dias, então SEM ATENDIMENTO aqui não prova que não houve deslocamento — falta informação real para decidir com certeza, mas não há prova para promover a SAÍDA."
+  },
+  {
+   "ss": "ETO-RD-GU 00142/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período para nenhum ativo, então a ausência aqui não prova falta de deslocamento."
+  },
+  {
+   "ss": "ETO-RD-GU 00143/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período. Além disso, e1 tem ressalva de manobra (só relevante se chegasse à quarta peneira)."
+  },
+  {
+   "ss": "ETO-RD-GU 00144/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
+  },
+  {
+   "ss": "ETO-RD-GU 00145/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
+  },
+  {
+   "ss": "ETO-RD-GU 00153/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "na_saida": false,
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período, então SEM ATENDIMENTO não é prova definitiva."
+  },
+  {
+   "ss": "ETO-RD-GU 00440/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "na_saida": false,
+   "falta": "Verificador certo em manter e em marcar NAO_CLARO: a OS cita a interrupção 20264266691405 e ninguém a buscou por número — buscar não cria fato, verifica se o campo registrou sob outra chave, exatamente o padrão da correção que recuperou 23 casos; falta essa busca, e se a ocorrência existir e couber na janela o caso vira SAÍDA ou SS DUPLICADA."
   }
  ],
+ "sem_resposta_resumo": {
+  "n": 50,
+  "na_saida": 7,
+  "onde": [
+   {
+    "categoria": "RETIDO — SEM DESLOCAMENTO",
+    "n": 32
+   },
+   {
+    "categoria": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+    "n": 9
+   },
+   {
+    "categoria": "SAÍDA",
+    "n": 7
+   },
+   {
+    "categoria": "EXCLUÍDO NA LEITURA",
+    "n": 1
+   },
+   {
+    "categoria": "RETIDO — RESSALVA DA INTERRUPÇÃO",
+    "n": 1
+   }
+  ],
+  "nota": "Casos em que a revisão não fechou com o que existe hoje. Os que já estavam retidos continuam retidos e não mexem em nada. Os que estão na SAÍDA são outra história: cada um é um falso positivo em potencial que ficou sem resolução, e são eles que aparecem primeiro na lista."
+ },
  "confirmado": {
   "n": 1437,
   "nota": "Revisadas caso a caso e mantidas na categoria em que já estavam.",

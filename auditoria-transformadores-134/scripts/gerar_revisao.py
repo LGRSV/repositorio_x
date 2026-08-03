@@ -232,11 +232,19 @@ def main():
         })
 
     # ---- o que ficou sem resposta
+    # Onde o caso está parado muda o peso da dúvida. Um indeciso já retido continua retido e
+    # não mexe em nada; um indeciso na SAÍDA é falso positivo em potencial que a revisão não
+    # conseguiu fechar — e esse merece aparecer separado, não diluído na lista.
     sem_resposta = [{
         "ss": c["ss"],
         "atual": c.get("categoria_atual", ""),
+        "na_saida": c.get("categoria_atual") == "SAÍDA",
         "falta": limpa(c.get("motivo")),
     } for c in naoclaro]
+    sem_resposta.sort(key=lambda x: (not x["na_saida"], x["ss"]))
+    sem_resposta_saida = sum(1 for x in sem_resposta if x["na_saida"])
+    sem_resposta_onde = [{"categoria": k, "n": v} for k, v in
+                         collections.Counter(x["atual"] for x in sem_resposta).most_common()]
 
     # ---- o que foi confirmado como correto
     conf_por_cat = collections.Counter(c.get("categoria_atual", "") for c in confirmados)
@@ -376,6 +384,15 @@ def main():
         },
         "grupos": grupos,
         "sem_resposta": sem_resposta,
+        "sem_resposta_resumo": {
+            "n": len(sem_resposta),
+            "na_saida": sem_resposta_saida,
+            "onde": sem_resposta_onde,
+            "nota": "Casos em que a revisão não fechou com o que existe hoje. Os que já estavam "
+                    "retidos continuam retidos e não mexem em nada. Os que estão na SAÍDA são "
+                    "outra história: cada um é um falso positivo em potencial que ficou sem "
+                    "resolução, e são eles que aparecem primeiro na lista.",
+        },
         "confirmado": {
             "n": len(confirmados),
             "nota": "Revisadas caso a caso e mantidas na categoria em que já estavam.",
