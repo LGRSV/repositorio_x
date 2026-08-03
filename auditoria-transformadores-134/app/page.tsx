@@ -36,12 +36,13 @@ type Revisao = {
   }>;
   sem_resposta: Array<{ ss: string; atual: string; falta: string }>;
   confirmado: { n: number; nota: string; por_categoria: Array<{ categoria: string; n: number }> };
-  tela_nao_lidas?: {
-    n: number; confirmadas: number; merecem_leitura?: number; nota?: string;
-    conferida_pela_leitura?: { alcancadas: number; concordou: number; derrubou: number; licao: string };
-    grupos: Array<{
-      id: string; tipo: string; rotulo: string; explicacao: string; n: number;
-      chegariam_a_saida: number; ss: string[]; exemplo: { ss: string; porque: string } | null;
+  verificacao_aferida?: null | {
+    nota: string; licao: string; lacunas_licao: string;
+    contradicoes_apontadas: number; contradicoes_confirmadas: number;
+    lacunas_apontadas: number; lacunas_confirmadas: number;
+    regras: Array<{
+      id: string; tipo: string; rotulo: string; explicacao: string;
+      apontou: number; confirmadas: number; acerto_pct: number; ss: string[];
     }>;
   };
   cenarios: Array<{
@@ -771,21 +772,21 @@ export default function Page() {
           <p className="fluxo-nota"><strong>Exemplo — {g.exemplo.ss}:</strong> {g.exemplo.trecho}</p>
         </section>)}
 
-        {revisao.tela_nao_lidas?.grupos.length ? <section className="panel editorial-note wide">
-          <span>AS QUE AINDA NÃO FORAM LIDAS · {br(revisao.tela_nao_lidas.n)}</span>
-          <p>{revisao.tela_nao_lidas.nota}</p>
-          <p><strong>{br(revisao.tela_nao_lidas.confirmadas)}</strong> tiveram a retenção confirmada pelos próprios campos do registro. <strong>{br(revisao.tela_nao_lidas.merecem_leitura || 0)}</strong> não, e entram na fila de leitura pelos motivos abaixo.</p>
+        {revisao.verificacao_aferida?.regras.length ? <section className="panel editorial-note wide">
+          <span>A VERIFICAÇÃO AUTOMÁTICA, AFERIDA CONTRA A LEITURA</span>
+          <p>{revisao.verificacao_aferida.nota}</p>
           <div className="table-scroll"><table className="records-table">
-            <thead><tr><th>O que a verificação achou</th><th>Casos</th><th>Chegariam à saída</th><th>Por quê</th></tr></thead>
-            <tbody>{revisao.tela_nao_lidas.grupos.map((g) => <tr key={g.id}>
+            <thead><tr><th>O que a verificação apontou</th><th>Casos</th><th>A leitura confirmou</th><th>Acerto</th><th>Por quê</th></tr></thead>
+            <tbody>{revisao.verificacao_aferida.regras.map((g) => <tr key={g.id}>
               <td><strong>{g.rotulo}</strong>{g.tipo === "contradiz" ? <span> · contradiz o registro</span> : <span> · lacuna de base</span>}</td>
-              <td><span>{br(g.n)}</span></td>
-              <td><span>{br(g.chegariam_a_saida)}</span></td>
-              <td><span>{g.explicacao}{g.exemplo ? ` Exemplo — ${g.exemplo.ss}: ${g.exemplo.porque}.` : ""}</span></td>
+              <td><span>{br(g.apontou)}</span></td>
+              <td><span>{br(g.confirmadas)}</span></td>
+              <td><strong>{g.acerto_pct}%</strong></td>
+              <td><span>{g.explicacao}</span></td>
             </tr>)}</tbody>
           </table></div>
-          <p className="fluxo-nota">Os grupos marcados como <strong>lacuna de base</strong> não são erro da esteira nem da solicitação: o arquivo que sustentaria o caso não existe. Os marcados como <strong>contradiz o registro</strong> são o contrário — o dado para decidir estava lá e a peneira não o usou.</p>
-          {revisao.tela_nao_lidas.conferida_pela_leitura ? <p><strong>A leitura já conferiu esta verificação.</strong> Das contradições que ela levantou, {br(revisao.tela_nao_lidas.conferida_pela_leitura.alcancadas)} já foram lidas caso a caso: a leitura concordou com {br(revisao.tela_nao_lidas.conferida_pela_leitura.concordou)} e derrubou {br(revisao.tela_nao_lidas.conferida_pela_leitura.derrubou)}. {revisao.tela_nao_lidas.conferida_pela_leitura.licao}</p> : null}
+          <p><strong>A lição.</strong> {revisao.verificacao_aferida.licao}</p>
+          <p><strong>E sobre as lacunas.</strong> {revisao.verificacao_aferida.lacunas_licao}</p>
         </section> : null}
 
         {revisao.sem_resposta.length ? <section className="panel editorial-note wide">

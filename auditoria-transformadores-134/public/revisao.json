@@ -1,15 +1,15 @@
 {
  "meta": {
-  "gerado": "2026-08-03 18:10",
+  "gerado": "2026-08-03 18:14",
   "universo": 1510,
-  "revisadas": 1455,
-  "cobertura_pct": 96.4,
-  "mudam": 61,
-  "confirmadas": 1394,
-  "sem_resposta": 48,
+  "revisadas": 1510,
+  "cobertura_pct": 100.0,
+  "mudam": 73,
+  "confirmadas": 1437,
+  "sem_resposta": 50,
   "saida_hoje": 884,
   "fontes": {
-   "cobertura": 1377,
+   "cobertura": 1432,
    "encadeamento": 78
   },
   "postura": "Quando a leitura do auditor diverge da esteira, prevalece a do auditor, desde que fundamentada no registro. Confirmar o que está certo conta tanto quanto contestar.",
@@ -313,6 +313,38 @@
   {
    "id": "motivo-mais-forte--0",
    "familia": "motivo-mais-forte",
+   "rotulo": "Retido por falta de fato quando havia motivo mais forte",
+   "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "para": "EXCLUÍDO NA LEITURA",
+   "n": 14,
+   "esteira_fez": "A esteira reteve na primeira peneira, por não achar interrupção na janela.",
+   "por_que_errado": "O texto já mostra outra causa. O destino é o mesmo — fora da saída —, mas o motivo correto é a leitura, e não a ausência de registro.",
+   "afeta_saida": false,
+   "exemplo": {
+    "ss": "ENC-RD-PS 00259/2026",
+    "trecho": "categoria_gravada: ABALROAMENTO / desc_ss: \"substituir poste ID 47042587 10/300 estrutura do TR 5700191054\" / narrativa: \"regra que lê queima pela substituição comprovada, sem contraponto no texto (confiança baixa)\"",
+    "motivo": "Verificador certo: conferi o registro inteiro e nenhuma linha fala em queima — o QUEIMADO da leitura veio da regra circular de confiança baixa que infere queima da própria substituição, enquanto o campo gravado diz ABALROAMENTO e o texto pede troca de poste e estrutura, causa que exclui."
+   },
+   "ss": [
+    "ETO-RD-PS 00094/2026",
+    "ENC-RD-PS 00259/2026",
+    "ETO-RD-AR 00422/2026",
+    "ENC-RD-PS 00508/2026",
+    "DG-RD-PO 00130/2026",
+    "DG-RD-PO 00387/2026",
+    "DOLP-RD-PA 00492/2026",
+    "DOLP-RD-PA 00652/2026",
+    "ENC-RD-PS 00090/2026",
+    "ENC-RD-PS 00314/2026",
+    "ETO-RD-AG 00009/2026",
+    "ETO-RD-AG 00023/2026",
+    "ETO-RD-AG 00104/2026",
+    "ETO-RD-AG 00343/2026"
+   ]
+  },
+  {
+   "id": "motivo-mais-forte--1",
+   "familia": "motivo-mais-forte",
    "rotulo": "Retido por falta de deslocamento quando havia motivo mais forte",
    "de": "RETIDO — SEM DESLOCAMENTO",
    "para": "EXCLUÍDO NA LEITURA",
@@ -341,7 +373,7 @@
    ]
   },
   {
-   "id": "ordem-das-peneiras--1",
+   "id": "ordem-das-peneiras--2",
    "familia": "ordem-das-peneiras",
    "rotulo": "Parou na peneira errada",
    "de": "RETIDO — RESSALVA DA INTERRUPÇÃO",
@@ -370,7 +402,7 @@
    ]
   },
   {
-   "id": "falso-positivo-leitura--2",
+   "id": "falso-positivo-leitura--3",
    "familia": "falso-positivo-leitura",
    "rotulo": "Saiu como bom, mas o texto mostra outra causa",
    "de": "SAÍDA",
@@ -394,7 +426,31 @@
    ]
   },
   {
-   "id": "falso-positivo-ressalva--3",
+   "id": "retencao-indevida--4",
+   "familia": "retencao-indevida",
+   "rotulo": "Retido por falta de fato que o próprio registro traz",
+   "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "para": "SAÍDA",
+   "n": 6,
+   "esteira_fez": "A primeira peneira concluiu que nem a interrupção nem o atendimento registram algo na janela de 24 horas.",
+   "por_que_errado": "O registro traz: a abertura da SS cai DENTRO do intervalo do atendimento do TMAE, com nível de casamento A. A distância pela borda é zero — não é caso de fronteira. A régua que mede a partir do início da ocorrência escondeu o casamento.",
+   "afeta_saida": true,
+   "exemplo": {
+    "ss": "ETO-RD-GR 00048/2026",
+    "trecho": "e2_status: SEGUE; e2_nivel: A; at_ini: 2026-01-06 15:58; at_fim: 2026-01-09 16:33; at_deslocou: SIM; abertura: 2026-01-08 18:03; ressalvas_medias (do candidato descartado): a interrupção não deixou nenhum cliente sem energia",
+    "motivo": "O campo do TMAE (e2) mostra casamento válido (SEGUE, nível A): a SS foi aberta em 08/01 18:03, DENTRO do intervalo do atendimento (06/01 15:58 a 09/01 16:33), equipe deslocada, causa TRANSFORMADOR/QUEIMADO POR DESCARGA ATMOSFERICA batendo com o relato. O único ressalva registrado ('nenhum cliente interrompido') pertence a uma ocorrência de Crítica bem distante (fevereiro, candidato já rejeitado), não à evidência do T…"
+   },
+   "ss": [
+    "ENC-RD-PS 00079/2026",
+    "ETO-RD-AR 00141/2026",
+    "ETO-RD-GR 00048/2026",
+    "ETO-RD-GR 00050/2026",
+    "ETO-RD-GR 00082/2026",
+    "ETO-RD-GU 00017/2026"
+   ]
+  },
+  {
+   "id": "falso-positivo-ressalva--5",
    "familia": "falso-positivo-ressalva",
    "rotulo": "Saiu como bom, mas a interrupção tem ressalva",
    "de": "SAÍDA",
@@ -417,7 +473,7 @@
    ]
   },
   {
-   "id": "falso-positivo-deslocamento--4",
+   "id": "falso-positivo-deslocamento--6",
    "familia": "falso-positivo-deslocamento",
    "rotulo": "Saiu como bom sem atendimento no próprio trafo",
    "de": "SAÍDA",
@@ -440,53 +496,30 @@
    ]
   },
   {
-   "id": "motivo-mais-forte--5",
+   "id": "motivo-mais-forte--7",
    "familia": "motivo-mais-forte",
-   "rotulo": "Retido por falta de fato quando havia motivo mais forte",
+   "rotulo": "Retido por falta de fato quando o caso é duplicidade",
    "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "para": "EXCLUÍDO NA LEITURA",
+   "para": "RETIDO — SS DUPLICADA",
    "n": 5,
-   "esteira_fez": "A esteira reteve na primeira peneira, por não achar interrupção na janela.",
-   "por_que_errado": "O texto já mostra outra causa. O destino é o mesmo — fora da saída —, mas o motivo correto é a leitura, e não a ausência de registro.",
+   "esteira_fez": "A esteira reteve por não achar interrupção na janela.",
+   "por_que_errado": "Existe interrupção: ela só já está sendo usada por outra solicitação, para o mesmo transformador e o mesmo evento. O caso continua retido — muda o motivo, não o destino.",
    "afeta_saida": false,
    "exemplo": {
-    "ss": "ENC-RD-PS 00259/2026",
-    "trecho": "categoria_gravada: ABALROAMENTO / desc_ss: \"substituir poste ID 47042587 10/300 estrutura do TR 5700191054\" / narrativa: \"regra que lê queima pela substituição comprovada, sem contraponto no texto (confiança baixa)\"",
-    "motivo": "Verificador certo: conferi o registro inteiro e nenhuma linha fala em queima — o QUEIMADO da leitura veio da regra circular de confiança baixa que infere queima da própria substituição, enquanto o campo gravado diz ABALROAMENTO e o texto pede troca de poste e estrutura, causa que exclui."
+    "ss": "DG-RD-PO 00179/2026",
+    "trecho": "ocorrência 20264104966246 no ativo 8849950257 (12/02 07:32 a 12/02 13:19) — número operativo provavelmente trocado (idêntico ao achado na SS 00180/2026, mesmo trafo 5710046096)",
+    "motivo": "Mesmo trafo (5710046096) e mesma ocorrência candidata (20264104966246 no ativo 8849950257, 12/02 07:32-13:19) da SS DG-RD-PO 00180/2026, aberta 16 minutos depois — as duas SS foram criadas para corrigir SS antigas abertas no trafo errado, dividindo o mesmo evento e trafo."
    },
    "ss": [
-    "ETO-RD-PS 00094/2026",
-    "ENC-RD-PS 00259/2026",
-    "ETO-RD-AR 00422/2026",
-    "ENC-RD-PS 00508/2026",
-    "DG-RD-PO 00130/2026"
+    "DG-RD-PO 00179/2026",
+    "DG-RD-PO 00180/2026",
+    "DOLP-RD-PA 00101/2026",
+    "ETO-RD-AG 00069/2026",
+    "ETO-RD-AR 00774/2026"
    ]
   },
   {
-   "id": "retencao-indevida--6",
-   "familia": "retencao-indevida",
-   "rotulo": "Retido por falta de fato que o próprio registro traz",
-   "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "para": "SAÍDA",
-   "n": 5,
-   "esteira_fez": "A primeira peneira concluiu que nem a interrupção nem o atendimento registram algo na janela de 24 horas.",
-   "por_que_errado": "O registro traz: a abertura da SS cai DENTRO do intervalo do atendimento do TMAE, com nível de casamento A. A distância pela borda é zero — não é caso de fronteira. A régua que mede a partir do início da ocorrência escondeu o casamento.",
-   "afeta_saida": true,
-   "exemplo": {
-    "ss": "ETO-RD-GR 00048/2026",
-    "trecho": "e2_status: SEGUE; e2_nivel: A; at_ini: 2026-01-06 15:58; at_fim: 2026-01-09 16:33; at_deslocou: SIM; abertura: 2026-01-08 18:03; ressalvas_medias (do candidato descartado): a interrupção não deixou nenhum cliente sem energia",
-    "motivo": "O campo do TMAE (e2) mostra casamento válido (SEGUE, nível A): a SS foi aberta em 08/01 18:03, DENTRO do intervalo do atendimento (06/01 15:58 a 09/01 16:33), equipe deslocada, causa TRANSFORMADOR/QUEIMADO POR DESCARGA ATMOSFERICA batendo com o relato. O único ressalva registrado ('nenhum cliente interrompido') pertence a uma ocorrência de Crítica bem distante (fevereiro, candidato já rejeitado), não à evidência do T…"
-   },
-   "ss": [
-    "ETO-RD-AR 00141/2026",
-    "ETO-RD-GR 00048/2026",
-    "ETO-RD-GR 00050/2026",
-    "ETO-RD-GR 00082/2026",
-    "ETO-RD-GU 00017/2026"
-   ]
-  },
-  {
-   "id": "ordem-das-peneiras--7",
+   "id": "ordem-das-peneiras--8",
    "familia": "ordem-das-peneiras",
    "rotulo": "Parou na peneira errada",
    "de": "RETIDO — SEM PROVA DE TROCA",
@@ -504,27 +537,6 @@
     "ENC-RD-PS 00008/2026",
     "ETO-RD-AG 00492/2026",
     "DOLP-RD-PA 00588/2026"
-   ]
-  },
-  {
-   "id": "motivo-mais-forte--8",
-   "familia": "motivo-mais-forte",
-   "rotulo": "Retido por falta de fato quando o caso é duplicidade",
-   "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-   "para": "RETIDO — SS DUPLICADA",
-   "n": 3,
-   "esteira_fez": "A esteira reteve por não achar interrupção na janela.",
-   "por_que_errado": "Existe interrupção: ela só já está sendo usada por outra solicitação, para o mesmo transformador e o mesmo evento. O caso continua retido — muda o motivo, não o destino.",
-   "afeta_saida": false,
-   "exemplo": {
-    "ss": "DG-RD-PO 00179/2026",
-    "trecho": "ocorrência 20264104966246 no ativo 8849950257 (12/02 07:32 a 12/02 13:19) — número operativo provavelmente trocado (idêntico ao achado na SS 00180/2026, mesmo trafo 5710046096)",
-    "motivo": "Mesmo trafo (5710046096) e mesma ocorrência candidata (20264104966246 no ativo 8849950257, 12/02 07:32-13:19) da SS DG-RD-PO 00180/2026, aberta 16 minutos depois — as duas SS foram criadas para corrigir SS antigas abertas no trafo errado, dividindo o mesmo evento e trafo."
-   },
-   "ss": [
-    "DG-RD-PO 00179/2026",
-    "DG-RD-PO 00180/2026",
-    "ETO-RD-AR 00774/2026"
    ]
   },
   {
@@ -861,13 +873,23 @@
    "falta": "SS aberta em 1/jan, mesma lacuna de borda (dez/2025). Há um candidato próximo no mesmo alimentador mas com código diferente, explicitamente não confirmado — não sustenta promoção a SAÍDA."
   },
   {
+   "ss": "ENC-RD-PS 00003/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "falta": "SS aberta na madrugada de 1/jan; a janela de 24h retrocede a 31/dez/2025, período ausente da base (borda_2025=SIM). Não há como confirmar nem descartar uma ocorrência real nessa lacuna."
+  },
+  {
+   "ss": "ENC-RD-PS 00156/2026",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "falta": "SS aberta na lacuna de 26-31/jan; TMAE sem nenhum registro nesse período para nenhum ativo, então a ausência de atendimento aqui não é prova contra o deslocamento — falta informação real para decidir com certeza."
+  },
+  {
    "ss": "ETO-RD-GR 00048/2026",
    "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
    "falta": "O campo do TMAE (e2) mostra casamento válido (SEGUE, nível A): a SS foi aberta em 08/01 18:03, DENTRO do intervalo do atendimento (06/01 15:58 a 09/01 16:33), equipe deslocada, causa TRANSFORMADOR/QUEIMADO POR DESCARGA ATMOSFERICA batendo com o relato. O único ressalva registrado ('nenhum cliente interrompido') pertence a uma ocorrência de Crítica bem distante (fevereiro, candidato já rejeitado), não à evidência do T…"
   }
  ],
  "confirmado": {
-  "n": 1394,
+  "n": 1437,
   "nota": "Revisadas caso a caso e mantidas na categoria em que já estavam.",
   "por_categoria": [
    {
@@ -880,7 +902,7 @@
    },
    {
     "categoria": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
-    "n": 138
+    "n": 181
    },
    {
     "categoria": "RETIDO — RESSALVA DA INTERRUPÇÃO",
@@ -900,66 +922,174 @@
    }
   ]
  },
- "tela_nao_lidas": {
-  "n": 55,
-  "confirmadas": 48,
-  "merecem_leitura": 7,
-  "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação automática que só confere se o motivo da retenção se sustenta contra os campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
-  "conferida_pela_leitura": {
-   "alcancadas": 13,
-   "concordou": 5,
-   "derrubou": 8,
-   "licao": "A verificação automática pergunta se o campo existe. A leitura pergunta se ele corrobora. Onde as duas divergiram, a leitura prevaleceu — e derrubou 8 das 14 contradições que a verificação tinha levantado."
-  },
-  "grupos": [
+ "verificacao_aferida": {
+  "nota": "Antes de as 439 serem lidas, uma verificação automática tentou decidir com os campos sozinhos se o motivo da retenção se sustentava. Fechada a leitura, dá para medir o que ela acertou. Onde as duas divergiram, a leitura valeu.",
+  "contradicoes_apontadas": 14,
+  "contradicoes_confirmadas": 6,
+  "lacunas_apontadas": 91,
+  "lacunas_confirmadas": 0,
+  "licao": "Uma das duas regras de contradição acertou tudo e a outra errou tudo, e a diferença entre elas é a lição: a verificação automática pergunta se o campo do atendimento EXISTE dentro da janela; a leitura pergunta se aquele atendimento CORROBORA o caso. Nos oito que ela errou, o atendimento era de outro código, de outra equipe ou de outra causa — um deles termina 18 horas antes de a ocorrência começar. Existir não é corroborar.",
+  "lacunas_licao": "Nenhum dos casos de lacuna de base virou saída na leitura. Buraco de arquivo não vira prova: quando o registro não existe, o caso fica retido, e isso é o comportamento certo.",
+  "regras": [
    {
-    "id": "tela-1",
+    "id": "regra-4",
     "tipo": "contradiz",
-    "rotulo": "Retido por falta de fato, mas há registro dentro da janela",
-    "explicacao": "A primeira peneira disse que não havia nem interrupção nem atendimento em 24 h. Medindo pela borda mais próxima em vez do início da ocorrência, há.",
-    "n": 1,
-    "chegariam_a_saida": 1,
+    "rotulo": "Existe atendimento com deslocamento dentro da janela",
+    "explicacao": "A segunda peneira disse que não havia atendimento no código do trafo. O registro traz número de atendimento, dentro da janela, com a equipe deslocada.",
+    "apontou": 8,
+    "confirmadas": 0,
+    "acerto_pct": 0,
     "ss": [
-     "ENC-RD-PS 00079/2026"
-    ],
-    "exemplo": {
-     "ss": "ENC-RD-PS 00079/2026",
-     "porque": "TMAE a 0.0 h da borda (o campo e1_delta_h diz None)"
-    }
+     "ETO-RD-GR 00017/2026",
+     "ETO-RD-GU 00021/2026",
+     "DOLP-RD-PA 00044/2026",
+     "ETO-RD-AR 00304/2026",
+     "ENC-RD-PS 00340/2026",
+     "ENC-RD-PS 00380/2026",
+     "ENC-RD-PS 00449/2026",
+     "ETO-RD-AG 00490/2026"
+    ]
    },
    {
-    "id": "tela-3",
+    "id": "regra-1",
+    "tipo": "contradiz",
+    "rotulo": "Abertura da SS dentro do intervalo do atendimento",
+    "explicacao": "A primeira peneira disse que não havia nada na janela. Medindo pela borda mais próxima em vez do início da ocorrência, a abertura da SS cai dentro do intervalo do atendimento do TMAE — distância zero.",
+    "apontou": 6,
+    "confirmadas": 6,
+    "acerto_pct": 100,
+    "ss": [
+     "ETO-RD-GU 00017/2026",
+     "ETO-RD-GR 00048/2026",
+     "ETO-RD-GR 00050/2026",
+     "ENC-RD-PS 00079/2026",
+     "ETO-RD-GR 00082/2026",
+     "ETO-RD-AR 00141/2026"
+    ]
+   },
+   {
+    "id": "regra-5",
     "tipo": "lacuna",
-    "rotulo": "Retido por falta de fato, mas a SS caiu no vão do TMAE",
-    "explicacao": "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro. Não é ausência de atendimento: é ausência de arquivo.",
-    "n": 5,
-    "chegariam_a_saida": 3,
+    "rotulo": "A SS caiu no vão do TMAE, barrando na segunda peneira",
+    "explicacao": "Mesmo vão de 26 a 31 de janeiro.",
+    "apontou": 69,
+    "confirmadas": 0,
+    "acerto_pct": 0,
+    "ss": [
+     "ETO-RD-DP 00073/2026",
+     "ETO-RD-DP 00074/2026",
+     "ETO-RD-GU 00125/2026",
+     "DG-RD-PO 00115/2026",
+     "DG-RD-PO 00116/2026",
+     "DG-RD-PO 00117/2026",
+     "DG-RD-PO 00118/2026",
+     "DOLP-RD-PA 00143/2026",
+     "ENC-RD-PS 00135/2026",
+     "DG-RD-PO 00121/2026",
+     "ENC-RD-PS 00142/2026",
+     "ENC-RD-PS 00143/2026",
+     "ENC-RD-PS 00144/2026",
+     "ETO-RD-GR 00139/2026",
+     "ETO-RD-GU 00136/2026",
+     "ETO-RD-GU 00137/2026",
+     "DG-RD-PO 00123/2026",
+     "DOLP-RD-PA 00149/2026",
+     "DOLP-RD-PA 00150/2026",
+     "DOLP-RD-PA 00155/2026",
+     "ENC-RD-PS 00146/2026",
+     "ENC-RD-PS 00147/2026",
+     "ENC-RD-PS 00148/2026",
+     "ETO-RD-AR 00176/2026",
+     "ETO-RD-AR 00180/2026",
+     "ETO-RD-GR 00146/2026",
+     "ETO-RD-GU 00141/2026",
+     "DG-RD-PO 00126/2026",
+     "DG-RD-PO 00127/2026",
+     "DG-RD-PO 00129/2026",
+     "DG-RD-PO 00131/2026",
+     "DOLP-RD-PA 00159/2026",
+     "DOLP-RD-PA 00160/2026",
+     "DOLP-RD-PA 00163/2026",
+     "ENC-RD-PS 00153/2026",
+     "ENC-RD-PS 00154/2026",
+     "ENC-RD-PS 00155/2026",
+     "ENC-RD-PS 00157/2026",
+     "ENC-RD-PS 00158/2026",
+     "ENC-RD-PS 00159/2026",
+     "ETO-RD-AG 00114/2026",
+     "ETO-RD-AR 00181/2026",
+     "ETO-RD-AR 00182/2026",
+     "ETO-RD-AR 00191/2026",
+     "ETO-RD-AR 00192/2026",
+     "ETO-RD-AR 00193/2026",
+     "ETO-RD-GR 00151/2026",
+     "ETO-RD-GR 00152/2026",
+     "ETO-RD-GU 00142/2026",
+     "ETO-RD-GU 00143/2026",
+     "ETO-RD-GU 00144/2026",
+     "ETO-RD-GU 00145/2026",
+     "ETO-RD-GU 00148/2026",
+     "DG-RD-PO 00138/2026",
+     "DOLP-RD-PA 00164/2026",
+     "DOLP-RD-PA 00165/2026",
+     "ENC-RD-PS 00161/2026",
+     "ENC-RD-PS 00162/2026",
+     "ENC-RD-PS 00163/2026",
+     "ETO-RD-AR 00194/2026",
+     "ETO-RD-AR 00198/2026",
+     "ETO-RD-AR 00199/2026",
+     "ETO-RD-GR 00153/2026",
+     "ETO-RD-GR 00155/2026",
+     "ETO-RD-GR 00156/2026",
+     "ETO-RD-GR 00157/2026",
+     "ETO-RD-GR 00158/2026",
+     "ETO-RD-GU 00151/2026",
+     "ETO-RD-GU 00153/2026"
+    ]
+   },
+   {
+    "id": "regra-3",
+    "tipo": "lacuna",
+    "rotulo": "A SS caiu no vão do TMAE, barrando na primeira peneira",
+    "explicacao": "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro.",
+    "apontou": 14,
+    "confirmadas": 0,
+    "acerto_pct": 0,
     "ss": [
      "DOLP-RD-PA 00138/2026",
      "ENC-RD-PS 00138/2026",
      "ETO-RD-AG 00104/2026",
+     "ETO-RD-GR 00140/2026",
+     "ETO-RD-GR 00142/2026",
+     "DG-RD-PO 00125/2026",
+     "DG-RD-PO 00130/2026",
      "ENC-RD-PS 00156/2026",
-     "ETO-RD-AG 00117/2026"
-    ],
-    "exemplo": {
-     "ss": "DOLP-RD-PA 00138/2026",
-     "porque": "TMAE sem registro de 26 a 31/jan"
-    }
+     "ETO-RD-AG 00117/2026",
+     "ETO-RD-AR 00188/2026",
+     "ETO-RD-GU 00146/2026",
+     "ETO-RD-GU 00147/2026",
+     "ETO-RD-DP 00082/2026",
+     "ETO-RD-DP 00084/2026"
+    ]
    },
    {
-    "id": "tela-2",
+    "id": "regra-2",
     "tipo": "lacuna",
-    "rotulo": "Retido por falta de fato, mas a janela retrocede para 2025",
-    "explicacao": "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria esses casos ficou no arquivo de dezembro, que não temos.",
-    "n": 1,
-    "chegariam_a_saida": 1,
+    "rotulo": "A janela retrocede para dezembro de 2025",
+    "explicacao": "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria o caso ficaria no arquivo do mês anterior, que não temos.",
+    "apontou": 8,
+    "confirmadas": 0,
+    "acerto_pct": 0,
     "ss": [
-     "ENC-RD-PS 00003/2026"
-    ],
-    "exemplo": {
-     "ss": "ENC-RD-PS 00003/2026",
-     "porque": "a base de interrupção começa em 01/01/2026 01:14"
-    }
+     "DG-RD-PO 00001/2026",
+     "DG-RD-PO 00003/2026",
+     "ENC-RD-PS 00003/2026",
+     "ETO-RD-DP 00004/2026",
+     "ETO-RD-GR 00001/2026",
+     "ETO-RD-GR 00002/2026",
+     "ETO-RD-GR 00004/2026",
+     "ETO-RD-GU 00004/2026"
+    ]
    }
   ]
  },
@@ -968,10 +1098,10 @@
    "id": "A",
    "rotulo": "Aplicar a revisão caso a caso",
    "descricao": "Reincluir os casos que a leitura da esteira excluiu sem o texto declarar a causa, e retirar da saída os falsos positivos que a revisão fundamentou.",
-   "entram": 8,
+   "entram": 9,
    "saem": 16,
-   "saida": 876,
-   "base": "61 mudanças fundamentadas caso a caso; 8 passam a ser saída e 16 deixam de ser."
+   "saida": 877,
+   "base": "73 mudanças fundamentadas caso a caso; 9 passam a ser saída e 16 deixam de ser."
   },
   {
    "id": "B",
@@ -979,7 +1109,7 @@
    "descricao": "Hoje a distância entre a SS e a ocorrência é medida a partir do início da ocorrência. A regra manda medir pela borda mais próxima — início ou fim.",
    "entram": 6,
    "saem": 0,
-   "saida": 882,
+   "saida": 883,
    "base": "Dos 207 retidos por falta de interrupção, 6 têm a Crítica ou o TMAE a 24 h ou menos da borda mais próxima; 6 desses passariam também na análise de material e na ressalva. Distância mínima medida hoje: 24,57 h."
   },
   {
@@ -988,7 +1118,7 @@
    "descricao": "O deslocamento do TMAE deixa de bloquear e passa a apenas sinalizar. Quem parou ali segue para a análise de material e para a ressalva.",
    "entram": 245,
    "saem": 0,
-   "saida": 1127,
+   "saida": 1128,
    "base": "Dos 298 retidos por falta de deslocamento, 245 têm material provando a troca (estágio 3 segue) e não recebem ressalva (estágio 4 OK)."
   }
  ],
@@ -1986,6 +2116,222 @@
    "obra": "0312500675",
    "categoria": "QUEIMADO",
    "desc_ss": "SEGUE SS PARA SUBSTITUIR TRAFO QUEIMADO OBS: NOTA CRIADA PARA SUBST. SS 814/2025 ABERTA NO TRAFO ERRADO"
+  },
+  {
+   "ss": "DG-RD-PO 00387/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Caso de furto (e0 retido por furto, categoria FURTADO, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Furto ou vandalismo — vai para o projeto 61993, não é falha de equipamento ... A decisão final da matriz foi EXCLUIR: ... texto indica não-falha (FURTADO); material=sim → EXCLUIR.",
+   "origem": "cobertura",
+   "localidade": "BREJINHO DE NAZARE",
+   "abertura": "2026-05-20 15:39",
+   "trafo": "5700478071",
+   "equipe": "DG-RD-PO",
+   "obra": "0312600301",
+   "categoria": "FURTADO",
+   "desc_ss": "SS PARA INSTALAR TRAFO DA PRAINHA DE BREIIM DE NAZARE 5700478071 O MESMO TINHA CIDO FURTADO NA EPOCA.POTENCIA: 45KVA 13800ACESSO: LIVRE"
+  },
+  {
+   "ss": "DOLP-RD-PA 00101/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "RETIDO — SS DUPLICADA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "O próprio registro aponta que a ocorrência usada aqui pertence a outra SS, mais próxima do evento — divisão do mesmo evento/trafo entre duas SS.",
+   "evidencia": "e1_conflito: ocorrência 20264116126348 pertence à SS DOLP-RD-PA 00182/2026, mais próxima do evento",
+   "origem": "cobertura",
+   "localidade": "LIZARDA",
+   "abertura": "2026-01-20 13:26",
+   "trafo": "5744418082",
+   "equipe": "DOLP-RD-PA",
+   "obra": "0112600195",
+   "categoria": "QUEIMADO",
+   "desc_ss": "Transformador avariado o mesmo nao distribui, 5744418082, potencia 30kva, tensão 34.5, para raio queimado e acesso livre a camionete."
+  },
+  {
+   "ss": "DOLP-RD-PA 00492/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Transformador particular (e0 retido, categoria PARTICULAR, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Transformador particular — não é ativo da distribuidora ... A decisão final da matriz foi EXCLUIR: ... texto indica não-falha (PARTICULAR); material=não → EXCLUIR.",
+   "origem": "cobertura",
+   "localidade": "PALMAS",
+   "abertura": "2026-04-24 11:30",
+   "trafo": "5619266122",
+   "equipe": "DOLP-RD-PA",
+   "obra": "0112600454",
+   "categoria": "PARTICULAR",
+   "desc_ss": "Segue nota para apoio operacional na substituição do trafo 5619266122 particular, será necessário abertura do trafo 5700571122 devido rede BT passar na mesma estrutura do trafo particular não oferecendo segurança para fazer com rede ligada."
+  },
+  {
+   "ss": "DOLP-RD-PA 00652/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Desativação de posto de transformação (leitura L2), e o material da obra confirma que nenhum transformador foi de fato movimentado — o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "A leitura do texto aplicou a regra de desativação de unidade, não substituição por defeito ... nenhum transformador aparece como movimentado, então a troca não se comprova ... A decisão final da matriz foi EXCLUIR",
+   "origem": "cobertura",
+   "localidade": "PALMAS",
+   "abertura": "2026-06-09 10:46",
+   "trafo": "5701422122",
+   "equipe": "DOLP-RD-PA",
+   "obra": "0112600592",
+   "categoria": "DESATIVACAO",
+   "desc_ss": "Desativar posto de transformação, pois o mesmo está deteriorando com as ações do tempo."
+  },
+  {
+   "ss": "ENC-RD-PS 00079/2026",
+   "grupo": "retencao-indevida",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "SAÍDA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "O TMAE confirma atendimento no código exato deste trafo (at_obs cita o mesmo código), com a SS aberta dentro do próprio intervalo do atendimento (14/01 17:36 a 16/01 20:00) — peneira 1 satisfeita pela via do TMAE (a regra aceita Crítica OU TMAE), e peneira 2 já vem como e2_status SEGUE; leitura L1, material confere, sem ressalva.",
+   "evidencia": "at_obs: TRAFO 5709169075 QUEIMADO; e2_status: SEGUE; e2_nivel: A (único caso do lote com e2_status SEGUE, mesmo com e1_status SEM LASTRO na Crítica)",
+   "origem": "cobertura",
+   "localidade": "DOIS IRMAOS DO TOCANTINS",
+   "abertura": "2026-01-15 19:00",
+   "trafo": "5709169075",
+   "equipe": "ENC-RD-PS",
+   "obra": "0212600090",
+   "categoria": "QUEIMADO",
+   "desc_ss": "Segue ss para tratativa com equipe de manutennçao o quanto antessubatituir trafo 570919075 na rdr de dois irmao"
+  },
+  {
+   "ss": "ENC-RD-PS 00090/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Caso de furto (e0 retido por furto, categoria FURTADO, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Furto ou vandalismo — vai para o projeto 61993, não é falha de equipamento ... A decisão final da matriz foi EXCLUIR",
+   "origem": "cobertura",
+   "localidade": "ARAGUACEMA",
+   "abertura": "2026-01-17 09:16",
+   "trafo": "5700958055",
+   "equipe": "ENC-RD-PS",
+   "obra": "0212600084",
+   "categoria": "FURTADO",
+   "desc_ss": "TRAFO 5700958055 FURTADO 15KVA 19,9KV ACESSO BOM"
+  },
+  {
+   "ss": "ENC-RD-PS 00314/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Caso de furto (e0 retido por furto, categoria FURTADO, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Furto ou vandalismo — vai para o projeto 61993, não é falha de equipamento ... A decisão final da matriz foi EXCLUIR",
+   "origem": "cobertura",
+   "localidade": "PIUM",
+   "abertura": "2026-03-07 16:15",
+   "trafo": "5700019014",
+   "equipe": "ENC-RD-PS",
+   "obra": "0212600291",
+   "categoria": "FURTADO",
+   "desc_ss": "TR 570001901430KVATRAFO FURTADO ACESSO LIVRE CAMINHAO TENSAO 13800PARA RAIO DANIFICADO 014OP02 SERGIO"
+  },
+  {
+   "ss": "ETO-RD-AG 00009/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Troca preventiva, sem defeito relatado (e0 retido, categoria PREVENTIVO, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Preventivo ou remanejamento — não houve defeito ... A decisão final da matriz foi EXCLUIR: ... texto indica não-falha (PREVENTIVO); material=sim → EXCLUIR.",
+   "origem": "cobertura",
+   "localidade": "SAO BENTO DO TOCANTINS",
+   "abertura": "2026-01-05 17:28",
+   "trafo": "5700328119",
+   "equipe": "ETO-RD-AG",
+   "obra": "0662600030",
+   "categoria": "PREVENTIVO",
+   "desc_ss": "Enviarequipe da manutenção para substiyuir trafo de 5 kva por um de 15 kva , na 13,8 kv Acesso bom"
+  },
+  {
+   "ss": "ETO-RD-AG 00023/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Abalroamento do poste (categoria ABALROAMENTO, leitura L2, dano de terceiro); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "A leitura do texto aplicou a regra de abalroamento (colisão ou dano de terceiro) ... A decisão final da matriz foi EXCLUIR: ... texto indica não-falha (ABALROAMENTO); material=sim → EXCLUIR.",
+   "origem": "cobertura",
+   "localidade": "PRAIA NORTE",
+   "abertura": "2026-01-08 15:02",
+   "trafo": "5700247131",
+   "equipe": "ETO-RD-AG",
+   "obra": "0662600029",
+   "categoria": "ABALROAMENTO",
+   "desc_ss": "TR 5700247131 15 KVACOM VAZAMENTO DEVIDO ABALROAMENTO DO POSTE 19,9KV"
+  },
+  {
+   "ss": "ETO-RD-AG 00069/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "RETIDO — SS DUPLICADA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "O próprio registro aponta que a ocorrência usada aqui pertence a outra SS, mais próxima do evento — divisão do mesmo evento/trafo entre duas SS.",
+   "evidencia": "e1_conflito: ocorrência 20264201987012 pertence à SS ETO-RD-AG 00339/2026, mais próxima do evento",
+   "origem": "cobertura",
+   "localidade": "TOCANTINOPOLIS",
+   "abertura": "2026-01-16 16:51",
+   "trafo": "5700002210",
+   "equipe": "ETO-RD-AG",
+   "obra": "0662600047",
+   "categoria": "AVARIADO",
+   "desc_ss": "TRAFO VAZANDO ÓLEOTENSÃO 19,9KVTRAFO [5700002210]CABO: AA / 4POTENCIA: 25 kVA"
+  },
+  {
+   "ss": "ETO-RD-AG 00104/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Caso de furto (e0 retido por furto, categoria FURTADO, leitura L2); o próprio registro conclui EXCLUIR na leitura.",
+   "evidencia": "e0_motivo: Furto ou vandalismo — vai para o projeto 61993, não é falha de equipamento ... A decisão final da matriz foi EXCLUIR",
+   "origem": "cobertura",
+   "localidade": "CACHOEIRINHA",
+   "abertura": "2026-01-27 13:18",
+   "trafo": "5700150156",
+   "equipe": "ETO-RD-AG",
+   "obra": "0662600065",
+   "categoria": "FURTADO",
+   "desc_ss": "transformador furtado 5700150156 potencia 5kva tensão 19.9kv acesso livre leva chave fusivel a mesma foi furtada eleva cabo para junper e glv leva para-raioequipe: 6399616867"
+  },
+  {
+   "ss": "ETO-RD-AG 00343/2026",
+   "grupo": "motivo-mais-forte",
+   "atual": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Remanejamento preventivo (e0 retido, categoria PREVENTIVO, leitura L2); além disso a própria ocorrência usada já está reivindicada pela SS ETO-RD-AG 00289/2026 — dois motivos convergindo para excluir, não para investigar interrupção.",
+   "evidencia": "e0_motivo: Preventivo ou remanejamento — não houve defeito ... A decisão final da matriz foi EXCLUIR ... Contradição de origem: duas SS reivindicam a mesma ocorrência para o mesmo código de transformador",
+   "origem": "cobertura",
+   "localidade": "ARAGUATINS",
+   "abertura": "2026-03-27 17:08",
+   "trafo": "5702090039",
+   "equipe": "ETO-RD-AG",
+   "obra": "0662600212",
+   "categoria": "PREVENTIVO",
+   "desc_ss": "Enviar equipe de manutenção para REMANEJAR trafo 5702090039 - de 25KVA-19.9KV POR TRAFO DE 15KVA-19.9KV"
   },
   {
    "ss": "ETO-RD-AR 00141/2026",

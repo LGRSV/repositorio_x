@@ -278,64 +278,69 @@ def main():
                                   "troca e não recebem ressalva."),
     }]
 
-    # ---- a tela determinística das que ainda não foram lidas
-    # Não é leitura caso a caso e não pode ser apresentada como se fosse. Ela só pergunta se o
-    # MOTIVO da retenção se sustenta contra os campos do próprio registro. Confirma ou contradiz.
-    ROTULOS = {
-        "1": ("contradiz", "Retido por falta de fato, mas há registro dentro da janela",
-              "A primeira peneira disse que não havia nem interrupção nem atendimento em 24 h. "
-              "Medindo pela borda mais próxima em vez do início da ocorrência, há."),
-        "2": ("lacuna", "Retido por falta de fato, mas a janela retrocede para 2025",
-              "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria "
-              "esses casos ficou no arquivo de dezembro, que não temos."),
-        "3": ("lacuna", "Retido por falta de fato, mas a SS caiu no vão do TMAE",
-              "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro. Não é ausência de "
-              "atendimento: é ausência de arquivo."),
-        "4": ("contradiz", "Retido por falta de deslocamento, mas há atendimento com deslocamento",
-              "A segunda peneira disse que não havia atendimento do TMAE no código do trafo. "
-              "O próprio registro traz o número do atendimento, dentro da janela, com a equipe deslocada."),
-        "5": ("lacuna", "Retido por falta de deslocamento, mas a SS caiu no vão do TMAE",
-              "Mesmo vão de 26 a 31 de janeiro, agora barrando na segunda peneira."),
+    # ---- a verificação automática, agora aferida contra a leitura
+    # Enquanto faltava ler, este bloco era uma tela: dizia o que os campos sozinhos conseguiam
+    # decidir sobre quem ainda não tinha sido lido. Fechada a cobertura, ele vira outra coisa,
+    # mais útil: o boletim da própria verificação. Cada regra dela agora tem um placar contra a
+    # leitura, e o placar é duro com uma delas. Fica publicado assim de propósito — uma
+    # verificação automática que ninguém aferiu é uma opinião com cara de número.
+    REGRAS = {
+        "1": ("Abertura da SS dentro do intervalo do atendimento",
+              "A primeira peneira disse que não havia nada na janela. Medindo pela borda mais "
+              "próxima em vez do início da ocorrência, a abertura da SS cai dentro do intervalo "
+              "do atendimento do TMAE — distância zero."),
+        "4": ("Existe atendimento com deslocamento dentro da janela",
+              "A segunda peneira disse que não havia atendimento no código do trafo. O registro "
+              "traz número de atendimento, dentro da janela, com a equipe deslocada."),
+        "2": ("A janela retrocede para dezembro de 2025",
+              "A base de interrupção começa em 01/01/2026 01:14. A ocorrência que sustentaria o "
+              "caso ficaria no arquivo do mês anterior, que não temos."),
+        "3": ("A SS caiu no vão do TMAE, barrando na primeira peneira",
+              "O TMAE não tem nenhum atendimento entre 26 e 31 de janeiro."),
+        "5": ("A SS caiu no vão do TMAE, barrando na segunda peneira",
+              "Mesmo vão de 26 a 31 de janeiro."),
     }
-    caminho_tela = os.path.join(REV, "tela_439.json")
-    tela = {"n": 0, "confirmadas": 0, "grupos": []}
-    if os.path.exists(caminho_tela):
-        with open(caminho_tela, encoding="utf-8") as fh:
+    caminho_placar = os.path.join(REV, "tela_placar.json")
+    aferida = None
+    if os.path.exists(caminho_placar):
+        with open(caminho_placar, encoding="utf-8") as fh:
             bruto = json.load(fh)
-        grupos_tela = []
+        lidos = {c["ss"]: c for c in casos}
+        regras = []
         for chave, itens in sorted(bruto.items()):
             n = chave.split(" ")[0]
-            tipo, rotulo, explicacao = ROTULOS.get(n, ("contradiz", chave, ""))
-            chegariam = [i for i in itens if i.get("e3") == "SEGUE" and i.get("e4") == "OK"]
-            grupos_tela.append({
-                "id": f"tela-{n}", "tipo": tipo, "rotulo": rotulo, "explicacao": explicacao,
-                "n": len(itens), "chegariam_a_saida": len(chegariam),
+            rotulo, explicacao = REGRAS.get(n, (chave, ""))
+            confirmadas = [i for i in itens
+                           if lidos.get(i["ss"], {}).get("categoria_correta") == "SAÍDA"]
+            regras.append({
+                "id": f"regra-{n}",
+                "tipo": "contradiz" if n in ("1", "4") else "lacuna",
+                "rotulo": rotulo, "explicacao": explicacao,
+                "apontou": len(itens), "confirmadas": len(confirmadas),
+                "acerto_pct": round(100 * len(confirmadas) / len(itens)) if itens else 0,
                 "ss": [i["ss"] for i in itens],
-                "exemplo": {"ss": itens[0]["ss"], "porque": itens[0]["porque"]} if itens else None,
             })
-        grupos_tela.sort(key=lambda g: (g["tipo"] != "contradiz", -g["n"]))
-        marcadas = sum(g["n"] for g in grupos_tela)
-        tela = {
-            "n": len(registros) - len(casos),
-            "confirmadas": len(registros) - len(casos) - marcadas,
-            "merecem_leitura": marcadas,
-            "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação "
-                    "automática que só confere se o motivo da retenção se sustenta contra os "
-                    "campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
-            # A leitura já alcançou 13 das 14 contradições que a verificação automática tinha
-            # apontado, e o placar precisa ficar visível: ela concordou com 5 e derrubou 8.
-            # Os 8 caíram sempre pelo mesmo motivo — a verificação olha se o campo do
-            # atendimento existe dentro da janela, e a leitura olha se aquele atendimento
-            # corrobora o caso. Era de outro código, de outra equipe ou de outra causa.
-            # Fica registrado para ninguém tratar a verificação como se fosse leitura.
-            "conferida_pela_leitura": {
-                "alcancadas": 13, "concordou": 5, "derrubou": 8,
-                "licao": "A verificação automática pergunta se o campo existe. A leitura "
-                         "pergunta se ele corrobora. Onde as duas divergiram, a leitura "
-                         "prevaleceu — e derrubou 8 das 14 contradições que a verificação "
-                         "tinha levantado.",
-            },
-            "grupos": grupos_tela,
+        regras.sort(key=lambda r: (r["tipo"] != "contradiz", -r["apontou"]))
+        contr = [r for r in regras if r["tipo"] == "contradiz"]
+        lac = [r for r in regras if r["tipo"] == "lacuna"]
+        aferida = {
+            "nota": "Antes de as 439 serem lidas, uma verificação automática tentou decidir com "
+                    "os campos sozinhos se o motivo da retenção se sustentava. Fechada a leitura, "
+                    "dá para medir o que ela acertou. Onde as duas divergiram, a leitura valeu.",
+            "contradicoes_apontadas": sum(r["apontou"] for r in contr),
+            "contradicoes_confirmadas": sum(r["confirmadas"] for r in contr),
+            "lacunas_apontadas": sum(r["apontou"] for r in lac),
+            "lacunas_confirmadas": sum(r["confirmadas"] for r in lac),
+            "licao": "Uma das duas regras de contradição acertou tudo e a outra errou tudo, e a "
+                     "diferença entre elas é a lição: a verificação automática pergunta se o "
+                     "campo do atendimento EXISTE dentro da janela; a leitura pergunta se aquele "
+                     "atendimento CORROBORA o caso. Nos oito que ela errou, o atendimento era de "
+                     "outro código, de outra equipe ou de outra causa — um deles termina 18 horas "
+                     "antes de a ocorrência começar. Existir não é corroborar.",
+            "lacunas_licao": "Nenhum dos casos de lacuna de base virou saída na leitura. Buraco "
+                             "de arquivo não vira prova: quando o registro não existe, o caso "
+                             "fica retido, e isso é o comportamento certo.",
+            "regras": regras,
         }
 
     def revisor(nome):
@@ -377,7 +382,7 @@ def main():
             "por_categoria": [{"categoria": k, "n": v}
                               for k, v in sorted(conf_por_cat.items(), key=lambda x: -x[1]) if k],
         },
-        "tela_nao_lidas": tela,
+        "verificacao_aferida": aferida,
         "cenarios": cenarios,
         "revisores": {"site": revisor("revisor_a.json"), "numeros": revisor("revisor_b.json")},
         "casos": mudam_ricos,
@@ -391,9 +396,10 @@ def main():
     print(f"  mudam {len(mudam)} · confirmadas {len(confirmados)} · sem resposta {len(naoclaro)}")
     print(f"  falsos positivos da saída: {len(falsos)}")
     print(f"  grupos de motivo: {len(grupos)}")
-    if tela["grupos"]:
-        print(f"  tela das não lidas: {tela['confirmadas']} confirmadas, "
-              f"{tela['merecem_leitura']} merecem leitura, em {len(tela['grupos'])} grupos")
+    if aferida:
+        print(f"  verificação aferida: {aferida['contradicoes_confirmadas']}/"
+              f"{aferida['contradicoes_apontadas']} contradições confirmadas pela leitura, "
+              f"{aferida['lacunas_confirmadas']}/{aferida['lacunas_apontadas']} lacunas")
     for c in cenarios:
         print(f"  cenário {c['id']}: saída {saida_hoje} → {c['saida']}")
     print(f"  gravado em {SAIDA} ({os.path.getsize(SAIDA)//1024} KB)")
