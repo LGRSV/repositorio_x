@@ -840,7 +840,7 @@ export default function Page() {
           </table></div> : null}
         </section> : null}
 
-        {revisao.conferencia_dos_achados?.itens.length ? <section className="panel editorial-note wide destaque">
+        {revisao.conferencia_dos_achados?.itens.length ? <section className={`panel editorial-note wide${revisao.conferencia_dos_achados.itens.some((c) => c.veredito !== "CONFIRMA") ? " destaque" : ""}`}>
           <span>CONFERÊNCIA DOS ACHADOS DO REVISOR</span>
           <p>{revisao.conferencia_dos_achados.nota}</p>
           {revisao.conferencia_dos_achados.itens.map((c, i) => <div key={i}>

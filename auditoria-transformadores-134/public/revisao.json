@@ -1,6 +1,6 @@
 {
  "meta": {
-  "gerado": "2026-08-03 19:45",
+  "gerado": "2026-08-03 20:44",
   "universo": 1510,
   "revisadas": 1510,
   "cobertura_pct": 100.0,
@@ -1461,6 +1461,15 @@
     "por_que_a_diferenca_importa": "Dos 17, dezesseis têm o transformador como elemento FECHADO: ele foi manobrado para religar o trecho, não é o defeituoso. Ser usado na manobra não é prova de que queimou. Só 1 tem o defeito aberto no próprio transformador, e esse já estava contabilizado.",
     "o_que_sobra_de_verdade": "8 casos novos, todos com o trafo em papel secundário na ocorrência. Merecem leitura individual antes de qualquer coisa, e não sustentam a faixa de 877 a 925 que o revisor propôs.",
     "arquivo": "revisao/checagem_51.json"
+   },
+   {
+    "achado": "A Crítica e o TMAE não são duas provas independentes: em 96% da saída o número da ocorrência e o número do atendimento são o mesmo",
+    "gravidade_alegada": "MEDIA",
+    "veredito": "CONFIRMA",
+    "o_que_eu_medi": "Das 884, 872 têm número de ocorrência e de atendimento preenchidos. Em 848 delas os dois números são idênticos — é a mesma nota operacional aparecendo nas duas bases, não dois registros independentes. Só 24 têm notas realmente distintas, e 12 têm apenas uma das duas.",
+    "por_que_a_diferenca_importa": "Muda como o número deve ser APRESENTADO, não o que ele vale. Dizer 'a interrupção e o atendimento confirmam' sugere duas testemunhas onde há uma. Numa plateia técnica, essa frase cai no primeiro contra-argumento.",
+    "o_que_sobra_de_verdade": "A segunda perna da prova nunca foi o TMAE: é o material da obra. As 884 têm transformador baixado no almoxarifado — 884 de 884, sem exceção. Então todo caso da saída tem duas fontes independentes de verdade, a nota de campo e a movimentação física, e 24 têm três. A frase certa é 'a nota de campo e o material confirmam', e essa se sustenta.",
+    "arquivo": "conferido direto no fluxo-1510.json"
    }
   ]
  },
