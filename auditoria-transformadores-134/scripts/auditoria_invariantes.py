@@ -377,6 +377,43 @@ relata(18, "cada peneira é seguida pela aba de quem ela reteve, com o mesmo nú
        ("\n".join(ok18) + f"\nnenhum caso órfão: {soma_retidos} retidos + {C(SAIDA)} na saída = 1.510"
         if not p18 else "\n".join(p18)))
 
+# 19 — a planilha que o site oferece para download conta a mesma história que o JSON
+# Nasceu do ataque mais barato que existe: Base_Esteira_Completa.xlsx dizia SAÍDA=874,
+# QUEIMADO=848, AVARIADO=26 e nem tinha a categoria SS duplicada — era o estado anterior à
+# correção do dano externo, e ninguém a regerou. Um clique em "baixar a base" e o número da
+# apresentação virava outro. O invariante 17 não pegava: ele confere se o arquivo existe e se
+# o tamanho anunciado bate, não o que está dentro.
+p19 = []
+try:
+    import openpyxl
+    cam = os.path.join(PUB, "bases", "Base_Esteira_Completa.xlsx")
+    ws = openpyxl.load_workbook(cam, read_only=True)["Esteira"]
+    linhas = ws.iter_rows(values_only=True)
+    cab = next(linhas)
+    icasc = cab.index("Cascata")
+    iconf = cab.index("Confirmado")
+    xc, xf, n19 = Counter(), Counter(), 0
+    for linha in linhas:
+        n19 += 1
+        xc[linha[icasc]] += 1
+        if linha[iconf]:
+            xf[linha[iconf]] += 1
+    if n19 != len(regs):
+        p19.append(f"a planilha tem {n19} linhas e o dado tem {len(regs)}")
+    for chave in set(casc) | set(xc):
+        if xc.get(chave, 0) != C(chave):
+            p19.append(f"cascata {chave!r}: planilha={xc.get(chave, 0)} dado={C(chave)}")
+    for chave in set(conf) | set(xf):
+        if xf.get(chave, 0) != conf.get(chave, 0):
+            p19.append(f"confirmado {chave!r}: planilha={xf.get(chave, 0)} dado={conf.get(chave, 0)}")
+    det19 = (f"{n19} linhas · saída {xc.get(SAIDA, 0)} · "
+             f"{xf.get('QUEIMADO', 0)} queimados + {xf.get('AVARIADO', 0)} avariados — "
+             f"igual ao fluxo-1510.json" if not p19 else "\n".join(p19))
+except ImportError:
+    det19 = "openpyxl não instalado: não deu para abrir a planilha"
+    p19 = ["openpyxl ausente"]
+relata(19, "a planilha para download conta a mesma história que o dado", not p19, det19)
+
 # ---------------------------------------------------------------------- placar
 print("=" * 78)
 falhas = [r for r in resultados if r[2] is False]
