@@ -8,7 +8,7 @@ Fontes, todas em .../scratchpad/revisao:
   todos_vereditos.json   993 SS — sem prova de troca, ressalva e as 884 da saída
   b_vereditos.json        78 SS — encadeamento Sonnet -> Opus -> Fable
   vereditos/*.json        os lotes crus, caso o consolidado não exista
-  resto_vereditos.json   as SS que faltavam para fechar 1.510
+  resto_D_resto_*.json   os lotes que faltavam para fechar 1.510, um arquivo por lote
   revisor_a.json         funcionalidades do site
   revisor_b.json         análise crítica dos números
 """
@@ -47,9 +47,13 @@ def vereditos():
     """Junta todas as fontes. Quando a mesma SS aparece duas vezes, vale a última."""
     por_ss = {}
     fontes = collections.Counter()
-    for nome, origem in (("todos_vereditos.json", "cobertura"),
-                         ("b_vereditos.json", "encadeamento"),
-                         ("resto_vereditos.json", "cobertura")):
+    # Os lotes do resto chegam um a um, não de uma vez. Ler cada arquivo que existir deixa a
+    # aba absorver o que já foi julgado sem precisar esperar o conjunto fechar.
+    lotes_resto = sorted(a for a in os.listdir(REV)
+                         if a.startswith("resto_") and a.endswith(".json"))
+    for nome, origem in ([("todos_vereditos.json", "cobertura"),
+                          ("b_vereditos.json", "encadeamento")]
+                         + [(a, "cobertura") for a in lotes_resto]):
         for c in carrega(nome):
             if not c.get("ss"):
                 continue

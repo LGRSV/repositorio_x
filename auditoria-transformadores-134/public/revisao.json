@@ -1,15 +1,15 @@
 {
  "meta": {
-  "gerado": "2026-08-03 17:45",
+  "gerado": "2026-08-03 17:56",
   "universo": 1510,
-  "revisadas": 1071,
-  "cobertura_pct": 70.9,
-  "mudam": 39,
-  "confirmadas": 1032,
-  "sem_resposta": 15,
+  "revisadas": 1181,
+  "cobertura_pct": 78.2,
+  "mudam": 45,
+  "confirmadas": 1136,
+  "sem_resposta": 16,
   "saida_hoje": 884,
   "fontes": {
-   "cobertura": 993,
+   "cobertura": 1103,
    "encadeamento": 78
   },
   "postura": "Quando a leitura do auditor diverge da esteira, prevalece a do auditor, desde que fundamentada no registro. Confirmar o que está certo conta tanto quanto contestar.",
@@ -410,7 +410,30 @@
    ]
   },
   {
-   "id": "motivo-mais-forte--4",
+   "id": "outras--4",
+   "familia": "outras",
+   "rotulo": "RETIDO — SEM DESLOCAMENTO → EXCLUÍDO NA LEITURA",
+   "de": "RETIDO — SEM DESLOCAMENTO",
+   "para": "EXCLUÍDO NA LEITURA",
+   "n": 5,
+   "esteira_fez": "A esteira classificou como está publicado.",
+   "por_que_errado": "A revisão caso a caso aponta outra categoria com base no próprio registro.",
+   "afeta_saida": false,
+   "exemplo": {
+    "ss": "DOLP-RD-PA 00479/2026",
+    "trecho": "e0_motivo: \"Preventivo ou remanejamento — não houve defeito\"; desc_ss: \"Topologia 06792 trocar transformador de 112,5 kVA para 150 KVA\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (PREVENTIVO)\"",
+    "motivo": "Texto e causa registrada mostram troca preventiva/remanejamento programado, sem defeito; a própria matriz concluiu EXCLUIR, mas a SS ficou classificada como SEM DESLOCAMENTO."
+   },
+   "ss": [
+    "DG-RD-PO 00076/2026",
+    "DG-RD-PO 00116/2026",
+    "DG-RD-PO 00325/2026",
+    "DOLP-RD-PA 00479/2026",
+    "ENC-RD-PS 00154/2026"
+   ]
+  },
+  {
+   "id": "motivo-mais-forte--5",
    "familia": "motivo-mais-forte",
    "rotulo": "Retido por falta de fato quando havia motivo mais forte",
    "de": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
@@ -432,7 +455,7 @@
    ]
   },
   {
-   "id": "ordem-das-peneiras--5",
+   "id": "ordem-das-peneiras--6",
    "familia": "ordem-das-peneiras",
    "rotulo": "Parou na peneira errada",
    "de": "RETIDO — SEM PROVA DE TROCA",
@@ -453,7 +476,7 @@
    ]
   },
   {
-   "id": "ressalva-indevida--6",
+   "id": "ressalva-indevida--7",
    "familia": "ressalva-indevida",
    "rotulo": "Ficou retido por uma ressalva que não se sustenta",
    "de": "RETIDO — RESSALVA DA INTERRUPÇÃO",
@@ -473,7 +496,7 @@
    ]
   },
   {
-   "id": "exclusao-derrubada--7",
+   "id": "exclusao-derrubada--8",
    "familia": "exclusao-derrubada",
    "rotulo": "Excluído por uma causa que o texto não declara",
    "de": "EXCLUÍDO NA LEITURA",
@@ -492,7 +515,7 @@
    ]
   },
   {
-   "id": "motivo-mais-forte--8",
+   "id": "motivo-mais-forte--9",
    "familia": "motivo-mais-forte",
    "rotulo": "Retido como duplicada quando havia motivo mais forte",
    "de": "RETIDO — SS DUPLICADA",
@@ -511,7 +534,7 @@
    ]
   },
   {
-   "id": "ordem-das-peneiras--9",
+   "id": "ordem-das-peneiras--10",
    "familia": "ordem-das-peneiras",
    "rotulo": "Parou na peneira errada",
    "de": "RETIDO — SEM DESLOCAMENTO",
@@ -527,6 +550,25 @@
    },
    "ss": [
     "ENC-RD-PS 00164/2026"
+   ]
+  },
+  {
+   "id": "outras--11",
+   "familia": "outras",
+   "rotulo": "RETIDO — SEM DESLOCAMENTO → RETIDO — SS DUPLICADA",
+   "de": "RETIDO — SEM DESLOCAMENTO",
+   "para": "RETIDO — SS DUPLICADA",
+   "n": 1,
+   "esteira_fez": "A esteira classificou como está publicado.",
+   "por_que_errado": "A revisão caso a caso aponta outra categoria com base no próprio registro.",
+   "afeta_saida": false,
+   "exemplo": {
+    "ss": "DOLP-RD-PA 00182/2026",
+    "trecho": "narrativa: \"Há disputa por essa ocorrência: ocorrência 20264116126348 já usada pela SS DOLP-RD-PA 00101/2026 ... Contradição de origem: duas SS reivindicam a mesma ocorrência para o mesmo código de transformador\"",
+    "motivo": "A própria narrativa registra que a mesma ocorrência da base de interrupção já foi usada por outra SS (DOLP-RD-PA 00101/2026) para o mesmo código de transformador; é uma disputa de origem, não simples falta de deslocamento."
+   },
+   "ss": [
+    "DOLP-RD-PA 00182/2026"
    ]
   }
  ],
@@ -605,15 +647,24 @@
    "ss": "ETO-RD-DP 00167/2026",
    "atual": "RETIDO — SEM DESLOCAMENTO",
    "falta": "DERRUBO a mudança para SAÍDA, mantendo a crítica de método: a conta do verificador está certa — o intervalo do atendimento engloba a ocorrência e termina 1h44 antes da abertura, e o analista repetiu o defeito de medir do início (102,73h) — mas o registro do TMAE está amarrado a outra OS e não confirma o código do trafo, e a equipe citada no texto da SS não cria esse fato; o caso fica retido e NAO_CLARO até a busca pe…"
+  },
+  {
+   "ss": "DG-RD-PO 00295/2026",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "falta": "A ocorrência é registrada como manobra/remanejamento sem programação prévia (sinal de ressalva), mas o texto da OS fala em substituição por sobrecarga; não dá para saber com segurança se é falha real ou puro remanejamento — mas de qualquer forma o caso já fica retido antes disso, por falta de deslocamento confirmado no código."
   }
  ],
  "confirmado": {
-  "n": 1032,
+  "n": 1136,
   "nota": "Revisadas caso a caso e mantidas na categoria em que já estavam.",
   "por_categoria": [
    {
     "categoria": "SAÍDA",
     "n": 868
+   },
+   {
+    "categoria": "RETIDO — SEM DESLOCAMENTO",
+    "n": 141
    },
    {
     "categoria": "RETIDO — RESSALVA DA INTERRUPÇÃO",
@@ -622,10 +673,6 @@
    {
     "categoria": "RETIDO — SEM PROVA DE TROCA",
     "n": 38
-   },
-   {
-    "categoria": "RETIDO — SEM DESLOCAMENTO",
-    "n": 37
    },
    {
     "categoria": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
@@ -642,8 +689,8 @@
   ]
  },
  "tela_nao_lidas": {
-  "n": 439,
-  "confirmadas": 334,
+  "n": 329,
+  "confirmadas": 224,
   "merecem_leitura": 105,
   "nota": "Estas ainda não foram lidas caso a caso. Passaram por uma verificação automática que só confere se o motivo da retenção se sustenta contra os campos do próprio registro. Confirmar aqui não é o mesmo que ler.",
   "grupos": [
@@ -832,7 +879,7 @@
    "entram": 3,
    "saem": 16,
    "saida": 871,
-   "base": "39 mudanças fundamentadas caso a caso; 3 passam a ser saída e 16 deixam de ser."
+   "base": "45 mudanças fundamentadas caso a caso; 3 passam a ser saída e 16 deixam de ser."
   },
   {
    "id": "B",
@@ -1559,6 +1606,114 @@
    "obra": "0212600158",
    "categoria": "AVARIADO",
    "desc_ss": "TR 570061108615KVAPARA RAIO DANIFICADO ACESSO LIVRETENSAO 34500086OP01 ESTEVE NO LOCAL INFORMAÇÃO QUE O VAO DA REDE MT ESTA MUITO BAIXO DEVIDO DISTANCIA ENTRE A CHAVE E TRAFO ,NECESSARIO IMPLANTAR PORTE VAO COM 140 METROS LEVAR ESTRTURA 10/150 U1 COMPLETA ."
+  },
+  {
+   "ss": "DG-RD-PO 00076/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "A ocorrência e o texto descrevem furto de transformador, não falha de equipamento; a própria leitura da matriz já concluiu EXCLUIR, mas a SS ficou parada na peneira de deslocamento em vez de excluída na leitura.",
+   "evidencia": "oc_causa: CAUSADA POR TERCEIROS / oc_sub: ROUBO DE TRANSFORMADOR; desc_ss: \"INSTALAÇÃO DE UM NOVO TRAFO QUE FOI FURTADO\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (FURTADO)\"",
+   "origem": "cobertura",
+   "localidade": "PORTO NACIONAL",
+   "abertura": "2026-01-20 08:33",
+   "trafo": "5700236001",
+   "equipe": "DG-RD-PO",
+   "obra": "0312600094",
+   "categoria": "FURTADO",
+   "desc_ss": "INSTALAÇÃO DE UM NOVO TRAFO QUE FOI FURTADO.TRAFO 5700236001 DE 45KVA DA 13.8. ACESSO LIVRE. 18 CLIENTES PENALIZADOS."
+  },
+  {
+   "ss": "DG-RD-PO 00116/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Texto e material apontam furto de transformador, não falha; a própria matriz concluiu EXCLUIR, mas a SS ficou classificada como SEM DESLOCAMENTO.",
+   "evidencia": "desc_ss: \"TR 5710067250 ... possivelmente furtado\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (FURTADO)\"",
+   "origem": "cobertura",
+   "localidade": "IPUEIRAS",
+   "abertura": "2026-01-27 18:44",
+   "trafo": "5710067250",
+   "equipe": "DG-RD-PO",
+   "obra": "0312600095",
+   "categoria": "FURTADO",
+   "desc_ss": "INT: 20264101055791Segue SS de TR 5710067250 15KVA/19.9KV e para-raios possivelmente furtado.Acesso livre para caminhonete.UC 8832714CHACARA SAO JOAO BATISTA63992193439CLEUSA DOS SANTOS001OP18 63 99295-3666"
+  },
+  {
+   "ss": "DG-RD-PO 00325/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Ocorrência e texto descrevem furto de transformador, não falha; a própria leitura da matriz concluiu EXCLUIR, mas a SS ficou classificada como SEM DESLOCAMENTO.",
+   "evidencia": "oc_sub: ROUBO DE TRANSFORMADOR; desc_ss: \"substituir trafo ... FURTADO\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (FURTADO)\"",
+   "origem": "cobertura",
+   "localidade": "PORTO NACIONAL",
+   "abertura": "2026-04-09 21:46",
+   "trafo": "5721980001",
+   "equipe": "DG-RD-PO",
+   "obra": "",
+   "categoria": "FURTADO",
+   "desc_ss": "Segue SS para atendimento com equipe de manutenção , substituir trafo 572198001 FURTADO na RDR de porto nacional , acesso livre , tensão 13,8 , pra-raio, potencia 45 kva OBS: TRAFO ATENDE BRK"
+  },
+  {
+   "ss": "DOLP-RD-PA 00182/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "RETIDO — SS DUPLICADA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "A própria narrativa registra que a mesma ocorrência da base de interrupção já foi usada por outra SS (DOLP-RD-PA 00101/2026) para o mesmo código de transformador; é uma disputa de origem, não simples falta de deslocamento.",
+   "evidencia": "narrativa: \"Há disputa por essa ocorrência: ocorrência 20264116126348 já usada pela SS DOLP-RD-PA 00101/2026 ... Contradição de origem: duas SS reivindicam a mesma ocorrência para o mesmo código de transformador\"",
+   "origem": "cobertura",
+   "localidade": "LIZARDA",
+   "abertura": "2026-02-03 13:12",
+   "trafo": "5744418082",
+   "equipe": "DOLP-RD-PA",
+   "obra": "0112600256",
+   "categoria": "OUTROS",
+   "desc_ss": "segue ss de 01 trafo de 45 kvar e 03 para raios da rede de 34.500kv e 03 para raios queimados para ser subistituido pela equipe de manutencão acesso livre cliente penalizado 01 equipe que atendeu 082op02 cel, 63984684885favor agilizar o atenduimento"
+  },
+  {
+   "ss": "DOLP-RD-PA 00479/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Texto e causa registrada mostram troca preventiva/remanejamento programado, sem defeito; a própria matriz concluiu EXCLUIR, mas a SS ficou classificada como SEM DESLOCAMENTO.",
+   "evidencia": "e0_motivo: \"Preventivo ou remanejamento — não houve defeito\"; desc_ss: \"Topologia 06792 trocar transformador de 112,5 kVA para 150 KVA\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (PREVENTIVO)\"",
+   "origem": "cobertura",
+   "localidade": "PALMAS",
+   "abertura": "2026-04-23 16:04",
+   "trafo": "5706792122",
+   "equipe": "DOLP-RD-PA",
+   "obra": "",
+   "categoria": "PREVENTIVO",
+   "desc_ss": "Topologia 06792 trocar transformador de 112,5 kVA para 150 KVA. Fazer saída com CABO 120MM e dupla os perfurantes da BT."
+  },
+  {
+   "ss": "ENC-RD-PS 00154/2026",
+   "grupo": "outras",
+   "atual": "RETIDO — SEM DESLOCAMENTO",
+   "correta": "EXCLUÍDO NA LEITURA",
+   "claro": "CLARO",
+   "muda": true,
+   "motivo": "Texto e ficha de campo relatam furto do transformador (encontrado caído/desaparecido), não falha; a própria matriz concluiu EXCLUIR, mas a SS ficou classificada como SEM DESLOCAMENTO.",
+   "evidencia": "desc_ss: \"TRAFO ESTAVA NO CHAO AO QUE TUDO INDICA O MESMO FOI FURTADO\"; narrativa: \"decisão final da matriz foi EXCLUIR ... texto indica não-falha (FURTADO)\"",
+   "origem": "cobertura",
+   "localidade": "NOVA ROSALANDIA",
+   "abertura": "2026-01-30 16:57",
+   "trafo": "5700455046",
+   "equipe": "ENC-RD-PS",
+   "obra": "0212600152",
+   "categoria": "FURTADO",
+   "desc_ss": "TR 570045504625KVAPARA RAIO DANIFICADO TENSAO 13800EQUIPE 046OP01 CHEGOU NO LOCAL TRAFO ESTAVA NO CHAO AO QUE TUDO INDICA O MESMO FOI FURTADO 046OP01"
   }
  ]
 }
