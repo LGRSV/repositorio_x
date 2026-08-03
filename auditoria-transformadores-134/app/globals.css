@@ -527,3 +527,15 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .nav-entram { font: 500 8px/1 "IBM Plex Mono", monospace; font-style: normal; color: #71757a; }
 .nav-group button small.nav-cinza { background: #3d4147; color: #b7babe; }
 .nav-group button small.nav-verde { background: #35634b; color: #fff; }
+
+/* A aba de revisão destaca os grupos que mexem no número final da esteira. O bloco continua
+   sendo uma nota editorial como as outras: só ganha a barra vermelha à esquerda, para o
+   leitor achar de longe o que altera a saída sem ter que ler grupo por grupo. */
+.editorial-note.destaque { border-left: 3px solid var(--red); }
+.editorial-note.destaque > span { color: var(--red); }
+
+/* Os nomes das sedes municipais são a única âncora geográfica que sobra quando o ladrilho do
+   mapa não carrega. Ficam discretos de propósito: quem olha precisa ler os pontos, não os
+   rótulos. O nowrap evita que "Santa Terezinha do Tocantins" quebre em cima de um ativo. */
+.sede-municipio span { display: block; margin-left: 3px; color: #9ca0a5; font: 500 7.5px/1 "IBM Plex Mono", monospace; letter-spacing: .04em; white-space: nowrap; text-transform: uppercase; }
+.sede-municipio span.capital { color: #6f7378; font-size: 8.5px; font-weight: 700; }

@@ -232,18 +232,28 @@ def num(x):
 
 # tabela da cascata
 tab = blocos["cascata"]["tabela"]["linhas"]
+# Antes só quatro células eram conferidas — e as que envelheceram foram justamente as que
+# ficavam de fora: "1.279 + 22" somando 1.301 quando a etapa recebia 1.300, o retido da
+# segunda peneira em 299 quando eram 298, e a terceira passando 952 quando passa 953.
+# Agora toda célula de número da tabela é conferida contra o dado.
+e4 = e3 - C(EXCL) - C(SEM_PROVA)
 esperado_tab = [
-    (0, "Recebe", num(1510), tab[0][1]),
-    (1, "Recebe", num(e2), tab[1][1]),
-    (1, "Passa", num(e3), tab[1][2]),
-    (2, "Recebe", num(e3), tab[2][1]),
+    (0, "Recebe", [1510]), (0, "Passa", [e2]), (0, "Fica retido", [C(SEM_INT), C(DUP)]),
+    (1, "Recebe", [e2]), (1, "Passa", [e3]), (1, "Fica retido", [C(SEM_DES)]),
+    (2, "Recebe", [e3]), (2, "Passa", [e4]), (2, "Fica retido", [C(SEM_PROVA), C(EXCL)]),
+    (3, "Recebe", [e4]), (3, "Passa", [C(SAIDA)]), (3, "Fica retido", [C(RESS)]),
 ]
-for i, col, esp, obtido in esperado_tab:
-    if esp not in str(obtido):
-        problemas.append(f"cascata/linha {i+1}/{col}: tela diz {obtido!r}, dado diz {esp}")
-if str(C(EXCL)) not in tab[2][3] or str(C(SEM_PROVA)) not in tab[2][3]:
-    problemas.append(f"cascata/linha 3/Fica retido: tela diz {tab[2][3]!r}, "
-                     f"dado diz {C(EXCL)} excluídos e {C(SEM_PROVA)} sem prova")
+COL = {"Recebe": 1, "Passa": 2, "Fica retido": 3}
+for i, col, esperados in esperado_tab:
+    if i >= len(tab):
+        continue
+    celula = str(tab[i][COL[col]])
+    # a célula pode somar parcelas ("1.278 + 22"): aceita se as parcelas somam o esperado
+    numeros = [int(n.replace(".", "")) for n in re.findall(r"\d[\d.]*", celula)]
+    for esp in esperados:
+        if num(esp) in celula or esp in numeros or (len(numeros) > 1 and sum(numeros) == esp):
+            continue
+        problemas.append(f"cascata/linha {i+1}/{col}: tela diz {celula!r}, dado diz {num(esp)}")
 if len(tab) < 4:
     problemas.append(f"cascata: a tabela tem {len(tab)} peneiras e a esteira tem 4 "
                      f"(falta a ressalva, que retém {C(RESS)})")

@@ -55,8 +55,45 @@ export default function MapaAtivos({ pontos, aoEscolher }: {
           // mapa arrastar liso ou travar a cada movimento
           preferCanvas: true,
         });
+        /* Os ladrilhos vêm de fora. Numa sala sem internet, ou atrás de uma rede que bloqueie o
+           openstreetmap, eles não chegam — e o mapa vira 1.509 pontos boiando num fundo branco,
+           sem nenhuma referência de onde fica o quê.
+           O municipios-to.json que já está no projeto NÃO tem contorno: são 139 municípios com
+           nome e coordenada, só isso. Não dá para desenhar fronteira com ele. Dá para ancorar:
+           o nome de cada sede entra como rótulo permanente, e quem olha reconhece a região mesmo
+           sem ladrilho nenhum. É menos bonito que um mapa base e é honesto com o dado que existe. */
+        void fetch(`${import.meta.env.BASE_URL || "/"}municipios-to.json`.replace(/([^:])\/+/g, "$1/"))
+          .then((r) => r.json())
+          .then((lista: Array<{ name: string; latitude: number; longitude: number; capital?: boolean }>) => {
+            if (!vivo || !mapa.current || !Array.isArray(lista)) return;
+            /* 139 nomes no enquadramento do estado inteiro viram um borrão em cima dos ativos.
+               Eles entram a partir do zoom 8, que é quando o mapa já está numa região e o nome
+               ajuda em vez de atrapalhar. No zoom de abertura o que importa é a mancha de cor. */
+            const base = L.layerGroup();
+            const ZOOM_ROTULO = 8;
+            const alterna = () => {
+              if (!mapa.current) return;
+              const perto = mapa.current.getZoom() >= ZOOM_ROTULO;
+              if (perto && !mapa.current.hasLayer(base)) base.addTo(mapa.current);
+              if (!perto && mapa.current.hasLayer(base)) mapa.current.removeLayer(base);
+            };
+            mapa.current.on("zoomend", alterna);
+            lista.forEach((m) => {
+              if (typeof m.latitude !== "number" || typeof m.longitude !== "number") return;
+              L.marker([m.latitude, m.longitude], {
+                interactive: false,
+                icon: L.divIcon({
+                  className: "sede-municipio",
+                  html: `<span${m.capital ? ' class="capital"' : ""}>${m.name}</span>`,
+                  iconSize: [0, 0],
+                }),
+              }).addTo(base);
+            });
+            alterna();
+          })
+          .catch(() => {});
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap", maxZoom: 19,
+          attribution: "&copy; OpenStreetMap", maxZoom: 19, opacity: 0.55,
         }).addTo(mapa.current);
         camada.current = L.layerGroup().addTo(mapa.current);
         // o mapa nasce antes de o painel terminar de se dimensionar; sem isto sobram
