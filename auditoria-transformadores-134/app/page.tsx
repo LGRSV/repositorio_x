@@ -402,9 +402,9 @@ export default function Page() {
     ],
     ssos: [
       { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e pelo deslocamento e chega à leitura do texto e do material.", teste: (r) => r.chega_e3 === "SIM" },
-      { id: "falha", rotulo: "Texto diz falha", nota: "Queima ou avaria descrita no texto da SS ou da OS.", teste: (r) => r.leitura === "L1" },
-      { id: "outra", rotulo: "Texto diz outra causa", nota: "Furto, abalroamento, preventivo, auxiliar, construção ou desativação.", teste: (r) => r.leitura === "L2" },
-      { id: "indef", rotulo: "Texto não decide", nota: "Nunca decide sozinho: vai para leitura humana.", teste: (r) => r.leitura === "L3" },
+      { id: "falha", rotulo: "Texto diz falha", nota: "Queima ou avaria descrita no texto da SS ou da OS.", teste: (r) => r.chega_e3 === "SIM" && r.leitura === "L1" },
+      { id: "outra", rotulo: "Texto diz outra causa", nota: "Furto, abalroamento, preventivo, auxiliar, construção ou desativação.", teste: (r) => r.chega_e3 === "SIM" && r.leitura === "L2" },
+      { id: "indef", rotulo: "Texto não decide", nota: "Nunca decide sozinho: vai para leitura humana.", teste: (r) => r.chega_e3 === "SIM" && r.leitura === "L3" },
       { id: "corrigida", rotulo: "Categoria corrigida", nota: "O rótulo gravado na base não corresponde ao que o texto descreve.", teste: (r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada },
       { id: "semmat", rotulo: "Sem material conferido", nota: "Obra fora do export de material ou obra não gerada.", teste: (r) => r.material_conferido !== "SIM" },
     ],
@@ -1052,7 +1052,7 @@ export default function Page() {
             <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="passaram pela interrupção e pelo deslocamento" tom="ink" />
             <Kpi rotulo="Texto diz falha" valor={br(chegam.filter((r) => r.leitura === "L1").length)} nota={`${pct(chegam.filter((r) => r.leitura === "L1").length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("falha")} />
             <Kpi rotulo="Outra causa" valor={br(chegam.filter((r) => r.leitura === "L2").length)} nota="furto, abalroamento, preventivo, auxiliar — separados aqui" tom="red" aoClicar={() => abrirRecorte("outra")} />
-            <Kpi rotulo="Não decide" valor={br(conta((r) => r.leitura === "L3"))} nota="vai para leitura humana" tom="amber" aoClicar={() => abrirRecorte("indef")} />
+            <Kpi rotulo="Não decide" valor={br(chegam.filter((r) => r.leitura === "L3").length)} nota="vai para leitura humana" tom="amber" aoClicar={() => abrirRecorte("indef")} />
             <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o rótulo gravado não bate com o texto" tom="blue" aoClicar={() => abrirRecorte("corrigida")} />
             <Kpi rotulo="Material comprova" valor={br(conta((r) => (Number(r.trafos_material) || 0) > 0))} nota="transformador movimentado na obra" tom="green" />
             <Kpi rotulo="Sem conferência" valor={br(conta((r) => r.material_conferido !== "SIM"))} nota="obra fora do export ou não gerada" tom="amber" aoClicar={() => abrirRecorte("semmat")} />
@@ -1119,6 +1119,33 @@ export default function Page() {
           </section>
         </>;
       }
+      /* A quarta peneira é a que fecha o 884 e era a única sem cabeçalho: caía no return null
+         e abria direto na lista, sem KPI e sem uma linha explicando o que é uma ressalva.
+         Numa aba que decide o número final, isso é o pior lugar para ficar mudo. */
+      if (modulo === "ressalva") {
+        const entram = registros.filter((r) => r.chega_e3 === "SIM"
+          && r.cascata !== "EXCLUÍDO NA LEITURA" && r.cascata !== "RETIDO — SEM PROVA DE TROCA");
+        const retidos = registros.filter((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO");
+        const sinais = new Map<string, number>();
+        retidos.forEach((r) => texto(r.e4_alertas || r.ressalvas).split(/\s*[·;]\s*/)
+          .filter(Boolean).forEach((s) => sinais.set(s, (sinais.get(s) || 0) + 1)));
+        const top = [...sinais.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+        return <>
+          <section className="panel editorial-note wide"><span>O QUE ESTA PENEIRA FAZ</span>
+            <p>Chegam aqui <strong>{br(entram.length)}</strong> solicitações que já passaram pelas três anteriores: têm interrupção na janela, têm atendimento de equipe no transformador, e o texto mais o material comprovam a troca. Esta peneira não pergunta de novo se houve falha — ela pergunta se a <strong>interrupção que sustenta o caso</strong> tem algum sinal que a enfraquece.</p>
+            <p>Um sinal não desmente a troca. Ele diz que aquela interrupção específica serve mal como prova: um desligamento programado não é falha, uma ocorrência sem nenhum cliente interrompido não mede impacto, um defeito aberto em outro elemento pode ter derrubado o transformador sem ser dele, e uma reclamação individual fala de um cliente, não do equipamento. Por isso o caso fica <strong>retido</strong>, e não excluído: sai da saída e continua na base, com o motivo escrito.</p>
+            <p>Param aqui <strong>{br(retidos.length)}</strong>. Os outros <strong>{br(entram.length - retidos.length)}</strong> formam a saída da esteira.</p>
+          </section>
+          <section className="kpi-grid">
+            <Kpi rotulo="Chegam nesta etapa" valor={br(entram.length)} nota="passaram nas três peneiras anteriores" tom="ink" />
+            <Kpi rotulo="Retidos pela ressalva" valor={br(retidos.length)} nota={`${pct(retidos.length, entram.length)}% dos que chegam`} tom="amber" aoClicar={() => abrirRecorte("todos")} />
+            <Kpi rotulo="Seguem para a saída" valor={br(entram.length - retidos.length)} nota="é o número que a auditoria entrega" tom="green" aoClicar={() => irPara("decisao", "saida")} />
+            {top.map(([nome, n]) => <Kpi key={nome} rotulo={nome.length > 34 ? `${nome.slice(0, 33)}…` : nome}
+              valor={br(n)} nota="sinal que enfraquece a interrupção" tom="blue" />)}
+          </section>
+        </>;
+      }
+
       if (modulo === "semdesloc") {
         const fila = registros.filter((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO");
         const naLacuna = fila.filter((r) => r.tmae_gap_jan === "SIM").length;

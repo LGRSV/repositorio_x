@@ -1,6 +1,6 @@
 {
  "meta": {
-  "gerado": "2026-08-03 18:44",
+  "gerado": "2026-08-03 18:59",
   "universo": 1510,
   "revisadas": 1510,
   "cobertura_pct": 100.0,
@@ -1200,8 +1200,255 @@
   }
  ],
  "revisores": {
-  "site": null,
-  "numeros": null
+  "site": {
+   "veredito": "NAO_PRONTO",
+   "resumo": "A cascata, os downloads e a navegação por clique estão corretos e conferem com o fluxo-1510.json, mas o mapa fica sem fundo sem internet, a aba 05 abre sem nenhum cabeçalho e a aba 04 mostra dois números diferentes com o mesmo rótulo.",
+   "quebra": [
+    {
+     "titulo": "Mapa sem fundo: 1.509 pontos flutuando no branco",
+     "aba": "09 Mapa dos ativos",
+     "o_que": "O mapa busca os ladrilhos em https://{s}.tile.openstreetmap.org, ou seja, na internet aberta. Aqui todos falharam (ERR_CONNECTION_RESET no console) e a aba mostra a nuvem de pontos sobre um fundo totalmente branco: nenhum contorno do Tocantins, nenhuma cidade, nenhuma estrada. Os pontos em si funcionam — testei o clique e o dossiê da SS abre — mas sem geografia ninguém consegue verificar a promessa escrita logo acima ('na coordenada do próprio ativo — não no centro do município'). Numa sala de diretoria sem Wi-Fi liberado ou atrás de proxy corporativo, esta aba não tem como funcionar.",
+     "reproduzir": "Abrir a aba 09 sem acesso à internet (ou com saída bloqueada para tile.openstreetmap.org). Os pontos desenham, o fundo não. Console: 'Failed to load resource: net::ERR_CONNECTION_RESET' para a.tile/b.tile/c.tile.openstreetmap.org.",
+     "conserto": "Desenhar o contorno dos municípios como camada GeoJSON local — o arquivo public/municipios-to.json já está no projeto e já é servido — em vez de depender do ladrilho remoto. Alternativa: empacotar os ladrilhos do estado no próprio site. Enquanto isso não existir, ter um plano B para a apresentação (screenshot) ou não abrir a aba 09 ao vivo."
+    },
+    {
+     "titulo": "Aba 05, a peneira que produz o 884, abre pelada",
+     "aba": "05 Ressalva da interrupção / 05·1 Retidos pela ressalva",
+     "o_que": "É a única etapa da esteira sem faixa de indicadores e sem painel 'como ler os números desta etapa'. A tela tem só a lista (verificado no DOM: a única seção do workspace é 'panel list-panel'). Todas as irmãs — 02, 02·1, 03, 03·1, 04, 04·1, 06, 07 — abrem com 6 a 8 KPIs e um texto. Visualmente parece página que não terminou de carregar, e justamente na quarta peneira, a que tira 69 casos e fecha o número final de 884.",
+     "reproduzir": "Clicar em '05 Ressalva da interrupção' na barra lateral. Comparar com '04 Análise de SS e OS'. Em 05 não há nenhum .kpi na tela.",
+     "conserto": "Acrescentar o bloco `if (modulo === 'ressalva')` em cabecalho() de app/page.tsx (hoje ele não existe, a função cai no `return null`), com os KPIs que os chips já calculam — 953 na fila, 69 retidos, 2 ressalva grave, 89 sem cliente interrompido, 36 defeito em outro elemento, 29 reclamação individual — e o parágrafo explicando por que uma ressalva segura o caso."
+    },
+    {
+     "titulo": "Mesmo rótulo, dois números, na mesma tela",
+     "aba": "04 Análise de SS e OS",
+     "o_que": "O KPI diz 'Texto diz falha 989' e, quinze centímetros abaixo, o chip diz 'Texto diz falha (1.451)'. Idem 'Outra causa 9' contra o chip 'Texto diz outra causa (53)'. O KPI conta dentro da fila que chega ao estágio 3 (1.002); os chips contam sobre as 1.510. Clicando o chip, o cabeçalho 'Recorte' salta de 1.002 para 1.451 — mais do que entrou na etapa. É o tipo de contradição que uma pergunta da diretoria expõe em dez segundos.",
+     "reproduzir": "Abrir a aba 04. Ler o KPI 'Texto diz falha' (989) e o chip 'Texto diz falha' (1.451). Clicar no chip: o cabeçalho vira 'Recorte 1.451 de 1.510' numa aba que anuncia 1.002 na fila.",
+     "conserto": "Nos RECORTES de 'ssos', somar a condição `r.chega_e3 === 'SIM'` aos testes de leitura e material (é o que os chips das outras peneiras já fazem, ex.: semdesloc filtra por cascata). Se a intenção for mesmo mostrar as 1.510, renomear os chips ('Texto diz falha — em toda a base') para não repetir o rótulo do KPI."
+    }
+   ],
+   "incomoda": [
+    {
+     "titulo": "O Voltar do navegador sai do site",
+     "aba": "todas",
+     "o_que": "A URL nunca muda: nenhuma aba e nenhum recorte tem endereço próprio. Apertar Voltar depois de navegar dez telas leva para about:blank, não para o recorte anterior. Também não dá para mandar por e-mail o link de 'Parados no deslocamento' — só a instrução de onde clicar. Um usuário de Power BI espera 'voltar ao recorte anterior' e 'copiar link deste visual'.",
+     "reproduzir": "Navegar por várias abas e chips, apertar Voltar no navegador. A página sai.",
+     "conserto": "Guardar módulo, recorte e busca no hash da URL (#06/incluir?q=araguaina) e ler no carregamento. Enquanto não houver, um botão 'voltar ao recorte anterior' no cabeçalho já resolve o essencial."
+    },
+    {
+     "titulo": "Nenhuma coluna ordena",
+     "aba": "todas as abas com tabela",
+     "o_que": "Os sete cabeçalhos da tabela são <th> mudos: clicar não faz nada. Não dá para ordenar por data de abertura, por clientes interrompidos, por distância da ocorrência, por localidade. Em Power BI ordenar coluna é o primeiro reflexo de quem olha uma tabela.",
+     "reproduzir": "Aba 06, clicar em 'Data e local'. A primeira linha continua DG-RD-PO 00004/2026.",
+     "conserto": "Estado de ordenação (coluna, direção) aplicado a `listadas` antes do slice(CAP), com seta no cabeçalho."
+    },
+    {
+     "titulo": "Os chips não combinam entre si",
+     "aba": "todas as abas com chips",
+     "o_que": "Só vale um recorte por vez. Clicar em 'Queimados' e depois em 'REVISÃO' troca o filtro em vez de cruzar — só um chip fica marcado. Não existe 'Queimados em Araguaína retidos sem deslocamento' a não ser digitando na busca. O cruzamento de filtros é exatamente o que o dono chamou de 'interativo que nem o Power BI'.",
+     "reproduzir": "Aba 06: clicar em 'Queimados (856)', depois em 'REVISÃO (618)'. Só 'REVISÃO' fica com a classe ativo.",
+     "conserto": "Permitir chips acumuláveis (teste em AND) com um botão 'limpar filtros', ou pelo menos deixar o filtro de decisão independente do filtro de cascata."
+    },
+    {
+     "titulo": "A tabela para nas 300 primeiras e não há como ver o resto",
+     "aba": "todas as abas com tabela",
+     "o_que": "O cabeçalho avisa honestamente '884 solicitações · mostrando as 300 primeiras', mas não há paginação, rolagem infinita nem 'carregar mais'. Para ver a linha 301 é preciso usar a busca ou baixar o CSV. Ao vivo, se perguntarem por um caso específico que não está nas 300, só sobra digitar.",
+     "reproduzir": "Aba 06, rolar a tabela até o fim: para na 300ª linha.",
+     "conserto": "Botão 'mostrar mais 300' ou paginação simples; o dado já está todo em memória."
+    },
+    {
+     "titulo": "Número escrito à mão que não bate: 121 contra 118",
+     "aba": "12 Bases usadas e 11 Regras e método (contra 01 e 04)",
+     "o_que": "O texto das lacunas diz 'A categoria gravada na base diverge do texto em 121 SS' e o método repete 'ela está errada em 121 solicitações'. O KPI 'Categoria corrigida', calculado ao vivo sobre o mesmo campo, mostra 118 nas abas 01 e 04, e o chip 'Categoria corrigida' também mostra 118. São três a menos: o texto ficou de uma versão anterior do cruzamento. Confirmado no fluxo-1510.json: 118 registros com categoria_texto preenchida e diferente de categoria_gravada.",
+     "reproduzir": "Aba 01, KPI 'Categoria corrigida' = 118. Aba 12, bloco 'O que estas bases não respondem', terceiro item = 121.",
+     "conserto": "Trocar 121 por 118 em public/metodo.json e no campo meta.lacunas de public/fluxo-1510.json — ou, melhor, montar essa frase com o número calculado, como as outras já fazem."
+    },
+    {
+     "titulo": "Números mal formatados no meio dos KPIs",
+     "aba": "03 Deslocamento e 02 Interrupção",
+     "o_que": "'TMA mediano = 1821 min' aparece cru, sem separador de milhar e em minutos: são 30 horas, e o número ao lado é 'Deslocamento mediano = 42.88 min', com ponto decimal e duas casas — dois padrões diferentes lado a lado, nenhum em português. Na aba 02, 'Distância mediana = 0 h' fica ambíguo (zero hora ou dado ausente?).",
+     "reproduzir": "Abrir a aba 03 e ler a faixa de KPIs.",
+     "conserto": "Passar os dois pelo mesmo formatador em pt-BR e converter TMA para horas quando passar de 120 minutos ('30h22'). Em 02, escrever '0 h (mesma janela)'."
+    },
+    {
+     "titulo": "Vê e não extrai: mapa, histórico do ativo e visão geral",
+     "aba": "09, 08 e 01",
+     "o_que": "As abas 01, 08, 09, 11 e 12 não têm botão de baixar. A mais sentida é a 09: 1.509 pontos com latitude e longitude na tela e nenhum jeito de exportar as coordenadas. A 08 monta o histórico completo de um transformador (interrupções e atendimentos em ordem) e também não exporta. A aba 12 oferece as bases inteiras em XLSX, o que cobre parte do buraco, mas não o recorte que está na tela.",
+     "reproduzir": "Abrir 09 ou 08: não existe .sheet-download na página.",
+     "conserto": "Reaproveitar baixarCSV nessas abas — na 09 sobre os pontos filtrados, na 08 sobre o histórico do ativo pesquisado."
+    },
+    {
+     "titulo": "O nome do arquivo baixado ignora a busca",
+     "aba": "todas as abas com tabela",
+     "o_que": "Com o recorte 'Saíram pela cascata' e a busca 'ARAGUAINA' o arquivo sai como Sairam_pela_cascata.csv com 33 linhas — mesmo nome do arquivo de 884 linhas baixado antes. Dois arquivos diferentes com o mesmo nome na pasta de downloads, o segundo vira 'Sairam_pela_cascata (1).csv' e ninguém sabe mais qual é qual.",
+     "reproduzir": "Aba 06, baixar; digitar ARAGUAINA na busca, baixar de novo. Mesmo nome.",
+     "conserto": "Acrescentar o termo de busca e a contagem ao nome: Sairam_pela_cascata_araguaina_33.csv."
+    },
+    {
+     "titulo": "Cabeçalho 'Recorte 1.510' em aba que não tem lista",
+     "aba": "08 Por transformador, 09 Mapa, 11, 12",
+     "o_que": "O contador do cabeçalho conta `listadas`, que nessas abas nunca é mostrado. A aba 08 abre com 'Recorte 1.510 de 1.510 solicitações' e a tela vazia esperando um código de transformador; a 09 diz 1.510 no cabeçalho e 1.509 no KPI 'Pontos no mapa' (um registro sem coordenada). Não é erro de conta, é rótulo prometendo lista que não existe ali.",
+     "reproduzir": "Abrir a aba 08 e comparar o cabeçalho com o corpo da página.",
+     "conserto": "Esconder o bloco 'Recorte' nas abas sem lista, ou trocar por 'Universo 1.510'."
+    },
+    {
+     "titulo": "Botão de baixar planilha vazia",
+     "aba": "10 Análise profunda",
+     "o_que": "Enquanto ninguém classificou nada, a aba oferece 'Baixar planilha (0)' e o clique gera um CSV só com a linha de cabeçalho. Botão ativo que não entrega nada.",
+     "reproduzir": "Abrir a aba 10 num navegador limpo e clicar em 'Baixar planilha (0)'.",
+     "conserto": "Desabilitar o botão quando listadas.length === 0, em qualquer aba."
+    },
+    {
+     "titulo": "A fonte também vem da internet",
+     "aba": "todas",
+     "o_que": "A requisição a fonts.googleapis.com falha offline (registrado como requestfailed). O site cai para a fonte de sistema — não quebra, mas a apresentação não fica igual ao que foi aprovado.",
+     "reproduzir": "Abrir qualquer aba sem internet e olhar a rede: fonts.googleapis.com/css2?family=DM+Sans falha.",
+     "conserto": "Empacotar o woff2 da DM Sans junto com o site e servir por @font-face local."
+    }
+   ],
+   "funciona": [
+    "A cascata publicada bate exatamente com o dado: agreguei o fluxo-1510.json em Python e deu 1.510 → 1.300 → 1.002 → 953 → 884, os mesmos números que a caixa d'água mostra na aba 01.",
+    "A composição fecha caso a caso: 207 sem interrupção, 3 SS duplicada, 298 sem deslocamento, 41 sem prova de troca, 8 excluídos na leitura, 69 ressalva, 884 de saída.",
+    "Os 884 se decompõem em 856 queimados e 28 avariados na tela, iguais ao JSON.",
+    "Cada peneira e a aba dos casos que ela reteve anunciam o mesmo número: 210/210, 298/298, 49/49, 69/69 — a promessa de 'a aba seguinte tem o número da peneira' se cumpre nas quatro.",
+    "O download traz o recorte FILTRADO, não a base inteira: baixei 210 na aba 02·1, 20 no chip 'Nada encontrado', 884 na aba 06 e 33 com a busca aplicada — a contagem do arquivo bateu com o cabeçalho nas quatro vezes.",
+    "O CSV não é cortado pelas 300 linhas da tela: a aba 06 mostra 300 e o arquivo veio com as 884 completas, 69 colunas cada.",
+    "A busca combina com o chip em E, e o cabeçalho, a tabela e o rótulo do botão de baixar se atualizam juntos com o mesmo número.",
+    "Busca sem resultado mostra estado vazio explicado ('Ajuste a busca ou escolha outro filtro acima'), não tela em branco.",
+    "Clicar num número leva ao recorte certo: o KPI 'Sem interrupção na janela 207' abre a aba 02·1 já filtrada em 207, com o chip correspondente marcado.",
+    "As cinco linhas da caixa d'água são clicáveis e abrem a etapa de quem sobreviveu à peneira, não a etapa que a produziu.",
+    "O dossiê abre ao clicar em qualquer linha, com as seis abas preenchidas (consolidado, interrupção, deslocamento, SS e OS, obra, histórico do ativo) e fecha no × e no fundo.",
+    "Nenhum chip dá zero por engano — inclusive os que dependem de campos raros, como 'Exclusões desfeitas (11)' e 'SS duplicada (3)'.",
+    "Não há nenhum erro de JavaScript da aplicação: os únicos erros de console são os recursos externos (ladrilhos do mapa e a fonte).",
+    "A aba 11·1 lê o revisao.json de verdade — 73 mudanças, 16 falsos positivos, 50 sem resposta — com chips por família de motivo e download próprio que respeita o recorte.",
+    "Os pontos do mapa são clicáveis de verdade: cliquei num ponto e o dossiê da SS ETO-RD-AG 00605/2026 abriu, como a legenda 'clique num ponto para abrir o dossiê' promete.",
+    "Os doze arquivos de base da aba 12 (seis originais e seis cruzadas) respondem 200 no servidor e os tamanhos batem com os rótulos escritos ao lado (Original_OS 30 MB para '28,8 MB', TMAE 5,1 MB para '4,9 MB').",
+    "A tabela de método na aba 11 confere com o dado: 1.278 + 22 recuperados pelo atendimento = 1.300, e os 82 na lacuna de janeiro dentro dos 298 batem com o JSON."
+   ]
+  },
+  "numeros": {
+   "veredito": "SUSTENTA_COM_RESSALVA",
+   "resumo": "As 884 fecham aritmeticamente e todas as 884 têm lastro de campo confirmado por mim contra a Crítica bruta, mas o número está subestimado: a ingestão da Crítica perdeu ~50 ocorrências e 51 SS retidas por \"sem interrupção na janela\" têm, no arquivo bruto, ocorrência no código do trafo dentro das 24 h.",
+   "achados": [
+    {
+     "titulo": "A ingestão da Crítica perde ocorrências: 51 SS retidas por 'sem interrupção na janela' TÊM ocorrência no código do trafo dentro de 24 h no arquivo bruto",
+     "gravidade": "ALTA",
+     "numero": "51 das 207 retidas na peneira 1 (24,6%). 50 dessas 51 ocorrências não existem em Base_Interrupcoes.xlsx — nunca entraram no pool de candidatas. 46 casam mesmo pela régua do INÍCIO (|SS − DTA_ABERT| ≤ 24 h), 51 pela régua da borda. 45 das 51 ocorrências são explicadas por leitura defeituosa do arquivo: com um parser CSV padrão (quote-aware) 34 delas desaparecem por completo — o parser estrito lê 76.630 linhas, o ingênuo lê 71.082, 5.548 linhas somem por aspas soltas no campo OBSERVACAO — e outras 11 sobrevivem mas com o campo COD_ELE_FECHADO deslocado, ou seja, o código do transformador deixa de casar. Restam 6 sem mecanismo identificado, todas com abrangência CH FUS ou CH FUS REL. Impacto potencial: das 51, todas têm material_conferido=SIM, 48 têm e4_status=OK e 50 têm leitura L1 — ou seja, ~48 candidatas a virar SAÍDA, levando o indicador de 884 para a ordem de 930.",
+     "criterio": "Reparsei os 6 arquivos Critica-CHEIO_MM-2026.txt com csv.DictReader(delimiter=';', quoting=csv.QUOTE_NONE, field_size_limit=1e9), indexei por COD_ELE_FECHADO, COD_ELE_PROBLEMA e COD_ELE_INTERROMPIDO, e para cada uma das 1.510 SS medi a distância da abertura da SS ao intervalo [DTA_ABERT, DTA_FECH]. Todas as 51 casam por COD_ELE_FECHADO (a mesma coluna que a base publicada usa como 'Elemento fechado'), com Tipo de OS=IT, Subtipo=ITE, conclusão 000 — ocorrências normais, sem nada que justifique descarte.",
+     "reproduzir": "Casos abertos e conferidos um a um: (1) ETO-RD-GU 00004/2026, trafo 5710248052, SS aberta 01/01/2026 13:33 — ocorrência 20264060716762, 01/01/2026 13:17→02/01/2026 12:20, COD_ELE_FECHADO=5710248052, causa TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA, 1 consumidor, linha única no bruto; o fluxo grava e1_status='SEM LASTRO', oc_num=null, det_interrupcao={}. (2) ENC-RD-PS 00037/2026, trafo 5700758084, SS 10/01/2026 17:36 — ocorrência 20264070943831 abre no MESMO minuto (10/01 17:36→12/01 23:59), TRANSFORMADOR/QUEIMADO; fluxo grava 'SEM LASTRO'. (3) DG-RD-PO 00009/2026, trafo 5700469071, SS 02/01/2026 17:52 — existe 20264062592320 (02/01 17:18→03/01 18:30, TRANSFORMADOR/QUEIMADO, distância 0,57 h) mas o fluxo escolheu 20264080385877, de 14/01, a 277 h, e classificou FORA. (4) ETO-RD-DP 00004/2026, trafo 5700379116, SS 01/01/2026 11:32 — existe 20264060665488 (01/01 11:24→02/01 13:15) e o fluxo aponta uma de 19/01, a 429 h. Nenhuma das quatro ocorrências corretas está em Base_Interrupcoes.xlsx."
+    },
+    {
+     "titulo": "O cenário B da revisão subestima o efeito da régua da borda em quase 9x",
+     "gravidade": "MEDIA",
+     "numero": "revisao.json, cenário B: 'dos 207 retidos por falta de interrupção, 6 têm a Crítica ou o TMAE a 24 h ou menos da borda mais próxima'. Recontando contra o arquivo bruto: 52 dos 207 (46 pela Crítica só pelo início, 52 pela borda, 6 pelo TMAE pela borda). O cenário B só remediu a ocorrência que a esteira JÁ tinha selecionado; não voltou ao arquivo para procurar outra.",
+     "criterio": "Para cada uma das 207, distância = 0 se a abertura da SS cai dentro de [DTA_ABERT, DTA_FECH] de alguma ocorrência do trafo, senão min(|SS−início|, |SS−fim|). Universo de busca: todas as ocorrências do semestre com o código do trafo em qualquer das três colunas de elemento.",
+     "reproduzir": "Mesma indexação do achado anterior; filtrar cascata=='RETIDO — SEM INTERRUPÇÃO NA JANELA' e contar bor_all<=24 (52) e d_ini<=24 (46). Os 6 do cenário B são um subconjunto próprio."
+    },
+    {
+     "titulo": "A Crítica e o TMAE não são duas provas independentes em 96% da saída",
+     "gravidade": "MEDIA",
+     "numero": "848 dos 884 têm at_num idêntico a oc_num — é a mesma nota operacional lida em duas bases (a interrupção e o atendimento da mesma NUM_SEQ_OPER), não duas testemunhas. Os 884 têm at_num preenchido, mas só 36 têm número de atendimento distinto do número da ocorrência.",
+     "criterio": "Contagem direta em fluxo-1510.json: str(oc_num)==str(at_num) entre os 884 com cascata=='SAÍDA'.",
+     "reproduzir": "sum(1 for r in registros if r['cascata']=='SAÍDA' and str(r.get('oc_num'))==str(r.get('at_num'))) → 848."
+    },
+    {
+     "titulo": "O texto do método contradiz a própria cascata sobre o peso do TMAE",
+     "gravidade": "MEDIA",
+     "numero": "metodo.json, bloco 'tmae': 'Estar ausente do atendimento não retém ninguém — mas fica marcado na tela'. Bloco 'cascata', tabela: peneira 2 · Deslocamento retém 298, '298 — sem atendimento, 82 na lacuna de janeiro'. As 298 são exatamente ausência de atendimento retendo. 82 delas caem no vão de 26–31/jan, que o próprio método reconhece como buraco de arquivo.",
+     "criterio": "Leitura literal das duas células do metodo.json contra a contagem de cascata=='RETIDO — SEM DESLOCAMENTO' (298) e de tmae_gap_jan=='SIM' nesse grupo (82, conferido).",
+     "reproduzir": "Comparar blocos[2].paragrafos[1] com blocos[5].tabela.linhas[1] do metodo.json; contar cascata e tmae_gap_jan no fluxo."
+    },
+    {
+     "titulo": "Os rótulos por estágio (e1_status/e2_status) não são o critério que governa a cascata",
+     "gravidade": "BAIXA",
+     "numero": "166 registros com e1_status RETIDO ou SEM LASTRO passam a peneira 1. 48 com e2_status RETIDO, SEM ATENDIMENTO ou '—' passam a peneira 2, e 25 desses terminam em SAÍDA (38 com rótulo RETIDO/SEM ATENDIMENTO, dos quais 21 na saída; mais 10 com e2_status='—', dos quais 4 na saída). Quem decide é fato/leitura via matriz, não o rótulo do estágio. Ninguém é órfão nem contado duas vezes — mas quem abrir a tela de um caso vai ler 'RETIDO' num caso que está na saída.",
+     "criterio": "Contagem cruzada de e1_status/e2_status contra chega_e2/chega_e3/cascata nas 1.510.",
+     "reproduzir": "Confirma o fato já estabelecido de 48/25, com a ressalva de que 10 dos 48 têm e2_status='—' e não 'RETIDO'/'SEM ATENDIMENTO'."
+    },
+    {
+     "titulo": "38 SS com término anterior à abertura, 17 delas na saída",
+     "gravidade": "BAIXA",
+     "numero": "38 SS têm 'Término da SS' < 'Abertura da SS'; 17 estão entre as 884. Uma delas (ETO-RD-DP 00001/2026) termina em 2025-01-02 para uma SS aberta em 2026-01-01 — erro de ano na origem. Não muda a decisão de nenhuma (a esteira não usa o término), mas é sujeira que aparece na planilha para download.",
+     "criterio": "datetime(termino) < datetime(abertura) sobre os 1.510 registros.",
+     "reproduzir": "ETO-RD-DP 00030/2026 (08/01 23:01 → 08/01 16:08), DOLP-RD-PA 00054/2026 (13/01 15:30 → 05/01 19:59), ETO-RD-DP 00041/2026 (15/01 12:44 → 15/01 11:30) — as três em SAÍDA."
+    },
+    {
+     "titulo": "A duração mediana das ocorrências publicada não reproduz",
+     "gravidade": "BAIXA",
+     "numero": "A apuração independente citada diz 'mediana 27 h e 59% acima de 24 h'. Recontando oc_dur_h: nas 1.373 SS com ocorrência casada, mediana 22,1 h e 42% acima de 24 h; restrito às 884, mediana 23,0 h e 46% acima de 24 h; nas retidas, 19,7 h e 36%. A direção do argumento (ocorrências longas, a régua importa) se mantém; a magnitude citada não.",
+     "criterio": "statistics.median de oc_dur_h nos três recortes de fluxo-1510.json.",
+     "reproduzir": "median([r['oc_dur_h'] for r in registros if r.get('oc_dur_h')]) → 22.1; fração >24 → 0.42."
+    }
+   ],
+   "confirmado": [
+    "scripts/auditoria_invariantes.py roda limpo: 18 CONFERE, 0 FALHA, 1 'A OLHO' (números escritos na interface), de 19 testes. Nada a acrescentar contra ele.",
+    "A aritmética da cascata fecha, recalculada por mim do zero: 1.510 − (207 + 3) = 1.300; 1.300 − 298 = 1.002; 1.002 − 41 − 8 = 953; 953 − 69 = 884. Soma dos sete rótulos de cascata = 1.510. 626 retidos + 884 na saída = 1.510. Nenhum registro órfão, nenhum contado duas vezes, nenhum que pule peneira: chega_e3=SIM ⊂ chega_e2=SIM em 100% dos casos.",
+    "884 = 856 QUEIMADO + 28 AVARIADO, e o campo 'confirmado' está preenchido em exatamente 884 registros e vazio nos outros 626. 1.510 SS distintas, sem duplicata de chave.",
+    "As 16 células publicadas da tabela da cascata batem com o dado recontado, inclusive os desdobramentos ('207 sem interrupção · 3 SS duplicada', '298 — sem atendimento, 82 na lacuna de janeiro', '41 sem prova de troca · 8 excluídos pela leitura', '69 ressalva'). O 82 na lacuna de janeiro confere.",
+    "AS 884 TÊM LASTRO REAL: recomputando contra o arquivo bruto da Crítica, 884 de 884 têm ocorrência no código do trafo a ≤ 24 h da borda mais próxima. Nenhuma saída é inventada. Este é o resultado mais importante da revisão.",
+    "AS 884 SÃO ROBUSTAS À RÉGUA: 881 das 884 mantêm o lastro mesmo se a janela for apertada de 24 h para 12 h; 819 têm a abertura da SS DENTRO do intervalo da ocorrência (distância zero); só 3 dependem da faixa de 12 a 24 h e só 2 estão na beira (20 a 24 h). Estreitar ou alargar a janela quase não mexe no número.",
+    "A régua da borda JÁ É usada na decisão, ao contrário do que o defeito conhecido sugere: e1_delta_h é exibido a partir do início da ocorrência, mas o nível de decisão (A/B/C/FORA, e oc_nivel_decisao DENTRO/ADJ/LONGE) considera o intervalo. Abri os 10 casos da saída com delta_h entre 24,5 h e 56,8 h — todos têm a borda a ≤ 21 h (ex.: ENC-RD-PS 00501/2026, delta 32,97 h pelo início, 0,05 h pela borda: a SS abriu 3 minutos depois de a interrupção ser normalizada). O defeito é de exibição, não de decisão.",
+    "A lacuna do TMAE de 26 a 31 de janeiro é REAL e exatamente essa: contando por dia no arquivo bruto consolidado, janeiro tem atendimento de 01 a 25 (o dia 25 já parcial, 221 registros contra média de ~470) e zero de 26 a 31. Fevereiro a junho estão íntegros. 99 SS abertas no vão, 82 delas retidas na peneira 2 — nenhuma na saída.",
+    "As 884 não dependem da lacuna: 0 dos 884 têm tmae_gap_jan=SIM e só 3 têm borda_2025=SIM. Preencher o vão de 26–31/jan não tiraria ninguém da saída; só poderia acrescentar (até 82 candidatas).",
+    "O TMAE é mesmo indexado pelo equipamento do defeito (COD_INS_TRF_TNT): 48.443 códigos distintos no semestre, e 1.148 das 1.510 SS têm o código do trafo presente ali. A ressalva do método procede.",
+    "A base de interrupção realmente não alcança dezembro de 2025: a primeira ocorrência do arquivo bruto é de 01/01/2026 00:23 (o método publica 01:14, que é a primeira linha da base já filtrada). 24 SS estão marcadas borda_2025, 12 delas entre as 207 retidas.",
+    "Nenhuma data impossível nas frentes que importam: 0 atendimentos com data posterior a 30/06/2026, 0 obras abertas antes da SS, 0 SS na saída sem obra vinculada (as 29 sem obra estão todas retidas).",
+    "Prova de material coerente: todas as 884 têm material_conferido=SIM e trafos_material=1,0 — uma unidade de transformador baixada por SS, nenhuma com zero e nenhuma com múltiplos.",
+    "Distribuição externa plausível: 884 espalhadas por 132 municípios, sem concentração anômala (PALMAS 36, ARAGUAINA 33, PORTO NACIONAL 27 — as três maiores cidades do estado no topo, como esperado). Curva mensal decrescente de jan a jun (214/242/203/125/52/48), coerente com a estação de descargas atmosféricas e com o afunilamento natural das SS abertas mais perto do fim do recorte.",
+    "Reincidência sob controle: só 3 transformadores aparecem duas vezes entre as 884 (6 SS); nas 1.510 são 34 códigos repetidos (70 SS). Não há trafo campeão suspeito.",
+    "Todas as 884 estão com situacao='SS ATENDIDA' e 862 delas com criticidade EMERGENCIAL.",
+    "Os 3 casos de disputa de ocorrência estão resolvidos com um dono e um duplicado, e os 3 perdedores estão todos rotulados 'RETIDO — SS DUPLICADA' — nenhum perdedor solto."
+   ],
+   "suspeitas": [
+    "SUSPEITA NÃO CONFIRMADA: que o parser CSV explique TODAS as 51 ocorrências perdidas. Explico 45 (34 somem inteiras sob parser ingênuo, 11 sobrevivem com COD_ELE_FECHADO deslocado). Sobram 6 intactas e mesmo assim ausentes de Base_Interrupcoes.xlsx — ETO-RD-GU 00017/2026, ETO-RD-GU 00066/2026, ENC-RD-PS 00116/2026, ENC-RD-PS 00177/2026, ETO-RD-DP 00115/2026, ETO-RD-GU 00218/2026 — todas com abrangência CH FUS ou CH FUS REL, o que sugere um filtro por abrangência que eu não confirmei (o transformador é o elemento fechado em todas as seis). Não li o código gerador, por orçamento.",
+    "SUSPEITA NÃO CONFIRMADA: que as ~48 recuperáveis virariam saída. Elas passam material (51/51) e ressalva (48/51) e têm leitura de falha (50/51 L1), mas só 21 têm at_deslocou=SIM; sob a peneira 2 como está hoje, 30 parariam ali. O número 48 é o teto, não o resultado; qual seria o resultado depende de a peneira 2 continuar bloqueando ou virar sinalizador.",
+    "SUSPEITA NÃO CONFIRMADA: que as 19 SS da saída onde a esteira escolheu uma ocorrência que não é a mais próxima do bruto estejam com a causa errada. Todas as 19 mantêm lastro dentro das 24 h pela ocorrência que a esteira escolheu OU pela mais próxima; não abri as 19 uma a uma para comparar causa e subcausa. Não muda o total; pode mudar a narrativa individual.",
+    "SUSPEITA NÃO CONFIRMADA: que os 5 casos da saída cuja categoria gravada é ABALROAMENTO (2), TRAFO AUXILIAR (3) ou PREVENTIVO (1) sejam falsos positivos. A revisão caso a caso já derrubou um deles (ETO-RD-GR 00025/2026, com oc_causa=POSTE DE AT e oc_sub=ABALROADO nas duas bases). Os demais eu não abri.",
+    "SUSPEITA NÃO CONFIRMADA: que as 35 SS da saída abertas ANTES do início da ocorrência sejam casamento espúrio. Recontei 145 casos assim (não 143), 9 com mais de 20 h de antecedência (não 8), 35 deles na saída. O método reconhece que a SS nasce depois do atendimento, logo abertura anterior à ocorrência é anomalia — mas ela também é explicável por ocorrência lançada com atraso, por ocorrência-continuação, ou pela SS ter sido aberta na primeira reclamação e a interrupção só ter sido formalizada depois. Não consegui distinguir os dois mundos com o dado disponível.",
+    "SUSPEITA NÃO CONFIRMADA: que a queda de volume em maio e junho (52 e 48 saídas contra 214 e 242 em jan e fev) seja só sazonalidade. As SS totais caem no mesmo ritmo (92 e 96), então a taxa de aprovação não muda — mas SS abertas em junho podem ainda não ter obra encerrada nem material lançado no momento da extração, o que rebaixaria artificialmente os meses finais. Não medi a idade de encerramento por mês."
+   ],
+   "perguntas": [
+    {
+     "pergunta": "As 884 podem estar infladas? Quantas dessas trocas não aconteceram?",
+     "resposta": "Nenhuma que eu tenha encontrado. Recomputei do arquivo bruto da Crítica, sem passar pela base intermediária, e as 884 têm ocorrência de campo no código do transformador dentro das 24 h — 884 de 884. Todas têm material dado baixa no almoxarifado (1 transformador por SS) e todas estão com a SS atendida. O risco de inflação está em outro lugar: na leitura da causa, não na existência do evento. A revisão caso a caso encontrou 16 casos que chegaram à saída e não deveriam (leitura invertida, ressalva mal aplicada), o que levaria 884 para 877. Esse é o tamanho do erro para cima que eu consigo sustentar: da ordem de 2%, não de 20%."
+    },
+    {
+     "pergunta": "E o contrário — quantas ficaram de fora indevidamente?",
+     "resposta": "Mais do que o relatório admite, e este é o achado que eu levaria primeiro à diretoria. 51 solicitações estão retidas como 'sem interrupção na janela' quando o arquivo bruto da Crítica tem, sim, uma ocorrência no código daquele transformador dentro das 24 h — em vários casos abrindo no mesmo minuto da SS e com subcausa QUEIMADO POR DESCARGA ATMOSFÉRICA. Essas ocorrências nunca entraram na base intermediária; 34 delas literalmente desaparecem se o arquivo for lido com um parser CSV comum, por causa de aspas soltas no campo de observação. Das 51, todas têm material comprovando a troca. O 884 é um piso, não um teto."
+    },
+    {
+     "pergunta": "A janela de 24 horas foi escolhida para dar o número que se queria?",
+     "resposta": "Não, e isso eu consigo provar: 881 das 884 sobrevivem a uma janela de 12 horas, e 819 têm a abertura da solicitação DENTRO do intervalo da interrupção — distância zero, não é questão de régua. Apenas 2 casos estão na faixa de 20 a 24 horas. Apertar a janela pela metade custa 3 casos; alargá-la para 48 horas, segundo o próprio método, traria 16 duvidosos. O número é insensível à régua. O que a régua muda é quem entra pela porta dos retidos, não quem já está dentro."
+    },
+    {
+     "pergunta": "A ausência no TMAE está sendo usada para reprovar caso, mesmo o método dizendo que não seria?",
+     "resposta": "Está, e é uma contradição aberta do documento. O bloco sobre o TMAE diz textualmente que 'estar ausente do atendimento não retém ninguém'; a tabela da cascata, duas telas adiante, mostra 298 retidos exatamente por isso, 82 deles no vão de 26 a 31 de janeiro que o próprio método declara ser buraco de arquivo. A resposta honesta é: ou o texto muda, ou a peneira 2 vira sinalizador. O relatório já traz esse cenário calculado (cenário C, saída 1.128), o que mostra que a equipe sabe do problema — mas o texto publicado ainda diz o contrário do que o número faz."
+    },
+    {
+     "pergunta": "A Crítica e o TMAE confirmam o caso duas vezes, então a prova é dupla?",
+     "resposta": "Não. Em 848 dos 884 casos o número do atendimento é idêntico ao número da ocorrência — é o mesmo evento operacional gravado em dois sistemas, não duas testemunhas independentes. A prova realmente independente da interrupção é o material da obra, e essa sim está presente nas 884. Vender 'duas bases confirmam' como redundância seria exagero; o correto é 'o campo registrou o evento e o almoxarifado registrou a troca'."
+    },
+    {
+     "pergunta": "Por que o painel mostra 'RETIDO' em casos que estão na saída?",
+     "resposta": "Porque os rótulos por estágio e a cascata são calculados por critérios diferentes. 166 registros com e1_status RETIDO ou SEM LASTRO passam a primeira peneira, e 48 com e2 não-SEGUE passam a segunda — 25 desses terminam na saída. Quem decide é a matriz fato × leitura; o rótulo do estágio é descritivo. Não há erro de contagem (a soma fecha 1.510 e ninguém é contado duas vezes), mas é uma armadilha de leitura: quem abrir um dossiê vai ver 'RETIDO' escrito num caso aprovado. Deveria ser renomeado antes da apresentação."
+    },
+    {
+     "pergunta": "O delta de horas está medido errado, do início da ocorrência em vez da borda?",
+     "resposta": "O número exibido está, a decisão não. Abri os 10 casos da saída com delta acima de 24 horas: todos têm a borda a 21 horas ou menos, e um deles (ENC-RD-PS 00501/2026) mostra a solicitação aberta 3 minutos depois de a interrupção ser normalizada, exibida como '32,97 h de distância'. É defeito de vitrine. O custo real dele é que o cenário B da revisão, que tentou medir o efeito da borda, remediu apenas a ocorrência já escolhida e concluiu que só 6 casos mudariam — recontando do arquivo bruto, são 52."
+    },
+    {
+     "pergunta": "As datas da base são confiáveis?",
+     "resposta": "Em geral sim, com sujeira localizada. Não há atendimento com data futura nem obra aberta antes da solicitação — os dois testes que costumam pegar fraude de lançamento passam limpos. Mas 38 solicitações têm término anterior à abertura, 17 delas entre as 884, incluindo uma com o ano trocado (aberta em 01/01/2026, terminada em 02/01/2025). Nenhuma dessas datas participa da decisão, então o 884 não muda; mas elas saem na planilha que a diretoria pode abrir."
+    },
+    {
+     "pergunta": "Se vocês corrigirem tudo o que acharam, qual é o número?",
+     "resposta": "Não sabemos com precisão, e é honesto dizer isso. A revisão caso a caso leva 884 para 877. Corrigir a ingestão da Crítica devolve até 51 casos à esteira, dos quais até 48 têm material e não têm ressalva — mas 30 deles parariam na peneira 2 se ela continuar bloqueando, e não abri os 51 um a um para julgar a causa. A faixa defensável hoje é de 877 a cerca de 925. O que eu não sustentaria diante da diretoria é o 884 apresentado como número fechado: ele é o resultado de uma extração que comprovadamente perdeu linhas do arquivo de origem."
+    },
+    {
+     "pergunta": "Um revisor anterior disse que 34 solicitações tinham ocorrências escondidas na Crítica crua e a conferência derrubou 3 dos 4 casos citados. Isso não é o mesmo que você está dizendo agora?",
+     "resposta": "É a mesma família de suspeita, mas desta vez com os registros abertos. Listo quatro casos com número de ocorrência, horário de abertura e fechamento, código do elemento fechado, causa e subcausa, e conferi que cada um é linha única no arquivo bruto e que nenhum deles existe em Base_Interrupcoes.xlsx — e conferi também o que o fluxo gravou no lugar ('SEM LASTRO' com det_interrupcao vazio, ou uma ocorrência 11 a 18 dias depois). Além disso demonstrei o mecanismo: 34 das 51 somem sob um parser CSV padrão. Se algum caso meu cair na conferência de vocês, quero saber qual — mas o número de partida não é uma impressão, é uma reindexação completa dos 76.630 registros do semestre."
+    }
+   ]
+  }
  },
  "casos": [
   {
