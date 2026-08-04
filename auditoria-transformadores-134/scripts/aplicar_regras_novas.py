@@ -484,8 +484,17 @@ def main():
         # transformador, o rótulo perde: o que está escrito vale mais que o que foi carimbado.
         if not fora_txt and cat in FORA_CAT:
             # o texto declara falha do próprio equipamento?
-            pelo_texto = bool(re.search(r"TRAFO QUEIMAD\w*|TRANSFORMADOR QUEIMAD\w*|"
-                                        r"QUEIMAD\w* \d{6,}|VAZAMENTO DE OLEO", texto_todo))
+            # "TRAFO 5710235032 QUEIMADO" é a forma mais comum de escrita nestas SS, e o
+            # padrão antigo não a pegava: exigia a palavra colada. O código do ativo no meio
+            # fazia a guarda falhar justamente onde ela mais precisava funcionar.
+            pelo_texto = bool(re.search(
+                r"(TRAFO|TRANSFORMADOR|TR)\s*:?\s*\d{6,}\s*\w*\s*QUEIMAD|"
+                r"TRAFO QUEIMAD\w*|TRANSFORMADOR QUEIMAD\w*|QUEIMAD\w*\s+\d{6,}|"
+                r"VAZAMENTO DE OLEO", texto_todo))
+            # escopo não cai por queima: auxiliar de religador e particular continuam fora do
+            # indicador mesmo queimando, porque não são unidade de distribuição
+            if cat in ("TRAFO AUXILIAR", "PARTICULAR"):
+                pelo_texto = False
             # ou o CAMPO declara? A Crítica ou o TMAE dizendo causa TRANSFORMADOR com subcausa
             # de falha é fato consumado, e fato consumado não perde para carimbo antigo. Três
             # dos oito "preventivos" tinham o atendimento declarando queima por descarga
@@ -528,6 +537,37 @@ def main():
         if not (fora_txt or cat in FORA_CAT):
             r["fora_da_esteira"] = "NÃO"
             continue
+        # O CAMPO VALE CONTRA A EXCLUSÃO PELO TEXTO TAMBÉM. Um revisor externo achou o furo: o
+        # bloco que faz o campo vencer só rodava quando a exclusão vinha do rótulo herdado.
+        # Quando vinha do TEXTO — furto, construção —, o campo nunca era consultado, e oito
+        # casos saíam com a Crítica declarando TRANSFORMADOR com subcausa de falha a distância
+        # zero da janela. Não se constata vazamento de óleo num transformador que foi levado.
+        #
+        # Mas a distinção que faltava é outra: nem toda exclusão é alegação de CAUSA. Auxiliar
+        # de religador e transformador particular saem por ESCOPO — não são unidade de
+        # distribuição, e queimar não os torna elegíveis. SS duplicada sai por CONTAGEM — o
+        # campo declarar queima não desfaz o evento ter sido contado duas vezes. Só as exclusões
+        # que afirmam uma causa podem ser derrubadas por outra causa declarada no campo.
+        CAUSAIS = {"furto", "abalroamento", "construcao", "desativacao", "preventivo",
+                   "divisao", "tap", "seguranca"}
+        if fora_txt and fora_txt[0] in CAUSAIS:
+            _c = " ".join(str(r.get(k) or "") for k in ("oc_causa", "oc_sub", "at_causa", "at_sub")).upper()
+            _dh = r.get("oc_dist_h")
+            if ("TRANSFORMADOR" in _c
+                    and re.search(r"QUEIMAD|VAZAMENTO|TANQUE|FALHA BUCHA", _c)
+                    and isinstance(_dh, (int, float)) and abs(_dh) <= 24):
+                # e a causa vai junto: derrubar a alegação e manter categoria_texto foi o
+                # erro que deixou FURTADO como causa confirmada dentro do indicador
+                nova = ("AVARIADO" if re.search(r"VAZAMENTO|TANQUE", _c) else "QUEIMADO")
+                r["texto_vencido_pelo_campo"] = (
+                    f"O texto alegava {fora_txt[0]}, mas a base de interrupção declara "
+                    f"{r.get('oc_causa')} / {r.get('oc_sub')} neste transformador a "
+                    f"{abs(_dh):.1f}h da janela. O campo é fato consumado e a alegação do texto "
+                    f"não o sobrepõe: a exclusão caiu, o caso voltou à esteira e a causa passou "
+                    f"a ser {nova.lower()}.")
+                r["categoria_texto"] = nova
+                r["fora_da_esteira"] = "NÃO"
+                continue
         gatilho, porque = (fora_txt if fora_txt else
                            (cat.lower(), f"a SS está gravada no sistema como {cat.lower()}"))
         # o mesmo motivo chega por dois caminhos com dois nomes — pelo texto ("furto") e pela

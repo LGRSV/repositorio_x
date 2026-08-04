@@ -591,7 +591,7 @@ export default function Page() {
       // faltava, dezembro/2025 entrou no acervo e as 24 SS de borda foram reprocuradas — as 24
       // acharam ocorrência. Filtro que promete explicação já respondida é pior que nenhum.
       { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.def_elemento)) },
-      { id: "outro_assunto", rotulo: "A ocorrência exibida é de outro equipamento", nota: "O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
+      { id: "outro_assunto", rotulo: "A ocorrência mostrada não é deste serviço", nota: "A SS e o transformador são os do caso; o que não bate é a ocorrência exibida no painel. O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
     ],
     expurgos: [
       // A terceira peneira hoje tem UM motivo de parada: a obra não comprova a troca. A
@@ -687,9 +687,15 @@ export default function Page() {
     setClassificacao(atual);
     localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
   };
+  /* Os botões do dossiê. Preventivo e Excluído chegaram à tabela como V e X e não chegaram
+     aqui — o dono classificava pela lista e não pelo caso aberto, que é justamente onde ele lê
+     o texto inteiro antes de bater o martelo. A ordem segue a do fluxo: primeiro as duas causas
+     que contam, depois as duas que tiram do indicador, por último as duas de procedimento. */
   const CLASSES: Array<[string, string, string]> = [
     ["QUEIMADO", "Queimado", "good"],
     ["AVARIADO", "Avariado", "pend"],
+    ["PREVENTIVO", "Preventivo", "warn"],
+    ["EXCLUIDO", "Excluído", "bad"],
     ["REGRA", "Vale a regra do fluxo", "warn"],
     ["PROFUNDA", "Análise profunda", "bad"],
   ];
@@ -1745,7 +1751,7 @@ export default function Page() {
             <h3>O que foi pedido e o que foi executado</h3>
             {texto(aberto.motivo_reclassificacao) ? <article className="work-alerts"><span>EXCLUSÃO DESFEITA</span><ul><li>{texto(aberto.motivo_reclassificacao)}</li></ul></article> : null}
             {texto(aberto.leitura_pararaio) ? <article className="work-alerts"><span>LEITURA CORRIGIDA</span><ul><li>{texto(aberto.leitura_pararaio)}</li></ul></article> : null}
-            {aberto.oc_outro_assunto === "SIM" ? <article className="work-alerts"><span>A OCORRÊNCIA EXIBIDA É DE OUTRO EQUIPAMENTO</span><ul><li>Ela está fora da janela e aparece só como referência. A nota de campo descreve trabalho em conexão, cabo, medidor ou disjuntor, sem citar transformador — não explica nada sobre este ativo. Caso para análise profunda.</li></ul></article> : null}
+            {aberto.oc_outro_assunto === "SIM" ? <article className="work-alerts"><span>A OCORRÊNCIA MOSTRADA AQUI NÃO É DESTE SERVIÇO</span><ul><li>A solicitação e o transformador são estes mesmos — o que não bate é a <strong>ocorrência</strong> exibida no painel de Interrupção. Este caso não tem interrupção dentro da janela, e o painel mostra a mais próxima apenas como referência. A nota de campo dela descreve trabalho em conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela é de outro serviço e não explica este. Caso para análise profunda.</li></ul></article> : null}
             {texto(aberto.exclusao_confirmada_pelo_campo) ? <article className="work-alerts"><span>O CAMPO CONFIRMA A EXCLUSÃO</span><ul><li>{texto(aberto.exclusao_confirmada_pelo_campo)}</li></ul></article> : null}
             {texto(aberto.categoria_herdada_vencida) ? <article className="work-alerts"><span>RÓTULO HERDADO DERRUBADO PELO TEXTO</span><ul><li>{texto(aberto.categoria_herdada_vencida)}</li></ul></article> : null}
             {texto(aberto.obra_diverge_texto) ? <article className="work-alerts"><span>A OBRA DIZ OUTRA CAUSA</span><ul><li>{texto(aberto.obra_diverge_texto)}</li></ul></article> : null}
