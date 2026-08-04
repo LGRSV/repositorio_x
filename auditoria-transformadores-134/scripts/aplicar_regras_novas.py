@@ -1193,7 +1193,13 @@ def main():
         # a própria conclusão que este bloco escreve: sem isto ela se acumula a cada rodada,
         # porque o script grava no mesmo arquivo que lê
         r"^A causa confirmada é|^Motivo da exclusão:|^Campo, texto e material convergem|"
-        r"^Saiu antes da esteira|^Parou na (primeira|terceira|quarta)|^Passou pelas quatro)", re.I)
+        r"^Saiu antes da esteira|^Parou na (primeira|terceira|quarta)|^Passou pelas quatro|"
+        # Quando o campo derruba o rótulo herdado, a frase que narra a leitura antiga fica
+        # afirmando a causa vencida — "concluindo furtado" num dossiê que decide AVARIADO. E a
+        # frase da terceira peneira ("a leitura mostrou que a natureza do evento não é falha")
+        # descreve uma etapa que este caso não sofreu. As duas convencem, e as duas mentem.
+        r"A leitura do texto aplicou a regra|a natureza do evento não é falha|"
+        r"o que derruba o caso mesmo com campo e material a favor)", re.I)
     MOTIVO_FINAL = {
         "SAÍDA": "Passou pelas quatro peneiras e está no indicador",
         "EXCLUÍDA": "Saiu antes da esteira, pela porta de exclusão",
@@ -1204,6 +1210,9 @@ def main():
         "RETIDO — RESSALVA DA INTERRUPÇÃO": "Parou na quarta peneira: a interrupção existe, "
                                             "mas traz sinal que a enfraquece",
     }
+    for r in fluxo["registros"]:
+        if r.get("fora_da_esteira") != "SIM":
+            r["exclusao_porque"] = ""
     reescritas = 0
     for r in fluxo["registros"]:
         # Guarda a narrativa original uma vez e SEMPRE reconstrói a partir dela. Sem isso, o
@@ -1225,8 +1234,17 @@ def main():
         fim = f"{cab}. {mot}".strip()
         if r.get("confirmado"):
             fim += f" A causa confirmada é {str(r['confirmado']).lower()}."
-        if r.get("exclusao_porque"):
+        # exclusao_porque só vale para quem está excluído. Ficava grudado em quem o campo
+        # devolveu à esteira, e o dossiê terminava com "motivo da exclusão" num caso INCLUIR.
+        if r.get("exclusao_porque") and r.get("fora_da_esteira") == "SIM":
             fim += f" Motivo da exclusão: {r['exclusao_porque']}."
+        # e quando o rótulo foi derrubado, o dossiê tem de dizer isso — é a frase que explica
+        # por que a categoria gravada e a decisão não batem
+        for campo in ("categoria_herdada_vencida", "texto_vencido_pelo_campo"):
+            nota = str(r.get(campo) or "").strip()
+            if nota:
+                fim += " " + (nota if nota.endswith(".") else nota + ".")
+                break
         r["narrativa"] = " ".join(limpas + [fim])
         r["narrativa_regerada"] = CARIMBO
         reescritas += 1
@@ -1273,6 +1291,46 @@ def main():
         else:
             r["sem_cliente_interrompido"] = "NÃO"
     print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
+
+    # ---------- até onde o caso desceu, dito em uma linha
+    # A cascata já diz isso, mas dita como motivo de parada ("RETIDO — SEM PROVA DE TROCA"),
+    # que responde POR QUE parou e não ONDE parou. São perguntas diferentes e o dono fez a
+    # segunda. Um degrau numerado responde de relance, e a diferença entre "parou no 1" e
+    # "parou no 4" é a diferença entre não ter prova nenhuma e ter prova com ressalva.
+    ETAPA = {
+        "EXCLUÍDA": (0, "Etapa 0 · saiu antes de entrar na esteira"),
+        "RETIDO — SEM INTERRUPÇÃO NA JANELA": (1, "Etapa 1 · parou na interrupção"),
+        "RETIDO — SEM PROVA DE TROCA": (3, "Etapa 3 · parou na análise de SS e OS"),
+        "RETIDO — RESSALVA DA INTERRUPÇÃO": (4, "Etapa 4 · parou na ressalva"),
+        "SAÍDA": (5, "Saiu pela ponta — passou pelas quatro peneiras"),
+    }
+    for r in fluxo["registros"]:
+        grau, rotulo = ETAPA.get(r.get("cascata"), (None, r.get("cascata")))
+        r["etapa_num"] = grau
+        r["etapa_rotulo"] = rotulo
+
+    # ---------- a troca que aumentou a potência
+    # Não é veredito e não retém: quando um transformador queima, a equipe instala o que tem no
+    # caminhão, e subir de 10 para 15 kVA é rotina. Mas 399 dos que chegam à saída trocaram por
+    # um maior, e num caso em que o texto pede estrutura nova e potência maior a troca deixa de
+    # ser só reposição. Fica à vista para quem for julgar, do jeito que o dono pediu: filtro,
+    # nunca trava.
+    def _kva(v):
+        try:
+            return float(str(v or "").replace(",", "."))
+        except ValueError:
+            return None
+    subiu = 0
+    for r in fluxo["registros"]:
+        ret, inst = _kva(r.get("pot_ret")), _kva(r.get("pot_inst"))
+        if ret and inst and inst > ret:
+            r["potencia_subiu"] = "SIM"
+            r["potencia_delta"] = f"{ret:g} → {inst:g} kVA"
+            subiu += 1
+        else:
+            r["potencia_subiu"] = "NÃO"
+            r["potencia_delta"] = ""
+    print(f"  trocas que aumentaram a potência instalada: {subiu}")
 
     # ---------- o resumo tem que ser recontado, é ele que a tela lê
     R = fluxo["registros"]
