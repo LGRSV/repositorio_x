@@ -1276,6 +1276,20 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "ETO-RD-AR 00739/2026": (
+            "EXCLUIR", "", "cola_fita",
+            "o dono achou o caso que procurava desde o começo da revisão: “finalmente um caso de "
+            "cola e fita, exclua ele e classifique como cola e fita”. A OS conta o serviço "
+            "inteiro — “FEITO COLAGEM E VEDAÇÃO NA BUCHA DO TRAFO 5743290004 QUE ESTAVA COM "
+            "VAZAMENTO” —, e nenhum transformador foi movimentado: a SS e a OS não trazem série "
+            "nem tombamento de retirado e instalado. Não houve troca, houve reparo"),
+        "DOLP-RD-PA 00605/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono martelou queimado assumindo a falta da terceira prova: “leva para queimados "
+            "só que com pendência de fazer a conferência com o export”. A obra 0112600584 diz "
+            "“SUBST. TRAFO QUEIMADO”, a SS e a OS dizem queimado, e a Crítica casa. O que falta "
+            "é a extração do material, não a prova — e a etiqueta MATERIAL NÃO CONFERIDO NO "
+            "EXPORT fica no caso dizendo isso"),
         "DG-RD-PO 00073/2026": (
             "INCLUIR", "QUEIMADO", "",
             "o dono martelou queimado assumindo a falta da terceira prova: “classifica como "
