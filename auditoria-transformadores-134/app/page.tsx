@@ -745,6 +745,7 @@ export default function Page() {
          que conferir — e essa sai do indicador, por regra do dono. A obra que EXISTE mas não
          está no export de material tem: o que falta é a extração chegar. Chamar as duas de
          "sem prova" é dizer que a prova não existe, quando o que não existe é o nosso acesso. */
+      { id: "obra_encerrada_sem_mat", rotulo: "Obra encerrada e conferida, sem transformador", nota: "A obra está no export de material, foi encerrada e tem valor realizado — e não movimentou transformador nenhum. Aqui o zero é medida, não ausência de dado: alguém executou e cobrou algo que não foi a troca do transformador.", teste: (r) => r.material_conferido === "SIM" && (Number(r.trafos_material) || 0) === 0 && (Number(r.obra_realizado) || 0) > 0 },
       { id: "siago", rotulo: "Só falta a extração do SIAGO", nota: "A obra existe, com número, descrição e enquadramento — e não está no export de material que temos. Não é ausência de prova: é ausência da extração. Estes 25 fecham sozinhos quando o SIAGO vier, e são a fila mais barata de resolver desta auditoria.", teste: (r) => r.pendente_siago === "SIM" },
       { id: "semprova_mat", rotulo: "Sem prova · material não conferido", nota: "A obra está fora do export de material, ou não chegou a ser gerada.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.material_conferido !== "SIM" },
       { id: "semprova_texto", rotulo: "Sem prova · texto não decide", nota: "A leitura ficou indefinida, e ela nunca decide sozinha.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.leitura === "L3" },
@@ -963,7 +964,7 @@ export default function Page() {
       { id: "expurgos", rotulo: "Parados na análise", codigo: "04·1", param: paramE3, recorte: "parados" },
       { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "05", entram: entramE3 - paramE3, recorte: "fila" },
       { id: "ressalva", rotulo: "Retidos pela ressalva", codigo: "05·1", param: paramE4, recorte: "todos" },
-      { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: naSaida, tom: "verde", recorte: "saida" },
+      { id: "decisao", rotulo: "Saídos pelo funil", codigo: "06", marca: naSaida, tom: "verde", recorte: "saida" },
     ]},
     /* As exclusões vêm DEPOIS da esteira na barra e ANTES dela no tempo. Não é contradição: o
        leitor precisa entender a esteira para entender o que foi tirado dela, mas o caso
@@ -1000,7 +1001,7 @@ export default function Page() {
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
     obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
-    decisao: { olho: "Saída do funil", titulo: "Decisão final", texto: "O cruzamento do fato com a leitura, caso a caso, com o motivo escrito." },
+    decisao: { olho: "Saída do funil", titulo: "Saídos pelo funil", texto: "Quem passou pela porta de exclusão e pelas quatro peneiras. Uma linha por solicitação: a mesma SS não entra duas vezes, e reclassificar substitui a decisão anterior em vez de somar outra." },
     ressalva: { olho: "Fila de revisão", titulo: "Ressalva da interrupção", texto: "Texto e material dizem falha, mas a interrupção tem um sinal que enfraquece: programada, sem cliente, de outro elemento ou de equipamento especial." },
     semdesloc: { olho: "Estágio 2 · marcador", titulo: "Sem corroboração do TMAE", texto: "Houve interrupção no transformador e não há atendimento de equipe registrado no código dele. Não retém ninguém: é informação, e a ausência de registro não é o mesmo que ausência de atendimento." },
     profunda: { olho: "Minha classificação", titulo: "O que eu classifiquei", texto: "O que você marcou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima dela — mas manda no arquivamento: o que você marca como queimado, excluído ou preventivo sai da fila de pendências e vai para a aba que corresponde." },
@@ -1929,6 +1930,7 @@ export default function Page() {
             onClick={() => classificar(texto(aberto.ss), id)}>{rotulo}</button>)}
             {classificacao[texto(aberto.ss)] ? <button className="limpar" onClick={() => classificar(texto(aberto.ss), "LIMPAR")}>limpar</button> : null}
           </div>
+          {classificacao[texto(aberto.ss)] ? <p className="classificar-aviso">Você já classificou esta solicitação como <strong>{MEU_ROTULO[classificacao[texto(aberto.ss)].classe] || classificacao[texto(aberto.ss)].classe}</strong>. Clicar noutro botão <strong>substitui</strong> — a SS continua contando uma vez só, e o histórico da mudança fica gravado no banco.</p> : null}
           <em>{classificacao[texto(aberto.ss)]
             ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
             : "A decisão do fluxo continua registrada. Isto é a sua leitura ao lado dela."}</em>
@@ -2049,7 +2051,15 @@ export default function Page() {
               {/* Ficavam em branco quando o valor era zero ou vazio, e campo em branco lê-se
                   como campo que sumiu. Zero é resposta: quer dizer que a obra não movimentou
                   transformador nenhum, que é exatamente o que retém o caso na terceira peneira. */}
-              <div><span>Transformadores no material</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} — a obra movimentou transformador` : "0 — a obra não movimentou transformador"}</strong></div>
+              {/* "0 — a obra não movimentou transformador" era falso quando a obra sequer está
+                  no export de material: ali o zero não é medida, é ausência de dado. O dono
+                  perguntou "realmente não tem movimentação?" olhando uma obra de R$ 16.361 com
+                  encerramento técnico — e a resposta honesta era que não sabemos. */}
+              <div><span>Transformadores no material</span><strong>{(Number(aberto.trafos_material) || 0) > 0
+                ? `${texto(aberto.trafos_material)} — a obra movimentou transformador`
+                : aberto.material_conferido === "SIM"
+                  ? "0 — a obra está no export e não movimentou transformador"
+                  : "não sabemos — esta obra não está no export de material que temos"}</strong></div>
               <div><span>Material conferido</span><strong>{texto(aberto.material_conferido) === "SIM" ? "SIM — a obra está no export de material" : "NÃO — a obra não está no export de material, ou não foi gerada"}</strong></div>
               <div><span>Postes no material</span><strong>{texto(aberto.postes_material) || "0"}</strong></div>
               <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
@@ -2063,7 +2073,10 @@ export default function Page() {
               <div><span>Autorização da troca</span><strong>{aberto.tem_autorizacao === "SIM" ? (texto(aberto.autorizacao) || "citada na OS, sem nome legível") : "não citada na OS"}</strong></div>
               <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
               <div><span>Para que serve este SIGCO</span><strong>{texto(aberto.sigco_descricao) || "código sem obras suficientes para dizer"}{aberto.sigco_pureza ? ` (${texto(aberto.sigco_pureza)}% das obras do projeto)` : ""}</strong></div>
-              <div><span>Material movimentado</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} transformador` : "nenhum transformador"}{(Number(aberto.postes_material) || 0) > 0 ? ` · ${texto(aberto.postes_material)} poste` : ""}</strong></div>
+              <div><span>Material movimentado</span><strong>{(Number(aberto.trafos_material) || 0) > 0
+                ? `${texto(aberto.trafos_material)} transformador`
+                : aberto.material_conferido === "SIM" ? "nenhum transformador — conferido no export"
+                : "não conferido — a obra não está no export de material"}{(Number(aberto.postes_material) || 0) > 0 ? ` · ${texto(aberto.postes_material)} poste` : ""}</strong></div>
               <div><span>Classe</span><strong>{texto(aberto.obra_classe) || "—"}</strong></div>
               <div><span>Natureza</span><strong>{texto(aberto.obra_natureza) || "—"}</strong></div>
               <div><span>Tipo</span><strong>{texto(aberto.obra_tipo) || "—"}</strong></div>

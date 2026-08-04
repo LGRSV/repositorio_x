@@ -613,3 +613,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* De onde vem cada sinal do caso. O bloco misturava alerta de obra com ressalva da interrupção
    sob um rótulo só, e quem lia procurava a explicação no cadastro errado. */
 .work-alerts li b.fonte-sinal { display: inline-block; margin-right: 6px; padding: 1px 4px; border: 1px solid currentColor; color: #8a6a3a; font: 600 6.5px "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; vertical-align: 1px; }
+
+/* Aviso de que reclassificar substitui, não soma. A pergunta apareceu do dono e a resposta tem
+   de estar onde ele clica, não num manual: uma SS vale um voto, e o último vale. */
+.classificar-aviso { margin: 8px 0 0; padding: 7px 9px; border-left: 2px solid var(--amber); background: #faf7f0; color: #6b6e72; font-size: 8.5px; line-height: 1.5; }
+.classificar-aviso strong { color: #3f4247; font-weight: 600; }
