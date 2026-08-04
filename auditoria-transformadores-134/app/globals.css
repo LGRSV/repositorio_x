@@ -590,3 +590,7 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .detail-grid .fora-janela-aviso strong { color: var(--red); }
 .detail-grid .fora-janela-aviso em { display: block; margin-top: 4px; color: #7a6a68; font-size: 8px; font-style: normal; line-height: 1.5; }
 .detail-grid div em { display: block; margin-top: 3px; color: #9a9c9f; font: 500 7px "IBM Plex Mono", monospace; font-style: normal; letter-spacing: .03em; }
+
+/* Onde o caso parou na esteira, ao lado da decisão. Discreto de propósito: é referência, não
+   veredito — quem lê a coluna quer a decisão primeiro e o degrau logo depois. */
+.records-table td .etapa-flag { display: block; margin-top: 5px; color: #8a8d91; font: 500 6.5px "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }

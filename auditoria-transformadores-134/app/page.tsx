@@ -401,6 +401,10 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
             <span className="decisao-fluxo">o fluxo dizia {texto(r.decisao).toLowerCase()}</span></>
         : <><b className={`pill ${decisaoClasse(texto(r.decisao))}`}>{texto(r.decisao)}</b>
             {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}</>}
+        {/* Onde o caso parou, não por quê — são perguntas diferentes e a cascata só respondia a
+            segunda. O degrau numerado responde de relance, e a distância entre "parou na 1" e
+            "parou na 4" é a distância entre não ter prova nenhuma e ter prova com ressalva. */}
+        <span className="etapa-flag" title={texto(r.etapa_rotulo)}>{r.etapa_num === 5 ? "✓ saiu pela ponta" : r.etapa_num === 0 ? "não entrou na esteira" : `parou na etapa ${texto(r.etapa_num)}`}</span>
       </td>
       <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
         <div className="classificar-linha">{CLASSES_CURTAS.map(([id, curto, tom]) => <button key={id} type="button"
