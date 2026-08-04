@@ -90,9 +90,14 @@ def pela_regra(r):
     return SAIDA
 
 
-divergem = [r for r in regs if pela_regra(r) != r["cascata"]]
+# o veredito do dono é, por definição, o que a regra NÃO teria dito: ele leu o dossiê e
+# decidiu contra ela. Fica contado à parte em vez de aparecer como falha da esteira.
+do_dono = [r for r in regs if r.get("veredito_do_dono") == "SIM"]
+divergem = [r for r in regs if pela_regra(r) != r["cascata"]
+            and r.get("veredito_do_dono") != "SIM"]
 relata(4, "a regra da esteira reproduz os 1.510 rótulos", not divergem,
-       f"divergências={len(divergem)}" + ("" if not divergem else
+       f"divergências={len(divergem)} · vereditos do dono, fora da conta={len(do_dono)}"
+       + ("" if not divergem else
        "\n" + "\n".join(f"{r['ss']}: regra={pela_regra(r)} gravado={r['cascata']}"
                         for r in divergem[:8])))
 

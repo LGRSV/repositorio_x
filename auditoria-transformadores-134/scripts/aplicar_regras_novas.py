@@ -418,6 +418,9 @@ def borda(ab, o):
     return (ab - fim).total_seconds() if ab > fim else (o["ini"] - ab).total_seconds()
 
 
+AT_HERDADO_SO_NA_JANELA = os.environ.get("AT_HERDADO_SO_NA_JANELA") == "1"
+
+
 def dentro(ab, o):
     """A SS cai na janela válida desta ocorrência?
 
@@ -882,7 +885,24 @@ def main():
         # recuperou 23 casos procurando pelo NÚMERO DA OCORRÊNCIA quando a chave do TMAE
         # gravou outro equipamento ("CODIGO INVALIDO" no texto). Descartar o campo herdado
         # jogaria esse trabalho fora — então ele vale como segunda via.
-        herdado = bool(str(r.get("at_num") or "").strip())
+        # ...mas a segunda via só vale se a data dela também couber na janela. Sem esta
+        # conferência, um atendimento de 11 de junho sustentava uma SS de 3 de janeiro: o campo
+        # herdado entrava como fato sem que ninguém olhasse a data, e o dossiê exibia a equipe
+        # de cinco meses depois embaixo de "o TMAE registra equipe no transformador na janela".
+        _at_ini_h = parse(r.get("at_ini"))
+        _at_fim_h = parse(r.get("at_fim")) or _at_ini_h
+        _na_janela_h = dentro(ab, {"ini": _at_ini_h, "fim": _at_fim_h})
+        # A correção está escrita e desligada. Ligá-la tira 52 casos da SAÍDA — de 1.269 para
+        # 1.217 — e esse número vai a conselho: não é mudança para se fazer calada. Enquanto o
+        # dono não decidir, o caso continua onde está e o dossiê passa a dizer que o
+        # atendimento é de fora da janela, em vez de exibi-lo como se fosse prova.
+        herdado = bool(str(r.get("at_num") or "").strip()) and (
+            _na_janela_h or not AT_HERDADO_SO_NA_JANELA)
+        if str(r.get("at_num") or "").strip() and not melhor_at and not _na_janela_h:
+            # o campo continua visível no dossiê, mas rotulado pelo que ele é: fora da janela
+            r["at_fora_da_janela"] = "SIM"
+        else:
+            r["at_fora_da_janela"] = "NÃO"
         tem_at = melhor_at is not None or herdado
         if melhor_at:
             r.update({"at_num": melhor_at["num"],
@@ -1215,6 +1235,91 @@ def main():
     # detalhe numa auditoria: quem defende o número na reunião precisa poder dizer de onde veio
     # cada corte, e "a régua decidiu" é resposta pior que "eu decidi, e eis o caso que me
     # convenceu".
+    # ------------------------------------------------------------------ o martelo do dono
+    # Casos em que ele leu o dossiê inteiro e disse o que era, contra o que a regra tinha
+    # decidido. Ficam aqui, um a um, com a frase dele — e não viram regra: generalizar a partir
+    # de um caso foi exatamente o erro que ele já apanhou uma vez ("esse claramente é queimado
+    # só está no SIGCO incorreto"). Um caso julgado é um caso julgado, não uma família.
+    VEREDITO_DONO = {
+        "ETO-RD-AR 00468/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono leu o caso e disse: “esse claramente é queimado, só está no SIGCO "
+            "incorreto”. A regra o havia excluído por ausência na base de interrupção; a "
+            "leitura dele prevalece e o caso volta ao indicador."),
+        "ETO-RD-AR 01030/2026": (
+            "EXCLUIR", "", "tap",
+            "o dono leu o caso e mandou excluir na categoria de tape interno. A OS registra o "
+            "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
+            "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
+            "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "DG-RD-PO 00127/2026": (
+            "EXCLUIR", "", "terceiros",
+            "o dono mandou conferir se a ocorrência por terceiros era mesmo deste ativo, e é: a "
+            "própria SS traz o número escrito — “INT: 20264106798194” — e a Crítica registra "
+            "essa ocorrência de 30/01 14:20 a 01/02 17:39 com o transformador interrompido, "
+            "causa CAUSADA POR TERCEIROS, subcausa INTERVENÇÃO NA REDE SEM AUTORIZAÇÃO. O "
+            "defeito foi aberto na chave 0300582043 e não no transformador, e é por isso que a "
+            "esteira não contava a ocorrência como fato — mas a causa do dano é de terceiro, "
+            "como no abalroamento, e vai para ressarcimento em vez do indicador."),
+        "DOLP-RD-PA 00686/2026": (
+            "EXCLUIR", "", "obra_chave",
+            "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
+            "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
+            "chave. Estava caindo na categoria genérica de obra sem transformador."),
+    }
+    for r in fluxo["registros"]:
+        v = VEREDITO_DONO.get(str(r.get("ss") or ""))
+        if not v:
+            continue
+        decisao, confirmado, gatilho, porque = v
+        if decisao == "EXCLUIR":
+            r.update({
+                "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+                "expurgo": "SIM", "expurgo_gatilho": gatilho, "exclusao_porque": porque,
+                "cascata_motivo": f"Fora do indicador: {porque}.",
+                "confirmado": "", "chega_e1": "NÃO", "chega_e2": "NÃO", "chega_e3": "NÃO",
+                "veredito_do_dono": "SIM",
+            })
+        else:
+            r.update({
+                "fora_da_esteira": "NÃO", "cascata": "SAÍDA", "decisao": decisao,
+                "expurgo": "NÃO", "expurgo_gatilho": "", "exclusao_porque": "",
+                "confirmado": confirmado, "cascata_motivo": porque.capitalize() + ".",
+                "veredito_do_dono": "SIM",
+                # quem volta ao indicador desce a esteira inteira nos campos também, senão a
+                # corrente dos quatro degraus deixa de fechar e o invariante 3 acusa — como
+                # acusou: 1.293 entram, 1.292 aparecem no segundo degrau
+                "chega_e1": "SIM", "chega_e2": "SIM", "chega_e3": "SIM",
+                "etapa_num": 5, "etapa_rotulo": "Saiu pela ponta — por veredito do dono",
+            })
+    print(f"  vereditos do dono aplicados um a um: {len(VEREDITO_DONO)}")
+
+    # ------------------------------------------------------------------ etiquetas do caso
+    # Categoria DENTRO do veredito, não em lugar dele. "Ponto quente na conexão" continua sendo
+    # avaria e continua contando; "substituído pela Meta" continua sendo queima. O que a etiqueta
+    # responde é a pergunta seguinte — que avaria, e quem trocou —, e ela existe porque o dono
+    # leu dois casos e pediu nome para o que estava escrito ali. Não decide nada: só nomeia.
+    ETIQUETAS = [
+        ("PONTO QUENTE", r"PONTO[S]? QUENTE",
+         "o texto aponta ponto quente na conexão — aquecimento no ponto de ligação, não "
+         "queima do enrolamento"),
+        ("SUBSTITUÍDO PELA META", r"(SUBSTITU|TROCAD)\w*\s+(PEL[AO]\s+)?META\b",
+         "a OS diz que quem trocou foi a Meta, e a obra está registrada noutra empreiteira — "
+         "o texto nomeia quem executou, o cadastro nomeia quem contratou"),
+    ]
+    conta_etq = collections.Counter()
+    for r in fluxo["registros"]:
+        alvo = norm_txt(" ".join(str(r.get(c) or "") for c in ("desc_ss", "desc_os", "obra_desc")))
+        achadas, porques = [], []
+        for nome, rx, explica in ETIQUETAS:
+            if re.search(rx, alvo):
+                achadas.append(nome)
+                porques.append(f"{nome}: {explica}")
+                conta_etq[nome] += 1
+        r["etiquetas"] = " · ".join(achadas)
+        r["etiquetas_porque"] = " | ".join(porques)
+    print(f"  etiquetas aplicadas: {dict(conta_etq)}")
+
     ORIGEM = {
         "furto": ("o dono pediu que furto excluísse mesmo com trafo movimentado", ""),
         "construcao": ("o dono pediu que construção excluísse", ""),
@@ -1240,6 +1345,35 @@ def main():
         "sem_fato": ("o dono definiu que sem ocorrência e sem atendimento o caso não é deste "
                      "indicador — aplicado só onde nem o teste do vizinho achou nada",
                      "ETO-RD-AR 00024/2026"),
+        # As sete abaixo apareciam como "sem origem registrada" e não eram: ele pediu todas, em
+        # voz, ao longo da revisão. O dicionário é que não tinha sido atualizado — e a pergunta
+        # "você fez alguma exclusão sem a minha permissão?" só pode ser respondida por escrito
+        # se a autoria de cada corte estiver escrita.
+        "fora_da_janela": ("o dono definiu a janela e mandou excluir quem cai fora dela: “se do "
+                           "primeiro passo aberto até o último passo o cara não abriu a SS e nem "
+                           "24 horas depois do último passo, desconsidere e resuma nos "
+                           "excluídos”", "ETO-RD-AG 00003/2026, ETO-RD-GR 00023/2026"),
+        "sem_interrupcao": ("o dono mandou excluir quem não aparece na base Crítica em papel "
+                            "nenhum, com categoria própria", "DOLP-RD-PA 00125/2026"),
+        "remanejamento": ("o dono leu o caso e mandou criar a categoria: “remanejamento, jogue "
+                          "nos excluídos e crie a categoria”", "ETO-RD-GU 00129/2026"),
+        "falta_fase": ("o dono pediu a categoria depois de ler o caso: “categoriza como falta de "
+                       "fase interna”", "ETO-RD-AG 00042/2026"),
+        "obra_sem_transformador": ("o dono mandou excluir obra que não movimentou transformador: "
+                                   "“exclui essa SS daqui, nenhum transformador movimentado”",
+                                   "ETO-RD-GU 00671/2026"),
+        "obra_sem_execucao": ("o dono corrigiu a própria classificação anterior: “não exclui como "
+                              "furtado, exclui como sem movimentação de material”",
+                              "DG-RD-PO 00116/2026"),
+        "erro_cadastro": ("o dono pediu a categoria: “marque como excluído, possível erro de "
+                          "cadastro”", "ETO-RD-GR 00205/2026"),
+        "obra_chave": ("o dono pediu a categoria: “nova categoria que será Substituição de chave "
+                       "fusível”", "DOLP-RD-PA 00686/2026"),
+        # E a que NÃO é dele. Fica escrito porque a lista serve para separar o que ele mandou do
+        # que a régua fez sozinha — e esta a régua fez sozinha, generalizando o pedido dele de
+        # chave fusível para poste, cabo, para-raio e medidor. Ele não pediu isso.
+        "obra_poste": ("regra minha, não pedida: ele pediu categoria só para chave fusível e eu "
+                       "generalizei para poste, cabo, para-raio e medidor", ""),
     }
     for r in fluxo["registros"]:
         g = str(r.get("expurgo_gatilho") or "")

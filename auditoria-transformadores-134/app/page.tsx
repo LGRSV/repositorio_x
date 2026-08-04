@@ -237,6 +237,7 @@ const MEU_TOM: Record<string, string> = {
 const NATUREZA: Record<string, string> = {
   furto: "Furto, roubo e vandalismo",
   abalroamento: "Danos a terceiro",
+  terceiros: "Danos a terceiro",
   preventivo: "Obra sem defeito",
   divisao: "Obra sem defeito",
   seguranca: "Obra sem defeito",
@@ -284,6 +285,7 @@ const GATILHO_ROTULO: Record<string, string> = {
   sem_interrupcao: "Ausente da base de interrupção",
   sem_obra: "Obra nunca gerada — prazo vencido",
   sem_fato: "Sem interrupção na base Crítica",
+  terceiros: "Causada por terceiros",
 };
 
 /* O chip que cada categoria abre na lista. Onde não houver entrada aqui, a aba gera um recorte
@@ -297,7 +299,7 @@ const GATILHO_CHIP: Record<string, string> = {
   particular: "g_part", duplicada: "g_dup", sem_os: "g_semos",
   sem_fato: "g_semfato", sem_obra: "g_semobra", sem_interrupcao: "g_seminterr",
   erro_cadastro: "g_cadastro", fora_da_janela: "g_forajanela",
-  seguranca: "g_seg", tap: "g_tap",
+  seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc",
 };
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
@@ -328,6 +330,7 @@ const GATILHO_NOTA: Record<string, string> = {
   obra_cabo: "a obra encerrada trocou cabo ou ramal",
   obra_pararaio: "a obra encerrada trocou para-raio",
   obra_medidor: "a obra encerrada trocou medidor",
+  terceiros: "a Crítica dá a causa como dano de terceiro",
   manual: "saiu pelo seu martelo, sem categoria de regra",
 };
 
@@ -791,6 +794,18 @@ export default function Page() {
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
+      /* ETIQUETAS — categoria dentro do veredito, não em lugar dele. Ele leu dois casos e pediu
+         nome para o que estava escrito: "ponto quente na conexão" e "substituído pela Meta". Não
+         mudam nem a decisão nem o número; respondem a pergunta seguinte, que avaria e quem
+         trocou. A lista se completa sozinha a partir do dado, como a das exclusões. */
+      ...[...new Set(registros.flatMap((r) => texto(r.etiquetas).split(" · ")).filter(Boolean))]
+        .map((e) => ({
+          id: `etq:${e}`,
+          rotulo: e,
+          nota: "Etiqueta do caso: nomeia o que o texto diz sem mudar o veredito nem a conta. O porquê de cada uma fica escrito no dossiê.",
+          teste: (r: Registro) => texto(r.etiquetas).split(" · ").includes(e),
+        })),
+      { id: "at_forajanela", rotulo: "Atendimento exibido é de fora da janela", nota: "O dossiê mostra um atendimento do TMAE que não cai na janela desta SS — em alguns casos meses depois. O campo vinha herdado de uma rodada antiga e entrava como prova sem que ninguém olhasse a data. Continua contando enquanto você não decidir: exigir a data dentro da janela tira 52 casos da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho.", teste: (r) => r.at_fora_da_janela === "SIM" },
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
       { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
@@ -889,6 +904,7 @@ export default function Page() {
       { id: "todos", rotulo: "Todas as exclusões", nota: "Saíram do indicador antes da esteira: por causa declarada no texto, por categoria gravada na SS, por duplicidade — ou pela sua classificação. A decisão do fluxo continua gravada em cada uma.", teste: (r) => arquivo(r) === "EXCLUÍDA" },
       { id: "g_furto", rotulo: "Furto, roubo ou vandalismo", nota: "O texto declara furto. Vai para o projeto de reposição de ativo furtado, não é falha de equipamento.", teste: (r) => gatilhoDe(r) === "furto" },
       { id: "g_abalro", rotulo: "Abalroamento", nota: "Colisão de veículo. Vira ressarcimento de terceiro, não indicador de falha.", teste: (r) => gatilhoDe(r) === "abalroamento" },
+      { id: "g_terc", rotulo: "Causada por terceiros", nota: "A Crítica registra a ocorrência com causa CAUSADA POR TERCEIROS. Não é falha do equipamento: alguém mexeu na rede. Vale a mesma leitura do abalroamento — vira ressarcimento, não indicador. Aqui o defeito pode estar na chave e não no transformador, e é por isso que a esteira não contava a ocorrência como fato: o dano é real, a prova de falha é que não existe.", teste: (r) => gatilhoDe(r) === "terceiros" },
       { id: "g_fase", rotulo: "Falta de fase interna", nota: "O texto declara que o transformador perdeu uma fase por dentro, e a troca foi executada como plano de medida com aumento de potência. As duas coisas cabem: o defeito existiu, e a decisão de trocar foi de capacidade.", teste: (r) => gatilhoDe(r) === "falta_fase" },
       { id: "g_semtrafo", rotulo: "Obra encerrada sem transformador movimentado", nota: "A obra está no export de material, foi encerrada e tem valor realizado — e o material conferido não traz transformador nenhum. Aqui o zero é medida, não ausência de dado: alguém executou e cobrou algo que não foi a troca. Diferente das que só esperam o SIAGO, em que o zero é lacuna.", teste: (r) => gatilhoDe(r) === "obra_sem_transformador" },
       { id: "g_semexec", rotulo: "Obra aberta que não executou nada", nota: "A obra existe, tem número e descrição — e zero transformador no material com R$ 0 realizado. Uma obra que não executou não declara causa: o que está escrito nela é o plano de quem abriu, não o registro de quem fez. Sai pela falta de execução, não pela causa que declara.", teste: (r) => gatilhoDe(r) === "obra_sem_execucao" },
@@ -2090,6 +2106,9 @@ export default function Page() {
               {Array.isArray(aberto.alertas_narrativa) && (aberto.alertas_narrativa as string[]).length
                 ? <ul>{(aberto.alertas_narrativa as string[]).map((a) => <li key={a}>{a}</li>)}</ul> : null}
             </article> : null}
+            {texto(aberto.etiquetas) ? <article className="work-alerts"><span>ETIQUETAS DESTE CASO</span>
+              <ul>{texto(aberto.etiquetas_porque).split(" | ").filter(Boolean).map((e) => <li key={e}>{e}</li>)}</ul>
+              <p className="fluxo-nota">Etiqueta nomeia, não decide: o veredito e a conta continuam os mesmos.</p></article> : null}
             <h3>Como esta solicitação foi decidida</h3>
             <article className="rationale"><span>MOTIVO DA DECISÃO</span><p>{texto(aberto.motivo_decisao)}</p></article>
             <section className="detail-grid">
@@ -2160,6 +2179,13 @@ export default function Page() {
               <div><span>Causa</span><strong>{texto(aberto.at_causa)}</strong></div>
               <div><span>Subcausa</span><strong>{texto(aberto.at_sub)}</strong></div>
             </section>
+            {aberto.at_fora_da_janela === "SIM" ? <article className="work-alerts danger"><span>ESTE ATENDIMENTO É DE FORA DA JANELA</span>
+              <ul><li>A data acima não cai na janela desta SS. O campo veio herdado de uma rodada
+                anterior e entrava como prova sem que ninguém conferisse a data — houve caso de
+                atendimento de 11 de junho sustentando SS de 3 de janeiro.</li>
+                <li>O caso continua onde está: exigir a data dentro da janela tira 52 solicitações
+                da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho — não é mudança para
+                se fazer calada.</li></ul></article> : null}
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
             {texto(aberto.lacuna_base) ? <article className="work-alerts danger"><span>LACUNA CONHECIDA DA BASE</span><ul><li>{texto(aberto.lacuna_base)}</li></ul></article> : null}
             {aberto.at2_achado === "SIM" ? <article className="work-alerts"><span>ATENDIMENTO ACHADO PELO NÚMERO DA OCORRÊNCIA</span><ul>
