@@ -454,13 +454,16 @@ const GATILHO_CHIP: Record<string, string> = {
   seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus", meta: "g_meta", cola_fita: "g_cola",
 };
 
-/* FUSÃO DE CATEGORIA — escolha dele, pedida duas vezes. As TRÊS formas de não ter interrupção
-   que sustente o caso contam numa categoria só, com o nome que ele deu: Ausente da base de
-   interrupções. São elas: defeito no próprio código em outra data, código que não aparece na
-   Crítica em papel nenhum, e caso sem rastro em base alguma — nem ocorrência, nem atendimento,
-   nem vizinho. O gatilho de cada caso continua granular no dado e na planilha; o que muda é a
-   caixa e a barra da tela, e os três recortes finos seguem clicáveis para quem precisar separar. */
-const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao" };
+/* FUSÃO DE CATEGORIA — hoje vazia, e é assim de propósito.
+   Ele pediu duas vezes para juntar "ausente da base de interrupções" com "sem interrupção na
+   Crítica", e essa fusão foi feita ONDE ELA PERTENCE: no dado. A categoria "sem rastro" deixou
+   de existir, seus casos viraram ausentes de verdade, e os dois que tinham defeito próprio em
+   outra data foram para fora da janela. Fundir no dado é melhor que fundir na tela, porque a
+   planilha, o gráfico e o chip passam a contar a mesma coisa sem ninguém precisar lembrar.
+   Antes disto, "fora da janela" também era fundida aqui — e a barra "Motivo da saída" mostrava
+   um único bloco de 137. Ele pediu a divisão: são duas perguntas diferentes, "o registro não
+   existe" e "o registro existe noutra data", e a segunda tem distância para medir. */
+const CATEGORIA_FUNDIDA: Record<string, string> = {};
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
 const GATILHO_NOTA: Record<string, string> = {
