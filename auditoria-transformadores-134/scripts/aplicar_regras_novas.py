@@ -612,8 +612,21 @@ def main():
                 f"registra {r.get('oc_causa')} / {r.get('oc_sub')} neste transformador dentro da "
                 "janela. Falta de documento não desfaz fato registrado: o caso volta à esteira e "
                 "para na peneira do material, que é onde a pergunta sobre a troca mora.")
-            sem_documento = False
-            sem_obra_vencida = False
+            # MAS SÓ QUANDO HÁ O QUE SALVAR. O fato registrado prova o EVENTO; ele não prova a
+            # TROCA, e é a troca que a terceira peneira pergunta. Quando a obra nunca foi gerada
+            # e nenhum transformador aparece no material, não há prova de troca em lugar nenhum —
+            # e devolver o caso à esteira só o faz parar uma peneira adiante, com o rótulo
+            # errado. O dono definiu isso três vezes, nomeando três casos; esta regra nasceu de
+            # uma revisão interna e estava atropelando a dele sem que ninguém tivesse decidido.
+            if float(r.get("trafos_material") or 0) > 0:
+                sem_documento = False
+                sem_obra_vencida = False
+            else:
+                r["documento_nao_apaga_fato"] = (
+                    r["documento_nao_apaga_fato"] + " A obra, porém, não movimentou "
+                    "transformador nenhum: o fato do campo sustenta o evento, não a troca. Sem "
+                    "prova de troca em documento algum, o caso sai — voltar só o faria parar uma "
+                    "peneira adiante com o rótulo errado.")
 
         if sem_obra_vencida and not sem_documento and not (fora_txt or cat in FORA_CAT):
             excluidas["sem_obra"] += 1
@@ -992,9 +1005,23 @@ def main():
         # A causa já foi julgada na etapa 0, antes da esteira: quem tinha causa fora do
         # indicador nem chegou aqui. O que resta para a terceira peneira é a pergunta que
         # ela sempre foi — a obra comprova que um transformador foi movimentado?
+        # SÓ FALTA O SIAGO. Há uma diferença que a peneira tratava como uma coisa só: a obra
+        # que NUNCA FOI GERADA e a obra que EXISTE mas não está no export de material. Na
+        # primeira não há o que conferir; na segunda há, e o que falta é a extração chegar. São
+        # 25 casos com obra aberta, número e descrição — e o material simplesmente fora do
+        # arquivo que temos. Chamar isso de "sem prova" é dizer que a prova não existe, quando o
+        # que não existe é o nosso acesso a ela.
+        tem_obra = bool(str(r.get("obra") or "").strip())
+        r["pendente_siago"] = ("SIM" if (tem_obra and r.get("material_conferido") != "SIM"
+                                         and float(r.get("trafos_material") or 0) <= 0) else "NÃO")
         if float(r.get("trafos_material") or 0) <= 0:
             r.update({"e3_status": "RETIDO", "cascata": "RETIDO — SEM PROVA DE TROCA",
-                      "cascata_motivo": r.get("e3_motivo") or "A obra não comprova movimentação de transformador",
+                      "cascata_motivo": (
+                          f"A obra {r.get('obra')} existe, com descrição e enquadramento, mas não "
+                          "está no export de material que temos — não é ausência de prova, é "
+                          "ausência da extração. Basta o SIAGO para fechar."
+                          if r.get("pendente_siago") == "SIM"
+                          else r.get("e3_motivo") or "A obra não comprova movimentação de transformador"),
                       "decisao": "REVISÃO", "confirmado": ""})
             continue
         r["e3_status"] = "SEGUE"
@@ -1346,6 +1373,91 @@ def main():
         r["narrativa_regerada"] = CARIMBO
         reescritas += 1
     print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
+
+    # ---------- a obra e o SIGCO decidem quando a Crítica não pode saber
+    # Achado de auditoria: 12 casos marcados como expurgo chegaram à saída, e em 4 deles a obra
+    # foi aberta como FURTO DE BENS TRAFO, no projeto SIGCO 61993, que é o projeto de reposição
+    # de ativo furtado.
+    #
+    # O mecanismo importa, porque vai se repetir: a Crítica classifica esses casos como
+    # "QUEIMADO POR DESCARGA ATMOSFERICA" — e está certa no que lhe compete, porque ela registra
+    # o EVENTO ELÉTRICO e não sabe que o transformador foi levado. A prova do furto está na SS,
+    # na obra e no enquadramento contábil. Uma peneira que só olha a interrupção nunca vai pegar
+    # esses; foi por isso que a mudança de "zero cliente" os deixou passar.
+    #
+    # Então a regra ganha uma fonte a mais, e ela é campo como as outras: o cadastro de obras é
+    # preenchido depois da execução, por quem executou. Quando ele e o projeto contábil dizem
+    # furto, é furto — mesmo que a Crítica diga descarga atmosférica, porque as duas afirmações
+    # não se contradizem: o trafo pode ter queimado E ter sido levado, e o que conta para o
+    # indicador de falha é o que a concessionária repôs e por quê.
+    #
+    # O simétrico também vale, e é o que salva os outros 8: quando a obra diz "SUBST. TRAFO
+    # QUEIMADO" ou "AVARIADO", uma flag de expurgo herdada de rodada antiga perde para ela.
+    vazou = 0
+    for r in fluxo["registros"]:
+        od = str(r.get("obra_descricao") or "").upper()
+        sg = str(r.get("sigco") or "").strip()
+        if not re.search(r"FURTO|ROUBO|VANDALIS", od) and sg != "61993":
+            continue
+        if r.get("fora_da_esteira") == "SIM":
+            continue
+        vazou += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "furto", "chega_e1": "NÃO",
+            "exclusao_porque": (f"a obra foi aberta como \"{od.title()}\" no projeto SIGCO {sg}, "
+                                "que é o de reposição de ativo furtado — o cadastro de obras é "
+                                "preenchido depois da execução, por quem executou. A Crítica "
+                                "registra o evento elétrico e não tem como saber do furto"),
+            "cascata_motivo": ("Fora do indicador: a obra e o projeto contábil declaram furto. "
+                               "A interrupção descreve o evento elétrico, não a causa da reposição."),
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    print(f"  furto declarado pela obra e pelo SIGCO, retirados do indicador: {vazou}")
+
+    # ---------- a obra descreve a troca de OUTRO equipamento
+    # "SUBST. CHAVE FUSÍVEL", R$ 2.335, nenhum transformador no material. A SS pediu trafo, a
+    # obra executou chave. Quando o cadastro de obras — que é preenchido depois, por quem
+    # executou — diz que o que se trocou foi outro equipamento, é isso que aconteceu: a SS
+    # descreve o pedido, a obra descreve o feito.
+    #
+    # A guarda é dupla e precisa ser: só dispara quando a descrição NÃO cita transformador e
+    # cita explicitamente outro ativo. "Subst. trafo queimado" e "subst. trafo avariado" ficam de
+    # fora do padrão por construção, e um caso em que a obra troque os dois continua dentro.
+    OUTRO_ATIVO = [
+        ("obra_chave", r"CHAVE FUSIVEL|CHAVE FUSÍVEL|\bCHAVE\b", "chave fusível"),
+        ("obra_poste", r"\bPOSTE\b", "poste"),
+        ("obra_cabo", r"\bCABO\b|\bCONDUTOR\b|\bRAMAL\b", "cabo ou ramal"),
+        ("obra_pararaio", r"PARA[- ]?RAIO", "para-raio"),
+        ("obra_medidor", r"\bMEDIDOR\b", "medidor"),
+    ]
+    outro = collections.Counter()
+    for r in fluxo["registros"]:
+        if r.get("fora_da_esteira") == "SIM":
+            continue
+        od = norm_txt(r.get("obra_descricao"))
+        if not od or re.search(r"TRAFO|TRANSFORMADOR", od):
+            continue
+        achado = next(((g, q) for g, rx, q in OUTRO_ATIVO if re.search(rx, od)), None)
+        if not achado:
+            continue
+        gat, quem = achado
+        outro[gat] += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": gat, "chega_e1": "NÃO",
+            "exclusao_porque": (f"a obra foi aberta como \"{str(r.get('obra_descricao')).title()}\" — "
+                                f"o que se trocou foi {quem}, não o transformador. A SS descreve o "
+                                "pedido; a obra, preenchida depois da execução, descreve o feito"),
+            "cascata_motivo": f"Fora do indicador: a obra registra substituição de {quem}.",
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    if outro:
+        print(f"  obra que trocou outro equipamento, excluídos: {sum(outro.values())} — {dict(outro)}")
 
     # ---------- zero cliente deixa de trancar e vira marcador
     # O dono mandou, nomeando dois casos e repetindo a regra nos dois: "categoriza como queimado
