@@ -419,6 +419,28 @@ def main():
             dias_ss = (HOJE - _ab.date()).days
         sem_obra_vencida = (not str(r.get("obra") or "").strip()
                             and dias_ss is not None and dias_ss > PRAZO_OBRA)
+        # FALTA DE DOCUMENTO NÃO APAGA FATO. Esta era a falha mais grave da régua, e um revisor
+        # externo a resumiu numa frase: ela convertia "não consigo provar a troca" em "a falha
+        # não conta". Em 16 das 22 exclusões documentais a Crítica registra causa TRANSFORMADOR
+        # com subcausa de falha — em onze delas a distância da janela é ZERO, e o TMAE quase
+        # sempre confirma. O campo é fato consumado; a obra que não existe não desfaz o que duas
+        # bases independentes registraram. O que ela desfaz é a PROVA DA TROCA, e essa pergunta
+        # é da terceira peneira, não da porta de exclusão. Estes casos voltam à esteira e param
+        # lá, com o rótulo honesto: o fato existe, a troca não se comprova.
+        _campo = " ".join(str(r.get(k) or "") for k in ("oc_causa", "oc_sub", "at_causa", "at_sub")).upper()
+        _dist = r.get("oc_dist_h")
+        campo_tem_falha = ("TRANSFORMADOR" in _campo
+                           and re.search(r"QUEIMAD|VAZAMENTO|TANQUE|FALHA BUCHA", _campo)
+                           and isinstance(_dist, (int, float)) and abs(_dist) <= 24)
+        if campo_tem_falha and (sem_documento or sem_obra_vencida):
+            r["documento_nao_apaga_fato"] = (
+                "A obra não foi gerada, ou a OS não tem descrição — mas a base de interrupção "
+                f"registra {r.get('oc_causa')} / {r.get('oc_sub')} neste transformador dentro da "
+                "janela. Falta de documento não desfaz fato registrado: o caso volta à esteira e "
+                "para na peneira do material, que é onde a pergunta sobre a troca mora.")
+            sem_documento = False
+            sem_obra_vencida = False
+
         if sem_obra_vencida and not sem_documento and not (fora_txt or cat in FORA_CAT):
             excluidas["sem_obra"] += 1
             r.update({
@@ -869,6 +891,37 @@ def main():
         div += 1
     print(f"  obras cujo rótulo diverge da leitura: {div}")
 
+    # ---------- o ativo que não existe em base nenhuma na janela
+    # Regra do dono: sem ocorrência na Crítica E sem atendimento no TMAE, o caso não é deste
+    # indicador. Ela vale — mas só onde nada mais foi encontrado. Dos 96 retidos na primeira
+    # peneira, 89 têm ocorrência no mesmo alimentador ou localidade dentro da janela, e em 52
+    # deles a evidência aponta código operativo trocado: ali o fato provavelmente existe sob
+    # outro número, e excluir seria descartar prova por erro de digitação alheio. Sobram 7 em
+    # que a busca por vizinhança não achou absolutamente nada. Nesses o silêncio é resposta,
+    # ainda mais agora que o acervo tem dezembro/2025, janeiro inteiro e julho.
+    sem_nada = 0
+    for r in fluxo["registros"]:
+        if (r.get("cascata") != "RETIDO — SEM INTERRUPÇÃO NA JANELA"
+                or not str(r.get("vizinho") or "").startswith("Nada")):
+            continue
+        sem_nada += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "sem_fato", "chega_e1": "NÃO",
+            "exclusao_porque": ("o código do transformador não aparece na Crítica nem no TMAE "
+                                "dentro da janela, e a busca por vizinhança não achou ocorrência "
+                                "no alimentador, na localidade nem em código parecido — não há "
+                                "fato para sustentar o evento"),
+            "cascata_motivo": ("Fora do indicador: nenhuma base registra nada neste ativo na "
+                               "janela, e nem o teste do vizinho achou explicação."),
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "e1_conflito": "", "e1_sinais": "", "e4_alertas": "",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "",
+            "disputa_perdida": "NÃO", "deslocamento": "",
+        })
+    print(f"  ativos sem fato em base nenhuma, nem no vizinho, excluídos: {sem_nada}")
+
     # ---------- de quem é cada regra de exclusão
     # O contador "excluídas por você" na tela só sabia contar o que o dono marca no navegador, e
     # por isso mostrava zero — quando na verdade TODAS as categorias de exclusão existem porque
@@ -898,6 +951,9 @@ def main():
         "preventivo": ("categoria herdada da auditoria anterior, mantida pelo dono", ""),
         "duplicada": ("o dono pediu que a SS duplicada saísse da esteira em vez de ficar parada",
                       ""),
+        "sem_fato": ("o dono definiu que sem ocorrência e sem atendimento o caso não é deste "
+                     "indicador — aplicado só onde nem o teste do vizinho achou nada",
+                     "ETO-RD-AR 00024/2026"),
     }
     for r in fluxo["registros"]:
         g = str(r.get("expurgo_gatilho") or "")

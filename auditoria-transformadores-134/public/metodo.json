@@ -5,7 +5,7 @@
    "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
    "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
    "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
-   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a porta de exclusão mais a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.214 confirmados, 217 em revisão e 79 excluídos antes de entrar. Nas duas o motivo fica escrito ao lado do caso."
+   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a porta de exclusão mais a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.214 confirmados, 226 em revisão e 70 excluídos antes de entrar. Nas duas o motivo fica escrito ao lado do caso."
   ]
  },
  "blocos": [
@@ -181,7 +181,8 @@
    "id": "cascata",
    "titulo": "5. A ordem das peneiras",
    "paragrafos": [
-    "Antes da cascata existe uma porta, e ela não é peneira. Peneira pergunta se o caso se sustenta; a porta pergunta se o caso é deste indicador. Saem por ali 85 solicitações, em quatro naturezas: causa declarada fora do indicador (furto, danos a terceiro, desativação, particular, auxiliar de religador); obra sem defeito (preventivo, divisão de circuito, troca de poste em que o transformador desceu junto, tape interno trocado para regularizar tensão); evento contado duas vezes; e falta de documento — OS sem descrição, ou obra que nunca foi gerada e já passou de sessenta dias. As duas últimas não afirmam nada sobre a causa: afirmam que não há o que ler nem o que conferir, e por isso o caso é investigável, não confirmável.",
+    "Antes da cascata existe uma porta, e ela não é peneira. Peneira pergunta se o caso se sustenta; a porta pergunta se o caso é deste indicador. Saem por ali 70 solicitações: causa declarada fora do indicador (furto, danos a terceiro, desativação, particular, auxiliar de religador), obra sem defeito (preventivo, divisão de circuito, troca de poste em que o transformador desceu junto, tape interno), evento contado duas vezes, e o ativo que não aparece em base nenhuma na janela nem no teste do vizinho.",
+    "Falta de documento não é motivo de exclusão, e por um tempo foi. A régua tirava do indicador quem não tinha obra gerada ou OS sem descrição — e em 16 desses casos a base de interrupção registrava causa TRANSFORMADOR com subcausa de falha, onze deles a distância zero da janela. Isso convertia \"não consigo provar a troca\" em \"a falha não conta\", que são coisas diferentes. O campo é fato consumado: a obra que não existe não desfaz o que duas bases independentes registraram. O que ela desfaz é a prova da troca, e essa pergunta é da terceira peneira. Esses casos voltaram à esteira e param lá, com o rótulo honesto.",
     "Essa ordem foi corrigida. A exclusão morava dentro da terceira peneira, e por isso só era julgado quem passasse da primeira — um furto sem interrupção registrada ficava parado como pendência de leitura, quando já tinha resposta. A causa declarada não depende de a Crítica ter registrado corte naquele dia: a ausência de fato não muda a causa, e a presença também não.",
     "O que entra na esteira são as 1.451 restantes. Primeiro a interrupção prova que o evento existiu. Depois o deslocamento mostra que houve equipe no código do transformador — e não retém ninguém, é marcador. No terceiro estágio o material da obra responde a uma pergunta só: um transformador foi mesmo movimentado? No quarto, a ressalva separa a interrupção que tem sinal enfraquecedor.",
     "Obra e SIGCO ficam fora da cascata. Dizem se o custo foi enquadrado certo, não se o transformador queimou. A única exceção é a obra não existir: sem obra não há consulta de material nem encerramento, e o caso vai para análise à parte."
@@ -197,26 +198,26 @@
      [
       "0 · Exclusão (antes da esteira)",
       "1.510",
-      "1.431",
-      "79 fora do indicador — causa declarada, obra sem defeito, falta de documento ou evento duplicado"
+      "1.440",
+      "70 fora do indicador — causa declarada, obra sem defeito, evento duplicado ou fato inexistente"
      ],
      [
       "1 · Interrupção",
-      "1.431",
-      "1.335",
-      "96 sem interrupção na janela"
+      "1.440",
+      "1.351",
+      "89 sem interrupção na janela"
      ],
      [
       "2 · Deslocamento (marcador)",
-      "1.335",
-      "1.335",
-      "0 — não retém: 1.190 corroboram, 145 sem registro"
+      "1.351",
+      "1.351",
+      "0 — não retém: 1.202 corroboram, 149 sem registro"
      ],
      [
       "3 · SS e OS com material",
-      "1.335",
+      "1.351",
       "1.303",
-      "32 sem prova de troca"
+      "48 sem prova de troca"
      ],
      [
       "4 · Ressalva da interrupção",

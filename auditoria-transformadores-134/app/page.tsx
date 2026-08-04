@@ -270,6 +270,7 @@ const GATILHO_ROTULO: Record<string, string> = {
   tap: "Tape interno — regularização de tensão",
   sem_os: "Sem OS e sem obra — investigar",
   sem_obra: "Obra nunca gerada — prazo vencido",
+  sem_fato: "Sem fato em base nenhuma",
 };
 
 const CLASSES_CURTAS: Array<[string, string, string]> = [
@@ -616,6 +617,7 @@ export default function Page() {
       { id: "g_aux", rotulo: "Auxiliar de religador ou regulador", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => texto(r.expurgo_gatilho) === "auxiliar" },
       { id: "g_part", rotulo: "Transformador particular", nota: "O ativo é do cliente ou de terceiro.", teste: (r) => texto(r.expurgo_gatilho) === "particular" },
       { id: "g_semos", rotulo: "Sem OS e sem obra", nota: "A ordem de serviço não tem descrição e a obra não foi gerada: não há relato do executante nem consulta de material. Não é afirmação sobre a causa — é ausência de documento. O caso é investigável, não confirmável.", teste: (r) => texto(r.expurgo_gatilho) === "sem_os" },
+      { id: "g_semfato", rotulo: "Sem fato em base nenhuma", nota: "Nem ocorrência na Crítica, nem atendimento no TMAE, nem vizinho no alimentador, na localidade ou em código parecido. Só entram aqui os casos em que a busca por vizinhança não achou absolutamente nada — nos que acharam, o fato provavelmente existe sob outro código e o caso continua retido.", teste: (r) => texto(r.expurgo_gatilho) === "sem_fato" },
       { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
       { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => texto(r.expurgo_gatilho) === "seguranca" },
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => texto(r.expurgo_gatilho) === "tap" },
@@ -1543,6 +1545,7 @@ export default function Page() {
             <Kpi rotulo="Transformador particular" valor={br(g("particular"))} nota="o ativo é do cliente ou de terceiro" tom="ink" aoClicar={() => abrirRecorte("g_part")} />
             <Kpi rotulo="SS duplicada" valor={br(g("duplicada"))} nota="o mesmo evento contado duas vezes" tom="amber" aoClicar={() => abrirRecorte("g_dup")} />
             <Kpi rotulo="Sem OS e sem obra" valor={br(g("sem_os"))} nota="nada para ler, nada para conferir — investigar" tom="amber" aoClicar={() => abrirRecorte("g_semos")} />
+            <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="red" aoClicar={() => abrirRecorte("g_semfato")} />
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
             <Kpi rotulo="Por regra que você pediu" valor={br(conta((r) => r.exclusao_pedida_pelo_dono === "SIM"))} nota="a categoria existe porque você mandou criar" tom="ink" aoClicar={() => abrirRecorte("suas_regras")} />
@@ -1696,12 +1699,17 @@ export default function Page() {
             <h3>O que a base de interrupção registra</h3>
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{texto(aberto.oc_num) || "nenhuma"}</strong></div>
+              {aberto.oc_fora_janela === "SIM" ? <div className="fora-janela-aviso"><span>Atenção</span><strong>Esta ocorrência está FORA da janela</strong><em>Ela aparece aqui como a mais próxima no código do ativo, para referência. Não é a prova do caso — a esteira não a aceitou.</em></div> : null}
               <div><span>Distância da SS</span><strong>{aberto.oc_dist_h !== null ? `${texto(aberto.oc_dist_h)} h` : "—"}</strong></div>
               <div><span>Início</span><strong>{dataBR(aberto.oc_ini)}</strong></div>
               <div><span>Fim</span><strong>{dataBR(aberto.oc_fim)}</strong></div>
               <div><span>Duração</span><strong>{texto(aberto.oc_dur_h)} h</strong></div>
               <div><span>Clientes interrompidos</span><strong>{texto(aberto.oc_cons)}</strong></div>
-              <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel)}</strong></div>
+              {/* Dizia "defeito no próprio trafo" ao lado de "sem defeito na janela", no mesmo
+                  painel: duas afirmações opostas sobre o mesmo caso. O papel descreve a
+                  ocorrência EXIBIDA, e quando ela está fora da janela isso precisa vir escrito
+                  junto — senão o campo parece prova do que não é. */}
+              <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel) || "—"}</strong>{aberto.oc_fora_janela === "SIM" ? <em>nesta ocorrência, que está fora da janela</em> : null}</div>
               <div><span>Elemento do defeito</span><strong>{ELEMENTO_ROTULO[texto(aberto.def_elemento)] || "sem defeito na janela"}</strong>{texto(aberto.def_ele_oc) ? <em>ocorrência {texto(aberto.def_ele_oc)} · {texto(aberto.def_ele_causa)}</em> : null}</div>
               <div><span>Causa</span><strong>{texto(aberto.oc_causa)}</strong></div>
               <div><span>Subcausa</span><strong>{texto(aberto.oc_sub)}</strong></div>
