@@ -816,6 +816,17 @@ export default function Page() {
     return CATEGORIA_FUNDIDA[g] || g;
   };
 
+  /* AS CAUSAS, RANQUEADAS UMA VEZ SÓ. A cascata mostra as cinco maiores e junta o resto numa
+     linha; o recorte que essa linha abre precisa usar exatamente o mesmo corte, senão o número
+     clicado abre uma lista de outro tamanho — foi o que aconteceu na primeira tentativa, com a
+     linha dizendo 33 e a lista trazendo 103. Uma conta, dois consumidores. */
+  const causasRank = Object.entries(registros
+    .filter((r) => arquivo(r) === "EXCLUÍDA" && !parouNaInterrupcao(r))
+    .reduce<Record<string, number>>((a, r) => {
+      const k = categoriaDe(r) || "manual"; a[k] = (a[k] || 0) + 1; return a;
+    }, {})).sort((a, b) => b[1] - a[1]);
+  const causasTop = new Set(causasRank.slice(0, 5).map(([k]) => k));
+
   /* O nível de casamento é recalculado no navegador para a janela escolhida. A decisão
      gravada continua sendo a de 24h — o controle serve para ver a sensibilidade, e a tela
      diz quantos casos mudariam. */
@@ -993,6 +1004,8 @@ export default function Page() {
       /* Os três destinos da conta grande, para que cada número da cascata da Visão geral abra
          exatamente a lista dele. Sem isto o clique caía num chip parecido e a lista vinha com
          outro tamanho — que é o jeito mais rápido de perder a confiança de quem confere. */
+      { id: "pos_critica", rotulo: "Passaram pela Crítica", nota: "A Crítica registra interrupção no próprio transformador que sustenta o caso — ou a ocorrência coube dentro do serviço. É o que sobra depois da primeira subtração, e é sobre este conjunto que as duas perguntas seguintes são feitas.", teste: (r) => !(arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r)) },
+      { id: "sem_tmae", rotulo: "Sem deslocamento do TMAE", nota: "Passaram pela Crítica e não têm atendimento registrado no código do transformador. Marcador, não subtração: a chave do TMAE é o elemento onde o defeito foi aberto, então a ausência ali não é contraprova. Fica sinalizado para quem quiser conferir um a um.", teste: (r) => !(arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r)) && r.deslocamento === "SEM REGISTRO" },
       { id: "na_esteira", rotulo: "Entraram na esteira", nota: "Tudo que passou da porta: não foi excluído por outra causa nem por falta de interrupção que sustente o caso. É deste conjunto que saem os queimados e avariados, e é dele que se descontam os retidos.", teste: (r) => arquivo(r) !== "EXCLUÍDA" },
       { id: "saida_queimado", rotulo: "Queimados na saída", nota: "Chegaram ao fim da esteira com a causa confirmada como queima: interrupção no próprio transformador, texto descrevendo falha e obra comprovando a troca.", teste: (r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "QUEIMADO" },
       { id: "saida_avariado", rotulo: "Avariados na saída", nota: "Mesma esteira, causa confirmada como avaria — vazamento de óleo, tanque deteriorado, falha de bucha. Contam no indicador do mesmo jeito; o que muda é o rótulo.", teste: (r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "AVARIADO" },
@@ -1099,6 +1112,7 @@ export default function Page() {
          natureza" — furto, abalroamento, obra programada — e a outra diz "não há interrupção que
          sustente este caso". Somar as duas numa caixa só é o que fazia a porta parecer arbitrária.
          Este recorte isola a primeira; a segunda tem aba própria, a da primeira peneira. */
+      { id: "outra_causa_resto", rotulo: "Outras causas — a cauda", nota: "As exclusões por causa declarada que não estão entre as cinco maiores. Cada uma tem poucas SS e todas continuam clicáveis uma a uma nos filtros desta aba: o agrupamento é só para a cascata caber na tela.", teste: (r) => arquivo(r) === "EXCLUÍDA" && !parouNaInterrupcao(r) && !causasTop.has(categoriaDe(r) || "manual") },
       { id: "outra_causa", rotulo: "Fora do indicador por outra causa declarada", nota: "O texto da SS ou da OS, ou o cadastro da obra, dizem que o caso é de outra natureza — furto, abalroamento, remanejamento, troca programada, tape. Estes não dependem de haver ou não interrupção: mesmo com apagão registrado no transformador, a causa não é falha do equipamento.", teste: (r) => arquivo(r) === "EXCLUÍDA" && !parouNaInterrupcao(r) },
       { id: "g_furto", rotulo: "Furto, roubo ou vandalismo", nota: "O texto declara furto. Vai para o projeto de reposição de ativo furtado, não é falha de equipamento.", teste: (r) => gatilhoDe(r) === "furto" },
       { id: "g_abalro", rotulo: "Abalroamento", nota: "Colisão de veículo. Vira ressarcimento de terceiro, não indicador de falha.", teste: (r) => gatilhoDe(r) === "abalroamento" },
@@ -1400,73 +1414,68 @@ export default function Page() {
          desses tantos, tantos não têm ocorrência, tantos não estão na janela". O detalhe não
          desapareceu: cada número e cada linha de porquê abre a lista correspondente. Tudo é
          contado do dado na hora, com as marcações dele por cima — nada aqui é digitado. */
-      const semInterrupcao = conta((r) => arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r));
-      const outraCausa = excluidas - semInterrupcao;
+      const presasNaCritica = conta((r) => arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r));
+      const posCritica = total - presasNaCritica;
+      const semTmae = conta((r) => !(arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r)) && r.deslocamento === "SEM REGISTRO");
+      const outraCausa = excluidas - presasNaCritica;
       const naEsteira = total - excluidas;
       const retidos = conta((r) => String(arquivo(r)).startsWith("RETIDO"));
       const saidaFinal = conta((r) => arquivo(r) === "SAÍDA");
-      /* As categorias de "outra causa" viram uma frase só, ordenadas pelo tamanho: quem lê o
-         resumo quer saber que a maior é furto, não decorar as vinte e uma. */
-      const porCausa = Object.entries(registros
-        .filter((r) => arquivo(r) === "EXCLUÍDA" && !parouNaInterrupcao(r))
-        .reduce<Record<string, number>>((a, r) => {
-          const k = categoriaDe(r) || "manual"; a[k] = (a[k] || 0) + 1; return a;
-        }, {})).sort((a, b) => b[1] - a[1]);
-      const resumoCausas = porCausa.slice(0, 4)
-        .map(([k, v]) => `${br(v)} ${(GATILHO_ROTULO[k] || k).toLowerCase().split(" — ")[0].split(",")[0]}`).join(" · ");
-      const restoCausas = porCausa.slice(4).reduce((a, [, v]) => a + v, 0);
+      const porCausa = causasRank;
+      const restoCausas = porCausa.slice(5).reduce((a, [, v]) => a + v, 0);
       return <>
         <section className="scope-strip">
           <div><span>Recorte</span><strong>{br(total)} SS · jan a jun/2026</strong></div>
           <div><span>Janela da interrupção</span><strong>{fluxo.meta.janelaHoras}h contra o intervalo inteiro</strong></div>
           <div><span>Saída</span><strong>{br(conta((r) => r.decisao === "INCLUIR"))} incluir</strong></div>
-          <p>{fluxo.meta.regra}</p>
+          {/* A regra inteira tinha oito linhas aqui em cima. Ele pediu para tirar o monte de
+              texto: fica a frase que governa tudo, e o resto mora em Regras e método. */}
+          <p>A exclusão acontece antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência. <button type="button" className="strip-link" onClick={() => irPara("regras")}>Regra inteira em Regras e método →</button></p>
         </section>
-        {(fluxo.meta.correcoes || []).length > 0 && (
-          <section className="panel editorial-note wide"><span>CORREÇÕES APLICADAS AO CRUZAMENTO</span>
-            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As primeiras são defeitos de cruzamento entre as bases: o que mudou foi a verdade do que está escrito em cada caso. Depois vieram as que movem número — três arquivos que faltavam e duas regras que o dono redefiniu. A saída está hoje em <strong>{br(conta((r) => arquivo(r) === "SAÍDA"))}</strong>, e as exclusões acontecem antes da esteira, não dentro dela.</p>
-            <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
-          </section>
-        )}
-        {/* A CONTA INTEIRA, EM QUATRO NÚMEROS. Substituiu de uma vez as quatro caixas de KPI, o
-            bloco "resultado da esteira" e a caixa d'água de seis linhas — os três diziam pedaços
-            da mesma conta, com totais que só fechavam se você somasse de cabeça. Aqui a conta
-            fecha na vertical, e cada número leva à lista que ele anuncia. */}
+        {/* A CONTA NA ORDEM QUE ELE DITOU, e a ordem importa. Ele escreveu: "se eu tenho tantas
+            presas pela Crítica, 1.510 menos elas; desses eu tenho tantas sem deslocamento, aí vou
+            flegar cada uma; desses, menos as excluídas de fato". Primeiro a Crítica, depois o
+            marcador do TMAE, depois a exclusão por causa — não tudo junto numa porta só. Os
+            números que ele citou de cabeça (136, 110, 1.264) são de uma rodada anterior; a forma
+            é exatamente esta, e é a forma que manda. Só o degrau dos retidos ele não citou, e ele
+            precisa estar aqui: sem ele a conta não chega em 1.249. */}
         <section className="panel cascata-panel">
           <div className="panel-title"><div><span>A conta inteira</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
           <div className="cascata-simples">
-            <Degrau n={total} rotulo="solicitações de troca de transformador entram no recorte — janeiro a junho de 2026"
+            <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a junho de 2026"
               aoClicar={() => irPara("interrupcao", "todos")} />
-            <Degrau n={excluidas} sinal="menos" rotulo="saem na porta: não são deste indicador"
-              aoClicar={() => irPara("exclusoes", "todos")}
+            <Degrau n={presasNaCritica} sinal="menos" rotulo="presas pela Crítica: sem interrupção que sustente o caso"
+              aoClicar={() => irPara("semfato", "parados")}
               porques={[
-                { n: semInterrupcao, texto: "sem interrupção que sustente o caso", aoClicar: () => irPara("semfato", "parados") },
-                /* A quebra fina usa gatilhoDe, não categoriaDe: a categoria funde "fora da janela"
-                   com "ausente da Crítica" na caixa e na barra — fusão que ele pediu —, e usá-la
-                   aqui imprimia 0 numa linha e 130 na outra, com o clique abrindo 83 e 47. */
-                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "fora_da_janela"), texto: "a Crítica registra defeito no transformador, mas em outra data", sub: true, aoClicar: () => irPara("semfato", "p_outra_data") },
-                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_interrupcao"), texto: "o código não aparece na Crítica em papel nenhum, nos sete meses do acervo", sub: true, aoClicar: () => irPara("semfato", "p_ausente") },
-                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_fato"), texto: "nem ocorrência, nem atendimento, nem vizinho no alimentador", sub: true, aoClicar: () => irPara("semfato", "p_semfato") },
-                { n: outraCausa, texto: `outra causa declarada no texto ou na obra — ${resumoCausas}${restoCausas ? ` e ${br(restoCausas)} em outras categorias` : ""}`, aoClicar: () => irPara("exclusoes", "outra_causa") },
+                /* A quebra fina usa gatilhoDe, não categoriaDe: a categoria funde as três numa só
+                   na caixa e na barra — fusão que ele pediu — e usá-la aqui zerava uma linha. */
+                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "fora_da_janela"), texto: "tem defeito no transformador, mas em outra data", sub: true, aoClicar: () => irPara("semfato", "p_outra_data") },
+                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_interrupcao"), texto: "não aparece na Crítica em papel nenhum", sub: true, aoClicar: () => irPara("semfato", "p_ausente") },
+                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_fato"), texto: "sem rastro em base alguma", sub: true, aoClicar: () => irPara("semfato", "p_semfato") },
               ]} />
-            <Degrau n={naEsteira} sinal="igual" rotulo="entram na esteira e são medidos caso a caso"
-              aoClicar={() => irPara("decisao", "na_esteira")}
+            <Degrau n={posCritica} sinal="igual" rotulo="passaram pela Crítica"
+              aoClicar={() => irPara("decisao", "pos_critica")}
               porques={[
-                { n: conta((r) => arquivo(r) !== "EXCLUÍDA" && r.deslocamento === "SEM REGISTRO"), texto: "sem atendimento do TMAE no código do transformador — marcador, não retém ninguém", aoClicar: () => irPara("decisao", "ret_desl") },
+                { n: semTmae, texto: "sem deslocamento do TMAE — sinalizadas, não subtraídas", aoClicar: () => irPara("decisao", "sem_tmae") },
               ]} />
-            <Degrau n={retidos} sinal="menos" rotulo="ficam esperando a prova de que o transformador foi mesmo trocado"
+            <Degrau n={outraCausa} sinal="menos" rotulo="excluídas de fato: outra causa declarada"
+              aoClicar={() => irPara("exclusoes", "outra_causa")}
+              porques={porCausa.slice(0, 5).map(([k, v]) => ({
+                n: v, sub: true, texto: (GATILHO_ROTULO[k] || k).toLowerCase(),
+                aoClicar: () => irPara("exclusoes", GATILHO_CHIP[k] || `g:${k}`),
+              })).concat(restoCausas ? [{ n: restoCausas, sub: true, texto: `em outras ${porCausa.length - 5} categorias`, aoClicar: () => irPara("exclusoes", "outra_causa_resto") }] : [])} />
+            <Degrau n={retidos} sinal="menos" rotulo="sem prova de que o transformador foi trocado"
               aoClicar={() => irPara("expurgos", "parados")}
               porques={[
-                { n: conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.pendente_siago === "SIM"), texto: "só esperam a extração do SIAGO chegar — a obra existe", aoClicar: () => irPara("expurgos", "siago_retido") },
+                { n: conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.pendente_siago === "SIM"), texto: "só esperam a extração do SIAGO — a obra existe", sub: true, aoClicar: () => irPara("expurgos", "siago_retido") },
               ]} />
-            <Degrau n={saidaFinal} sinal="igual" forte rotulo="queimados e avariados — o número do indicador"
+            <Degrau n={saidaFinal} sinal="igual" forte rotulo="queimados e avariados"
               aoClicar={() => irPara("decisao", "saida")}
               porques={[
-                { n: conta((r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "QUEIMADO"), texto: "queimados", aoClicar: () => irPara("decisao", "saida_queimado") },
-                { n: conta((r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "AVARIADO"), texto: "avariados", aoClicar: () => irPara("decisao", "saida_avariado") },
+                { n: conta((r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "QUEIMADO"), texto: "queimados", sub: true, aoClicar: () => irPara("decisao", "saida_queimado") },
+                { n: conta((r) => arquivo(r) === "SAÍDA" && texto(r.confirmado) === "AVARIADO"), texto: "avariados", sub: true, aoClicar: () => irPara("decisao", "saida_avariado") },
               ]} />
           </div>
-          <p className="fluxo-nota">O porquê geral, numa frase: primeiro sai quem nunca foi deste indicador — furto, abalroamento, obra programada, ou caso sem nenhuma interrupção que o sustente —, e isso acontece na porta, antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência, e só fica retido quem não tem como provar que um transformador saiu do poste. O que sobra é o número que vai a conselho. As três subtrações acima somam exatamente {br(total)}; não há terceira pilha escondida.</p>
         </section>
         <section className="dashboard-columns">
           <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Onde cada solicitação terminou</h2></div><small>clique para filtrar</small></div>
@@ -1918,22 +1927,18 @@ export default function Page() {
                 return <>
                   <article>
                     <header><b>1</b><div><strong>A janela</strong><em>1 hora antes · 24 horas depois</em></div><u>{br(conta((r) => ["A", "B", "C"].includes(texto(r.e1_nivel))) - soPelaContencao)} pela distância</u></header>
-                    <p>A régua não é simétrica e não conta a partir do instante em que a ocorrência abriu: vale contra o <strong>intervalo inteiro</strong> dela, do primeiro passo ao último. Para frente é larga porque a troca costuma vir depois do apagão; para trás é estreita porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.</p>
+                    <p>Vale contra o <strong>intervalo inteiro</strong> da ocorrência, do primeiro passo ao último. Larga para frente porque a troca vem depois do apagão; estreita para trás porque a SS nasce antes do registro.</p>
                     {daJanela ? <><p className="fonte-detalhe">{texto(daJanela.ss)} · trafo {texto(daJanela.trafo)}</p><ReguaJanela r={daJanela} didatica /></> : null}
                   </article>
                   <article>
                     <header><b>2</b><div><strong>A contenção</strong><em>a ocorrência cabe dentro do serviço</em></div><u>{br(soPelaContencao)} só por aqui</u></header>
-                    <p>Quando a ocorrência do próprio transformador <strong>começa e termina com a SS já aberta</strong>, ela é daquela SS: o corte aconteceu durante o atendimento. Aqui a distância não é consultada — e é por isso que existe. O transformador vazando óleo explica: ele continua energizado, ninguém fica sem luz até alguém desligar para trocar, e a SS nasce antes do apagão. São <strong>{br(conta((r) => r.oc_contida_na_ss === "SIM"))}</strong> as ocorrências que couberam inteiras dentro do serviço; destas, <strong>{br(soPelaContencao)}</strong> não passariam pela primeira régua e só entram por aqui — as outras entrariam de qualquer jeito, e para essas tanto faz o caminho.</p>
+                    <p>A ocorrência <strong>começa e termina com a SS já aberta</strong>: o corte aconteceu durante o atendimento. A distância não é consultada. São <strong>{br(conta((r) => r.oc_contida_na_ss === "SIM"))}</strong> ao todo, e <strong>{br(soPelaContencao)}</strong> só entram por aqui.</p>
                     {daContencao ? <><p className="fonte-detalhe">{texto(daContencao.ss)} · trafo {texto(daContencao.trafo)}</p><ReguaContencao r={daContencao} /></> : null}
                   </article>
                 </>;
               })()}
             </div>
-            <p className="fluxo-nota">Nos casos da lista abaixo o mesmo desenho da régua 1 aparece em cada linha, sem legenda: barra escura é a ocorrência, faixas claras são a tolerância, e o pino é a abertura da SS — verde se entrou, vermelho se ficou de fora.</p>
-          </section>
-          <section className="panel editorial-note wide"><span>COMO LER OS NÚMEROS DESTA ETAPA</span>
-            <p>Esta aba mostra as <strong>{br(chegam.length)}</strong> solicitações do recorte, porque todas passam por aqui — não porque todas tenham interrupção. Destas, <strong>{br(naJanela.length)}</strong> têm interrupção dentro da janela de 24 horas. {br(duplicadas.length)} delas ficam retidas mesmo assim, porque dividem o mesmo evento com outra SS no mesmo transformador e a interrupção prova uma troca, não duas — sobram <strong>{br(casados.length)}</strong> com fato. Somando <strong>{br(soAtendimento.length)}</strong> que não têm interrupção nenhuma mas têm atendimento de equipe no TMAE, <strong>{br(seguem.length)}</strong> seguem para o deslocamento e <strong>{br(chegam.length - seguem.length)}</strong> param aqui. É essa a conta que aparece na caixa d&apos;água.</p>
-          </section>
+            </section>
           <section className="kpi-grid">
             <Kpi rotulo="Passam por esta etapa" valor={br(chegam.length)} nota="todas do recorte: aqui ninguém foi filtrado ainda" tom="ink" />
             <Kpi rotulo="Com interrupção na janela" valor={br(naJanela.length)} nota={`${pct(naJanela.length, chegam.length)}% do recorte`} tom="green" aoClicar={() => abrirRecorte("casou")} />

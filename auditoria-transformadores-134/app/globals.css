@@ -51,6 +51,8 @@ button { cursor: pointer; }
 .scope-strip > div, .scope-strip > p { margin: 0; padding: 14px 16px; }.scope-strip > div + div, .scope-strip > p { border-left: 1px solid #3a3d42; }
 .scope-strip span, .scope-strip strong { display: block; }.scope-strip span { color: #83878c; font-size: 7px; text-transform: uppercase; }.scope-strip strong { margin-top: 4px; font-size: 9px; }
 .scope-strip p { color: #b0b3b7; font-size: 8px; line-height: 1.55; }
+.strip-link { display: block; margin-top: 6px; border: 0; padding: 0; background: none; color: #f0c9cd; font: inherit; font-size: 8px; text-align: left; }
+.strip-link:hover { color: #fff; }
 .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 .kpi { position: relative; min-height: 122px; padding: 17px 15px 14px; overflow: hidden; background: var(--white); border: 1px solid var(--line); }
 .kpi::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #92959a; }
