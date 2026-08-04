@@ -38,6 +38,12 @@ HOJE = datetime.datetime.now(BRASILIA).date()
 # Dois meses. Depois disso a obra não vem mais — e "retido" deixa de ser espera para virar
 # promessa vazia. O número é decisão do dono, não medida: fica aqui à vista para ser mudado.
 PRAZO_OBRA = 60
+# A regra abaixo está escrita e desligada. Ela desfaz a exclusão quando o texto apenas PRESUME
+# a causa ("ao que tudo indica foi furtado") e o campo a contradiz — ocorrência no próprio
+# transformador dentro da janela mais material movimentado. Fica em interruptor porque devolver
+# um caso ao indicador muda o número publicado, e essa escolha é do dono, não da régua. Ligar
+# aqui é a única coisa necessária para aplicá-la.
+DESFAZER_PRESUNCAO = False
 
 
 def parse(s):
@@ -351,6 +357,7 @@ def main():
     FORA_CAT = {"FURTADO", "ABALROAMENTO", "PREVENTIVO", "PARTICULAR", "TRAFO AUXILIAR",
                 "CONSTRUCAO", "DESATIVACAO"}
     excluidas = collections.Counter()
+    devolvidas = []
     for r in fluxo["registros"]:
         cat = str(r.get("categoria_texto") or "").strip().upper()
         fora_txt, susp = julga_texto(r)
@@ -432,6 +439,26 @@ def main():
                      r"SUSPEITA DE ", texto_todo):
             r["exclusao_presumida"] = "SIM"
             porque = porque + " — mas o texto presume, não constata"
+            # E QUANDO O CAMPO CONTRADIZ A PRESUNÇÃO, o campo ganha. É a regra da casa: o campo
+            # é fato consumado, o texto é declaração — e aqui o texto nem declara, supõe. Quando
+            # a Crítica registra o defeito NESTE transformador dentro da janela E a obra registra
+            # transformador movimentado, a suposição não se sustenta: não se retira o que foi
+            # levado. A exclusão é desfeita e o caso volta a descer as peneiras como qualquer
+            # outro — voltar não é entrar, ele ainda tem de passar por todas.
+            _ab = parse(r.get("abertura"))
+            _cod = str(r.get("trafo") or "").strip()
+            tem_oc = any((b := borda(_ab, o)) is not None and b <= JANELA
+                         for o in por.get(_cod, []))
+            if DESFAZER_PRESUNCAO and tem_oc and float(r.get("trafos_material") or 0) > 0:
+                devolvidas.append(r["ss"])
+                r.update({"fora_da_esteira": "NÃO", "exclusao_presumida": "DEVOLVIDA",
+                          "expurgo": "NÃO", "expurgo_gatilho": "", "exclusao_porque": "",
+                          "presuncao_desfeita": (
+                              f"O texto presumia {gatilho}, mas não constatava. A Crítica registra "
+                              "o defeito neste transformador dentro da janela e a obra registra "
+                              "transformador movimentado: não se retira o que foi levado. A "
+                              "exclusão foi desfeita e o caso voltou a descer as peneiras.")})
+                continue
         else:
             r["exclusao_presumida"] = "NÃO"
         if gatilho == "construcao" and "DESATIVA" in norm_txt(str(r.get("desc_ss", ""))):
@@ -450,6 +477,9 @@ def main():
             "disputa_perdida": "NÃO", "deslocamento": "",
         })
     print(f"  exclusões antes da esteira: {sum(excluidas.values())} — {dict(excluidas)}")
+    if devolvidas:
+        print(f"  presunções desfeitas pelo campo, devolvidas à esteira: {len(devolvidas)} — "
+              + ", ".join(devolvidas))
 
     for r in fluxo["registros"]:
         if r.get("fora_da_esteira") == "SIM":
