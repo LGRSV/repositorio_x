@@ -368,8 +368,19 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
             decisão: quem abre esta lista já sabe que o caso saiu, quer saber por quê. */}
         <td>{modo === "expurgos"
           ? <p className="clip">{texto(r.motivo_decisao)}</p>
-          : <><strong>{GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "marcada por você"}</strong>
-              <p className="clip">{texto(r.exclusao_porque) || texto(r.cascata_motivo) || texto(r.motivo_decisao)}</p></>}</td>
+          : <>{/* A coluna dizia "marcada por você" para QUALQUER registro sem gatilho — inclusive
+                   os que o dono tinha classificado como queimado e que aparecem aqui só porque
+                   ele saiu do recorte e pediu "todas as SS". Ler "marcada por você" embaixo de
+                   um cabeçalho que diz "por que foi excluída" é assustador e é falso: o caso
+                   não está excluído. Agora a coluna só afirma exclusão de quem está excluído. */}
+              <strong>{texto(r.expurgo_gatilho)
+                ? GATILHO_ROTULO[texto(r.expurgo_gatilho)] || texto(r.expurgo_gatilho)
+                : classificacoes[texto(r.ss)]?.classe === "EXCLUIDO" ? "Excluída por você"
+                : texto(r.cascata) === "EXCLUÍDA" ? "Excluída"
+                : "Não está excluída"}</strong>
+              <p className="clip">{texto(r.expurgo_gatilho) || texto(r.cascata) === "EXCLUÍDA"
+                ? texto(r.exclusao_porque) || texto(r.cascata_motivo)
+                : `Está em ${texto(r.cascata).toLowerCase()}${classificacoes[texto(r.ss)] ? ` e você a classificou como ${classificacoes[texto(r.ss)].classe.toLowerCase()}` : ""}.`}</p></>}</td>
         <td><strong>{texto(r.solicitante) || "—"}</strong><span>{texto(r.origem)} · {texto(r.equipe_ss)}</span><small>{texto(r.tipo_ss)}</small></td>
         <td><strong>{texto(r.obra) || "sem obra"}</strong><span>SIGCO {texto(r.sigco) || "—"}</span><small>{texto(r.at_equipe) ? `atendeu ${texto(r.at_equipe)}` : "sem atendimento"}</small></td>
       </>}
@@ -484,6 +495,10 @@ export default function Page() {
       { id: "sem", rotulo: "Sem nenhuma ocorrência", nota: "O código não aparece na base de interrupção em seis meses.", teste: (r) => r.e1_nivel === "SEM" },
     ],
     deslocamento: [
+      { id: "at_trafo", rotulo: "Atendimento declara transformador", nota: "O TMAE registrou causa TRANSFORMADOR — o próprio equipamento é o assunto do atendimento.", teste: (r) => normalize(texto(r.at_causa)).includes("TRANSFORMADOR") },
+      { id: "at_outra", rotulo: "Atendimento declara outra causa", nota: "Houve equipe no código do trafo, mas a causa registrada é outra: meio ambiente, condutor, conexão. Não retém ninguém — é marcador.", teste: (r) => Boolean(texto(r.at_causa)) && !normalize(texto(r.at_causa)).includes("TRANSFORMADOR") },
+      { id: "at_queima", rotulo: "Subcausa de queima", nota: "A subcausa do atendimento descreve queima do equipamento.", teste: (r) => normalize(texto(r.at_sub)).includes("QUEIMAD") },
+      { id: "at_vaz", rotulo: "Subcausa de vazamento", nota: "A subcausa do atendimento descreve vazamento de óleo ou tanque deteriorado.", teste: (r) => normalize(texto(r.at_sub)).includes("VAZAMENT") || normalize(texto(r.at_sub)).includes("TANQUE") },
       { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e chega ao deslocamento.", teste: (r) => r.chega_e2 === "SIM" },
       { id: "corrobora", rotulo: "Atendimento na janela", nota: "Equipe registrada no próprio transformador dentro da janela.", teste: (r) => texto(r.tmae_corrobora) !== "não" },
       { id: "semat", rotulo: "Sem atendimento", nota: "Nenhuma nota no código do trafo. Não é contraprova: a base tem lacuna.", teste: (r) => r.e2_status === "SEM ATENDIMENTO" },
@@ -545,6 +560,9 @@ export default function Page() {
       // o alerta é gravado como "8812 espera queimado" — a palavra SIGCO não aparece nele,
       // e procurá-la deixava este filtro em zero desde sempre
       { id: "sigco_av", rotulo: "Avaria no projeto de queima", nota: "A leitura concluiu avaria e a obra foi enquadrada no SIGCO 8812, que é o projeto de transformador queimado. Não muda a causa — muda para onde o custo foi. É bandeira contábil, não veredito técnico.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
+      { id: "obra_diz", rotulo: "A obra diz outra causa", nota: "O cadastro de obras traz um campo de descrição preenchido depois da execução — \u201cSUBST. TRAFO QUEIMADO\u201d, \u201cFURTO DE BENS TRAFO\u201d. É a terceira voz do caso: a SS diz o que pediu, a OS o que executou, a obra sob que rótulo o custo entrou. Aqui ela não bate com a leitura.", teste: (r) => r.obra_diverge === "SIM" },
+      { id: "sigco_dic", rotulo: "SIGCO divergente da leitura", nota: "O custo entrou num projeto que pressupõe uma causa e a leitura concluiu outra. O dicionário de projetos foi construído das 1.479 obras: 8812 é queima em 98%, 61993 é furto em 85%, 20497 é dano de terceiro em 100%, 8444 é vazamento de óleo. Só acusa projeto com mais de 60% de pureza — abaixo disso ele mistura causas e não pressupõe nada.", teste: (r) => r.sigco_diverge === "SIM" },
+      { id: "obra_sigco", rotulo: "A obra e o SIGCO discordam entre si", nota: "O sinal mais limpo do acervo: dois campos do próprio cadastro se contradizendo, sem leitura nossa envolvida. A obra foi aberta com um rótulo e o custo entrou noutro projeto — quem escreveu os dois foi a mesma casa, depois da execução.", teste: (r) => r.obra_sigco_discordam === "SIM" },
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
@@ -604,7 +622,8 @@ export default function Page() {
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => texto(r.expurgo_gatilho) === "duplicada" },
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "presumida", rotulo: "Exclusão por presunção, não constatação", nota: "O texto diz \u201cpossivelmente furtado\u201d, \u201cao que tudo indica\u201d, \u201csinais de vandalismo\u201d ou \u201ctentativa de furto\u201d. A equipe supôs a partir do que viu; não constatou. Continuam fora do indicador, mas ficam marcadas — suposição arquivada como fato é o que ninguém revisa depois.", teste: (r) => r.exclusao_presumida === "SIM" },
-      { id: "manual", rotulo: "Excluídas por você", nota: "Não saíram por regra: você bateu o martelo. A decisão do fluxo continua registrada ao lado.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
+      { id: "suas_regras", rotulo: "Saíram por regra que você pediu", nota: "A categoria existe porque você mandou criar, e em várias delas você apontou o caso que convenceu. O dossiê de cada uma diz qual foi. Autoria não é detalhe: quem defende o número precisa poder dizer de onde veio cada corte.", teste: (r) => r.exclusao_pedida_pelo_dono === "SIM" },
+      { id: "manual", rotulo: "Excluídas por você à mão", nota: "Não saíram por regra: você bateu o martelo. A decisão do fluxo continua registrada ao lado.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
     ],
     preventivos: [
       { id: "todos", rotulo: "Todos os preventivos", nota: "Troca sem defeito: programada, por divisão de circuito ou marcada por você. Não conta como falha de equipamento.", teste: (r) => arquivo(r) === "PREVENTIVO" || texto(r.expurgo_gatilho) === "preventivo" || texto(r.expurgo_gatilho) === "divisao" },
@@ -1270,10 +1289,13 @@ export default function Page() {
             <Kpi rotulo="Equipes distintas" valor={br(new Set(comAt.map((r) => texto(r.at_equipe))).size)} nota="atenderam as solicitações" tom="ink" />
           </section>
           <section className="dashboard-columns">
-            <article className="panel"><div className="panel-title"><div><span>Quem atendeu</span><h2>Equipes</h2></div><small>clique para filtrar</small></div>
-              <Barras dados={contar(comAt, "at_equipe", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
-            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Subcausa registrada</h2></div></div>
-              <Barras dados={contar(comAt, "at_sub", 8)} total={comAt.length} /></article>
+            {/* Era "Equipes" e "Subcausa". A equipe diz quem foi, não o que houve — e o que
+                interessa nesta etapa é o que o atendimento declarou. Causa e subcausa ocupam o
+                painel, as duas clicáveis; quem quiser a equipe continua achando pela busca. */}
+            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Causa registrada no atendimento</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(comAt, "at_causa", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Subcausa registrada</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(comAt, "at_sub", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
           </section>
         </>;
       }
@@ -1519,7 +1541,8 @@ export default function Page() {
             <Kpi rotulo="Sem OS e sem obra" valor={br(g("sem_os"))} nota="nada para ler, nada para conferir — investigar" tom="amber" aoClicar={() => abrirRecorte("g_semos")} />
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
-            <Kpi rotulo="Excluídas por você" valor={br(porClasseNav("EXCLUIDO"))} nota="martelo batido à mão, fora da regra" tom="ink" aoClicar={() => abrirRecorte("manual")} />
+            <Kpi rotulo="Por regra que você pediu" valor={br(conta((r) => r.exclusao_pedida_pelo_dono === "SIM"))} nota="a categoria existe porque você mandou criar" tom="ink" aoClicar={() => abrirRecorte("suas_regras")} />
+            <Kpi rotulo="Excluídas por você à mão" valor={br(porClasseNav("EXCLUIDO"))} nota="martelo batido no navegador" tom="ink" aoClicar={() => abrirRecorte("manual")} />
           </section>
           {/* O mesmo analítico que a Interrupção tem: barra por categoria, clicável. Sem ele a
               aba respondia "quantas saíram" e não "por quê", que é a pergunta de quem audita.
@@ -1527,7 +1550,12 @@ export default function Page() {
               outro é crime patrimonial e vai para projeto próprio. Somá-los apaga a diferença. */}
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Motivo da saída</h2></div><small>clique para filtrar</small></div>
-              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "Marcada por você" })), "_g", 12)} total={excluidas} aoSelecionar={(l) => { setBusca(""); setRecorte(null); }} /></article>
+              {/* a barra filtra de verdade: cada rótulo volta ao gatilho que o gerou */}
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "Marcada por você" })), "_g", 12)} total={excluidas} aoSelecionar={(l) => {
+                const chave = Object.entries(GATILHO_ROTULO).find(([, v]) => v === l)?.[0];
+                const chip: Record<string, string> = { furto: "g_furto", abalroamento: "g_abalro", preventivo: "g_prev", divisao: "g_div", construcao: "g_constr", desativacao: "g_constr", auxiliar: "g_aux", particular: "g_part", duplicada: "g_dup", sem_os: "g_semos", sem_obra: "g_semobra", seguranca: "g_seg", tap: "g_tap" };
+                setBusca(""); abrirRecorte(chave ? chip[chave] || "todos" : "manual");
+              }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Natureza do motivo</h2></div></div>
               <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[texto(r.expurgo_gatilho)] || "Classificada por você" })), "_n", 8)} total={excluidas} /></article>
           </section>
@@ -1706,6 +1734,11 @@ export default function Page() {
             {texto(aberto.motivo_reclassificacao) ? <article className="work-alerts"><span>EXCLUSÃO DESFEITA</span><ul><li>{texto(aberto.motivo_reclassificacao)}</li></ul></article> : null}
             {texto(aberto.leitura_pararaio) ? <article className="work-alerts"><span>LEITURA CORRIGIDA</span><ul><li>{texto(aberto.leitura_pararaio)}</li></ul></article> : null}
             {aberto.oc_outro_assunto === "SIM" ? <article className="work-alerts"><span>A OCORRÊNCIA EXIBIDA É DE OUTRO EQUIPAMENTO</span><ul><li>Ela está fora da janela e aparece só como referência. A nota de campo descreve trabalho em conexão, cabo, medidor ou disjuntor, sem citar transformador — não explica nada sobre este ativo. Caso para análise profunda.</li></ul></article> : null}
+            {texto(aberto.categoria_herdada_vencida) ? <article className="work-alerts"><span>RÓTULO HERDADO DERRUBADO PELO TEXTO</span><ul><li>{texto(aberto.categoria_herdada_vencida)}</li></ul></article> : null}
+            {texto(aberto.obra_diverge_texto) ? <article className="work-alerts"><span>A OBRA DIZ OUTRA CAUSA</span><ul><li>{texto(aberto.obra_diverge_texto)}</li></ul></article> : null}
+            {texto(aberto.obra_sigco_texto) ? <article className="work-alerts"><span>A OBRA E O SIGCO DISCORDAM ENTRE SI</span><ul><li>{texto(aberto.obra_sigco_texto)}</li></ul></article> : null}
+            {texto(aberto.sigco_diverge_texto) ? <article className="work-alerts"><span>ENQUADRAMENTO CONTÁBIL</span><ul><li>{texto(aberto.sigco_diverge_texto)}</li></ul></article> : null}
+            {texto(aberto.exclusao_origem) ? <article className="work-alerts"><span>DE ONDE VEIO ESTA REGRA</span><ul><li>{texto(aberto.exclusao_origem)}{texto(aberto.exclusao_caso_origem) ? ` — a partir de ${texto(aberto.exclusao_caso_origem)}` : ""}.</li></ul></article> : null}
             {aberto.sigco_avaria_em_queima === "SIM" ? <article className="work-alerts"><span>BANDEIRA CONTÁBIL</span><ul><li>Avaria enquadrada no SIGCO 8812, que é o projeto de transformador queimado. Não muda a causa — muda para onde o custo foi.</li></ul></article> : null}
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{texto(aberto.desc_ss) || "Sem texto."}</p></article>
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{texto(aberto.desc_os) || "Sem texto."}</p></article>
@@ -1718,8 +1751,13 @@ export default function Page() {
               <div><span>Término</span><strong>{dataBR(aberto.termino)}</strong></div>
               <div><span>Potência retirada</span><strong>{texto(aberto.pot_ret)} kVA</strong></div>
               <div><span>Potência instalada</span><strong>{texto(aberto.pot_inst)} kVA</strong></div>
-              <div><span>Transformadores no material</span><strong>{texto(aberto.trafos_material)}</strong></div>
-              <div><span>Material conferido</span><strong>{texto(aberto.material_conferido)}</strong></div>
+              {/* Ficavam em branco quando o valor era zero ou vazio, e campo em branco lê-se
+                  como campo que sumiu. Zero é resposta: quer dizer que a obra não movimentou
+                  transformador nenhum, que é exatamente o que retém o caso na terceira peneira. */}
+              <div><span>Transformadores no material</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} — a obra movimentou transformador` : "0 — a obra não movimentou transformador"}</strong></div>
+              <div><span>Material conferido</span><strong>{texto(aberto.material_conferido) === "SIM" ? "SIM — a obra está no export de material" : "NÃO — a obra não está no export de material, ou não foi gerada"}</strong></div>
+              <div><span>Postes no material</span><strong>{texto(aberto.postes_material) || "0"}</strong></div>
+              <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
             </section>
             <BlocoDetalhe titulo="A linha inteira da solicitação" fonte="Base de SS e OS" dados={aberto.det_ss as Detalhe} />
           </>}
@@ -1727,6 +1765,9 @@ export default function Page() {
             <h3>A obra e o enquadramento</h3>
             <section className="detail-grid">
               <div><span>Obra</span><strong>{texto(aberto.obra) || "não gerada"}</strong></div>
+              <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
+              <div><span>Para que serve este SIGCO</span><strong>{texto(aberto.sigco_descricao) || "código sem obras suficientes para dizer"}{aberto.sigco_pureza ? ` (${texto(aberto.sigco_pureza)}% das obras do projeto)` : ""}</strong></div>
+              <div><span>Material movimentado</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} transformador` : "nenhum transformador"}{(Number(aberto.postes_material) || 0) > 0 ? ` · ${texto(aberto.postes_material)} poste` : ""}</strong></div>
               <div><span>Classe</span><strong>{texto(aberto.obra_classe) || "—"}</strong></div>
               <div><span>Natureza</span><strong>{texto(aberto.obra_natureza) || "—"}</strong></div>
               <div><span>Tipo</span><strong>{texto(aberto.obra_tipo) || "—"}</strong></div>

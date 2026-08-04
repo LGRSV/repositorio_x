@@ -391,6 +391,7 @@ def main():
     devolvidas = []
     for r in fluxo["registros"]:
         cat = str(r.get("categoria_texto") or "").strip().upper()
+        texto_todo = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
         fora_txt, susp = julga_texto(r)
         r["suspeitas"] = " · ".join(e for _, e in susp)
         r["sob_suspeita"] = "SIM" if susp else "NÃO"
@@ -452,6 +453,32 @@ def main():
                 "disputa_perdida": "NÃO", "deslocamento": "",
             })
             continue
+        # A CATEGORIA HERDADA NÃO VENCE O TEXTO. `categoria_texto` vem do classificador da
+        # auditoria anterior, e ele marcava ABALROAMENTO quando a palavra "poste" aparecia —
+        # foi esse defeito que já devolveu treze casos uma vez. Ele voltou por outra porta:
+        # a exclusão por categoria não olhava o texto. Três casos saíam como dano de terceiro
+        # dizendo "TRAFO QUEIMADO" e "VAZAMENTO DE ÓLEO" com todas as letras. Agora, quando o
+        # rótulo herdado não tem apoio no texto E o texto declara falha do próprio
+        # transformador, o rótulo perde: o que está escrito vale mais que o que foi carimbado.
+        if not fora_txt and cat in FORA_CAT:
+            # o texto declara falha do próprio equipamento?
+            pelo_texto = bool(re.search(r"TRAFO QUEIMAD\w*|TRANSFORMADOR QUEIMAD\w*|"
+                                        r"QUEIMAD\w* \d{6,}|VAZAMENTO DE OLEO", texto_todo))
+            # ou o CAMPO declara? A Crítica ou o TMAE dizendo causa TRANSFORMADOR com subcausa
+            # de falha é fato consumado, e fato consumado não perde para carimbo antigo. Três
+            # dos oito "preventivos" tinham o atendimento declarando queima por descarga
+            # atmosférica ou vazamento de óleo no próprio transformador.
+            campo = " ".join(str(r.get(k) or "") for k in ("oc_causa", "oc_sub", "at_causa", "at_sub")).upper()
+            pelo_campo = ("TRANSFORMADOR" in campo
+                          and re.search(r"QUEIMAD|VAZAMENTO|TANQUE|FALHA BUCHA", campo))
+            if pelo_texto or pelo_campo:
+                fonte = ("o texto declara falha do próprio transformador" if pelo_texto
+                         else "o campo declara o transformador como elemento com defeito")
+                r["categoria_herdada_vencida"] = (
+                    f"A categoria {cat.lower()} veio do classificador anterior e nada a "
+                    f"sustenta — {fonte}. O rótulo perdeu.")
+                r["fora_da_esteira"] = "NÃO"
+                continue
         if not (fora_txt or cat in FORA_CAT):
             r["fora_da_esteira"] = "NÃO"
             continue
@@ -465,7 +492,7 @@ def main():
         # do que viu, não constatou. Continuam fora do indicador, porque quem decide isso é o
         # dono e não a régua; mas ficam marcados, porque uma suposição arquivada como fato é
         # exatamente o tipo de coisa que ninguém revisa depois.
-        texto_todo = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+        pass  # texto_todo já calculado acima
         if re.search(r"POSSIVELMENTE|AO QUE TUDO INDICA|PROVAVELMENTE|SINAIS DE |TENTATIVA DE |"
                      r"SUSPEITA DE ", texto_todo):
             r["exclusao_presumida"] = "SIM"
@@ -754,6 +781,159 @@ def main():
             r["oc_outro_assunto"] = "NÃO"
     print(f"  ocorrência fora da janela cuja nota de campo é de outro equipamento: {fora_assunto}")
 
+    # ---------- o que a OBRA diz que é: a terceira leitura, que estava no dado e ninguém lia
+    # O cadastro de obras traz um campo Descricao — "SUBST. TRAFO QUEIMADO", "SUBST. TRAFO
+    # VAZANDO ÓLEO", "FURTO DE BENS TRAFO" — preenchido por quem abriu a obra, depois da
+    # execução. Ele vinha no dossiê dentro do bloco de detalhe e nunca foi cruzado com nada.
+    # É a terceira voz independente do caso: a SS diz o que pediu, a OS diz o que executou, a
+    # obra diz sob que rótulo o custo entrou. Quando a obra e a leitura discordam, isso não
+    # decide nada sozinho — mas é exatamente o tipo de divergência que ninguém deveria
+    # descobrir na reunião.
+    #
+    # E o dicionário de SIGCO deixa de ser palpite: agrupando as 1.479 obras por número de
+    # projeto, cada código mostra para que serve. 8812 é SUBST. TRAFO QUEIMADO em 98% das
+    # obras; 61993 é FURTO DE BENS TRAFO em 85%; 20497 é DANO(S) CAUSADO POR TERCEIROS em
+    # 100%; 8444, que aparece uma vez só, é SUBST. TRAFO VAZANDO ÓLEO.
+    def limpa_desc(x):
+        x = re.sub(r"\s*-\s*(TR:?\s*)?\d{6,}.*$", "", str(x or "").strip())
+        return re.sub(r"\s*-\s*ID:.*$", "", x).strip().upper()
+
+    # o rótulo que a obra dá ao caso, reduzido à causa que ele afirma
+    OBRA_CAUSA = {
+        "SUBST. TRAFO QUEIMADO": "QUEIMADO",
+        "SUBST. TRAFO AVARIADO": "AVARIADO",
+        "SUBST. TRAFO VAZANDO ÓLEO": "AVARIADO",
+        "SUBST. TRAFO COM SOBRECARGA": "SOBRECARGA",
+        "FURTO DE BENS TRAFO": "FURTADO",
+        "FURTO DE BENS (MATERIAIS DIVERSOS)": "FURTADO",
+        "DANO(S) CAUSADO POR TERCEIROS": "ABALROAMENTO",
+        "POSTE DANIFICADO": "POSTE",
+        "DESATIVAÇÃO DE TRAFO": "DESATIVACAO",
+        "SUBST. CHAVE FUSÍVEL": "OUTRO EQUIPAMENTO",
+        "MANUTENÇÃO CORRETIVA": "",
+    }
+    sigco_obras = collections.defaultdict(collections.Counter)
+    for r in fluxo["registros"]:
+        des = limpa_desc((r.get("det_obra") or {}).get("Descricao"))
+        r["obra_descricao"] = des
+        r["obra_causa"] = OBRA_CAUSA.get(des, "")
+        sig = str(r.get("sigco") or "").strip()
+        if sig and des:
+            sigco_obras[sig][des] += 1
+    dic = {}
+    for sig, cc in sigco_obras.items():
+        top, n = cc.most_common(1)[0]
+        dic[sig] = {"descricao": top, "obras": sum(cc.values()),
+                    "pureza": round(100 * n / sum(cc.values()))}
+    fluxo["sigco"] = dic
+    print(f"  dicionário de SIGCO construído das obras: {len(dic)} códigos")
+
+    # divergência entre o que a obra afirma e o que a leitura concluiu — bandeira, não veredito
+    div = 0
+    for r in fluxo["registros"]:
+        oc_, lc = r.get("obra_causa"), str(r.get("categoria_texto") or "").upper()
+        # sobrecarga não diverge de queima: "QUEIMADO POR SOBRECARGA" é subcausa da própria
+        # Crítica, e a obra dizer sobrecarga é dizer por que queimou, não que não queimou
+        if not oc_ or not lc or oc_ == lc or (oc_ == "SOBRECARGA" and lc in ("QUEIMADO", "AVARIADO")):
+            r["obra_diverge"] = "NÃO"
+            continue
+        r["obra_diverge"] = "SIM"
+        r["obra_diverge_texto"] = (f"A obra foi aberta como \"{r['obra_descricao']}\" e a leitura "
+                                   f"do texto concluiu {lc.lower()}. Quem abriu a obra escreveu "
+                                   "isso depois da execução — é a terceira voz do caso, e ela "
+                                   "não bate com a segunda.")
+        div += 1
+    print(f"  obras cujo rótulo diverge da leitura: {div}")
+
+    # ---------- de quem é cada regra de exclusão
+    # O contador "excluídas por você" na tela só sabia contar o que o dono marca no navegador, e
+    # por isso mostrava zero — quando na verdade TODAS as categorias de exclusão existem porque
+    # ele pediu, e várias nasceram de um caso que ele apontou nome por nome. Autoria não é
+    # detalhe numa auditoria: quem defende o número na reunião precisa poder dizer de onde veio
+    # cada corte, e "a régua decidiu" é resposta pior que "eu decidi, e eis o caso que me
+    # convenceu".
+    ORIGEM = {
+        "furto": ("o dono pediu que furto excluísse mesmo com trafo movimentado", ""),
+        "construcao": ("o dono pediu que construção excluísse", ""),
+        "auxiliar": ("o dono pediu que auxiliar de religador ou regulador excluísse",
+                     "ETO-RD-DP 00093/2026, ETO-RD-PS 00094/2026, ETO-RD-AR 00576/2026"),
+        "divisao": ("o dono definiu que divisão de circuito entra como preventivo", ""),
+        "particular": ("o dono pediu categoria própria para transformador particular",
+                       "DOLP-RD-PA 00492/2026"),
+        "abalroamento": ("o dono apontou uma queima atribuída a caminhão que estava na saída",
+                         "DOLP-RD-PA 00264/2026"),
+        "desativacao": ("o dono apontou duas desativações que estavam como pendência",
+                        "DOLP-RD-PA 00652/2026, ENC-RD-PS 00508/2026"),
+        "sem_os": ("o dono definiu que sem OS não se afirma queima nem avaria",
+                   "DOLP-RD-PA 00348/2026, ETO-RD-DP 00233/2026"),
+        "sem_obra": ("o dono definiu que obra não gerada há mais de 60 dias não se defende",
+                     "DOLP-RD-PA 00096/2026"),
+        "seguranca": ("o dono pediu categoria de segurança para obra de poste",
+                      "ETO-RD-GU 00685/2026"),
+        "tap": ("o dono pediu categoria de tape interno", "ETO-RD-AG 00214/2026"),
+        "preventivo": ("categoria herdada da auditoria anterior, mantida pelo dono", ""),
+        "duplicada": ("o dono pediu que a SS duplicada saísse da esteira em vez de ficar parada",
+                      ""),
+    }
+    for r in fluxo["registros"]:
+        g = str(r.get("expurgo_gatilho") or "")
+        quem, caso = ORIGEM.get(g, ("", ""))
+        r["exclusao_origem"] = quem
+        r["exclusao_caso_origem"] = caso
+        r["exclusao_pedida_pelo_dono"] = "SIM" if quem.startswith("o dono") else "NÃO"
+    pedidas = sum(1 for r in fluxo["registros"] if r.get("exclusao_pedida_pelo_dono") == "SIM")
+    print(f"  exclusões que existem porque o dono pediu a regra: {pedidas} de "
+          f"{sum(1 for r in fluxo['registros'] if r.get('fora_da_esteira') == 'SIM')}")
+
+    # ---------- SIGCO divergente, agora com dicionário em vez de palpite
+    # A regra antiga conhecia um código só, o 8812, e por isso acusava um caso em 1.510. Com o
+    # dicionário construído das obras ela sabe o que cada projeto significa e pode comparar: o
+    # custo entrou num projeto que pressupõe uma causa, e a leitura concluiu outra. Não muda a
+    # causa nem tira ninguém do indicador — diz para onde o dinheiro foi, que é outra pergunta
+    # e tem outro dono.
+    sig_div = 0
+    for r in fluxo["registros"]:
+        sig = str(r.get("sigco") or "").strip()
+        info = dic.get(sig)
+        lc = str(r.get("categoria_texto") or "").upper()
+        r["sigco_descricao"] = info["descricao"] if info else ""
+        r["sigco_pureza"] = info["pureza"] if info else None
+        esperado = OBRA_CAUSA.get(info["descricao"], "") if info else ""
+        # só acusa quando o projeto é dedicado de verdade: abaixo de 60% de pureza ele mistura
+        # causas e não pressupõe nada
+        if (not esperado or not lc or esperado == lc or not info or info["pureza"] < 60
+                or (esperado == "SOBRECARGA" and lc in ("QUEIMADO", "AVARIADO"))):
+            r["sigco_diverge"] = "NÃO"
+            continue
+        r["sigco_diverge"] = "SIM"
+        r["sigco_diverge_texto"] = (
+            f"O custo entrou no projeto SIGCO {sig}, que em {info['pureza']}% das "
+            f"{info['obras']} obras é \"{info['descricao']}\". A leitura deste caso concluiu "
+            f"{lc.lower()}. É divergência de enquadramento contábil, não de causa técnica.")
+        sig_div += 1
+    print(f"  SIGCO divergente da leitura (com dicionário): {sig_div}")
+
+    # ---------- a obra e o SIGCO discordam entre si
+    # Este é o sinal mais limpo do acervo, porque não depende de leitura nenhuma: são dois campos
+    # do próprio cadastro se contradizendo. A obra foi aberta como "SUBST. TRAFO AVARIADO" e o
+    # custo entrou no projeto de sobrecarga; ou a obra diz vazamento e o projeto diz queima.
+    # Quem escreveu os dois foi a mesma casa, depois da execução. Não muda a causa técnica —
+    # mostra que o enquadramento contábil não seguiu o que a própria obra declarou.
+    interno = 0
+    for r in fluxo["registros"]:
+        des, sig = r.get("obra_descricao"), str(r.get("sigco") or "").strip()
+        info = dic.get(sig)
+        if not des or not info or info["pureza"] < 60 or info["descricao"] == des:
+            r["obra_sigco_discordam"] = "NÃO"
+            continue
+        r["obra_sigco_discordam"] = "SIM"
+        r["obra_sigco_texto"] = (
+            f"A obra foi aberta como \"{des}\" e o custo entrou no projeto SIGCO {sig}, que em "
+            f"{info['pureza']}% das {info['obras']} obras é \"{info['descricao']}\". São dois "
+            "campos do mesmo cadastro discordando — nenhuma leitura nossa está envolvida.")
+        interno += 1
+    print(f"  obra e SIGCO discordam entre si: {interno}")
+
     # ---------- avaria enquadrada no projeto de queima
     # O SIGCO 8812 é o projeto de transformador queimado. Quando a leitura conclui avaria e a
     # obra foi enquadrada ali, o custo foi para o projeto errado — não muda a causa, muda para
@@ -788,6 +968,65 @@ def main():
                 "completo agora está no acervo. " + ("O atendimento foi encontrado."
                                                      if r.get("at_num") else
                                                      "Mesmo assim não há atendimento no código do ativo."))
+
+    # ---------- a narrativa era de outra rodada e contradizia o próprio cabeçalho
+    # 472 dossiês de 1.510 traziam um parágrafo dizendo "o caso ficou retido já na primeira
+    # peneira" enquanto o cabeçalho ao lado dizia INCLUIR, ou o contrário. O texto foi escrito
+    # por um funil anterior e nunca foi regerado — e um parágrafo bem escrito afirmando o
+    # oposto da decisão é pior que parágrafo nenhum, porque ele convence.
+    #
+    # O conserto não tenta reescrever a narrativa inteira: corta as frases que AFIRMAM
+    # desfecho — as que falam de peneira, de matriz, de casamento fraco — e recompõe a
+    # conclusão a partir do estado de agora. O que a narrativa diz sobre o que cada base
+    # registra continua, porque isso não mudou.
+    # Qualquer frase que AFIRME desfecho sai. A segunda peneira, em especial, não retém mais
+    # ninguém — toda frase que diz "ficou retido na segunda" é vencida por definição.
+    VENCIDAS = re.compile(
+        r"(ficou retido|peneira|A decisão final da matriz|Eis a contradição|"
+        r"Contradição possível|é a ocorrência mais próxima no código do trafo, mas|"
+        r"casamento fraco|nem a interrupção nem o atendimento sustentam|"
+        r"deslocamento confirmado|atendimento fora da janela ou do elemento esperado|"
+        # a própria conclusão que este bloco escreve: sem isto ela se acumula a cada rodada,
+        # porque o script grava no mesmo arquivo que lê
+        r"^A causa confirmada é|^Motivo da exclusão:|^Campo, texto e material convergem|"
+        r"^Saiu antes da esteira|^Parou na (primeira|terceira|quarta)|^Passou pelas quatro)", re.I)
+    MOTIVO_FINAL = {
+        "SAÍDA": "Passou pelas quatro peneiras e está no indicador",
+        "EXCLUÍDA": "Saiu antes da esteira, pela porta de exclusão",
+        "RETIDO — SEM INTERRUPÇÃO NA JANELA": "Parou na primeira peneira: não há interrupção "
+                                              "nem atendimento na janela de 24 horas",
+        "RETIDO — SEM PROVA DE TROCA": "Parou na terceira peneira: a obra não comprova "
+                                       "movimentação de transformador",
+        "RETIDO — RESSALVA DA INTERRUPÇÃO": "Parou na quarta peneira: a interrupção existe, "
+                                            "mas traz sinal que a enfraquece",
+    }
+    reescritas = 0
+    for r in fluxo["registros"]:
+        # Guarda a narrativa original uma vez e SEMPRE reconstrói a partir dela. Sem isso, o
+        # script — que grava no arquivo que lê — anexava uma conclusão nova a cada rodada por
+        # cima da anterior, e o dossiê ia acumulando parágrafos idênticos.
+        if not r.get("narrativa_base"):
+            r["narrativa_base"] = str(r.get("narrativa") or "").strip()
+        nar = str(r.get("narrativa_base") or "").strip()
+        if not nar:
+            continue
+        frases = [f.strip() for f in re.split(r"(?<=\.)\s+", nar) if f.strip()]
+        limpas = [f for f in frases if not VENCIDAS.search(f)]
+        if len(limpas) == len(frases) and r["cascata"] in nar:
+            continue
+        cab = MOTIVO_FINAL.get(r["cascata"], r["cascata"])
+        mot = str(r.get("cascata_motivo") or "").strip()
+        if mot and not mot.endswith("."):
+            mot += "."
+        fim = f"{cab}. {mot}".strip()
+        if r.get("confirmado"):
+            fim += f" A causa confirmada é {str(r['confirmado']).lower()}."
+        if r.get("exclusao_porque"):
+            fim += f" Motivo da exclusão: {r['exclusao_porque']}."
+        r["narrativa"] = " ".join(limpas + [fim])
+        r["narrativa_regerada"] = CARIMBO
+        reescritas += 1
+    print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
 
     # ---------- o resumo tem que ser recontado, é ele que a tela lê
     R = fluxo["registros"]
