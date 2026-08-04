@@ -1407,6 +1407,77 @@ def main():
             "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
             "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
             "chave. Estava caindo na categoria genérica de obra sem transformador."),
+        # ---- OS OITO QUE ELE MANDOU PARA PREVENTIVO
+        # "Mova do lugar de onde está e coloca no preventivo." Os oito têm uma coisa em comum que
+        # o dado confirma: NENHUM foi aberto pelo COI. Seis vieram da própria manutenção, um do
+        # COCM e um do DEOP — a equipe achou o defeito antes de o cliente reclamar. Não é o que
+        # aconteceu com o equipamento que muda; é o enquadramento. A ETO-RD-AG 00501 tinha
+        # veredito da rodada anterior e a ordem nova o substitui: a entrada velha foi removida,
+        # não sobreposta, porque chave repetida em dicionário é bug esperando acontecer.
+        # ATENÇÃO: origem não virou regra. Continuam na saída 90 casos de MANUT, 13 do DEOP e 2
+        # do COCM que ele não citou — se a origem for para valer como critério, é outra conversa.
+        "ENC-RD-PS 00095/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara queimado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
+        "DOLP-RD-PA 00369/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara queimado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
+        "DOLP-RD-PA 00488/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pelo COCM, ou seja, a equipe "
+            "achou o defeito antes de o cliente reclamar. O texto declara avariado e a obra "
+            "movimentou transformador; o que muda não é o que aconteceu com o equipamento, é o "
+            "enquadramento: troca encontrada em ronda não é falha que penalizou o indicador"),
+        "ETO-RD-AR 00172/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara queimado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
+        "ETO-RD-AR 00033/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara queimado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
+        "ETO-RD-AR 00820/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara queimado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
+        "DOLP-RD-PA 00688/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pelo DEOP, ou seja, a equipe "
+            "achou o defeito antes de o cliente reclamar. O texto declara avariado e a obra "
+            "movimentou transformador; o que muda não é o que aconteceu com o equipamento, é o "
+            "enquadramento: troca encontrada em ronda não é falha que penalizou o indicador"),
+        "ETO-RD-AG 00501/2026": (
+            "EXCLUIR", "", "preventivo",
+            "o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no "
+            "preventivo”. A SS não foi aberta pelo COI — foi aberta pela própria manutenção, ou "
+            "seja, a equipe achou o defeito antes de o cliente reclamar. O texto declara avariado "
+            "e a obra movimentou transformador; o que muda não é o que aconteceu com o "
+            "equipamento, é o enquadramento: troca encontrada em ronda não é falha que penalizou "
+            "o indicador"),
         # ---- E OS TREZE QUE ELE MANDOU MOVER "PARA QUEIMA E AVARIA"
         # A ordem tem plural de propósito: cada um vai para a SUA natureza, não todos para o
         # mesmo balde. A natureza sai do texto do próprio caso — onze declaram avaria (vazamento
@@ -1483,12 +1554,6 @@ def main():
             "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
             "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
             "estar a 2 horas da janela"),
-        "ETO-RD-AG 00501/2026": (
-            "INCLUIR", "AVARIADO", "",
-            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
-            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
-            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
-            "estar a 3 horas da janela"),
         # ---- OS DEZENOVE QUE ELE MANDOU MOVER PARA QUEIMADO
         # "esses aqui você retira de onde ele tiver e move para queimados". Todos saíam por
         # distância da janela — de 2 horas a 2.561 —, todos com texto de falha e dezoito com
