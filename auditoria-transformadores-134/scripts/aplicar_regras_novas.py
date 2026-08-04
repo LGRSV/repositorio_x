@@ -1347,6 +1347,83 @@ def main():
         reescritas += 1
     print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
 
+    # ---------- zero cliente deixa de trancar e vira marcador
+    # O dono mandou, nomeando dois casos e repetindo a regra nos dois: "categoriza como queimado
+    # porém coloque na categoria de 0 clientes interrompidos". É a mesma decisão que ele já tinha
+    # tomado para o deslocamento do TMAE — o sinal fica visível e filtrável, mas não decide
+    # sozinho.
+    #
+    # O que sustenta: nos 74 presos SÓ por isso, os 74 têm transformador movimentado na obra, e
+    # a Crítica declara defeito no próprio ativo dentro da janela. Zero cliente não desmente
+    # nada disso; diz que o trafo estava num ramal sem carga faturada no momento do corte, o que
+    # é comum em rural. Sem cliente não há DEC nem FEC — o que muda é o impacto regulatório, não
+    # a existência da falha.
+    #
+    # A bandeira continua, e é forte: quem for defender o número precisa saber que 74 dos casos
+    # não penalizaram ninguém.
+    voltaram = 0
+    for r in fluxo["registros"]:
+        if r.get("cascata") != "RETIDO — RESSALVA DA INTERRUPÇÃO":
+            continue
+        restante = [x.strip() for x in str(r.get("ressalvas") or "").split("·")
+                    if x.strip() and x.strip() != "nenhum cliente interrompido"]
+        if restante:
+            continue  # tem outra ressalva além do zero cliente: continua presa
+        voltaram += 1
+        cat = str(r.get("categoria_texto") or "").strip().upper()
+        r.update({
+            "cascata": "SAÍDA", "decisao": "INCLUIR",
+            "confirmado": "AVARIADO" if cat == "AVARIADO" else "QUEIMADO",
+            "e4_status": "MARCADOR — não retém",
+            "ressalvas": "nenhum cliente interrompido",
+            "ressalvas_graves": "", "ressalvas_medias": "",
+            "cascata_motivo": ("Campo, texto e material convergem. A interrupção não penalizou "
+                               "nenhum cliente — fica marcado, não retém: sem cliente não há DEC "
+                               "nem FEC, mas o transformador falhou do mesmo jeito."),
+        })
+    print(f"  presos só por zero cliente, agora marcados em vez de retidos: {voltaram}")
+
+    # ---------- possível erro de cadastro
+    # "NO CADASTRO DIZ QUE É O TRAFO 5700036153, PORÉM EM CAMPO É O TRAFO 5700299024."
+    # A equipe declara que o código não corresponde ao equipamento. Enquanto isso não for
+    # resolvido no cadastro, qualquer casamento por código é casamento com o ativo errado — e o
+    # caso não pode sustentar nem a inclusão nem a exclusão pelo campo.
+    cadastro = 0
+    for r in fluxo["registros"]:
+        t = norm_txt(str(r.get("desc_ss") or "") + " || " + str(r.get("desc_os") or ""))
+        if not re.search(r"NO CADASTRO DIZ QUE E O TRAFO|CADASTRO DIZ[^.|]{0,40}POREM EM CAMPO|"
+                         r"NUMERO OPERATIVO (TROCAD|ERRAD)\w*|CODIGO (TROCAD|ERRAD)\w*|"
+                         r"TRAFO DIVERGENTE DO CADASTRO|CADASTRO DIVERGENTE", t):
+            continue
+        cadastro += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "erro_cadastro", "chega_e1": "NÃO",
+            "exclusao_porque": ("a equipe declara no texto que o código do cadastro não "
+                                "corresponde ao equipamento que está no poste — enquanto isso "
+                                "não for resolvido, qualquer casamento por código é casamento "
+                                "com o ativo errado"),
+            "cascata_motivo": "Fora do indicador: possível erro de cadastro do código do ativo.",
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    print(f"  possível erro de cadastro do código do ativo, excluídos: {cadastro}")
+
+    # ---------- obra preventiva descrevendo falha
+    # A obra tem dois campos e eles discordam: o TIPO diz "manutenção preventiva" e a DESCRIÇÃO
+    # diz "subst. trafo queimado". Não muda causa — a descrição é mais específica que o tipo —,
+    # mas é divergência do próprio cadastro e precisa estar à vista.
+    pv = 0
+    for r in fluxo["registros"]:
+        tipo = str(r.get("obra_tipo") or "").upper()
+        desc = str(r.get("obra_descricao") or "").upper()
+        r["obra_tipo_diverge"] = "NÃO"
+        if ("PREVENTIVA" in tipo or "PROGRAMADA" in tipo) and re.search(r"QUEIMAD|AVARIAD", desc):
+            r["obra_tipo_diverge"] = "SIM"
+            pv += 1
+    print(f"  obra de tipo preventivo/programado descrevendo falha: {pv}")
+
     # ---------- que proteção atuou
     # "Desarme do RL 7908300096 atuado sobre corrente de neutro ICC 80 A, causa TR 5700009096
     # queimado." O religador não existe como elemento na Crítica — ela só classifica CH, TR, UC,

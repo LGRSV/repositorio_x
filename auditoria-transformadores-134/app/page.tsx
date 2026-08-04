@@ -460,7 +460,40 @@ export default function Page() {
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
     fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
-    if (salvo) Promise.resolve().then(() => setClassificacao(JSON.parse(salvo)));
+    const local: Record<string, { classe: string; quem: string; quando: string }> =
+      salvo ? JSON.parse(salvo) : {};
+    if (salvo) Promise.resolve().then(() => setClassificacao(local));
+    /* E o que já está no banco entra por cima do que for mais antigo. É isto que permite trocar
+       de máquina no meio do trabalho: o navegador novo chega vazio e se enche do que o outro
+       gravou. O mais recente vence dos dois lados — nem o banco apaga uma decisão local mais
+       nova, nem o local ignora uma decisão feita noutra máquina. A view devolve só a última
+       linha de cada SS, então o histórico fica no banco sem poluir a tela. */
+    fetch("https://uabpevnjfcwidbjscowq.supabase.co/rest/v1/trafo_classificacao_atual?select=ss,classe,quem,marcado_em", {
+      headers: {
+        "apikey": "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+        "Authorization": "Bearer sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+      },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((linhas: Array<{ ss: string; classe: string; quem: string; marcado_em: string }>) => {
+        if (!Array.isArray(linhas) || !linhas.length) return;
+        const juntos = { ...local };
+        let entraram = 0;
+        linhas.forEach((l) => {
+          const quando = new Date(l.marcado_em).toLocaleString("sv-SE").slice(0, 16);
+          const atual = juntos[l.ss];
+          if (!atual || atual.quando < quando) {
+            juntos[l.ss] = { classe: l.classe, quem: l.quem || "análise local", quando };
+            entraram += 1;
+          }
+        });
+        if (!entraram) return;
+        setClassificacao(juntos);
+        localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(juntos));
+        setExportado(`${entraram} classificações recuperadas do banco`);
+        setTimeout(() => setExportado(""), 8000);
+      })
+      .catch(() => {});
   }, []);
 
   const registros = fluxo?.registros ?? [];
@@ -644,6 +677,13 @@ export default function Page() {
       { id: "prot_ch", rotulo: "Chave fusível ou elo queimado", nota: "A nota de campo registra elo queimado ou chave fusível atuada.", teste: (r) => texto(r.protecao) === "CHAVE FUSÍVEL" },
       { id: "prot_dj", rotulo: "Disjuntor atuou", nota: "A nota de campo registra desarme de disjuntor.", teste: (r) => texto(r.protecao) === "DISJUNTOR" },
       { id: "diretoria", rotulo: "Diretoria invocada para acelerar", nota: "A SS ou a OS pede pressa citando a diretoria — \u201cfavor agilizar devido o cliente ter contato direto com a diretoria\u201d, \u201ca pedido da diretoria\u201d. Não muda a causa nem a decisão: muda a fila de atendimento. Fica marcado porque é pergunta de conselho.", teste: (r) => r.influencia === "SIM" },
+      /* Zero cliente deixou de trancar e virou marcador — decisão do dono, repetida em dois
+         casos que ele nomeou. Sem cliente não há DEC nem FEC, mas o transformador falhou do
+         mesmo jeito, e nos 74 a obra registra transformador movimentado. A bandeira é forte e
+         precisa estar à mão: quem for defender o número tem de saber quais são. */
+      { id: "q_sem_cliente", rotulo: "Queimados sem nenhum cliente interrompido", nota: "A Crítica registra defeito no próprio transformador dentro da janela e a obra comprova a troca, mas a interrupção não penalizou ninguém. Conferido na base crua somando todas as linhas da ocorrência — o zero não é truncamento de um passo só. Sem cliente não há DEC nem FEC: muda o impacto regulatório, não a existência da falha.", teste: (r) => r.sem_cliente_interrompido === "SIM" && arquivo(r) === "SAÍDA" && texto(r.confirmado) === "QUEIMADO" },
+      { id: "a_sem_cliente", rotulo: "Avariados sem nenhum cliente interrompido", nota: "O mesmo, para os casos lidos como avaria — vazamento de óleo, tanque deteriorado, falha de bucha.", teste: (r) => r.sem_cliente_interrompido === "SIM" && arquivo(r) === "SAÍDA" && texto(r.confirmado) === "AVARIADO" },
+      { id: "obra_tipo_div", rotulo: "Obra de tipo preventivo descrevendo falha", nota: "A obra tem dois campos e eles discordam: o TIPO diz manutenção preventiva ou programada, e a DESCRIÇÃO diz substituição de trafo queimado. Não muda a causa — a descrição é mais específica que o tipo —, mas é divergência do próprio cadastro.", teste: (r) => r.obra_tipo_diverge === "SIM" },
       { id: "avaria_sigco", rotulo: "Avaria no SIGCO de queima", nota: "A leitura concluiu avaria e o custo entrou no projeto SIGCO de transformador queimado. É divergência de enquadramento contábil, não de causa técnica — mas numa auditoria que vai a conselho é a divergência que se pergunta primeiro.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
@@ -697,6 +737,7 @@ export default function Page() {
       { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
       { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => texto(r.expurgo_gatilho) === "seguranca" },
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => texto(r.expurgo_gatilho) === "tap" },
+      { id: "g_cadastro", rotulo: "Possível erro de cadastro do código", nota: "A equipe declara no texto que o código do cadastro não corresponde ao equipamento que está no poste. Enquanto isso não for resolvido, qualquer casamento por código é casamento com o ativo errado — o caso não sustenta nem inclusão nem exclusão pelo campo.", teste: (r) => texto(r.expurgo_gatilho) === "erro_cadastro" },
       { id: "g_forajanela", rotulo: "Fora da janela da interrupção", nota: "O ativo aparece na Crítica, mas a SS não foi aberta durante nenhuma ocorrência dele nem nas 24 horas seguintes ao último passo. A distância fica escrita em cada caso — 26 dias e 26 horas são coisas diferentes, e quem lê precisa ver qual é.", teste: (r) => texto(r.expurgo_gatilho) === "fora_da_janela" },
       { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => r.oc_contida_no_servico === "SIM" },
       { id: "g_seminterr", rotulo: "Ausente da base de interrupção", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => texto(r.expurgo_gatilho) === "sem_interrupcao" },
@@ -802,12 +843,46 @@ export default function Page() {
     setTimeout(() => setExportado(""), 6000);
   };
 
+  /* ---------------------------------------------------------------- espelho no Supabase
+     O localStorage é frágil por natureza: some se o navegador limpar os dados do site, se o
+     auditor trocar de máquina, ou se abrir numa aba anônima. Uma noite de leitura caso a caso
+     não pode depender disso — e o dono disse a frase que define o requisito: "posso perder as
+     análises dessa noite não".
+
+     O espelho é ESCRITA CEGA, de propósito. Cada martelo dispara um insert e ninguém espera a
+     resposta: se a rede cair, o localStorage já guardou e a tela não trava nem mente. Na volta,
+     o que estiver no banco é mesclado com o que estiver no navegador, e o mais recente vence —
+     assim o auditor pode trocar de máquina no meio do trabalho sem perder nada.
+
+     A tabela não aceita update nem delete. Cada decisão é uma linha nova; mudar de ideia depois
+     de ler o dossiê inteiro é o que se espera de uma revisão, e apagar isso apagaria o caminho. */
+  const SUPA = "https://uabpevnjfcwidbjscowq.supabase.co";
+  const SUPA_KEY = "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh";
+
+  const espelhar = (ss: string, classe: string, quando: string) => {
+    void fetch(`${SUPA}/rest/v1/trafo_classificacao`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPA_KEY,
+        "Authorization": `Bearer ${SUPA_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=ignore-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        ss, classe, quem: "análise local",
+        marcado_em: new Date(`${quando.replace(" ", "T")}:00-03:00`).toISOString(),
+        origem: "site",
+      }),
+    }).catch(() => {});
+  };
+
   const classificar = (ss: string, classe: string) => {
     const atual = { ...classificacao };
     if (classe === "LIMPAR") delete atual[ss];
     else atual[ss] = { classe, quem: "análise local", quando: new Date().toISOString().slice(0, 16).replace("T", " ") };
     setClassificacao(atual);
     localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
+    if (classe !== "LIMPAR") espelhar(ss, classe, atual[ss].quando);
   };
   /* Os botões do dossiê. Preventivo e Excluído chegaram à tabela como V e X e não chegaram
      aqui — o dono classificava pela lista e não pelo caso aberto, que é justamente onde ele lê
@@ -1684,6 +1759,7 @@ export default function Page() {
             <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="red" aoClicar={() => abrirRecorte("g_semfato")} />
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Ausente da base de interrupção" valor={br(g("sem_interrupcao"))} nota="o código não aparece na Crítica em papel nenhum" tom="red" aoClicar={() => abrirRecorte("g_seminterr")} />
+            <Kpi rotulo="Possível erro de cadastro" valor={br(g("erro_cadastro"))} nota="o código não corresponde ao equipamento no poste" tom="amber" aoClicar={() => abrirRecorte("g_cadastro")} />
             <Kpi rotulo="Fora da janela da interrupção" valor={br(g("fora_da_janela"))} nota="o ativo existe na Crítica, mas em outra data" tom="red" aoClicar={() => abrirRecorte("g_forajanela")} />
             <Kpi rotulo="…destas, o corte cabe no serviço" valor={br(conta((r) => r.oc_contida_no_servico === "SIM"))} nota="pode ser o desligamento feito para trocar, não evento alheio" tom="amber" aoClicar={() => abrirRecorte("g_contida")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
@@ -1961,7 +2037,14 @@ export default function Page() {
               <div><span>Setor</span><strong>{texto(aberto.obra_setor) || "—"}</strong></div>
               <div><span>Realizado</span><strong>R$ {br(Math.round(Number(aberto.obra_realizado) || 0))}</strong></div>
             </section>
-            {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>ALERTAS DE OBRA</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>{x}</li>)}</ul></article> : null}
+            {/* O rótulo dizia "ALERTAS DE OBRA" e o conteúdo vinha de dois lugares diferentes.
+                "Nenhum cliente interrompido" é da CRÍTICA — soma de QTD_CONS_INTER_FAT em todas
+                as linhas da ocorrência —, e não tem nada a ver com o cadastro de obras, que é o
+                assunto desta aba. Um alerta no bloco errado faz o leitor procurar a explicação
+                onde ela não está. Agora cada sinal diz de onde veio. */}
+            {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>SINAIS DESTE CASO</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>
+              <b className="fonte-sinal">{/cliente|interromp|programa|elemento|equipamento especial/i.test(x) ? "base Crítica" : "cadastro de obras"}</b> {x}
+            </li>)}</ul></article> : null}
             <article className="editorial-note"><span>SOBRE O NOME DA OBRA</span><p>O cadastro não guarda quem abriu a obra: o nome registrado é o de quem fez a última movimentação. Quem origina o fluxo é o solicitante da SS, porque a obra nasce dela.</p></article>
             <BlocoDetalhe titulo="A linha inteira da obra" fonte="Cadastro de obras · 93 colunas" dados={aberto.det_obra as Detalhe} />
           </>}
