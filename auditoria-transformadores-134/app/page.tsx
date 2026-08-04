@@ -197,6 +197,42 @@ function Kpi({ rotulo, valor, nota, tom = "neutral", aoClicar }: {
   return <button type="button" className={`kpi ${tom} kpi-open`} onClick={aoClicar}>{conteudo}</button>;
 }
 
+/* A RÉGUA DA JANELA, DESENHADA.
+   A regra da primeira peneira é a coisa mais difícil de explicar em palavras desta auditoria: a
+   janela não é simétrica, ela vale contra o INTERVALO da ocorrência (do primeiro passo ao
+   último) e não contra o instante em que ela abriu, e a tolerância para trás é de uma hora
+   enquanto a de frente é de vinte e quatro. Uma frase leva três linhas e ainda deixa dúvida.
+   Um desenho resolve: a barra é a ocorrência, a faixa clara é o que a janela ainda aceita, e o
+   pino é a hora em que a SS foi aberta. Quem olha entende num segundo se o caso entrou ou não,
+   e por quantas horas. */
+function ReguaJanela({ r }: { r: Registro }) {
+  const ms = (v: unknown) => {
+    const t = new Date(String(v || "").replace(" ", "T")).getTime();
+    return Number.isFinite(t) ? t : null;
+  };
+  const ini = ms(r.oc_ini), fim = ms(r.oc_fim) ?? ms(r.oc_ini), ab = ms(r.abertura);
+  if (!ini || !fim || !ab) return null;
+  const H = 3600000;
+  const de = Math.min(ini - H, ab) - H;            // começo do desenho
+  const ate = Math.max(fim + 24 * H, ab) + H;      // fim do desenho
+  const larg = Math.max(1, ate - de);
+  const pct = (t: number) => `${((t - de) / larg) * 100}%`;
+  const dentro = ab >= ini - H && ab <= fim + 24 * H;
+  return <div className="regua-janela">
+    <div className="regua-trilho">
+      <span className="regua-antes" style={{ left: pct(ini - H), width: pct(de + H) }} title="uma hora antes do primeiro passo" />
+      <span className="regua-oc" style={{ left: pct(ini), width: `${((fim - ini) / larg) * 100}%` }} title="intervalo da ocorrência, do primeiro passo ao último" />
+      <span className="regua-depois" style={{ left: pct(fim), width: `${((24 * H) / larg) * 100}%` }} title="vinte e quatro horas depois do último passo" />
+      <b className={dentro ? "regua-ss dentro" : "regua-ss fora"} style={{ left: pct(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} />
+    </div>
+    <div className="regua-legenda">
+      <span>ocorrência {dataBR(r.oc_ini)} → {dataBR(r.oc_fim)}</span>
+      <span>SS aberta {dataBR(r.abertura)}</span>
+      <strong className={dentro ? "dentro" : "fora"}>{dentro ? "dentro da janela" : distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</strong>
+    </div>
+  </div>;
+}
+
 function Barras({ dados, total, aoSelecionar }: {
   dados: Par[]; total?: number; aoSelecionar?: (label: string) => void;
 }) {
@@ -427,7 +463,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
       {modo === "interrupcao" && <>
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
         <td><strong>{texto(r.oc_causa) || "—"}</strong><span>{texto(r.oc_sub)}</span><small>{texto(r.oc_papel)}</small></td>
-        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</span><small>{texto(r.ressalvas)}</small></td>
+        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b>
+          {r.oc_ini ? <ReguaJanela r={r} /> : <span>{distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</span>}
+          <small>{texto(r.ressalvas)}</small></td>
       </>}
 
       {modo === "deslocamento" && <>
@@ -697,10 +735,12 @@ export default function Page() {
   }).length, [comJanela]);
 
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
-    visao: [],
     // A revisão não filtra registros da esteira: ela tem os próprios chips, montados a partir
     // das famílias de motivo do revisao.json. Fica vazio aqui de propósito.
     revisao: [],
+    visao: [
+      { id: "sem_origem", rotulo: "Sem origem gravada", nota: "A base de SS não registra qual setor abriu a solicitação. São duas, e as duas já saíram do indicador por outro motivo: uma é aviso de anomalia aberto por técnico, a outra foi criada para substituir uma SS cancelada. O campo em branco não decidiu nada em nenhuma das duas — é lacuna de cadastro, não sinal.", teste: (r) => !texto(r.origem) },
+    ],
     interrupcao: [
       /* ELEMENTO DO DEFEITO. A Crítica diz duas coisas diferentes sobre o mesmo transformador:
          onde o defeito foi aberto e o que ficou sem energia. A esteira casa pelo primeiro — o
@@ -1700,6 +1740,28 @@ export default function Page() {
         const soAtendimento = chegam.filter((r) => r.fato === "F2");
         const seguem = chegam.filter((r) => r.chega_e2 === "SIM");
         return <>
+          {/* O QUE SAIU POR AQUI, LOGO DE CARA. Ele cobrou com razão: quem abre esta aba
+              precisa ver primeiro quanta gente a falta de interrupção tirou do indicador, e
+              não descobrir isso três telas depois. */}
+          <section className="kpi-grid">
+            <Kpi rotulo="Fora do indicador por falta de interrupção" valor={br(conta((r) => parouNaInterrupcao(r)))} nota="não têm ocorrência no próprio trafo que sustente o caso" tom="red" aoClicar={() => irPara("semfato", "parados")} />
+            <Kpi rotulo="…sem registro nenhum na Crítica" valor={br(conta((r) => texto(r.expurgo_gatilho) === "sem_interrupcao"))} nota="o código não aparece em papel nenhum, nos sete meses" tom="red" aoClicar={() => irPara("semfato", "p_ausente")} />
+            <Kpi rotulo="…com registro, mas em outra data" valor={br(conta((r) => texto(r.expurgo_gatilho) === "fora_da_janela"))} nota="tem defeito no próprio código fora da janela" tom="amber" aoClicar={() => irPara("semfato", "p_outra_data")} />
+            <Kpi rotulo="…sem rastro em base alguma" valor={br(conta((r) => texto(r.expurgo_gatilho) === "sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="ink" aoClicar={() => irPara("semfato", "p_semfato")} />
+            <Kpi rotulo="Com interrupção no próprio trafo" valor={br(conta((r) => texto(r.censo_critica) === "DEFEITO NA JANELA"))} nota="a Crítica prova o defeito neste transformador, na data" tom="green" aoClicar={() => abrirRecorte("censo_janela")} />
+            <Kpi rotulo="Entraram pela contenção" valor={br(conta((r) => r.oc_contida_na_ss === "SIM"))} nota="a SS abriu antes, e o corte aconteceu com ela já aberta" tom="blue" aoClicar={() => abrirRecorte("contida")} />
+          </section>
+          {/* A RÉGUA, EXPLICADA UMA VEZ E DESENHADA. Ele pediu: "seria perfeito se você
+              adicionasse meio que uma esteira com a ocorrência e a data de abertura da SS". */}
+          <section className="panel editorial-note wide destaque"><span>A JANELA, DESENHADA</span>
+            <p>A régua desta peneira não é simétrica e não conta a partir do instante em que a ocorrência abriu: vale contra o <strong>intervalo inteiro</strong> dela, do primeiro passo ao último, com <strong>uma hora</strong> de tolerância para trás e <strong>vinte e quatro</strong> para frente. Para frente é larga porque a troca costuma vir depois do apagão; para trás é estreita porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois. Em cada caso da lista abaixo o desenho mostra a mesma coisa: a barra azul escura é a ocorrência, as faixas claras são a tolerância dos dois lados, e o pino é a hora em que a SS foi aberta — verde se entrou, vermelho se ficou de fora.</p>
+            {(() => {
+              const ex = registros.find((r) => r.oc_contida_na_ss === "SIM" && r.oc_ini)
+                || registros.find((r) => r.oc_ini);
+              return ex ? <><p className="fonte-detalhe">Exemplo: {texto(ex.ss)} · trafo {texto(ex.trafo)}</p><ReguaJanela r={ex} /></> : null;
+            })()}
+            <p>Existe uma segunda régua, e ela dispensa a janela: quando a ocorrência do próprio transformador <strong>começa e termina dentro do intervalo da SS</strong>, ela é daquela SS — o corte aconteceu durante o atendimento. São {br(conta((r) => r.oc_contida_na_ss === "SIM"))} casos que entram por aí, e o transformador vazando óleo explica por quê: ele continua energizado, e ninguém fica sem luz até alguém desligar para trocar.</p>
+          </section>
           <section className="panel editorial-note wide"><span>COMO LER OS NÚMEROS DESTA ETAPA</span>
             <p>Esta aba mostra as <strong>{br(chegam.length)}</strong> solicitações do recorte, porque todas passam por aqui — não porque todas tenham interrupção. Destas, <strong>{br(naJanela.length)}</strong> têm interrupção dentro da janela de 24 horas. {br(duplicadas.length)} delas ficam retidas mesmo assim, porque dividem o mesmo evento com outra SS no mesmo transformador e a interrupção prova uma troca, não duas — sobram <strong>{br(casados.length)}</strong> com fato. Somando <strong>{br(soAtendimento.length)}</strong> que não têm interrupção nenhuma mas têm atendimento de equipe no TMAE, <strong>{br(seguem.length)}</strong> seguem para o deslocamento e <strong>{br(chegam.length - seguem.length)}</strong> param aqui. É essa a conta que aparece na caixa d&apos;água.</p>
           </section>
@@ -1785,7 +1847,9 @@ export default function Page() {
                   natureza do que se lê: o COI abre pelo relato do cliente, a MANUT abre pelo que
                   a equipe viu no poste, e as duas coisas não são a mesma prova. */}
               <Barras dados={contar(registros, "origem", 8)} total={total} aoSelecionar={(l) => {
-                setRecorte(null); setBusca(l === "—" ? "" : l);
+                // o "—" é a barra de quem não tem origem gravada, e clicar nela limpava a busca
+                // em vez de filtrar: o único rótulo do gráfico que não levava a lugar nenhum
+                setBusca(""); if (l === "—") abrirRecorte("sem_origem"); else { setRecorte(null); setBusca(l); }
               }} /></article>
           </section>
         </>;
@@ -2303,6 +2367,8 @@ export default function Page() {
               <div><span>Subcausa</span><strong>{texto(aberto.oc_sub)}</strong></div>
             </section>
             <article className="source-text"><span>OBSERVAÇÃO REGISTRADA EM CAMPO</span><p>{texto(aberto.oc_obs) || "Sem observação."}</p></article>
+            {aberto.oc_ini ? <article className="rationale"><span>A JANELA DESTE CASO</span>
+              <ReguaJanela r={aberto} /></article> : null}
             {texto(aberto.vizinho) ? <article className="work-alerts"><span>TESTE DO VIZINHO</span><ul><li>{texto(aberto.vizinho)}</li></ul></article> : null}
             {/* OS PASSOS, UM POR UM. O resumo da ocorrência (primeira abertura, último
                 fechamento) apaga o meio do caminho — e é o meio que conta a história: qual
