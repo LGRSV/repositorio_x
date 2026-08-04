@@ -601,6 +601,16 @@ export default function Page() {
       { id: "f", rotulo: "Furtado", nota: "Furto, roubo ou vandalismo pela sua leitura. Sai da esteira e vai para as exclusões, na categoria de furto.", teste: (r) => classificacao[texto(r.ss)]?.classe === "FURTADO" },
       { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
+      /* Casos que a régua decidiu NÃO mexer e que merecem olho humano. Não são erro: são pontos
+         em que duas fontes de campo discordam e nenhuma está errada. Chegam aqui com etiqueta,
+         para o dono julgar um a um sem ter de caçá-los. */
+      { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
+      { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
+      /* Casos que a régua decidiu NÃO mexer e que merecem olho humano. Não são erro: são pontos
+         em que duas fontes de campo discordam e nenhuma está errada. Chegam aqui com etiqueta
+         para o dono julgar um a um, sem ter de caçá-los. */
+      { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
+      { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
       { id: "sem_cliente", rotulo: "Marcados por você sem nenhum cliente interrompido", nota: "Você bateu o martelo e a ocorrência do caso não penalizou ninguém — nenhum cliente ficou sem energia em passo nenhum dela. Sua classificação manda no arquivamento, então estes entram no indicador; a lista existe para eles não entrarem calados.", teste: (r) => Boolean(classificacao[texto(r.ss)]) && r.sem_cliente_interrompido === "SIM" },
     ],
     ssos: [

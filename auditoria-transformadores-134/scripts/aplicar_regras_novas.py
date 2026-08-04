@@ -1640,26 +1640,43 @@ def main():
     # dossiê afirma sobre o ativo algo que o próprio acervo desmente, e num relatório de conselho
     # essa é a frase que alguém vai testar. A bandeira passa a dizer o que sabe: o registro veio
     # com zero, e o ativo comprovadamente atende cliente noutro evento.
-    com_cli = collections.defaultdict(int)
-    for o in oc.values():
-        if o["cons"] > 0:
-            com_cli[o["trafo"]] = max(com_cli[o["trafo"]], int(o["cons"]))
+    # A comparação é com a ocorrência MAIS PRÓXIMA no tempo, não com a maior do acervo — o dono
+    # pediu assim e tem razão: um transformador pode ter atendido dez clientes há seis meses e
+    # ter sido religado noutro arranjo desde então. O evento vizinho fala do mesmo estado de
+    # rede; um evento distante fala de outra rede.
     corrigidos = 0
     for r in fluxo["registros"]:
+        r["zero_vizinho_cons"] = None
         if r.get("sem_cliente_interrompido") != "SIM":
             r["zero_e_registro"] = "NÃO"
             continue
-        n = com_cli.get(str(r.get("trafo") or "").strip(), 0)
-        r["zero_e_registro"] = "SIM" if n else "NÃO"
-        if n:
+        ab = parse(r.get("abertura"))
+        cod = str(r.get("trafo") or "").strip()
+        outras = [o for o in por.get(cod, [])
+                  if str(o["oc"]) != str(r.get("oc_num") or "") and o["ini"] and ab]
+        viz = min(outras, key=lambda o: abs((o["ini"] - ab).total_seconds())) if outras else None
+        n = int(viz["cons"]) if viz else 0
+        r["zero_vizinho_cons"] = n if viz else None
+        r["zero_e_registro"] = "SIM" if n > 0 else "NÃO"
+        if viz and n > 0:
             corrigidos += 1
+            dias = abs((viz["ini"] - ab).total_seconds()) / 86400
             r["zero_cliente_nota"] = (
-                f"O registro desta ocorrência veio com zero cliente, mas o mesmo transformador "
-                f"aparece com {n} cliente{'s' if n > 1 else ''} interrompido{'s' if n > 1 else ''} "
-                "noutra ocorrência do acervo — o ativo atende cliente. Aqui o zero descreve o "
-                "registro, não a rede.")
+                f"O registro desta ocorrência veio com zero cliente. A ocorrência mais próxima no "
+                f"mesmo transformador — {viz['oc']}, a {dias:.0f} dia{'s' if dias >= 2 else ''} "
+                f"daqui — interrompeu {n} cliente{'s' if n > 1 else ''}. O ativo atende cliente: "
+                "aqui o zero descreve o registro, não a rede.")
             if str(r.get("ressalvas") or "").strip() == "nenhum cliente interrompido":
-                r["ressalvas"] = "zero cliente registrado (o ativo atende cliente noutro evento)"
+                r["ressalvas"] = "zero cliente registrado (o evento vizinho interrompeu cliente)"
+        elif viz:
+            r["zero_cliente_nota"] = (
+                f"O registro veio com zero cliente, e a ocorrência mais próxima no mesmo "
+                f"transformador — {viz['oc']} — também veio com zero. Dois eventos seguidos sem "
+                "cliente faturado é consistente com ramal sem carga, não com falha de registro.")
+        else:
+            r["zero_cliente_nota"] = (
+                "O registro veio com zero cliente e não há outra ocorrência neste transformador "
+                "no acervo para comparar — não dá para dizer se o zero é da rede ou do registro.")
     print(f"  zero que é do registro, não da rede (o ativo atende cliente noutro evento): {corrigidos}")
 
     # ---------- as duas vozes do campo discordam sobre a natureza da falha
@@ -1684,6 +1701,9 @@ def main():
         if (cf == "QUEIMADO" and re.search(AVARIA_SUB, sub)) or \
            (cf == "AVARIADO" and "QUEIMADO POR" in sub):
             r["campo_discorda_natureza"] = "SIM"
+            # O dono pediu que estes cheguem à análise profunda dele com etiqueta própria, para
+            # ele julgar caso a caso o que a régua decidiu não mexer.
+            r["analise_claude"] = "natureza divergente"
             r["natureza_nota"] = (
                 f"Conta como {cf.lower()}, e a Crítica declara \"{sub.lower()}\". As duas vozes do "
                 "campo discordam sobre a natureza: a subcausa registra o defeito que a equipe "
