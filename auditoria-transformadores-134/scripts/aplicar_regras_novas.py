@@ -263,6 +263,11 @@ def le_critica():
     arqs = sorted(glob.glob(f"{SCR}/crit_raw/Critica-CHEIO_*.txt")) + \
         [f"{UP}/0896088f-CriticaCHEIO_122025.txt"]
     oc, intr = {}, {}
+    # Todo código de ativo que aparece na Crítica em QUALQUER papel — defeito, interrompido ou
+    # manobrado. Serve para uma pergunta só, e é a que o dono fez: este transformador existe na
+    # base de interrupção? Ausente daqui é ausente de verdade; o resto é questão de data ou de
+    # qual elemento tinha o defeito, que são perguntas diferentes e merecem resposta diferente.
+    vistos = set()
     for p in arqs:
         with open(p, encoding="latin-1", newline="") as fh:
             rd = csv.reader(fh, delimiter=";", quoting=csv.QUOTE_NONE)
@@ -271,6 +276,10 @@ def le_critica():
             for r in rd:
                 if len(r) != len(head):
                     continue
+                for _c in ("COD_ELE_PROBLEMA", "COD_ELE_INTERROMPIDO", "COD_ELE_FECHADO"):
+                    _v = r[k[_c]].strip()
+                    if _v:
+                        vistos.add(_v)
                 if r[k["COD_ELE_REDE_PROBLEMA"]].strip() != "TR":
                     # defeito fora do transformador: só entra no índice de marcador, e só
                     # quando o elemento que ficou sem energia é um transformador
@@ -345,7 +354,7 @@ def le_critica():
                         a["ini"] = ini
                     if fim and (not a["fim"] or fim > a["fim"]):
                         a["fim"] = fim
-    return oc, intr
+    return oc, intr, vistos
 
 
 def borda(ab, o):
@@ -408,7 +417,7 @@ def ressalvas_de(o):
 def main():
     with open(FLUXO, encoding="utf-8") as fh:
         fluxo = json.load(fh)
-    oc, intr = le_critica()
+    oc, intr, vistos = le_critica()
     at = le_tmae()
     por_at = collections.defaultdict(list)
     for a in at.values():
@@ -895,6 +904,13 @@ def main():
                       "fato_texto": "Sem fato — nem a Crítica nem o TMAE registram nada na janela",
                       "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
                       "cascata_motivo": "O código do transformador não tem ocorrência na Crítica nem atendimento no TMAE dentro da janela",
+                      # AUSENTE não é o mesmo que FORA DA JANELA, e tratar os dois como uma
+                      # coisa só foi o que fez o dono pedir a conferência. Dos 115 retidos aqui,
+                      # 47 não existem na Crítica em papel nenhum — nem como defeito, nem como
+                      # interrompido, nem como manobrado. Esses saem do indicador: a base de
+                      # interrupção simplesmente não conhece o ativo. Os outros 68 aparecem, e
+                      # para eles a pergunta é outra — data errada, ou defeito de outro elemento.
+                      "na_critica": "NÃO" if cod not in vistos else "SIM",
                       "decisao": "REVISÃO", "confirmado": "", "disputa_perdida": "NÃO",
                       "e1_conflito": "", "ressalvas_graves": "", "ressalvas_medias": "",
                       "ressalvas": "", "e4_alertas": "", "e4_status": "OK",
@@ -1351,6 +1367,27 @@ def main():
         else:
             r["sem_cliente_interrompido"] = "NÃO"
     print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
+
+    # ---------- o que a Crítica não conhece sai do indicador
+    fora_critica = 0
+    for r in fluxo["registros"]:
+        if r.get("cascata") != "RETIDO — SEM INTERRUPÇÃO NA JANELA" or r.get("na_critica") != "NÃO":
+            continue
+        fora_critica += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "sem_interrupcao", "chega_e1": "NÃO",
+            "exclusao_porque": ("o código do transformador não aparece na base de interrupção em "
+                                "papel nenhum — nem como elemento com defeito, nem como "
+                                "interrompido, nem como manobrado para restabelecer; conferido "
+                                "linha a linha em dezembro/2025 e nos seis meses de 2026"),
+            "cascata_motivo": ("Fora do indicador: o ativo não existe na base de interrupção. "
+                               "Sem registro de interrupção não há evento a medir."),
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    print(f"  ausentes da Crítica em qualquer papel, excluídos: {fora_critica}")
 
     # ---------- até onde o caso desceu, dito em uma linha
     # A cascata já diz isso, mas dita como motivo de parada ("RETIDO — SEM PROVA DE TROCA"),
