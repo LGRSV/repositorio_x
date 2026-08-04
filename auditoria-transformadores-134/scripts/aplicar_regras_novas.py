@@ -422,6 +422,18 @@ def main():
         # o mesmo motivo chega por dois caminhos com dois nomes — pelo texto ("furto") e pela
         # categoria gravada ("furtado"). Na tela isso viraria dois filtros para a mesma coisa.
         gatilho = {"furtado": "furto", "trafo auxiliar": "auxiliar"}.get(gatilho, gatilho)
+        # PRESUNÇÃO NÃO É CONSTATAÇÃO. "Possivelmente furtado", "ao que tudo indica o mesmo foi
+        # furtado", "sinais de vandalismo", "tentativa de furto" — nesses a equipe supôs a partir
+        # do que viu, não constatou. Continuam fora do indicador, porque quem decide isso é o
+        # dono e não a régua; mas ficam marcados, porque uma suposição arquivada como fato é
+        # exatamente o tipo de coisa que ninguém revisa depois.
+        texto_todo = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+        if re.search(r"POSSIVELMENTE|AO QUE TUDO INDICA|PROVAVELMENTE|SINAIS DE |TENTATIVA DE |"
+                     r"SUSPEITA DE ", texto_todo):
+            r["exclusao_presumida"] = "SIM"
+            porque = porque + " — mas o texto presume, não constata"
+        else:
+            r["exclusao_presumida"] = "NÃO"
         if gatilho == "construcao" and "DESATIVA" in norm_txt(str(r.get("desc_ss", ""))):
             gatilho, porque = "desativacao", "o texto declara desativação do posto de transformação"
         excluidas[gatilho] += 1
