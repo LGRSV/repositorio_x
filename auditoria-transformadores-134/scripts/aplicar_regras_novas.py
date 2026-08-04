@@ -90,6 +90,24 @@ FORA_DO_INDICADOR = [
      "o texto declara divisão de circuito — é obra de capacidade, entra como preventivo"),
     ("particular", r"\b(PARTICULAR|PROPRIEDADE DO CLIENTE)",
      "o transformador é particular ou de terceiro"),
+    # REMANEJAMENTO era só marcador de suspeita, porque "remanejar" às vezes descreve a própria
+    # troca. Mas os 13 casos da base dizem todos a mesma coisa, e nenhum é falha: "remanejar
+    # trafo de 5 kVA por trafo de 15 kVA", "remanejar trafo de 25 kVA por trafo de 15 kVA",
+    # "foi retirado e remanejado trafo do poste X para o poste Y". Trocar potência ou mudar de
+    # poste é decisão de operação — o equipamento saiu porque decidiram, não porque falhou.
+    # O padrão exige o verbo COLADO no equipamento, para não pegar "remanejamento" solto.
+    # FALTA DE FASE INTERNA sob plano de medida. O transformador perdeu uma fase por dentro —
+    # é defeito do equipamento —, mas o que a OS executa é um plano de medida com aumento de
+    # potência: 75 para 112,5 kVA. O dono leu como preventivo e pediu a categoria com o nome do
+    # que o campo descreveu, não do que a obra pagou. As duas coisas cabem: o defeito existiu, e
+    # a troca foi decidida como capacidade.
+    ("falta_fase", r"FALTA D[EA] FASE|FALTANDO FASE|SEM (UMA )?FASE INTERN|FASE INTERNA",
+     "o texto declara falta de fase interna, e a troca foi executada como plano de medida com "
+     "aumento de potência — o defeito existiu, mas a decisão foi de capacidade"),
+    ("remanejamento", r"\bREMANEJ\w*\s+(DE\s+)?(TRAFO|TRANSFORMADOR)|"
+                      r"(TRAFO|TRANSFORMADOR)\s+\w{0,12}\s*REMANEJAD\w*|"
+                      r"^(MEDIDO_\s*)?(EMERGENCIAL_\s*)?REMANEJ",
+     "o texto declara remanejamento: troca de potência ou mudança de poste, não falha"),
     # Abalroamento só existia como categoria gravada na SS. Quando o executante escreve o que
     # houve — "QUEIMADO NA RDU DE PALMAS. DEVIDO CAMINHÃO" — e a SS foi aberta como queimado,
     # ninguém lia. A palavra do veículo SOZINHA não pode disparar: das nove SS que citam
@@ -152,7 +170,12 @@ SEGURANCA = r"SUBST\w* DE POSTE|SUBSTUI\w* DE POSTE|TROCA DE POSTE|\bPOSTE \d+/\
 # palavra solta. O que casa é o tape ser o motivo: interno, dentro do óleo, impossível de
 # ajustar em campo. Aí o transformador é trocado para regularizar tensão, não porque falhou.
 TAPE = (r"TAP DENTRO DO OLEO|TAP INTERNO|MUDANCA DE TAP|MUDAR O? ?TAP|AJUSTE DE TAP|"
-        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*")
+        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*|"
+        # "não está aumentando tensão mesmo alterando o TAP" — o transformador não falhou: ele
+        # não dá conta da tensão pedida, e mexer no tape não resolveu. É problema de nível de
+        # tensão, que se corrige com outro equipamento, não com reposição por falha.
+        r"ALTERANDO O? ?TAP|MESMO (COM|ALTERANDO|MUDANDO) O? ?TAP|TAP NO MAXIMO|"
+        r"TENSAO BAIXA[^.|]{0,60}TAP|TAP[^.|]{0,60}TENSAO BAIXA")
 
 
 def julga_texto(r):
@@ -169,6 +192,21 @@ def julga_texto(r):
             continue
         fora = (chave, explica)
         break
+    # TAP FORTE vence até uma falha declarada, e a diferença com o TAP fraco é o que o texto
+    # descreve. "Trafo queimado, aproveitar e mudar o tape" é queima com um pedido a mais — o
+    # guard existe para isso. Mas "problemas de tensão baixa, não está aumentando tensão mesmo
+    # alterando o TAP" descreve o SINTOMA e o teste que a equipe fez: o transformador não dá
+    # conta da tensão pedida e mexer no tape não resolveu. Aí "avariado" é o rótulo de quem
+    # abriu a SS, não o que o campo encontrou. Nível de tensão se corrige com outro equipamento,
+    # não com reposição por falha.
+    TAPE_FORTE = (r"TENSAO BAIXA[^.|]{0,80}TAP|TAP[^.|]{0,80}TENSAO BAIXA|"
+                  r"(NAO|SEM)[^.|]{0,40}AUMENT\w*[^.|]{0,40}TENSAO[^.|]{0,60}TAP|"
+                  r"MESMO (COM|ALTERANDO|MUDANDO|MEXENDO N)O? ?TAP")
+    if not fora and re.search(TAPE_FORTE, t):
+        fora = ("tap", "o texto descreve tensão baixa que não sobe nem mexendo no tape — o "
+                       "transformador não dá conta da tensão pedida, e isso é nível de tensão, "
+                       "não falha do equipamento")
+
     # as duas categorias de não-falha entram por último e só na ausência de falha declarada
     if not fora and not re.search(FALHA_DECLARADA, t):
         if re.search(SEGURANCA, t):
@@ -1397,11 +1435,42 @@ def main():
     for r in fluxo["registros"]:
         od = str(r.get("obra_descricao") or "").upper()
         sg = str(r.get("sigco") or "").strip()
-        if not re.search(r"FURTO|ROUBO|VANDALIS", od) and sg != "61993":
+        # O SIGCO SOZINHO NÃO DECIDE. O projeto 61993 é de furto em 85% das obras, não em 100%
+        # — e quando a DESCRIÇÃO da obra diz "SUBST. TRAFO QUEIMADO", os dois campos do cadastro
+        # discordam entre si. A descrição é mais específica que o projeto contábil: ela conta o
+        # que foi feito, ele conta em qual rubrica o custo caiu. Enquadramento errado é erro de
+        # contabilidade, não prova de furto. Só exclui quando a própria descrição declara.
+        descreve_furto = bool(re.search(r"FURTO|ROUBO|VANDALIS", od))
+        descreve_falha = bool(re.search(r"QUEIMAD|AVARIAD|VAZANDO|SOBRECARGA", od))
+        if not descreve_furto and not (sg == "61993" and not descreve_falha):
             continue
         if r.get("fora_da_esteira") == "SIM":
             continue
+        # OBRA QUE NÃO EXECUTOU NÃO DECLARA CAUSA. Quando a obra tem zero material e zero
+        # realizado, ela foi aberta e nada aconteceu — o que está escrito nela é o plano de
+        # quem a abriu, não o registro de quem a executou. Aí ela perde a autoridade que a
+        # justifica como fonte de campo, e o motivo honesto da saída é a falta de execução, não
+        # a causa que ela declara. O caso sai do mesmo jeito; muda o nome, que é o que vai ser
+        # lido depois.
+        sem_execucao = (float(r.get("trafos_material") or 0) == 0
+                        and float(r.get("obra_realizado") or 0) == 0)
         vazou += 1
+        if sem_execucao:
+            r.update({
+                "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+                "expurgo": "SIM", "expurgo_gatilho": "obra_sem_execucao", "chega_e1": "NÃO",
+                "exclusao_porque": (f"a obra {r.get('obra')} foi aberta como \"{od.title()}\" e "
+                                    "não executou nada: zero transformador no material e R$ 0 "
+                                    "realizado. Uma obra que não executou não declara causa — o "
+                                    "que está escrita nela é o plano de quem abriu, não o "
+                                    "registro de quem fez"),
+                "cascata_motivo": ("Fora do indicador: a obra existe e não executou nada — sem "
+                                   "material e sem valor realizado."),
+                "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+                "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+                "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+            })
+            continue
         r.update({
             "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
             "expurgo": "SIM", "expurgo_gatilho": "furto", "chega_e1": "NÃO",
@@ -1630,6 +1699,88 @@ def main():
         else:
             r["sem_cliente_interrompido"] = "NÃO"
     print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
+
+    # ---------- "zero cliente" nem sempre quer dizer que o trafo não atende ninguém
+    # A auditoria dos 69 achou seis casos em que o MESMO ativo aparece com um cliente
+    # interrompido noutra ocorrência do acervo. Num deles — DG-RD-PO 00169 — o mesmo
+    # transformador interrompeu 1 cliente três dias antes e zero no evento auditado.
+    #
+    # Nesses, o zero descreve o REGISTRO, não o mundo. Dizer "nenhum cliente interrompido" no
+    # dossiê afirma sobre o ativo algo que o próprio acervo desmente, e num relatório de conselho
+    # essa é a frase que alguém vai testar. A bandeira passa a dizer o que sabe: o registro veio
+    # com zero, e o ativo comprovadamente atende cliente noutro evento.
+    # A comparação é com a ocorrência MAIS PRÓXIMA no tempo, não com a maior do acervo — o dono
+    # pediu assim e tem razão: um transformador pode ter atendido dez clientes há seis meses e
+    # ter sido religado noutro arranjo desde então. O evento vizinho fala do mesmo estado de
+    # rede; um evento distante fala de outra rede.
+    corrigidos = 0
+    for r in fluxo["registros"]:
+        r["zero_vizinho_cons"] = None
+        if r.get("sem_cliente_interrompido") != "SIM":
+            r["zero_e_registro"] = "NÃO"
+            continue
+        ab = parse(r.get("abertura"))
+        cod = str(r.get("trafo") or "").strip()
+        outras = [o for o in por.get(cod, [])
+                  if str(o["oc"]) != str(r.get("oc_num") or "") and o["ini"] and ab]
+        viz = min(outras, key=lambda o: abs((o["ini"] - ab).total_seconds())) if outras else None
+        n = int(viz["cons"]) if viz else 0
+        r["zero_vizinho_cons"] = n if viz else None
+        r["zero_e_registro"] = "SIM" if n > 0 else "NÃO"
+        if viz and n > 0:
+            corrigidos += 1
+            dias = abs((viz["ini"] - ab).total_seconds()) / 86400
+            r["zero_cliente_nota"] = (
+                f"O registro desta ocorrência veio com zero cliente. A ocorrência mais próxima no "
+                f"mesmo transformador — {viz['oc']}, a {dias:.0f} dia{'s' if dias >= 2 else ''} "
+                f"daqui — interrompeu {n} cliente{'s' if n > 1 else ''}. O ativo atende cliente: "
+                "aqui o zero descreve o registro, não a rede.")
+            if str(r.get("ressalvas") or "").strip() == "nenhum cliente interrompido":
+                r["ressalvas"] = "zero cliente registrado (o evento vizinho interrompeu cliente)"
+        elif viz:
+            r["zero_cliente_nota"] = (
+                f"O registro veio com zero cliente, e a ocorrência mais próxima no mesmo "
+                f"transformador — {viz['oc']} — também veio com zero. Dois eventos seguidos sem "
+                "cliente faturado é consistente com ramal sem carga, não com falha de registro.")
+        else:
+            r["zero_cliente_nota"] = (
+                "O registro veio com zero cliente e não há outra ocorrência neste transformador "
+                "no acervo para comparar — não dá para dizer se o zero é da rede ou do registro.")
+    print(f"  zero que é do registro, não da rede (o ativo atende cliente noutro evento): {corrigidos}")
+
+    # ---------- as duas vozes do campo discordam sobre a natureza da falha
+    # 140 casos contam como QUEIMADO e a Crítica declara subcausa de AVARIA — vazamento de óleo,
+    # tanque deteriorado, falha de bucha. Em 110 deles a obra diz "SUBST. TRAFO QUEIMADO".
+    #
+    # Não é erro de ninguém, e por isso não se resolve com a regra da casa: um transformador que
+    # vaza óleo perde isolamento e DEPOIS queima. A Crítica registra o defeito que a equipe
+    # constatou; a obra registra o que foi trocado e sob qual projeto contábil. Aqui os dois
+    # campos discordam entre si, e "o campo vence o texto" não decide nada.
+    #
+    # O dono decidiu manter como está — a obra manda, o total não muda de qualquer forma, e
+    # trocar 140 rótulos moveria o split de 1.216/55 para 1.092/179 sem ganho de verdade. Fica a
+    # marca, para que quem for auditar encontre isso já contado em vez de descobrir sozinho.
+    AVARIA_SUB = r"VAZAMENTO|TANQUE DETERIORADO|FALHA BUCHA|FALTANDO FASE|ATERRAMENTO PARTIDO"
+    disc = 0
+    for r in fluxo["registros"]:
+        r["campo_discorda_natureza"] = "NÃO"
+        cf, sub = str(r.get("confirmado") or ""), str(r.get("oc_sub") or "")
+        if not cf or not sub:
+            continue
+        if (cf == "QUEIMADO" and re.search(AVARIA_SUB, sub)) or \
+           (cf == "AVARIADO" and "QUEIMADO POR" in sub):
+            r["campo_discorda_natureza"] = "SIM"
+            # O dono pediu que estes cheguem à análise profunda dele com etiqueta própria, para
+            # ele julgar caso a caso o que a régua decidiu não mexer.
+            r["analise_claude"] = "natureza divergente"
+            r["natureza_nota"] = (
+                f"Conta como {cf.lower()}, e a Crítica declara \"{sub.lower()}\". As duas vozes do "
+                "campo discordam sobre a natureza: a subcausa registra o defeito que a equipe "
+                f"constatou, e a obra — \"{str(r.get('obra_descricao') or 'sem descrição').lower()}\" — "
+                "registra o que foi trocado e sob qual projeto. Vazamento que evolui para queima "
+                "acaba como queima; o total não muda, porque as duas categorias contam.")
+            disc += 1
+    print(f"  casos em que a subcausa e a obra discordam sobre a natureza da falha: {disc}")
 
     # ---------- o que a Crítica não conhece sai do indicador
     fora_critica = 0

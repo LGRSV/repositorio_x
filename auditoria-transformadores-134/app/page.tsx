@@ -270,8 +270,19 @@ const GATILHO_ROTULO: Record<string, string> = {
   seguranca: "Obra de poste — segurança",
   tap: "Tape interno — regularização de tensão",
   sem_os: "Sem OS e sem obra — investigar",
+  remanejamento: "Remanejamento de potência ou de poste",
+  falta_fase: "Falta de fase interna",
+  obra_sem_execucao: "Obra aberta que não executou nada",
+  obra_chave: "A obra trocou chave fusível",
+  obra_poste: "A obra trocou poste",
+  obra_cabo: "A obra trocou cabo ou ramal",
+  obra_pararaio: "A obra trocou para-raio",
+  obra_medidor: "A obra trocou medidor",
+  erro_cadastro: "Possível erro de cadastro do código",
+  fora_da_janela: "Fora da janela da interrupção",
+  sem_interrupcao: "Ausente da base de interrupção",
   sem_obra: "Obra nunca gerada — prazo vencido",
-  sem_fato: "Sem fato em base nenhuma",
+  sem_fato: "Sem interrupção na base Crítica",
 };
 
 /* "12.4h da borda do intervalo" é verdade e não comunica: não diz de que lado, e "borda" é
@@ -601,6 +612,16 @@ export default function Page() {
       { id: "f", rotulo: "Furtado", nota: "Furto, roubo ou vandalismo pela sua leitura. Sai da esteira e vai para as exclusões, na categoria de furto.", teste: (r) => classificacao[texto(r.ss)]?.classe === "FURTADO" },
       { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
+      /* Casos que a régua decidiu NÃO mexer e que merecem olho humano. Não são erro: são pontos
+         em que duas fontes de campo discordam e nenhuma está errada. Chegam aqui com etiqueta,
+         para o dono julgar um a um sem ter de caçá-los. */
+      { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
+      { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
+      /* Casos que a régua decidiu NÃO mexer e que merecem olho humano. Não são erro: são pontos
+         em que duas fontes de campo discordam e nenhuma está errada. Chegam aqui com etiqueta
+         para o dono julgar um a um, sem ter de caçá-los. */
+      { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
+      { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
       { id: "sem_cliente", rotulo: "Marcados por você sem nenhum cliente interrompido", nota: "Você bateu o martelo e a ocorrência do caso não penalizou ninguém — nenhum cliente ficou sem energia em passo nenhum dela. Sua classificação manda no arquivamento, então estes entram no indicador; a lista existe para eles não entrarem calados.", teste: (r) => Boolean(classificacao[texto(r.ss)]) && r.sem_cliente_interrompido === "SIM" },
     ],
     ssos: [
@@ -682,8 +703,14 @@ export default function Page() {
          mesmo jeito, e nos 74 a obra registra transformador movimentado. A bandeira é forte e
          precisa estar à mão: quem for defender o número tem de saber quais são. */
       { id: "q_sem_cliente", rotulo: "Queimados sem nenhum cliente interrompido", nota: "A Crítica registra defeito no próprio transformador dentro da janela e a obra comprova a troca, mas a interrupção não penalizou ninguém. Conferido na base crua somando todas as linhas da ocorrência — o zero não é truncamento de um passo só. Sem cliente não há DEC nem FEC: muda o impacto regulatório, não a existência da falha.", teste: (r) => r.sem_cliente_interrompido === "SIM" && arquivo(r) === "SAÍDA" && texto(r.confirmado) === "QUEIMADO" },
+      { id: "zero_registro", rotulo: "Zero cliente que é do registro, não da rede", nota: "A ocorrência veio com zero cliente, mas o MESMO transformador aparece com cliente interrompido noutra ocorrência do acervo — o ativo atende gente. Aqui o zero descreve o registro, não a rede. Num relatório de conselho, esta é a frase que alguém vai testar.", teste: (r) => r.zero_e_registro === "SIM" },
       { id: "a_sem_cliente", rotulo: "Avariados sem nenhum cliente interrompido", nota: "O mesmo, para os casos lidos como avaria — vazamento de óleo, tanque deteriorado, falha de bucha.", teste: (r) => r.sem_cliente_interrompido === "SIM" && arquivo(r) === "SAÍDA" && texto(r.confirmado) === "AVARIADO" },
       { id: "obra_tipo_div", rotulo: "Obra de tipo preventivo descrevendo falha", nota: "A obra tem dois campos e eles discordam: o TIPO diz manutenção preventiva ou programada, e a DESCRIÇÃO diz substituição de trafo queimado. Não muda a causa — a descrição é mais específica que o tipo —, mas é divergência do próprio cadastro.", teste: (r) => r.obra_tipo_diverge === "SIM" },
+      /* As duas vozes do campo discordando entre si. Não se resolve com "o campo vence o
+         texto", porque aqui os dois lados SÃO campo — e nenhum está errado: um transformador
+         que vaza óleo perde isolamento e depois queima. O total não muda; o rótulo é que fica
+         devendo. Marcado para quem auditar achar isto já contado, em vez de descobrir. */
+      { id: "natureza_discorda", rotulo: "Subcausa e obra discordam sobre a natureza", nota: "O caso conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. A subcausa registra o defeito que a equipe constatou; a obra registra o que foi trocado e sob qual projeto contábil. Como queimados e avariados contam nos dois casos, o total não muda: o que fica devendo é o rótulo.", teste: (r) => r.campo_discorda_natureza === "SIM" },
       { id: "avaria_sigco", rotulo: "Avaria no SIGCO de queima", nota: "A leitura concluiu avaria e o custo entrou no projeto SIGCO de transformador queimado. É divergência de enquadramento contábil, não de causa técnica — mas numa auditoria que vai a conselho é a divergência que se pergunta primeiro.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
@@ -732,13 +759,16 @@ export default function Page() {
       { id: "todos", rotulo: "Todas as exclusões", nota: "Saíram do indicador antes da esteira: por causa declarada no texto, por categoria gravada na SS, por duplicidade — ou pela sua classificação. A decisão do fluxo continua gravada em cada uma.", teste: (r) => arquivo(r) === "EXCLUÍDA" },
       { id: "g_furto", rotulo: "Furto, roubo ou vandalismo", nota: "O texto declara furto. Vai para o projeto de reposição de ativo furtado, não é falha de equipamento.", teste: (r) => texto(r.expurgo_gatilho) === "furto" },
       { id: "g_abalro", rotulo: "Abalroamento", nota: "Colisão de veículo. Vira ressarcimento de terceiro, não indicador de falha.", teste: (r) => texto(r.expurgo_gatilho) === "abalroamento" },
+      { id: "g_fase", rotulo: "Falta de fase interna", nota: "O texto declara que o transformador perdeu uma fase por dentro, e a troca foi executada como plano de medida com aumento de potência. As duas coisas cabem: o defeito existiu, e a decisão de trocar foi de capacidade.", teste: (r) => texto(r.expurgo_gatilho) === "falta_fase" },
+      { id: "g_semexec", rotulo: "Obra aberta que não executou nada", nota: "A obra existe, tem número e descrição — e zero transformador no material com R$ 0 realizado. Uma obra que não executou não declara causa: o que está escrito nela é o plano de quem abriu, não o registro de quem fez. Sai pela falta de execução, não pela causa que declara.", teste: (r) => texto(r.expurgo_gatilho) === "obra_sem_execucao" },
+      { id: "g_reman", rotulo: "Remanejamento", nota: "O texto declara troca de potência — \u201cremanejar trafo de 5 kVA por trafo de 15 kVA\u201d — ou mudança de poste. É decisão de operação: o equipamento saiu porque decidiram, não porque falhou. Era só marcador de suspeita até se ver que os 11 casos da base dizem todos a mesma coisa.", teste: (r) => texto(r.expurgo_gatilho) === "remanejamento" },
       { id: "g_prev", rotulo: "Preventivo ou programado", nota: "Não houve defeito: a troca foi programada.", teste: (r) => texto(r.expurgo_gatilho) === "preventivo" },
       { id: "g_div", rotulo: "Divisão de circuito", nota: "Obra de capacidade — entra como preventivo, não como falha.", teste: (r) => texto(r.expurgo_gatilho) === "divisao" },
       { id: "g_constr", rotulo: "Construção ou desativação", nota: "Obra nova, ou retirada definitiva do posto de transformação.", teste: (r) => texto(r.expurgo_gatilho) === "construcao" || texto(r.expurgo_gatilho) === "desativacao" },
       { id: "g_aux", rotulo: "Auxiliar de religador ou regulador", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => texto(r.expurgo_gatilho) === "auxiliar" },
       { id: "g_part", rotulo: "Transformador particular", nota: "O ativo é do cliente ou de terceiro.", teste: (r) => texto(r.expurgo_gatilho) === "particular" },
       { id: "g_semos", rotulo: "Sem OS e sem obra", nota: "A ordem de serviço não tem descrição e a obra não foi gerada: não há relato do executante nem consulta de material. Não é afirmação sobre a causa — é ausência de documento. O caso é investigável, não confirmável.", teste: (r) => texto(r.expurgo_gatilho) === "sem_os" },
-      { id: "g_semfato", rotulo: "Sem fato em base nenhuma", nota: "Nem ocorrência na Crítica, nem atendimento no TMAE, nem vizinho no alimentador, na localidade ou em código parecido. Só entram aqui os casos em que a busca por vizinhança não achou absolutamente nada — nos que acharam, o fato provavelmente existe sob outro código e o caso continua retido.", teste: (r) => texto(r.expurgo_gatilho) === "sem_fato" },
+      { id: "g_semfato", rotulo: "Sem interrupção na base Crítica", nota: "Nem ocorrência na Crítica, nem atendimento no TMAE, nem vizinho no alimentador, na localidade ou em código parecido. Só entram aqui os casos em que a busca por vizinhança não achou absolutamente nada — nos que acharam, o fato provavelmente existe sob outro código e o caso continua retido.", teste: (r) => texto(r.expurgo_gatilho) === "sem_fato" },
       { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
       { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => texto(r.expurgo_gatilho) === "seguranca" },
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => texto(r.expurgo_gatilho) === "tap" },
@@ -1756,13 +1786,14 @@ export default function Page() {
             <Kpi rotulo="Danos a terceiro" valor={br(g("abalroamento"))} nota="colisão de veículo — vira ressarcimento, não indicador" tom="amber" aoClicar={() => abrirRecorte("g_abalro")} />
             <Kpi rotulo="Obra de poste — segurança" valor={br(g("seguranca"))} nota="o transformador desceu com o poste" tom="blue" aoClicar={() => abrirRecorte("g_seg")} />
             <Kpi rotulo="Tape interno" valor={br(g("tap"))} nota="troca para regularizar tensão, não por falha" tom="blue" aoClicar={() => abrirRecorte("g_tap")} />
+            <Kpi rotulo="Remanejamento" valor={br(g("remanejamento"))} nota="troca de potência ou mudança de poste, não falha" tom="blue" aoClicar={() => abrirRecorte("g_reman")} />
             <Kpi rotulo="Preventivo ou divisão" valor={br(g("preventivo") + g("divisao"))} nota="obra de capacidade, não falha" tom="blue" aoClicar={() => abrirRecorte("g_prev")} />
             <Kpi rotulo="Construção ou desativação" valor={br(g("construcao") + g("desativacao"))} nota="obra nova ou retirada definitiva" tom="ink" aoClicar={() => abrirRecorte("g_constr")} />
             <Kpi rotulo="Auxiliar de religador" valor={br(g("auxiliar"))} nota="serve ao equipamento, não ao cliente" tom="ink" aoClicar={() => abrirRecorte("g_aux")} />
             <Kpi rotulo="Transformador particular" valor={br(g("particular"))} nota="o ativo é do cliente ou de terceiro" tom="ink" aoClicar={() => abrirRecorte("g_part")} />
             <Kpi rotulo="SS duplicada" valor={br(g("duplicada"))} nota="o mesmo evento contado duas vezes" tom="amber" aoClicar={() => abrirRecorte("g_dup")} />
             <Kpi rotulo="Sem OS e sem obra" valor={br(g("sem_os"))} nota="nada para ler, nada para conferir — investigar" tom="amber" aoClicar={() => abrirRecorte("g_semos")} />
-            <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="red" aoClicar={() => abrirRecorte("g_semfato")} />
+            <Kpi rotulo="Sem interrupção na base Crítica" valor={br(g("sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="red" aoClicar={() => abrirRecorte("g_semfato")} />
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Ausente da base de interrupção" valor={br(g("sem_interrupcao"))} nota="o código não aparece na Crítica em papel nenhum" tom="red" aoClicar={() => abrirRecorte("g_seminterr")} />
             <Kpi rotulo="Possível erro de cadastro" valor={br(g("erro_cadastro"))} nota="o código não corresponde ao equipamento no poste" tom="amber" aoClicar={() => abrirRecorte("g_cadastro")} />
