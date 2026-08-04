@@ -90,6 +90,16 @@ FORA_DO_INDICADOR = [
      "o texto declara divisão de circuito — é obra de capacidade, entra como preventivo"),
     ("particular", r"\b(PARTICULAR|PROPRIEDADE DO CLIENTE)",
      "o transformador é particular ou de terceiro"),
+    # REMANEJAMENTO era só marcador de suspeita, porque "remanejar" às vezes descreve a própria
+    # troca. Mas os 13 casos da base dizem todos a mesma coisa, e nenhum é falha: "remanejar
+    # trafo de 5 kVA por trafo de 15 kVA", "remanejar trafo de 25 kVA por trafo de 15 kVA",
+    # "foi retirado e remanejado trafo do poste X para o poste Y". Trocar potência ou mudar de
+    # poste é decisão de operação — o equipamento saiu porque decidiram, não porque falhou.
+    # O padrão exige o verbo COLADO no equipamento, para não pegar "remanejamento" solto.
+    ("remanejamento", r"\bREMANEJ\w*\s+(DE\s+)?(TRAFO|TRANSFORMADOR)|"
+                      r"(TRAFO|TRANSFORMADOR)\s+\w{0,12}\s*REMANEJAD\w*|"
+                      r"^(MEDIDO_\s*)?(EMERGENCIAL_\s*)?REMANEJ",
+     "o texto declara remanejamento: troca de potência ou mudança de poste, não falha"),
     # Abalroamento só existia como categoria gravada na SS. Quando o executante escreve o que
     # houve — "QUEIMADO NA RDU DE PALMAS. DEVIDO CAMINHÃO" — e a SS foi aberta como queimado,
     # ninguém lia. A palavra do veículo SOZINHA não pode disparar: das nove SS que citam
@@ -152,7 +162,12 @@ SEGURANCA = r"SUBST\w* DE POSTE|SUBSTUI\w* DE POSTE|TROCA DE POSTE|\bPOSTE \d+/\
 # palavra solta. O que casa é o tape ser o motivo: interno, dentro do óleo, impossível de
 # ajustar em campo. Aí o transformador é trocado para regularizar tensão, não porque falhou.
 TAPE = (r"TAP DENTRO DO OLEO|TAP INTERNO|MUDANCA DE TAP|MUDAR O? ?TAP|AJUSTE DE TAP|"
-        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*")
+        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*|"
+        # "não está aumentando tensão mesmo alterando o TAP" — o transformador não falhou: ele
+        # não dá conta da tensão pedida, e mexer no tape não resolveu. É problema de nível de
+        # tensão, que se corrige com outro equipamento, não com reposição por falha.
+        r"ALTERANDO O? ?TAP|MESMO (COM|ALTERANDO|MUDANDO) O? ?TAP|TAP NO MAXIMO|"
+        r"TENSAO BAIXA[^.|]{0,60}TAP|TAP[^.|]{0,60}TENSAO BAIXA")
 
 
 def julga_texto(r):
@@ -169,6 +184,21 @@ def julga_texto(r):
             continue
         fora = (chave, explica)
         break
+    # TAP FORTE vence até uma falha declarada, e a diferença com o TAP fraco é o que o texto
+    # descreve. "Trafo queimado, aproveitar e mudar o tape" é queima com um pedido a mais — o
+    # guard existe para isso. Mas "problemas de tensão baixa, não está aumentando tensão mesmo
+    # alterando o TAP" descreve o SINTOMA e o teste que a equipe fez: o transformador não dá
+    # conta da tensão pedida e mexer no tape não resolveu. Aí "avariado" é o rótulo de quem
+    # abriu a SS, não o que o campo encontrou. Nível de tensão se corrige com outro equipamento,
+    # não com reposição por falha.
+    TAPE_FORTE = (r"TENSAO BAIXA[^.|]{0,80}TAP|TAP[^.|]{0,80}TENSAO BAIXA|"
+                  r"(NAO|SEM)[^.|]{0,40}AUMENT\w*[^.|]{0,40}TENSAO[^.|]{0,60}TAP|"
+                  r"MESMO (COM|ALTERANDO|MUDANDO|MEXENDO N)O? ?TAP")
+    if not fora and re.search(TAPE_FORTE, t):
+        fora = ("tap", "o texto descreve tensão baixa que não sobe nem mexendo no tape — o "
+                       "transformador não dá conta da tensão pedida, e isso é nível de tensão, "
+                       "não falha do equipamento")
+
     # as duas categorias de não-falha entram por último e só na ausência de falha declarada
     if not fora and not re.search(FALHA_DECLARADA, t):
         if re.search(SEGURANCA, t):
@@ -1397,7 +1427,14 @@ def main():
     for r in fluxo["registros"]:
         od = str(r.get("obra_descricao") or "").upper()
         sg = str(r.get("sigco") or "").strip()
-        if not re.search(r"FURTO|ROUBO|VANDALIS", od) and sg != "61993":
+        # O SIGCO SOZINHO NÃO DECIDE. O projeto 61993 é de furto em 85% das obras, não em 100%
+        # — e quando a DESCRIÇÃO da obra diz "SUBST. TRAFO QUEIMADO", os dois campos do cadastro
+        # discordam entre si. A descrição é mais específica que o projeto contábil: ela conta o
+        # que foi feito, ele conta em qual rubrica o custo caiu. Enquadramento errado é erro de
+        # contabilidade, não prova de furto. Só exclui quando a própria descrição declara.
+        descreve_furto = bool(re.search(r"FURTO|ROUBO|VANDALIS", od))
+        descreve_falha = bool(re.search(r"QUEIMAD|AVARIAD|VAZANDO|SOBRECARGA", od))
+        if not descreve_furto and not (sg == "61993" and not descreve_falha):
             continue
         if r.get("fora_da_esteira") == "SIM":
             continue
