@@ -50,6 +50,7 @@ type Revisao = {
     id: string; rotulo: string; descricao: string; entram: number; saem: number;
     saida: number; base: string;
   }>;
+  cenarios_aplicados?: Array<{ id: string; rotulo: string; quando: string; efeito: string }>;
   revisores: {
     site: null | {
       veredito: string; resumo: string; funciona?: string[];
@@ -416,6 +417,11 @@ export default function Page() {
       { id: "indef", rotulo: "Texto não decide", nota: "Nunca decide sozinho: vai para leitura humana.", teste: (r) => r.chega_e3 === "SIM" && r.leitura === "L3" },
       { id: "corrigida", rotulo: "Categoria corrigida", nota: "O rótulo gravado na base não corresponde ao que o texto descreve.", teste: (r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada },
       { id: "semmat", rotulo: "Sem material conferido", nota: "Obra fora do export de material ou obra não gerada.", teste: (r) => r.material_conferido !== "SIM" },
+      /* Ponto de atenção, não veredito: o texto traz um sinal que pede conferência à mão —
+         MEDIDO_, plano de medida, remanejamento, sobrecarga, pedido de potência específica.
+         Nenhum deles tira o caso do indicador sozinho; quando há também gatilho de exclusão,
+         a exclusão manda e o caso nem aparece aqui. */
+      { id: "suspeita", rotulo: "Sob suspeita no texto", nota: "MEDIDO_, plano de medida, remanejamento, sobrecarga ou pedido de potência específica. Fica no indicador — é sinal para conferir, não motivo para excluir.", teste: (r) => r.sob_suspeita === "SIM" },
     ],
     obra: [
       // esta aba fica fora da esteira: lê enquadramento de custo, não causa. Por isso o
@@ -647,7 +653,7 @@ export default function Page() {
         </section>
         {(fluxo.meta.correcoes || []).length > 0 && (
           <section className="panel editorial-note wide"><span>CORREÇÕES APLICADAS AO CRUZAMENTO</span>
-            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As quatro primeiras são defeitos de cruzamento entre as bases e não mexeram no resultado: o que mudou foi a verdade do que está escrito em cada caso. A quinta é a única que move número, porque desfez exclusões que o campo não sustentava — a saída foi de 874 para <strong>{br(conta((r) => r.cascata === "SAÍDA"))}</strong> e os excluídos de 20 para {br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))}.</p>
+            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As primeiras são defeitos de cruzamento entre as bases: o que mudou foi a verdade do que está escrito em cada caso. Depois vieram as que movem número — três arquivos que faltavam e duas regras que o dono redefiniu. A saída está hoje em <strong>{br(conta((r) => r.cascata === "SAÍDA"))}</strong>, com {br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))} excluídos na leitura.</p>
             <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
         )}
@@ -660,7 +666,8 @@ export default function Page() {
           <Kpi rotulo="Outra causa comprovada" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="furto, abalroamento, auxiliar, preventivo" tom="red" aoClicar={() => irPara("expurgos", "todos")} />
           <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nem a Crítica nem o TMAE registram nada" tom="red" aoClicar={() => irPara("semfato", "parados")} />
           <Kpi rotulo="Sem corroboração do TMAE" valor={br(conta((r) => r.deslocamento === "SEM REGISTRO"))} nota="marcador, não retém ninguém" tom="blue" aoClicar={() => irPara("semdesloc", "todos")} />
-          <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => { setModulo("ssos"); setRecorte({ id: "corrigida", rotulo: "Categoria corrigida" }); }} />
+          <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => irPara("ssos", "corrigida")} />
+          <Kpi rotulo="Sob suspeita no texto" valor={br(conta((r) => r.sob_suspeita === "SIM"))} nota="sinal para conferir à mão, não motivo para excluir" tom="amber" aoClicar={() => irPara("ssos", "suspeita")} />
         </section>
         <section className="resultado-esteira">
           <span>Resultado da esteira</span>
@@ -776,6 +783,14 @@ export default function Page() {
             </tr>)}</tbody>
           </table></div>
         </section>
+
+        {revisao.cenarios_aplicados?.length ? <section className="panel editorial-note wide">
+          <span>CENÁRIOS QUE DEIXARAM DE SER CENÁRIO</span>
+          <p>Estes eram hipóteses nesta aba e viraram regra da esteira. Ficam registrados com a data para o histórico não se perder — quem lê hoje precisa saber que o número já mudou por causa deles.</p>
+          <div className="check-list">{revisao.cenarios_aplicados.map((c) => <div key={c.id}>
+            <b>·</b><strong>{c.id} · {c.rotulo} — aplicado em {c.quando}</strong><span>{c.efeito}</span>
+          </div>)}</div>
+        </section> : null}
 
         {gruposDoRecorte.map((g) => <section key={g.id} className={`panel editorial-note wide${g.afeta_saida ? " destaque" : ""}`}>
           <span>{g.rotulo.toUpperCase()} · {br(g.n)} {g.n === 1 ? "CASO" : "CASOS"}</span>
@@ -989,6 +1004,39 @@ export default function Page() {
             <Kpi rotulo="Atendimentos" valor={historicoDoAtivo.filter((l) => texto(l[4]).startsWith("Atendimento")).length} nota="equipes deslocadas" tom="blue" />
             <Kpi rotulo="Eventos no semestre" valor={historicoDoAtivo.length} nota="tudo somado, em ordem" tom="amber" />
           </section>
+          {/* A cronologia da ocorrência, do primeiro passo ao último. A Crítica parte cada
+              ocorrência em várias linhas — uma por trecho manobrado — e o que importa para a
+              janela é o vão inteiro: ela abre quando a primeira chave atua, não quando o
+              transformador queima, e fecha quando o último cliente volta. Sem ver isso, uma
+              SS aberta depois do religamento parece estar a dezenas de horas do evento. */}
+          {ssDoAtivo.filter((r) => texto(r.oc_num)).length ? <section className="panel editorial-note wide">
+            <span>A OCORRÊNCIA QUE SUSTENTA CADA SOLICITAÇÃO</span>
+            <p>A Crítica quebra uma ocorrência em várias linhas, uma por trecho manobrado. O que vale para a janela é o intervalo inteiro — do primeiro passo aberto ao último fechado. A barra mostra esse vão e onde a solicitação cai dentro dele.</p>
+            {ssDoAtivo.filter((r) => texto(r.oc_num)).map((r) => {
+              const ini = new Date(String(r.oc_ini).replace(" ", "T")).getTime();
+              const fim = new Date(String(r.oc_fim).replace(" ", "T")).getTime();
+              const ab = new Date(String(r.abertura).replace(" ", "T")).getTime();
+              const dur = Math.max(fim - ini, 1);
+              // a SS pode cair antes, dentro ou depois; a régua mostra 24h de folga dos dois lados
+              const folga = 24 * 3600 * 1000;
+              const t0 = Math.min(ini, ab) - folga / 4;
+              const t1 = Math.max(fim, ab) + folga / 4;
+              const esc = (t: number) => `${Math.max(0, Math.min(100, ((t - t0) / (t1 - t0)) * 100))}%`;
+              const dentro = ab >= ini && ab <= fim;
+              return <div key={String(r.ss)} className="ocorrencia-linha">
+                <header><strong>{texto(r.ss)}</strong><code>{texto(r.oc_num)}</code>
+                  <em>{texto(r.oc_passos) ? `${texto(r.oc_passos)} passos · ` : ""}{texto(r.oc_dur_h)} h de vão</em>
+                  <b className={dentro ? "dentro" : "fora"}>{dentro ? "a SS abre dentro da ocorrência" : `a SS abre a ${Math.abs(Number(r.oc_dist_h) || 0)} h da borda`}</b>
+                </header>
+                <div className="ocorrencia-regua">
+                  <i style={{ left: esc(ini), width: `calc(${esc(fim)} - ${esc(ini)})` }} />
+                  <u style={{ left: esc(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} />
+                </div>
+                <footer><span>abre {dataBR(r.oc_ini)}</span><span>SS {dataBR(r.abertura)}</span><span>fecha {dataBR(r.oc_fim)}</span></footer>
+                <p className="fluxo-nota">{texto(r.oc_causa)} · {texto(r.oc_sub)} · {texto(r.oc_cons)} clientes interrompidos{texto(r.at_num) ? ` · equipe ${texto(r.at_equipe)} atendeu em ${dataBR(r.at_ini)}` : " · sem atendimento registrado no TMAE"}</p>
+              </div>;
+            })}
+          </section> : null}
           <section className="panel list-panel">
             <div className="list-head"><div><span>{historicoDoAtivo.length} eventos</span><strong>Ativo {ativo}</strong></div></div>
             <div className="table-scroll"><table className="records-table">

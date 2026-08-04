@@ -49,6 +49,76 @@ def parse(s):
     return None
 
 
+import re
+import unicodedata
+
+
+def norm_txt(s):
+    s = unicodedata.normalize("NFD", str(s or "").upper())
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return re.sub(r"\s+", " ", s.replace("_x000D_", " "))
+
+
+# ---------------------------------------------------------------- a leitura da terceira peneira
+# Causas que tiram o caso do indicador MESMO com transformador movimentado na obra. O material
+# prova que houve troca; ele não prova POR QUE. Furto tem trafo baixado — foi instalado um novo
+# no lugar do que levaram. Continua não sendo queima de equipamento.
+#
+# A exigência é ser explícito. Cada padrão abaixo exige a palavra inteira, e os que já geraram
+# falso positivo carregam guarda de contexto: "veículo" só conta perto de colisão, nunca perto
+# de "acesso"; "remanejar" só conta quando não é a própria troca sendo descrita.
+FORA_DO_INDICADOR = [
+    ("furto", r"\b(FURT\w*|ROUB\w*|VANDALIS\w*)",
+     "o texto declara furto, roubo ou vandalismo"),
+    ("construcao", r"\b(OBRA DE CONSTRUCAO|CONSTRUCAO DE RE|DESATIVACAO|RETIRADA DEFINITIVA)",
+     "o texto declara construção ou desativação"),
+    ("auxiliar", r"\b(TRAFO|TRANSFORMADOR)\s+AUXILIAR|AUXILIAR\s+D[EO]\s*(RELIGADOR|REGULADOR)",
+     "é transformador auxiliar de religador ou regulador, não unidade de distribuição"),
+    ("divisao", r"\bDIVISAO DE CIRCUITO",
+     "o texto declara divisão de circuito — é obra de capacidade, entra como preventivo"),
+    ("particular", r"\b(PARTICULAR|PROPRIEDADE DO CLIENTE)",
+     "o transformador é particular ou de terceiro"),
+]
+
+# Sinais que NÃO excluem sozinhos, mas põem o caso sob suspeita e ficam visíveis na tela.
+# "MEDIDO_" é só o cabeçalho do formulário da OS, aparece em 350 casos e não é causa nenhuma.
+# Sobrecarga é causa legítima de queima — a Crítica tem "QUEIMADO POR SOBRECARGA" —, mas
+# também aparece em troca por potência maior, que é obra de capacidade.
+# A ordem importa: estes são PONTOS DE ATENÇÃO, não veredito. As regras de exclusão acima
+# continuam soberanas — quando as duas coisas aparecem no mesmo caso, a exclusão manda. Um
+# sinal aqui não tira ninguém do indicador; ele marca o caso para quem for conferir à mão.
+SUSPEITAS = [
+    ("sobrecarga", r"\bSOBRECARG\w*",
+     "o texto cita sobrecarga: pode ser queima legítima ou troca por potência maior"),
+    ("plano_de_medida", r"\bPLANO DE MEDIDA\b",
+     "veio como plano de medida, que costuma descrever ação programada e não falha"),
+    ("remanejamento", r"\bREMANEJ\w*",
+     "o texto fala em remanejar, que pode ser a própria troca ou uma realocação de ativo"),
+    ("medido", r"\bMEDIDO_",
+     "a OS veio pelo formulário MEDIDO_, sem descrição própria do executante"),
+    ("aumento_potencia", r"\bINSTALAR\s+TR-?\s*\d{2,3}\s*KVA",
+     "o texto pede instalação de potência específica: possível reforço de capacidade"),
+]
+
+
+def julga_texto(r):
+    """Devolve (motivo_de_exclusao_ou_None, lista_de_suspeitas)."""
+    t = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+    fora = None
+    for chave, rx, explica in FORA_DO_INDICADOR:
+        m = re.search(rx, t)
+        if not m:
+            continue
+        janela = t[max(0, m.start() - 45):m.end() + 45]
+        # guardas de contexto: o que fala de acesso ao local não fala de causa
+        if re.search(r"ACESSO|CAMINH|ESTRADA|TRAFEG|CHEGA", janela) and chave != "furto":
+            continue
+        fora = (chave, explica)
+        break
+    susp = [(c, e) for c, rx, e in SUSPEITAS if re.search(rx, t)]
+    return fora, susp
+
+
 def conserta_acento(s):
     """Desfaz a dupla codificação da observação do executante.
 
@@ -314,11 +384,16 @@ def main():
         FORA = {"FURTADO", "ABALROAMENTO", "PREVENTIVO", "PARTICULAR", "TRAFO AUXILIAR",
                 "CONSTRUCAO", "DESATIVACAO"}
         cat = str(r.get("categoria_texto") or "").strip().upper()
-        if r.get("expurgo") == "SIM" or cat in FORA:
+        fora_txt, susp = julga_texto(r)
+        r["suspeitas"] = " · ".join(e for _, e in susp)
+        r["sob_suspeita"] = "SIM" if susp else "NÃO"
+        if r.get("expurgo") == "SIM" or cat in FORA or fora_txt:
+            motivo = (f"A leitura do texto mostra outra causa: {fora_txt[1]}" if fora_txt
+                      else f"A leitura do texto mostra outra causa: {cat.lower()}" if cat in FORA
+                      else r.get("cascata_motivo", ""))
             r.update({"cascata": "EXCLUÍDO NA LEITURA", "decisao": "EXCLUIR", "confirmado": "",
-                      "expurgo": "SIM",
-                      "cascata_motivo": f"A leitura do texto mostra outra causa: {cat.lower()}"
-                      if cat in FORA else r.get("cascata_motivo", "")})
+                      "expurgo": "SIM", "expurgo_gatilho": fora_txt[0] if fora_txt else cat.lower(),
+                      "cascata_motivo": motivo})
             continue
         if float(r.get("trafos_material") or 0) <= 0:
             r.update({"e3_status": "RETIDO", "cascata": "RETIDO — SEM PROVA DE TROCA",
