@@ -1314,6 +1314,13 @@ def main():
         ("PONTO QUENTE", r"PONTO[S]? QUENTE",
          "o texto aponta ponto quente na conexão — aquecimento no ponto de ligação, não "
          "queima do enrolamento"),
+        ("POSSÍVEL AVARIADO",
+         r"BUCHA[S]?\b[^.|]{0,40}(ESTOURAD|QUEBRAD|TRINCAD|PARTID|DANIFICAD|SOLTA|ROMPID)"
+         r"|(ESTOURAD|QUEBRAD|TRINCAD|PARTID|DANIFICAD|ROMPID)\w*\s+(A\s+)?BUCHA",
+         "o texto declara queima e, na mesma linha, dano físico de bucha — estourada, quebrada "
+         "ou trincada. Bucha partida é avaria, não queima do enrolamento, e as duas coisas "
+         "cabem no mesmo equipamento. O caso continua contando como está: a etiqueta marca a "
+         "dúvida para quem for revisar a composição queimado × avariado"),
         ("SUBSTITUÍDO PELA META", r"(SUBSTITU|TROCAD)\w*\s+(PEL[AO]\s+)?META\b",
          "a OS diz que quem trocou foi a Meta, e a obra está registrada noutra empreiteira — "
          "o texto nomeia quem executou, o cadastro nomeia quem contratou"),
@@ -1323,6 +1330,11 @@ def main():
         alvo = norm_txt(" ".join(str(r.get(c) or "") for c in ("desc_ss", "desc_os", "obra_desc")))
         achadas, porques = [], []
         for nome, rx, explica in ETIQUETAS:
+            # "Possível avariado" só faz sentido em cima de quem está contado como QUEIMADO: nos
+            # 18 que já estão gravados como avaria a etiqueta não marcaria dúvida nenhuma, só
+            # repetiria o veredito. Fica nos 16 em que as duas leituras disputam.
+            if nome == "POSSÍVEL AVARIADO" and r.get("confirmado") != "QUEIMADO":
+                continue
             if re.search(rx, alvo):
                 achadas.append(nome)
                 porques.append(f"{nome}: {explica}")
