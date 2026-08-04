@@ -97,7 +97,7 @@
    "id": "tmae",
    "titulo": "2. Por que a ausência no atendimento não conta contra",
    "paragrafos": [
-    "A base de atendimento tem dois defeitos conhecidos que impedem tratá-la como contraprova. O arquivo de janeiro termina em 25 e não traz nenhum atendimento de 26 a 31 — são 99 solicitações abertas nesse intervalo. E a chave da base é o código do equipamento onde o defeito foi aberto: quando a equipe abre na chave, o número que aparece é o da chave, não o do transformador abaixo dela.",
+    "A chave da base de atendimento é o código do equipamento onde o defeito foi aberto, não o do transformador: quando a equipe abre na chave, o número que aparece é o da chave, e o transformador abaixo dela não figura em lugar nenhum da linha. É esse o motivo de a ausência no TMAE não valer como contraprova — e é um motivo de estrutura da base, não de arquivo faltando.",
     "Por isso a interrupção é a prova primária e o atendimento apenas corrobora. Estar ausente do atendimento não retém ninguém — mas fica marcado na tela, porque continua sendo informação."
    ]
   },
@@ -272,10 +272,6 @@
    "id": "limites",
    "titulo": "7. O que estas bases não permitem concluir",
    "itens": [
-    {
-     "rotulo": "Seis dias de janeiro",
-     "texto": "Não existe atendimento registrado de 26 a 31 de janeiro. Precisa de reextração."
-    },
     {
      "rotulo": "Dezembro de 2025",
      "texto": "Solicitações abertas nos primeiros dias de janeiro podem corresponder a ocorrência iniciada em dezembro, mês que não temos."

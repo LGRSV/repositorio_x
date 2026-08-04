@@ -610,17 +610,52 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* A régua da janela. O desenho tem de caber numa linha de tabela e ainda assim ser lido de
    longe: trilho fino, a ocorrência sólida, a tolerância em tom fraco, e o pino da SS por cima
    de tudo — verde se entrou, vermelho se ficou de fora. */
+/* AS DUAS RÉGUAS. Duas correções pedidas por ele, olhando a tela: o azul e as fontes. O azul
+   era de outro site — a página inteira usa vermelho, verde e o cinza-tinta, e nada mais. E o
+   quadro misturava três famílias em três linhas seguidas: serifa no algarismo, sans no título,
+   mono na contagem. Agora a ocorrência é o cinza-tinta da casa, o serviço é a mesma tinta em
+   contorno, e o único acento de cor é o que carrega significado: verde entrou, vermelho ficou de
+   fora. Tipografia: uma família só no quadro, DM Sans, com o mono reservado ao rótulo de seção
+   como em todo o resto do site. */
 .regua-janela { display: block; width: 100%; min-width: 220px; }
-.regua-trilho { position: relative; height: 10px; border-radius: 5px; background: #eef1f5; overflow: visible; }
-.regua-antes { position: absolute; top: 0; height: 10px; background: #dfe6ef; border-radius: 5px 0 0 5px; }
-.regua-oc { position: absolute; top: 0; height: 10px; background: #2f6fd0; border-radius: 3px; }
-.regua-depois { position: absolute; top: 0; height: 10px; background: #cfe0f7; border-radius: 0 5px 5px 0; }
-.regua-ss { position: absolute; top: -3px; width: 3px; height: 16px; border-radius: 2px; transform: translateX(-1px); }
-.regua-ss.dentro { background: #1f9254; box-shadow: 0 0 0 2px #fff; }
-.regua-ss.fora { background: #c0392b; box-shadow: 0 0 0 2px #fff; }
-.regua-legenda { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 5px; font-size: 11px; color: #5b6577; }
-.regua-legenda strong.dentro { color: #1f9254; }
-.regua-legenda strong.fora { color: #c0392b; }
+.regua-trilho { position: relative; height: 9px; background: #f0ede8; overflow: visible; }
+.regua-antes, .regua-depois { position: absolute; top: 0; height: 9px; background: #ddd9d2; }
+.regua-oc { position: absolute; top: -1px; height: 11px; background: var(--ink); }
+.regua-servico { position: absolute; top: 0; height: 9px; background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+.regua-ss { position: absolute; top: -4px; width: 2px; height: 17px; transform: translateX(-1px); }
+.regua-ss.dentro { background: var(--green); box-shadow: 0 0 0 2px #fff; }
+.regua-ss.fora { background: var(--red); box-shadow: 0 0 0 2px #fff; }
+.regua-legenda { display: flex; flex-wrap: wrap; gap: 3px 14px; margin-top: 6px; color: #7c7f84; font-size: 8px; }
+.regua-legenda strong { font-size: 8px; }
+.regua-legenda strong.dentro { color: var(--green); }
+.regua-legenda strong.fora { color: var(--red); }
+/* A legenda das faixas aparece uma vez só, no quadro de cima: na lista o desenho vem pelado. */
+.regua-chaves { display: flex; flex-wrap: wrap; gap: 3px 13px; margin-top: 8px; color: #85888c; font-size: 8px; }
+.regua-chaves span { display: flex; align-items: center; gap: 5px; }
+.regua-chaves span::before { content: ""; width: 11px; height: 7px; background: #ddd9d2; }
+.regua-chaves .k-oc::before { background: var(--ink); }
+.regua-chaves .k-servico::before { background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+.regua-chaves .k-pino::before { width: 2px; height: 12px; background: var(--green); }
+
+.duas-reguas { margin-bottom: 16px; padding: 21px 22px 18px; }
+.reguas-par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-top: 16px; }
+.reguas-par > article { padding: 0 24px; border-left: 1px solid var(--soft); }
+.reguas-par > article:first-child { padding-left: 0; border-left: 0; }
+.reguas-par > article:last-child { padding-right: 0; }
+.reguas-par header { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: baseline; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid var(--soft); }
+.reguas-par header > b { color: var(--red); font-size: 11px; font-weight: 600; }
+.reguas-par header strong, .reguas-par header em { display: block; }
+.reguas-par header strong { font-size: 11px; font-weight: 600; }
+.reguas-par header em { margin-top: 3px; color: #85888c; font-size: 8.5px; font-style: normal; }
+.reguas-par header > u { color: var(--ink); font-size: 8.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.reguas-par > article > p { margin: 11px 0 14px; color: var(--muted); font-size: 9px; line-height: 1.6; }
+.reguas-par > article > p strong { color: var(--ink); font-weight: 600; }
+.reguas-par .fonte-detalhe { margin: 0 0 7px; font-size: 8.5px; }
+@media (max-width: 900px) {
+  .reguas-par { grid-template-columns: minmax(0, 1fr); }
+  .reguas-par > article { padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--soft); }
+  .reguas-par > article:first-child { padding-top: 0; border-top: 0; }
+}
 
 /* A CASCATA EM NÚMEROS GRANDES. O número tem de ser lido do fundo da sala; o porquê, de perto.
    A diferença de escala é grande de propósito — o degrau é o único lugar do site onde um número

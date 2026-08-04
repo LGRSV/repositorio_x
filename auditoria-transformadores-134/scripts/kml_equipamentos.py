@@ -78,16 +78,19 @@ def main(argv):
         fluxo = json.load(fh)
     ativos = [r for r in fluxo["registros"] if r.get("lat") and r.get("lon")]
 
-    antes = {}
+    antes, circuitos = {}, {}
     if os.path.exists(SAIDA):
         with open(SAIDA, encoding="utf-8") as fh:
-            antes = {p["chave"]: p for p in json.load(fh).get("pares", [])}
-
-    circuitos = []
+            velho = json.load(fh)
+        antes = {p["chave"]: p for p in velho.get("pares", [])}
+        # os circuitos já varridos também acumulam: a varredura vem em rodadas de poucos KML por
+        # causa do Drive, e sem isto cada rodada apagava a lista de cobertura da rodada anterior —
+        # o arquivo passava a dizer que só dois circuitos tinham sido lidos quando eram seis.
+        circuitos = {c[0]: c for c in velho.get("circuitos_lidos", [])}
     for caminho in argv:
         pts = pontos(caminho)
         eq = [p for p in pts if p[0] != "transformador"]
-        circuitos.append((os.path.basename(caminho), len(pts), len(eq)))
+        circuitos[os.path.basename(caminho)] = [os.path.basename(caminho), len(pts), len(eq)]
         print(f"{os.path.basename(caminho)}: {len(pts)} pontos · {len(eq)} equipamentos especiais")
         for r in ativos:
             la, lo = float(r["lat"]), float(r["lon"])
@@ -104,7 +107,7 @@ def main(argv):
                     }
     pares = sorted(antes.values(), key=lambda x: x["metros"])
     with open(SAIDA, "w", encoding="utf-8") as fh:
-        json.dump({"raio_m": RAIO_M, "circuitos_lidos": circuitos, "pares": pares}, fh,
+        json.dump({"raio_m": RAIO_M, "circuitos_lidos": sorted(circuitos.values()), "pares": pares}, fh,
                   ensure_ascii=False)
     print(f"\n{len(pares)} pares (transformador ↔ equipamento especial) a até {RAIO_M} m")
     for p in pares[:40]:

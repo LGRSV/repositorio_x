@@ -132,6 +132,30 @@ function contar(linhas: Registro[], campo: string, limite = 12): Par[] {
     .sort((a, b) => b.value - a.value).slice(0, limite);
 }
 
+const MES_CURTO = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+/* MÊS É EIXO, NÃO RANKING. Pedido dele: "sempre de janeiro na primeira linha até o mês mais
+   atual". Um gráfico de mês ordenado por tamanho obriga quem lê a procurar a sequência que não
+   está ali — e some com a leitura que importa, que é a curva. O eixo sai da base inteira, não do
+   recorte, para que dois gráficos possam ser comparados lado a lado; mês sem nenhum caso aparece
+   com zero, porque zero também é resposta. */
+function porMes(linhas: Registro[], universo: Registro[]): Par[] {
+  const chave = (r: Registro) => String(r.abertura || "").slice(0, 7);
+  const todos = universo.map(chave).filter((k) => /^\d{4}-\d{2}$/.test(k)).sort();
+  if (!todos.length) return [];
+  const ultimo = todos[todos.length - 1];
+  const conta = new Map<string, number>();
+  linhas.forEach((r) => { const k = chave(r); if (k) conta.set(k, (conta.get(k) || 0) + 1); });
+  const saida: Par[] = [];
+  for (let a = Number(todos[0].slice(0, 4)), m = 1; ; m++) {
+    if (m > 12) { m = 1; a++; }
+    const k = `${a}-${String(m).padStart(2, "0")}`;
+    saida.push({ label: `${MES_CURTO[m - 1]}/${a}`, value: conta.get(k) || 0 });
+    if (k >= ultimo) break;
+  }
+  return saida;
+}
+
 function mediana(valores: number[]) {
   const v = valores.filter((x) => Number.isFinite(x)).sort((a, b) => a - b);
   return v.length ? v[Math.floor(v.length / 2)] : 0;
@@ -153,7 +177,7 @@ const COLUNAS: Array<[string, string]> = [
   ["Atendimento", "at_num"], ["Início do atendimento", "at_ini"], ["Equipe", "at_equipe"],
   ["TMP", "at_tmp"], ["TMD", "at_tmd"], ["TME", "at_tme"], ["TMA", "at_tma"],
   ["Causa (atendimento)", "at_causa"], ["Subcausa (atendimento)", "at_sub"],
-  ["Corrobora?", "tmae_corrobora"], ["Na lacuna de janeiro", "tmae_gap_jan"],
+  ["Corrobora?", "tmae_corrobora"],
   ["Material", "e3_motivo"], ["Trafos no material", "trafos_material"],
   ["Material conferido", "material_conferido"],
   ["Alertas de obra", "e4_alertas"], ["Classe da obra", "obra_classe"],
@@ -233,30 +257,72 @@ function Degrau({ n, rotulo, sinal, porques, aoClicar, forte }: {
   </div>;
 }
 
-function ReguaJanela({ r }: { r: Registro }) {
-  const ms = (v: unknown) => {
-    const t = new Date(String(v || "").replace(" ", "T")).getTime();
-    return Number.isFinite(t) ? t : null;
-  };
-  const ini = ms(r.oc_ini), fim = ms(r.oc_fim) ?? ms(r.oc_ini), ab = ms(r.abertura);
+const emMs = (v: unknown) => {
+  const t = new Date(String(v || "").replace(" ", "T")).getTime();
+  return Number.isFinite(t) ? t : null;
+};
+const H_MS = 3600000;
+
+/* A PRIMEIRA RÉGUA. A barra escura é o intervalo da ocorrência, as faixas claras são a tolerância
+   dos dois lados e o pino é a hora em que a SS foi aberta. Com `didatica` o desenho ganha a
+   legenda das faixas — usado uma vez, no alto da aba; na lista ele aparece pelado, porque lá o
+   leitor já sabe ler. */
+function ReguaJanela({ r, didatica }: { r: Registro; didatica?: boolean }) {
+  const ini = emMs(r.oc_ini), fim = emMs(r.oc_fim) ?? emMs(r.oc_ini), ab = emMs(r.abertura);
   if (!ini || !fim || !ab) return null;
-  const H = 3600000;
-  const de = Math.min(ini - H, ab) - H;            // começo do desenho
-  const ate = Math.max(fim + 24 * H, ab) + H;      // fim do desenho
+  const de = Math.min(ini - H_MS, ab) - H_MS;         // começo do desenho
+  const ate = Math.max(fim + 24 * H_MS, ab) + H_MS;   // fim do desenho
   const larg = Math.max(1, ate - de);
-  const pct = (t: number) => `${((t - de) / larg) * 100}%`;
-  const dentro = ab >= ini - H && ab <= fim + 24 * H;
-  return <div className="regua-janela">
+  const onde = (t: number) => `${((t - de) / larg) * 100}%`;
+  const quanto = (ms: number) => `${(ms / larg) * 100}%`;
+  const dentro = ab >= ini - H_MS && ab <= fim + 24 * H_MS;
+  return <div className={`regua-janela${didatica ? " didatica" : ""}`}>
     <div className="regua-trilho">
-      <span className="regua-antes" style={{ left: pct(ini - H), width: pct(de + H) }} title="uma hora antes do primeiro passo" />
-      <span className="regua-oc" style={{ left: pct(ini), width: `${((fim - ini) / larg) * 100}%` }} title="intervalo da ocorrência, do primeiro passo ao último" />
-      <span className="regua-depois" style={{ left: pct(fim), width: `${((24 * H) / larg) * 100}%` }} title="vinte e quatro horas depois do último passo" />
-      <b className={dentro ? "regua-ss dentro" : "regua-ss fora"} style={{ left: pct(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} />
+      <span className="regua-antes" style={{ left: onde(ini - H_MS), width: quanto(H_MS) }} title="uma hora antes do primeiro passo" />
+      <span className="regua-oc" style={{ left: onde(ini), width: quanto(Math.max(fim - ini, larg / 200)) }} title="intervalo da ocorrência, do primeiro passo ao último" />
+      <span className="regua-depois" style={{ left: onde(fim), width: quanto(24 * H_MS) }} title="vinte e quatro horas depois do último passo" />
+      <b className={dentro ? "regua-ss dentro" : "regua-ss fora"} style={{ left: onde(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} />
     </div>
+    {didatica ? <div className="regua-chaves">
+      <span className="k-antes">1 hora antes</span>
+      <span className="k-oc">intervalo da ocorrência, do primeiro passo ao último</span>
+      <span className="k-depois">24 horas depois</span>
+      <span className="k-pino">abertura da SS</span>
+    </div> : null}
     <div className="regua-legenda">
       <span>ocorrência {dataBR(r.oc_ini)} → {dataBR(r.oc_fim)}</span>
       <span>SS aberta {dataBR(r.abertura)}</span>
       <strong className={dentro ? "dentro" : "fora"}>{dentro ? "dentro da janela" : distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</strong>
+    </div>
+  </div>;
+}
+
+/* A SEGUNDA RÉGUA, e ela não é a primeira desenhada de outro jeito: aqui a barra larga é o
+   SERVIÇO — da abertura da SS ao encerramento — e o bloco escuro é a ocorrência inteira dentro
+   dele. A pergunta muda de "a SS nasceu perto do apagão?" para "o apagão aconteceu durante o
+   atendimento?", e por isso a distância não é consultada em lugar nenhum deste desenho. */
+function ReguaContencao({ r }: { r: Registro }) {
+  const ab = emMs(r.abertura), enc = emMs(r.termino);
+  const oi = emMs(r.oc_ini), of = emMs(r.oc_fim) ?? emMs(r.oc_ini);
+  if (!ab || !enc || !oi || !of || enc <= ab) return null;
+  const folga = Math.max((enc - ab) * 0.09, H_MS);
+  const de = ab - folga, larg = Math.max(1, (enc + folga) - de);
+  const onde = (t: number) => `${((t - de) / larg) * 100}%`;
+  const quanto = (ms: number) => `${(ms / larg) * 100}%`;
+  const dentro = oi >= ab && of <= enc;
+  return <div className="regua-janela didatica contencao">
+    <div className="regua-trilho">
+      <span className="regua-servico" style={{ left: onde(ab), width: quanto(enc - ab) }} title="do momento em que a SS foi aberta até o encerramento" />
+      <span className="regua-oc" style={{ left: onde(oi), width: quanto(Math.max(of - oi, larg / 150)) }} title="intervalo da ocorrência" />
+    </div>
+    <div className="regua-chaves">
+      <span className="k-servico">SS aberta → SS encerrada</span>
+      <span className="k-oc">a ocorrência, inteira, dentro do serviço</span>
+    </div>
+    <div className="regua-legenda">
+      <span>SS {dataBR(r.abertura)} → {dataBR(r.termino)}</span>
+      <span>ocorrência {dataBR(r.oc_ini)} → {dataBR(r.oc_fim)}</span>
+      <strong className={dentro ? "dentro" : "fora"}>{dentro ? "contida — a ocorrência é desta SS" : "não contida"}</strong>
     </div>
   </div>;
 }
@@ -372,11 +438,13 @@ const GATILHO_CHIP: Record<string, string> = {
   seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus", meta: "g_meta", cola_fita: "g_cola",
 };
 
-/* FUSÃO DE CATEGORIA — escolha dele. "Fora da janela" e "ausente da Crítica" passam a contar
-   numa categoria só, com o nome que ele deu: Ausente da base de interrupções. O gatilho de cada
-   caso continua granular no dado e na planilha — o que muda é a caixa e a barra da tela, e os
-   dois recortes finos seguem clicáveis para quem precisar separar. */
-const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao" };
+/* FUSÃO DE CATEGORIA — escolha dele, pedida duas vezes. As TRÊS formas de não ter interrupção
+   que sustente o caso contam numa categoria só, com o nome que ele deu: Ausente da base de
+   interrupções. São elas: defeito no próprio código em outra data, código que não aparece na
+   Crítica em papel nenhum, e caso sem rastro em base alguma — nem ocorrência, nem atendimento,
+   nem vizinho. O gatilho de cada caso continua granular no dado e na planilha; o que muda é a
+   caixa e a barra da tela, e os três recortes finos seguem clicáveis para quem precisar separar. */
+const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao", sem_fato: "sem_interrupcao" };
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
 const GATILHO_NOTA: Record<string, string> = {
@@ -396,7 +464,7 @@ const GATILHO_NOTA: Record<string, string> = {
   sem_os: "nada para ler, nada para conferir — investigar",
   sem_obra: "passou de 60 dias — a prova de material não vem mais",
   sem_fato: "nem ocorrência, nem atendimento, nem vizinho",
-  sem_interrupcao: "sem interrupção registrada na janela — sem registro nenhum, ou registro em outra data",
+  sem_interrupcao: "sem interrupção que sustente o caso: sem registro nenhum na Crítica, registro em outra data, ou sem rastro em base alguma",
   erro_cadastro: "o código não corresponde ao equipamento no poste",
   fora_da_janela: "o ativo existe na Crítica, mas em outra data",
   obra_sem_transformador: "obra encerrada e conferida, zero transformador",
@@ -499,7 +567,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
       {modo === "deslocamento" && <>
         <td><strong>{texto(r.at_num) || "sem atendimento"}</strong><span>{dataBR(r.at_ini)}</span><small>{texto(r.at_causa)}</small></td>
         <td><strong>{texto(r.at_equipe) || "—"}</strong><span>{r.at_tma ? `TMA ${r.at_tma} min` : ""}</span><small>{r.at_tmd ? `deslocamento ${r.at_tmd} · execução ${texto(r.at_tme)}` : ""}</small></td>
-        <td><strong>{texto(r.tmae_corrobora)}</strong><span>{texto(r.at_sub)}</span><small>{r.tmae_gap_jan === "SIM" ? "aberta na lacuna de 26 a 31 de janeiro" : ""}</small></td>
+        <td><strong>{texto(r.tmae_corrobora)}</strong><span>{texto(r.at_sub)}</span><small>{texto(r.at_obs).slice(0, 60)}</small></td>
       </>}
 
       {modo === "ssos" && <>
@@ -805,7 +873,6 @@ export default function Page() {
       { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e chega ao deslocamento.", teste: (r) => r.chega_e2 === "SIM" },
       { id: "corrobora", rotulo: "Atendimento na janela", nota: "Equipe registrada no próprio transformador dentro da janela.", teste: (r) => texto(r.tmae_corrobora) !== "não" },
       { id: "semat", rotulo: "Sem atendimento", nota: "Nenhuma nota no código do trafo. Não é contraprova: a base tem lacuna.", teste: (r) => r.e2_status === "SEM ATENDIMENTO" },
-      { id: "lacuna", rotulo: "Na lacuna de janeiro", nota: "SS aberta entre 26 e 31 de janeiro, período sem nenhum atendimento no arquivo.", teste: (r) => r.tmae_gap_jan === "SIM" },
       { id: "outra", rotulo: "Atendimento em outra data", nota: "Existe atendimento, mas longe da abertura da SS.", teste: (r) => r.e2_status === "RETIDO" },
       { id: "porocorrencia", rotulo: "Achados pelo número da ocorrência", nota: "Estavam como sem atendimento porque o TMAE grava o elemento onde o defeito foi aberto, não o transformador. Buscando pelo número da ocorrência, a equipe aparece e deslocou.", teste: (r) => r.at2_achado === "SIM" },
     ],
@@ -1719,10 +1786,12 @@ export default function Page() {
         <section className="panel warning-note wide"><strong>O que estas bases não respondem</strong>
           {fluxo.meta.lacunas.map((l) => <p key={l}>· {l}</p>)}
         </section>
+        {/* Dois pedidos saíram desta lista porque foram atendidos, e continuar pedindo o que já
+            chegou é pior que não pedir: a reextração do TMAE de 26 a 31 de janeiro veio — das 99
+            SS abertas naquele trecho, 91 têm atendimento hoje — e a Crítica de dezembro de 2025
+            entrou no acervo, que é o que fechou as 24 SS de borda do ano. */}
         <section className="panel editorial-note wide"><span>PEDIDOS EM ABERTO</span>
-          <p>· Reextração do TMAE de 26 a 31 de janeiro de 2026 — o arquivo termina no dia 25.</p>
-          <p>· Crítica de dezembro de 2025, para fechar as solicitações abertas nos primeiros dias de janeiro.</p>
-          <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações.</p>
+          <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações — destas, {br(conta((r) => r.pendente_siago === "SIM"))} têm obra com número e enquadramento e só esperam a extração do SIAGO.</p>
         </section>
       </>;
     }
@@ -1803,6 +1872,15 @@ export default function Page() {
         const duplicadas = naJanela.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
         const soAtendimento = chegam.filter((r) => r.fato === "F2");
         const seguem = chegam.filter((r) => r.chega_e2 === "SIM");
+        /* Quantos dos contidos a primeira régua sozinha teria perdido. É o que mede o valor da
+           segunda: se fosse zero, ela seria enfeite. São 38 dos 64 — os outros 26 passariam
+           pelos dois caminhos, e para esses tanto faz por qual entraram. */
+        const soPelaContencao = registros.filter((r) => {
+          if (r.oc_contida_na_ss !== "SIM") return false;
+          const i = emMs(r.oc_ini), f = emMs(r.oc_fim) ?? emMs(r.oc_ini), a = emMs(r.abertura);
+          if (!i || !f || !a) return false;
+          return !(a >= i - H_MS && a <= f + 24 * H_MS);
+        }).length;
         return <>
           {/* O QUE SAIU POR AQUI, LOGO DE CARA. Ele cobrou com razão: quem abre esta aba
               precisa ver primeiro quanta gente a falta de interrupção tirou do indicador, e
@@ -1815,16 +1893,43 @@ export default function Page() {
             <Kpi rotulo="Com interrupção no próprio trafo" valor={br(conta((r) => texto(r.censo_critica) === "DEFEITO NA JANELA"))} nota="a Crítica prova o defeito neste transformador, na data" tom="green" aoClicar={() => abrirRecorte("censo_janela")} />
             <Kpi rotulo="Entraram pela contenção" valor={br(conta((r) => r.oc_contida_na_ss === "SIM"))} nota="a SS abriu antes, e o corte aconteceu com ela já aberta" tom="blue" aoClicar={() => abrirRecorte("contida")} />
           </section>
-          {/* A RÉGUA, EXPLICADA UMA VEZ E DESENHADA. Ele pediu: "seria perfeito se você
-              adicionasse meio que uma esteira com a ocorrência e a data de abertura da SS". */}
-          <section className="panel editorial-note wide destaque"><span>A JANELA, DESENHADA</span>
-            <p>A régua desta peneira não é simétrica e não conta a partir do instante em que a ocorrência abriu: vale contra o <strong>intervalo inteiro</strong> dela, do primeiro passo ao último, com <strong>uma hora</strong> de tolerância para trás e <strong>vinte e quatro</strong> para frente. Para frente é larga porque a troca costuma vir depois do apagão; para trás é estreita porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois. Em cada caso da lista abaixo o desenho mostra a mesma coisa: a barra azul escura é a ocorrência, as faixas claras são a tolerância dos dois lados, e o pino é a hora em que a SS foi aberta — verde se entrou, vermelho se ficou de fora.</p>
-            {(() => {
-              const ex = registros.find((r) => r.oc_contida_na_ss === "SIM" && r.oc_ini)
-                || registros.find((r) => r.oc_ini);
-              return ex ? <><p className="fonte-detalhe">Exemplo: {texto(ex.ss)} · trafo {texto(ex.trafo)}</p><ReguaJanela r={ex} /></> : null;
-            })()}
-            <p>Existe uma segunda régua, e ela dispensa a janela: quando a ocorrência do próprio transformador <strong>começa e termina dentro do intervalo da SS</strong>, ela é daquela SS — o corte aconteceu durante o atendimento. São {br(conta((r) => r.oc_contida_na_ss === "SIM"))} casos que entram por aí, e o transformador vazando óleo explica por quê: ele continua energizado, e ninguém fica sem luz até alguém desligar para trocar.</p>
+          {/* DUAS RÉGUAS, LADO A LADO. Ele pediu: "seria perfeito se você adicionasse meio que uma
+              esteira com a ocorrência e a data de abertura da SS" — e depois, olhando o resultado,
+              "ajuste o design disso". O que estava errado não era o desenho: era o texto de doze
+              linhas em volta dele, que enterrava a segunda régua num parágrafo solto e deixava
+              parecer que era a primeira dita de outro jeito. São duas perguntas diferentes, e agora
+              cada uma tem seu quadro, seu desenho e seu número. */}
+          <section className="panel duas-reguas">
+            <div className="panel-title"><div><span>A janela, desenhada</span><h2>Duas réguas decidem se a ocorrência é desta SS</h2></div><small>a segunda dispensa a primeira</small></div>
+            <div className="reguas-par">
+              {(() => {
+                /* Os exemplos saem do dado, não de uma escolha minha: o primeiro é o caso da
+                   janela com a maior folga que ainda entra — a SS nasceu horas depois de o
+                   apagão terminar —, e o segundo é a contenção mais legível. Se o dado mudar,
+                   o desenho muda junto. */
+                const daJanela = registros
+                  .filter((r) => r.cascata === "SAÍDA" && r.oc_contida_na_ss !== "SIM" && r.oc_ini && r.oc_fim
+                    && Number(r.oc_dur_h) > 0.5 && Number(r.oc_dur_h) < 8)
+                  .sort((a, b) => Number(b.oc_dist_h) - Number(a.oc_dist_h))[0];
+                const daContencao = registros
+                  .filter((r) => r.oc_contida_na_ss === "SIM" && r.termino && r.oc_ini)
+                  .sort((a, b) => Number(b.aberta_antes_h) - Number(a.aberta_antes_h))
+                  .find((r) => Number(r.aberta_antes_h) < 120);
+                return <>
+                  <article>
+                    <header><b>1</b><div><strong>A janela</strong><em>1 hora antes · 24 horas depois</em></div><u>{br(conta((r) => ["A", "B", "C"].includes(texto(r.e1_nivel))) - soPelaContencao)} pela distância</u></header>
+                    <p>A régua não é simétrica e não conta a partir do instante em que a ocorrência abriu: vale contra o <strong>intervalo inteiro</strong> dela, do primeiro passo ao último. Para frente é larga porque a troca costuma vir depois do apagão; para trás é estreita porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.</p>
+                    {daJanela ? <><p className="fonte-detalhe">{texto(daJanela.ss)} · trafo {texto(daJanela.trafo)}</p><ReguaJanela r={daJanela} didatica /></> : null}
+                  </article>
+                  <article>
+                    <header><b>2</b><div><strong>A contenção</strong><em>a ocorrência cabe dentro do serviço</em></div><u>{br(soPelaContencao)} só por aqui</u></header>
+                    <p>Quando a ocorrência do próprio transformador <strong>começa e termina com a SS já aberta</strong>, ela é daquela SS: o corte aconteceu durante o atendimento. Aqui a distância não é consultada — e é por isso que existe. O transformador vazando óleo explica: ele continua energizado, ninguém fica sem luz até alguém desligar para trocar, e a SS nasce antes do apagão. São <strong>{br(conta((r) => r.oc_contida_na_ss === "SIM"))}</strong> as ocorrências que couberam inteiras dentro do serviço; destas, <strong>{br(soPelaContencao)}</strong> não passariam pela primeira régua e só entram por aqui — as outras entrariam de qualquer jeito, e para essas tanto faz o caminho.</p>
+                    {daContencao ? <><p className="fonte-detalhe">{texto(daContencao.ss)} · trafo {texto(daContencao.trafo)}</p><ReguaContencao r={daContencao} /></> : null}
+                  </article>
+                </>;
+              })()}
+            </div>
+            <p className="fluxo-nota">Nos casos da lista abaixo o mesmo desenho da régua 1 aparece em cada linha, sem legenda: barra escura é a ocorrência, faixas claras são a tolerância, e o pino é a abertura da SS — verde se entrou, vermelho se ficou de fora.</p>
           </section>
           <section className="panel editorial-note wide"><span>COMO LER OS NÚMEROS DESTA ETAPA</span>
             <p>Esta aba mostra as <strong>{br(chegam.length)}</strong> solicitações do recorte, porque todas passam por aqui — não porque todas tenham interrupção. Destas, <strong>{br(naJanela.length)}</strong> têm interrupção dentro da janela de 24 horas. {br(duplicadas.length)} delas ficam retidas mesmo assim, porque dividem o mesmo evento com outra SS no mesmo transformador e a interrupção prova uma troca, não duas — sobram <strong>{br(casados.length)}</strong> com fato. Somando <strong>{br(soAtendimento.length)}</strong> que não têm interrupção nenhuma mas têm atendimento de equipe no TMAE, <strong>{br(seguem.length)}</strong> seguem para o deslocamento e <strong>{br(chegam.length - seguem.length)}</strong> param aqui. É essa a conta que aparece na caixa d&apos;água.</p>
@@ -2013,7 +2118,7 @@ export default function Page() {
             <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Subcausa da Crítica</h2></div><small>clique para filtrar</small></div>
               <Barras dados={contar(naSaidaLista.map((r) => ({ ...r, _s: texto(r.oc_sub) || "sem ocorrência" })), "_s", 10)} total={naSaidaLista.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Mês da abertura</h2></div></div>
-              <Barras dados={contar(naSaidaLista.map((r) => ({ ...r, _m: String(r.abertura || "").slice(0, 7) })), "_m", 8)} total={naSaidaLista.length} /></article>
+              <Barras dados={porMes(naSaidaLista, registros)} total={naSaidaLista.length} /></article>
           </section>
         </>;
       }
@@ -2049,18 +2154,15 @@ export default function Page() {
         // atendimento no TMAE. A fila lia uma categoria extinta e abria com 0 embaixo de uma
         // caixa que anunciava 140.
         const fila = registros.filter((r) => arquivo(r) !== "EXCLUÍDA" && r.deslocamento === "SEM REGISTRO");
-        const naLacuna = fila.filter((r) => r.tmae_gap_jan === "SIM").length;
         const comCliente = fila.filter((r) => (Number(r.oc_cons) || 0) > 0).length;
         const proprioTrafo = fila.filter((r) => texto(r.oc_papel).includes("próprio")).length;
         const outroAtendimento = fila.filter((r) => (Number(r.atendimentos_ativo) || 0) > 0).length;
         return <>
           <section className="panel editorial-note wide"><span>O QUE ESTA FILA É</span>
             <p>Houve interrupção no transformador dentro da janela, mas não há atendimento registrado no código dele. É raro e merece desconfiança dos dois lados: pode ser nota não lançada, pode ser atendimento gravado sob outro equipamento — a chave do TMAE é o elemento onde o defeito foi aberto —, e pode ser lacuna de arquivo.</p>
-            <p>Antes de cobrar qualquer coisa: <strong>{br(naLacuna)}</strong> destas SS foram abertas entre 26 e 31 de janeiro, período em que o arquivo do TMAE não tem um único registro. Essas não provam nada até a reextração chegar.</p>
           </section>
           <section className="kpi-grid">
             <Kpi rotulo="Nesta fila" valor={br(fila.length)} nota="interrupção sim, atendimento não" tom="amber" aoClicar={() => abrirRecorte("todos")} />
-            <Kpi rotulo="Na lacuna de janeiro" valor={br(naLacuna)} nota="26 a 31/01, sem arquivo" tom="blue" aoClicar={() => abrirRecorte("lacuna")} />
             <Kpi rotulo="Com cliente interrompido" valor={br(comCliente)} nota="a interrupção atingiu gente" tom="ink" />
             <Kpi rotulo="Defeito no próprio trafo" valor={br(proprioTrafo)} nota="o campo apontou o transformador" tom="red" />
             <Kpi rotulo="O ativo tem atendimento em outra data" valor={br(outroAtendimento)} nota="a equipe já esteve nesse trafo no semestre" tom="amber" />
@@ -2198,7 +2300,7 @@ export default function Page() {
               setBusca(""); abrirRecorte({ "AUSENTE": "censo_ausente", "SEM DEFEITO NELE": "censo_semdef", "DEFEITO EM OUTRA DATA": "censo_outradata", "DEFEITO NA JANELA": "censo_janela" }[l] || "parados");
             }} /></article>
           <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>Mês da abertura da SS</h2></div></div>
-            <Barras dados={contar(semFato.map((r) => ({ ...r, _m: String(r.abertura || "").slice(0, 7) || "—" })), "_m", 8)} total={semFato.length} /></article>
+            <Barras dados={porMes(semFato, registros)} total={semFato.length} /></article>
         </section>
                 <section className="panel editorial-note wide"><span>POR QUE ELAS SAEM E NÃO FICAM ESPERANDO</span>
           <p>Foi regra sua: “se do primeiro passo aberto até o último passo o cara não abriu a SS e nem 24 horas depois do último passo, desconsidere e resuma nos excluídos”. Enquanto ficavam retidas, apareciam como pendência de leitura — como se ainda faltasse alguém olhar — quando a resposta já existia. Nenhum registro é apagado: a linha continua com o motivo escrito e o dossiê inteiro.</p>
