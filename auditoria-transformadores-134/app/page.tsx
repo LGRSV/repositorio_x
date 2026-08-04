@@ -1418,7 +1418,11 @@ export default function Page() {
             <Kpi rotulo="Defeito no próprio trafo" valor={br(proprioTrafo)} nota="o campo apontou o transformador" tom="red" />
             <Kpi rotulo="O ativo tem atendimento em outra data" valor={br(outroAtendimento)} nota="a equipe já esteve nesse trafo no semestre" tom="amber" />
             <Kpi rotulo="Com material" valor={br(fila.filter((r) => (Number(r.trafos_material) || 0) > 0).length)} nota="a obra movimentou transformador" tom="green" />
-            <Kpi rotulo="Provavelmente em 2025" valor={br(fila.filter((r) => r.borda_2025 === "SIM").length)} nota="a janela retrocede para antes do início da base" tom="blue" aoClicar={() => abrirRecorte("lacuna2025")} />
+            {/* O cartão "provavelmente em 2025" saiu. Ele era uma hipótese sobre um arquivo
+                que faltava; dezembro/2025 está no acervo e as 24 SS de borda foram todas
+                reprocuradas — as 24 acharam ocorrência, 20 delas com data em dezembro. Não há
+                mais "provavelmente": há resposta. */}
+            <Kpi rotulo="Casaram em dezembro de 2025" valor={br(fila.filter((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")).length)} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
           </section>
         </>;
       }
@@ -1505,7 +1509,7 @@ export default function Page() {
           <Kpi rotulo="Sem interrupção na janela" valor={br(conta(aqui))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => aqui(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => aqui(r) && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
-          <Kpi rotulo="Provavelmente em 2025" valor={br(conta((r) => aqui(r) && r.borda_2025 === "SIM"))} nota="a janela retrocede para antes do início da base" tom="blue" aoClicar={() => abrirRecorte("borda")} />
+          <Kpi rotulo="Casaram em dezembro de 2025" valor={br(conta((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")))} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
           <Kpi rotulo="Com texto de falha" valor={br(conta((r) => aqui(r) && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
           <Kpi rotulo="SS duplicada" valor={br(duplicadas.length)} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
         </section></>;
@@ -1734,6 +1738,7 @@ export default function Page() {
             {texto(aberto.motivo_reclassificacao) ? <article className="work-alerts"><span>EXCLUSÃO DESFEITA</span><ul><li>{texto(aberto.motivo_reclassificacao)}</li></ul></article> : null}
             {texto(aberto.leitura_pararaio) ? <article className="work-alerts"><span>LEITURA CORRIGIDA</span><ul><li>{texto(aberto.leitura_pararaio)}</li></ul></article> : null}
             {aberto.oc_outro_assunto === "SIM" ? <article className="work-alerts"><span>A OCORRÊNCIA EXIBIDA É DE OUTRO EQUIPAMENTO</span><ul><li>Ela está fora da janela e aparece só como referência. A nota de campo descreve trabalho em conexão, cabo, medidor ou disjuntor, sem citar transformador — não explica nada sobre este ativo. Caso para análise profunda.</li></ul></article> : null}
+            {texto(aberto.exclusao_confirmada_pelo_campo) ? <article className="work-alerts"><span>O CAMPO CONFIRMA A EXCLUSÃO</span><ul><li>{texto(aberto.exclusao_confirmada_pelo_campo)}</li></ul></article> : null}
             {texto(aberto.categoria_herdada_vencida) ? <article className="work-alerts"><span>RÓTULO HERDADO DERRUBADO PELO TEXTO</span><ul><li>{texto(aberto.categoria_herdada_vencida)}</li></ul></article> : null}
             {texto(aberto.obra_diverge_texto) ? <article className="work-alerts"><span>A OBRA DIZ OUTRA CAUSA</span><ul><li>{texto(aberto.obra_diverge_texto)}</li></ul></article> : null}
             {texto(aberto.obra_sigco_texto) ? <article className="work-alerts"><span>A OBRA E O SIGCO DISCORDAM ENTRE SI</span><ul><li>{texto(aberto.obra_sigco_texto)}</li></ul></article> : null}
