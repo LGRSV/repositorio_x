@@ -1328,17 +1328,16 @@ export default function Page() {
             <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
         )}
+        {/* QUATRO CAIXAS, NÃO OITO. Pedido dele: "não precisa de tantos cards com número, o
+            que mais importa são os gráficos". Ficou o que a reunião pergunta primeiro — quantas
+            entraram, quantas contam, quantas esperam e quantas saíram. Os marcadores que estavam
+            aqui (categoria corrigida, sob suspeita, sem corroboração do TMAE) viraram gráfico ou
+            moraram na aba onde são decididos, e o texto do método está em Regras. */}
         <section className="kpi-grid">
-          <Kpi rotulo="Solicitações" valor={br(total)} nota="transformador, jan a jun" tom="ink" />
-          {/* "Incluir" não dizia o que era incluído, e "Revisão"/"Excluir" descreviam a fila
-              interna em vez do resultado. Os rótulos passam a dizer o que o caso É. */}
-          <Kpi rotulo="Queimados ou avariados" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota={`${br(conta((r) => r.confirmado === "QUEIMADO"))} queimados · ${br(conta((r) => r.confirmado === "AVARIADO"))} avariados`} tom="green" aoClicar={() => irPara("decisao", "saida")} />
-          <Kpi rotulo="Retidos com motivo" valor={br(conta((r) => r.decisao === "REVISÃO"))} nota="cada um com a razão escrita ao lado" tom="amber" aoClicar={() => irPara("decisao", "revisao")} />
+          <Kpi rotulo="Solicitações no recorte" valor={br(total)} nota="troca de transformador, janeiro a junho de 2026" tom="ink" />
+          <Kpi rotulo="Queimados e avariados" valor={br(conta((r) => arquivo(r) === "SAÍDA"))} nota={`${br(conta((r) => r.confirmado === "QUEIMADO"))} queimados · ${br(conta((r) => r.confirmado === "AVARIADO"))} avariados`} tom="green" aoClicar={() => irPara("decisao", "saida")} />
           <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa declarada, ou sem interrupção que sustente" tom="red" aoClicar={() => irPara("exclusoes", "todos")} />
-          <Kpi rotulo="Pararam na 1ª peneira" valor={br(conta((r) => parouNaInterrupcao(r)))} nota="sem interrupção no próprio trafo na janela — 47 nunca aparecem na Crítica, 83 aparecem em outra data" tom="red" aoClicar={() => irPara("semfato", "parados")} />
-          <Kpi rotulo="Sem corroboração do TMAE" valor={br(conta((r) => r.deslocamento === "SEM REGISTRO"))} nota="marcador, não retém ninguém" tom="blue" aoClicar={() => irPara("semdesloc", "todos")} />
-          <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => irPara("ssos", "corrigida")} />
-          <Kpi rotulo="Sob suspeita no texto" valor={br(conta((r) => r.sob_suspeita === "SIM"))} nota="sinal para conferir à mão, não motivo para excluir" tom="amber" aoClicar={() => irPara("ssos", "suspeita")} />
+          <Kpi rotulo="Esperando prova" valor={br(conta((r) => String(arquivo(r)).startsWith("RETIDO")))} nota="retidos, cada um com a razão escrita" tom="amber" aoClicar={() => irPara("expurgos", "parados")} />
         </section>
         <section className="resultado-esteira">
           <span>Resultado da esteira</span>
@@ -1360,8 +1359,30 @@ export default function Page() {
           <p className="fluxo-nota">Furto, abalroamento, preventivo e auxiliar são separados no terceiro estágio, na leitura do texto — e hoje isso acontece na porta, antes da esteira. Antes disso ninguém é descartado por categoria: o campo fala primeiro. Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
         </section>
         <section className="dashboard-columns">
-          <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Decisão</h2></div></div><Barras dados={decisoes} total={total} /></article>
+          <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Onde cada solicitação terminou</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(registros.map((r) => ({ ...r, _a: arquivo(r) })), "_a", 6)} total={total} aoSelecionar={(l) => {
+              setBusca(""); if (l === "SAÍDA") irPara("decisao", "saida"); else if (l === "EXCLUÍDA") irPara("exclusoes", "todos"); else irPara("expurgos", "parados");
+            }} /></article>
           <article className="panel"><div className="panel-title"><div><span>Estágio 1</span><h2>O que o campo provou</h2></div></div><Barras dados={fatos} total={total} /></article>
+        </section>
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Fora do indicador</span><h2>Por que saíram</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[categoriaDe(r)] || "Marcada por você" })), "_g", 10)} total={excluidas} aoSelecionar={(l) => {
+              const chave = Object.entries(GATILHO_ROTULO).find(([, v]) => v === l)?.[0];
+              setBusca(""); irPara("exclusoes", chave ? GATILHO_CHIP[chave] || `g:${chave}` : "manual");
+            }} /></article>
+          <article className="panel"><div className="panel-title"><div><span>Crítica</span><h2>Estado do ativo na base de interrupção</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(registros.map((r) => ({ ...r, _c: texto(r.censo_critica) || "—" })), "_c", 5)} total={total} aoSelecionar={(l) => {
+              setBusca(""); irPara("interrupcao", { "AUSENTE": "censo_ausente", "SEM DEFEITO NELE": "censo_semdef", "DEFEITO EM OUTRA DATA": "censo_outradata", "DEFEITO NA JANELA": "censo_janela" }[l] || "todos");
+            }} /></article>
+        </section>
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Leitura</span><h2>O que o texto declara</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(registros.map((r) => ({ ...r, _t: texto(r.categoria_texto) || "não decide" })), "_t", 8)} total={total} aoSelecionar={(l) => { setBusca(l === "não decide" ? "" : l); setRecorte(null); }} /></article>
+          <article className="panel"><div className="panel-title"><div><span>Origem</span><h2>Quem abriu a solicitação</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(registros, "origem", 8)} total={total} aoSelecionar={(l) => {
+              setBusca(""); if (l === "—") abrirRecorte("sem_origem"); else { setRecorte(null); setBusca(l); }
+            }} /></article>
         </section>
         {metodo ? <section className="panel editorial-note wide">
           <span>{metodo.resumo.titulo.toUpperCase()}</span>
@@ -1805,25 +1826,27 @@ export default function Page() {
       if (modulo === "deslocamento") {
         const chegam = registros.filter((r) => r.chega_e2 === "SIM");
         const comAt = chegam.filter((r) => texto(r.at_num));
+        /* Enxuto a pedido dele: aqui o que informa é o gráfico, não a fileira de números. Esta
+           etapa não retém ninguém — é marcador —, então caixa demais dava a ela um peso de
+           decisão que ela não tem. Ficaram três: quantos chegam, quantos têm equipe registrada
+           e quanto tempo o atendimento leva. O resto virou gráfico, e o texto foi para Regras. */
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Chegam neste estágio" valor={br(chegam.length)} nota="passaram pela interrupção" tom="ink" />
-            <Kpi rotulo="Com atendimento" valor={br(comAt.length)} nota={`${pct(comAt.length, chegam.length)}% dos que chegam`} tom="green" aoClicar={() => abrirRecorte("corrobora")} />
-            <Kpi rotulo="Sem atendimento" valor={br(conta((r) => r.e2_status === "SEM ATENDIMENTO"))} nota="não é contraprova: a base tem lacuna" tom="amber" aoClicar={() => abrirRecorte("semat")} />
-            <Kpi rotulo="Na lacuna de janeiro" valor={br(conta((r) => r.tmae_gap_jan === "SIM"))} nota="26 a 31/01 sem nenhum registro" tom="red" aoClicar={() => abrirRecorte("lacuna")} />
-            <Kpi rotulo="Achados pela ocorrência" valor={br(conta((r) => r.at2_achado === "SIM"))} nota="equipe deslocou, com o defeito aberto noutro elemento" tom="green" aoClicar={() => abrirRecorte("porocorrencia")} />
-            <Kpi rotulo="TMA mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tma) || 0))} min`} nota="atendimento de ponta a ponta" tom="ink" />
-            <Kpi rotulo="Deslocamento mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tmd) || 0))} min`} nota="da comunicação até chegar" tom="blue" />
-            <Kpi rotulo="Equipes distintas" valor={br(new Set(comAt.map((r) => texto(r.at_equipe))).size)} nota="atenderam as solicitações" tom="ink" />
+            <Kpi rotulo="Chegam nesta etapa" valor={br(chegam.length)} nota="passaram pela interrupção" tom="ink" />
+            <Kpi rotulo="Com equipe registrada no TMAE" valor={br(comAt.length)} nota={`${pct(comAt.length, chegam.length)}% — marcador, não retém ninguém`} tom="green" aoClicar={() => abrirRecorte("corrobora")} />
+            <Kpi rotulo="Atendimento mediano" valor={`${mediana(comAt.map((r) => Number(r.at_tma) || 0))} min`} nota={`deslocamento mediano de ${mediana(comAt.map((r) => Number(r.at_tmd) || 0))} min`} tom="blue" />
           </section>
           <section className="dashboard-columns">
-            {/* Era "Equipes" e "Subcausa". A equipe diz quem foi, não o que houve — e o que
-                interessa nesta etapa é o que o atendimento declarou. Causa e subcausa ocupam o
-                painel, as duas clicáveis; quem quiser a equipe continua achando pela busca. */}
             <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Causa registrada no atendimento</h2></div><small>clique para filtrar</small></div>
               <Barras dados={contar(comAt, "at_causa", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Subcausa registrada</h2></div><small>clique para filtrar</small></div>
               <Barras dados={contar(comAt, "at_sub", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
+          </section>
+          <section className="dashboard-columns">
+            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>O TMAE corrobora?</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(chegam.map((r) => ({ ...r, _d: texto(r.deslocamento) || "sem registro" })), "_d", 5)} total={chegam.length} aoSelecionar={(l) => abrirRecorte(l === "CORROBORA" ? "corrobora" : "semat")} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Equipe que atendeu</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(comAt, "at_equipe", 10)} total={comAt.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
           </section>
         </>;
       }
