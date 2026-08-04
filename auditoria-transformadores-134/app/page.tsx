@@ -833,10 +833,10 @@ export default function Page() {
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
-      { id: "reincidente", rotulo: "Ativos reincidentes", nota: "O mesmo transformador saiu pela ponta da esteira mais de uma vez no semestre. Não é erro de contagem quando os dois eventos existem e cada um tem ocorrência e material próprios — é informação de rede. Vale conferir quando o intervalo é curto.", teste: (r) => registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo)).length > 1 && arquivo(r) === "SAÍDA" },
-      { id: "reincidente_30", rotulo: "Reincidentes em 30 dias ou menos", nota: "Saiu duas vezes com menos de um mês entre uma e outra. É onde a duplicidade, se existir, se esconde — e é onde a rede merece uma olhada de engenharia.", teste: (r) => {
-        if (arquivo(r) !== "SAÍDA") return false;
-        const irmas = registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo));
+      { id: "reincidente_saida", rotulo: "Contaram duas vezes", nota: "O mesmo transformador saiu pela ponta da esteira mais de uma vez no semestre. Não é erro de contagem quando os dois eventos existem e cada um tem ocorrência e material próprios — mas é o primeiro lugar onde uma duplicidade apareceria.", teste: (r) => arquivo(r) === "SAÍDA" && registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo)).length > 1 },
+      { id: "reincidente", rotulo: "Ativos com mais de uma SS", nota: "O mesmo transformador aparece mais de uma vez na base do semestre — contando ou não. Não é erro de contagem quando os dois eventos existem e cada um tem ocorrência e material próprios — é informação de rede. Vale conferir quando o intervalo é curto.", teste: (r) => registros.filter((x) => texto(x.trafo) === texto(r.trafo)).length > 1 },
+      { id: "reincidente_30", rotulo: "Segunda SS em 30 dias ou menos", nota: "O mesmo transformador teve outra solicitação com menos de um mês entre uma e outra — contando ou não. É onde a duplicidade, se existir, se esconde, e é onde a rede merece uma olhada de engenharia.", teste: (r) => {
+        const irmas = registros.filter((x) => texto(x.trafo) === texto(r.trafo));
         if (irmas.length < 2) return false;
         const dts = irmas.map((x) => new Date(String(x.abertura).replace(" ", "T")).getTime()).sort((a, b) => a - b);
         return (dts[dts.length - 1] - dts[0]) / 86400000 <= 30;
@@ -1818,14 +1818,18 @@ export default function Page() {
         </>;
       }
       if (modulo === "decisao") {
-        const celula = (f: string, l: string) => conta((r) => r.fato === f && r.leitura === l);
         /* REINCIDENTES — pedido dele: "leva só para comparativo em queimados e avariados os
            ativos reincidentes". Não muda número nenhum: é leitura. Um transformador que sai
            duas vezes no mesmo semestre não é erro de contagem se os dois eventos existem — é
            informação de rede, e é a primeira coisa que alguém pergunta numa reunião. */
         const naSaidaLista = registros.filter((r) => arquivo(r) === "SAÍDA");
+        /* REINCIDÊNCIA CONTADA NA BASE INTEIRA, não só na saída. Olhar apenas quem saiu duas
+           vezes mostra 8 ativos; olhar a base mostra 34 — e os outros 26 são justamente os
+           interessantes, porque neles o mesmo transformador gerou uma segunda solicitação que
+           NÃO contou: parou por falta de prova, ou saiu pela porta. É onde se enxerga se a conta
+           está deixando evento repetido de fora. */
         const porAtivo = new Map<string, Registro[]>();
-        naSaidaLista.forEach((r) => {
+        registros.forEach((r) => {
           const k = texto(r.trafo);
           if (!k) return;
           porAtivo.set(k, [...(porAtivo.get(k) || []), r]);
@@ -1852,28 +1856,11 @@ export default function Page() {
             <Kpi rotulo="Em revisão" valor={br(conta((r) => String(arquivo(r)).startsWith("RETIDO")))} nota="esperam prova de material" tom="amber" aoClicar={() => irPara("expurgos", "parados")} />
             <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa, ou sem interrupção que sustente" tom="ink" aoClicar={() => irPara("exclusoes", "todos")} />
             <Kpi rotulo="Mudaram na revisão" valor={br(conta((r) => r.mudou_na_revisao === "SIM"))} nota="decisão diferente do funil anterior" tom="blue" aoClicar={() => abrirRecorte("mudou")} />
-            <Kpi rotulo="Ativos reincidentes" valor={br(reincidentes.length)} nota="mesmo transformador saindo mais de uma vez" tom="amber" aoClicar={() => abrirRecorte("reincidente")} />
-            <Kpi rotulo="Solicitações dos reincidentes" valor={br(reincidentes.reduce((a, x) => a + x.linhas.length, 0))} nota="já estão somadas no total acima" tom="ink" aoClicar={() => abrirRecorte("reincidente")} />
-            <Kpi rotulo="Reincidência em 30 dias ou menos" valor={br(reincidentes.filter((x) => x.dias <= 30).length)} nota="voltou a sair no mesmo mês" tom="red" aoClicar={() => abrirRecorte("reincidente_30")} />
+            <Kpi rotulo="Ativos com mais de uma SS" valor={br(reincidentes.length)} nota="o mesmo transformador aparece mais de uma vez na base" tom="amber" aoClicar={() => abrirRecorte("reincidente")} />
+            <Kpi rotulo="…destes, contando duas vezes" valor={br(reincidentes.filter((x) => x.linhas.filter((r) => arquivo(r) === "SAÍDA").length > 1).length)} nota="saíram pela ponta mais de uma vez" tom="red" aoClicar={() => abrirRecorte("reincidente_saida")} />
+            <Kpi rotulo="Segunda SS em 30 dias ou menos" valor={br(reincidentes.filter((x) => x.dias <= 30).length)} nota="o mesmo transformador voltou a pedir troca no mesmo mês" tom="red" aoClicar={() => abrirRecorte("reincidente_30")} />
           </section>
-          <section className="panel"><div className="panel-title"><div><span>A matriz</span><h2>Fato contra leitura</h2></div><small>clique numa célula para abrir os casos</small></div>
-            <div className="table-scroll"><table className="records-table matriz">
-              <thead><tr><th>Fato ↓ / Leitura →</th><th>Texto diz falha</th><th>Texto diz outra causa</th><th>Texto não decide</th></tr></thead>
-              <tbody>{["F1", "F0", "F2", "F3"].map((f) => <tr key={f}>
-                <td><strong>{FATO_ROTULO[f]}</strong></td>
-                {["L1", "L2", "L3"].map((l) => {
-                  const dentro = registros.filter((r) => r.fato === f && r.leitura === l);
-                  const composicao = contar(dentro, "decisao", 3);
-                  const dominante = composicao[0]?.label || "";
-                  return <td key={l} className={dentro.length ? `cell-${decisaoClasse(dominante)}` : ""}
-                    onClick={() => { if (dentro.length) { setBusca(""); setRecorte({ id: `matriz-${f}-${l}`, rotulo: `${FATO_ROTULO[f]} × ${LEITURA_ROTULO[l]}` }); } }}>
-                    <strong>{dentro.length ? br(dentro.length) : "—"}</strong>
-                    {dentro.length ? <span>{composicao.map((c) => `${br(c.value)} ${c.label.toLowerCase()}`).join(" · ")}</span> : null}</td>;
-                })}
-              </tr>)}</tbody>
-            </table></div>
-          </section>
-          {reincidentes.length ? <section className="panel"><div className="panel-title"><div><span>Comparativo</span><h2>Ativos que saíram mais de uma vez</h2></div><small>clique numa linha para abrir o dossiê</small></div>
+          {reincidentes.length ? <section className="panel"><div className="panel-title"><div><span>Comparativo</span><h2>Ativos com mais de uma solicitação</h2></div><small>clique numa linha para abrir o dossiê</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Transformador</th><th>Intervalo</th><th>Solicitações</th><th>Ocorrências</th><th>Material</th><th>Causa</th></tr></thead>
               <tbody>{reincidentes.map((x) => <tr key={x.trafo} onClick={() => { setAtivo(x.trafo); irPara("ativos"); }}>
@@ -1882,7 +1869,7 @@ export default function Page() {
                 <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.ss)} · {dataBR(r.abertura)}</span>)}</td>
                 <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.oc_num) || "sem ocorrência"}</span>)}</td>
                 <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.trafos_material)} trafo{texto(r.material_conferido) === "SIM" ? "" : " (não conferido)"}</span>)}</td>
-                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{classificacao[texto(r.ss)]?.classe || texto(r.confirmado)}</span>)}</td>
+                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{classificacao[texto(r.ss)]?.classe || texto(r.confirmado) || arquivo(r)}</span>)}</td>
               </tr>)}</tbody>
             </table></div>
           </section> : null}

@@ -44,3 +44,4 @@ next-env.d.ts
 
 # gerado pelo tsc a cada build: conflita em todo merge e não é fonte de nada
 tsconfig.tsbuildinfo
+__pycache__/
