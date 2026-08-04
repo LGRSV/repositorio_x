@@ -425,6 +425,23 @@ def borda(ab, o):
 AT_HERDADO_SO_NA_JANELA = os.environ.get("AT_HERDADO_SO_NA_JANELA", "1") == "1"
 
 
+def contida_na_ss(ab, tm, o):
+    """A ocorrência do próprio transformador cabe INTEIRA dentro do intervalo da SS?
+
+    Régua que não depende da janela e que nasceu de uma pergunta do dono sobre um caso em que a
+    SS abriu antes do apagão. A ordem que a janela assume — evento, depois SS — não é a única do
+    campo: um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar
+    para trocar. Nesses, a SS nasce primeiro e o desligamento é o serviço.
+
+    Quando a ocorrência começa depois de a SS abrir E termina antes de ela fechar, ela aconteceu
+    durante o atendimento desta SS. Isso é mais forte que distância: é contenção.
+    """
+    if not ab or not tm or not o["ini"]:
+        return False
+    fim = o["fim"] or o["ini"]
+    return ab <= o["ini"] and fim <= tm
+
+
 def dentro(ab, o):
     """A SS cai na janela válida desta ocorrência?
 
@@ -880,7 +897,10 @@ def main():
         r["chega_e1"] = "SIM"
         ab = parse(r.get("abertura"))
         cod = str(r.get("trafo") or "").strip()
-        jan = [o for o in por.get(cod, []) if dentro(ab, o)]
+        tm = parse(r.get("termino"))
+        jan = [o for o in por.get(cod, []) if dentro(ab, o) or contida_na_ss(ab, tm, o)]
+        r["oc_contida_na_ss"] = "SIM" if any(
+            contida_na_ss(ab, tm, o) and not dentro(ab, o) for o in por.get(cod, [])) else "NÃO"
         melhor = min(jan, key=lambda x: borda(ab, x)) if jan else None
         # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
         cand_at = [a for a in por_at.get(cod, []) if dentro(ab, a)]
@@ -1257,10 +1277,12 @@ def main():
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
         "ETO-RD-DP 00156/2026": (
-            "EXCLUIR", "", "meta",
-            "o dono mandou excluir na categoria da Meta. A OS diz “TRANSFORMADOR SUBSTITUIDO "
-            "PELA META” e a obra está registrada noutra empreiteira — quem executou não é quem "
-            "o cadastro contratou, e o caso sai do indicador por isso"),
+            "INCLUIR", "QUEIMADO", "",
+            "o dono reviu e mandou de volta para a saída como queimado, mantendo a marca: “esse "
+            "da Meta por último também leva para saída de queimado porém coloca essa "
+            "classificação”. A OS diz “TRANSFORMADOR SUBSTITUIDO PELA META” e a obra está "
+            "registrada noutra empreiteira — quem executou não é quem o cadastro contratou. Isso "
+            "é etiqueta, não causa: o transformador queimou do mesmo jeito"),
         "ETO-RD-AR 00692/2026": (
             "EXCLUIR", "", "avaliar_matheus",
             "o dono mandou tirar do indicador e marcar para avaliar com o Matheus. O caso tem "
@@ -1319,6 +1341,10 @@ def main():
         ("PONTO QUENTE", r"PONTO[S]? QUENTE",
          "o texto aponta ponto quente na conexão — aquecimento no ponto de ligação, não "
          "queima do enrolamento"),
+        ("MATERIAL NÃO CONFERIDO NO EXPORT", None,
+         "a obra deste caso não está no export de material que temos, então ninguém conferiu se "
+         "um transformador foi de fato movimentado. Não é zero: é ausência de leitura. Quem "
+         "aprovar este caso está aprovando pelo campo e pelo texto, sem a terceira prova"),
         ("POSSÍVEL AVARIADO",
          r"BUCHA[S]?\b[^.|]{0,40}(ESTOURAD|QUEBRAD|TRINCAD|PARTID|DANIFICAD|SOLTA|ROMPID)"
          r"|(ESTOURAD|QUEBRAD|TRINCAD|PARTID|DANIFICAD|ROMPID)\w*\s+(A\s+)?BUCHA",
@@ -1339,6 +1365,17 @@ def main():
             # 18 que já estão gravados como avaria a etiqueta não marcaria dúvida nenhuma, só
             # repetiria o veredito. Fica nos 16 em que as duas leituras disputam.
             if nome == "POSSÍVEL AVARIADO" and r.get("confirmado") != "QUEIMADO":
+                continue
+            # esta não vem do texto: vem da ausência do documento. O dono pediu ao ler a
+            # ETO-RD-DP 00033 — "queimado mas dá um flag que o material ainda não foi conferido
+            # no export" —, e ela é justamente a que some quando o caso sai da fila de retidos
+            # pelo martelo dele: sem a marca, o caso passa a parecer aprovado com as três provas.
+            if rx is None:
+                if r.get("material_conferido") == "SIM":
+                    continue
+                achadas.append(nome)
+                porques.append(f"{nome}: {explica}")
+                conta_etq[nome] += 1
                 continue
             if re.search(rx, alvo):
                 achadas.append(nome)
