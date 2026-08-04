@@ -1486,6 +1486,39 @@ def main():
         })
     print(f"  furto declarado pela obra e pelo SIGCO, retirados do indicador: {vazou}")
 
+    # ---------- obra encerrada, conferida no material, e sem transformador nenhum
+    # Aqui o zero É medida, e essa é toda a diferença. Nas obras que não estão no export o zero é
+    # ausência de dado e o caso só espera o SIAGO — foi o defeito que o dono apontou no dossiê.
+    # Nestas a obra ESTÁ no export, foi encerrada e tem valor realizado: o material foi conferido
+    # e não há transformador. Alguém executou e cobrou algo que não foi a troca do transformador.
+    # A terceira peneira pergunta se houve movimentação; aqui a resposta é não, e é uma resposta,
+    # não uma lacuna.
+    sem_mov = 0
+    for r in fluxo["registros"]:
+        if r.get("fora_da_esteira") == "SIM":
+            continue
+        if (r.get("material_conferido") != "SIM"
+                or float(r.get("trafos_material") or 0) > 0
+                or float(r.get("obra_realizado") or 0) <= 0):
+            continue
+        sem_mov += 1
+        _v = f"{float(r.get('obra_realizado') or 0):,.0f}".replace(",", ".")
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "obra_sem_transformador", "chega_e1": "NÃO",
+            "exclusao_porque": (f"a obra {r.get('obra')} está no export de material, foi encerrada "
+                                f"e realizou R$ {_v} — e o material conferido não traz "
+                                "transformador nenhum. Aqui o zero é medida, não ausência de "
+                                "dado: alguém executou e cobrou algo que não foi a troca do "
+                                "transformador"),
+            "cascata_motivo": ("Fora do indicador: obra encerrada e conferida no material, sem "
+                               "transformador movimentado."),
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    print(f"  obra encerrada e conferida sem transformador, excluídos: {sem_mov}")
+
     # ---------- a obra descreve a troca de OUTRO equipamento
     # "SUBST. CHAVE FUSÍVEL", R$ 2.335, nenhum transformador no material. A SS pediu trafo, a
     # obra executou chave. Quando o cadastro de obras — que é preenchido depois, por quem
