@@ -37,12 +37,33 @@ JANELA = 24 * 3600
 
 
 def parse(s):
-    for f in ("%d/%m/%Y %H:%M", "%d/%m/%Y %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S"):
+    # A Crítica escreve a data com barra e o TMAE com traço. Aceitar só um dos dois faz
+    # todas as datas do outro virarem None em silêncio — e aí nenhum atendimento casa, o
+    # arquivo entra e não serve para nada. Foi exatamente o que aconteceu na primeira vez.
+    for f in ("%d/%m/%Y %H:%M", "%d/%m/%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%d-%m-%Y %H:%M:%S",
+              "%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S"):
         try:
             return datetime.datetime.strptime(str(s or "").strip()[:19], f)
         except (ValueError, TypeError):
             pass
     return None
+
+
+def conserta_acento(s):
+    """Desfaz a dupla codificação da observação do executante.
+
+    O arquivo do TMAE é latin-1, mas o texto dentro dele já tinha sido gravado em UTF-8 antes.
+    Lido como latin-1, "Intervenção" chega como "IntervenÃ§Ã£o". Recodificar para latin-1 e
+    ler como UTF-8 desfaz exatamente isso. Quando não é o caso, a conversão falha e o texto
+    original volta intacto — por isso o try.
+    """
+    s = str(s or "")
+    if "Ã" not in s and "Â" not in s:
+        return s
+    try:
+        return s.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return s
 
 
 def numero(s):
@@ -51,6 +72,49 @@ def numero(s):
         return float(s)
     except ValueError:
         return 0.0
+
+
+def le_tmae():
+    """Atendimentos por código de transformador, com o vão de janeiro já preenchido.
+
+    O consolidado jan–jun não tem uma linha sequer entre 26 e 31 de janeiro. O arquivo
+    TMAE_012026_1 tem o mês inteiro: são 3.754 atendimentos a mais, 1.428 deles em
+    transformador. O que estava marcado como lacuna da base deixa de ser lacuna.
+    """
+    arqs = [f"{SCR}/tmae_raw/32196f1a-TMAE_2026_Jan_Jun_Consolidado.txt",
+            f"{UP}/f98665ac-TMAE_012026_1.txt",
+            f"{UP}/de61a9ac-TMAE_122025.txt",
+            f"{UP}/5022f8c0-TMAE_072026_1.txt"]
+    at = {}
+    for p in arqs:
+        if not os.path.exists(p):
+            continue
+        with open(p, encoding="latin-1", newline="") as fh:
+            rd = csv.reader(fh, delimiter=";", quoting=csv.QUOTE_NONE)
+            head = [h.strip() for h in next(rd)]
+            k = {n: i for i, n in enumerate(head)}
+            for r in rd:
+                if len(r) != len(head) or r[k["COD_ELE_REDE_TNT"]].strip() != "TR":
+                    continue
+                cod = r[k["COD_INS_TRF_TNT"]].strip()
+                n = r[k["NUM_SEQ_OPER_ORIG_COS_TNT"]].strip()
+                if not cod or not n or (n, cod) in at:
+                    continue
+                tmd = str(r[k["TMD"]]).strip().replace(".", "").replace(",", ".")
+                try:
+                    tmd = float(tmd)
+                except ValueError:
+                    tmd = 0.0
+                at[(n, cod)] = {
+                    "num": n, "trafo": cod, "ini": parse(r[k["DTA_ORIG_TNT"]]),
+                    "fim": parse(r[k["DTA_CONCL_TNT"]]),
+                    "desloc": parse(r[k["DTA_INIC_DLCT_TNT"]]), "tmd": tmd,
+                    "equipe": r[k["EQUIPE"]].strip(),
+                    "causa": conserta_acento(r[k["DES_CAUSA_INTER_CAU"]].strip()),
+                    "sub": conserta_acento(r[k["DES_SUB_CAUSA_INTER_SCR"]].strip()),
+                    "obs": conserta_acento(r[k["DES_OBS_EXEC_SERV_TNT"]].strip())[:300],
+                }
+    return at
 
 
 def le_critica():
@@ -129,6 +193,11 @@ def main():
     with open(FLUXO, encoding="utf-8") as fh:
         fluxo = json.load(fh)
     oc = le_critica()
+    at = le_tmae()
+    por_at = collections.defaultdict(list)
+    for a in at.values():
+        por_at[a["trafo"]].append(a)
+    print(f"TMAE: {len(at):,} atendimentos em transformador (dez/2025 + jan–jul/2026, janeiro completo)")
     por = collections.defaultdict(list)
     for o in oc.values():
         por[o["trafo"]].append(o)
@@ -140,7 +209,23 @@ def main():
         cod = str(r.get("trafo") or "").strip()
         jan = [o for o in por.get(cod, []) if (b := borda(ab, o)) is not None and b <= JANELA]
         melhor = min(jan, key=lambda x: borda(ab, x)) if jan else None
-        tem_at = bool(str(r.get("at_num") or "").strip())
+        # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
+        cand_at = [a for a in por_at.get(cod, []) if (b := borda(ab, a)) is not None and b <= JANELA]
+        melhor_at = min(cand_at, key=lambda x: borda(ab, x)) if cand_at else None
+        # A busca nova é mais estreita que o campo at_num herdado: uma correção anterior
+        # recuperou 23 casos procurando pelo NÚMERO DA OCORRÊNCIA quando a chave do TMAE
+        # gravou outro equipamento ("CODIGO INVALIDO" no texto). Descartar o campo herdado
+        # jogaria esse trabalho fora — então ele vale como segunda via.
+        herdado = bool(str(r.get("at_num") or "").strip())
+        tem_at = melhor_at is not None or herdado
+        if melhor_at:
+            r.update({"at_num": melhor_at["num"],
+                      "at_ini": f"{melhor_at['ini']:%Y-%m-%d %H:%M}" if melhor_at["ini"] else None,
+                      "at_fim": f"{melhor_at['fim']:%Y-%m-%d %H:%M}" if melhor_at["fim"] else None,
+                      "at_equipe": melhor_at["equipe"], "at_causa": melhor_at["causa"],
+                      "at_sub": melhor_at["sub"], "at_obs": melhor_at["obs"],
+                      "at_tmd": melhor_at["tmd"],
+                      "at_deslocou": "SIM" if (melhor_at["desloc"] or melhor_at["tmd"] > 0) else "NÃO"})
 
         # ---------- peneira 1: o fato
         if melhor:
@@ -217,7 +302,6 @@ def main():
             continue
         melhor = r.pop("_oc_obj", None)
         tem_at = bool(str(r.get("at_num") or "").strip())
-
         deslocou = tem_at and r.get("at_deslocou") == "SIM"
         r["deslocamento"] = "CORROBORA" if deslocou else "SEM REGISTRO"
         r["e2_status"] = "MARCADOR — não retém"
