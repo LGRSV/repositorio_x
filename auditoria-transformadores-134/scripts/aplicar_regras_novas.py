@@ -1265,6 +1265,33 @@ def main():
         })
     print(f"  ativos sem fato em base nenhuma, nem no vizinho, excluídos: {sem_nada}")
 
+    # ---------- "sem rastro" deixa de ser categoria própria: ele mandou somar com "ausente"
+    # A ordem dele: "some esses sem rastro com ausente, é a mesma coisa correto". É a mesma coisa
+    # para a maioria — quem não aparece na Crítica em papel nenhum é ausente, tenha ou não
+    # atendimento e vizinho. Mas NÃO para todos: conferido na base crua, dois desses casos têm
+    # defeito aberto no próprio transformador, em data que não cabe na janela. Esses não são
+    # ausentes; são fora da janela, e é para lá que vão. Somar os dois no balde de ausente seria
+    # escrever no relatório uma frase que a base derruba em dez segundos.
+    COM_DEFEITO_EM_OUTRA_DATA = {"DOLP-RD-PA 00122/2026", "ENC-RD-PS 00601/2026"}
+    somados = movidos = 0
+    for r in fluxo["registros"]:
+        if str(r.get("expurgo_gatilho") or "") != "sem_fato":
+            continue
+        if str(r.get("ss") or "") in COM_DEFEITO_EM_OUTRA_DATA:
+            r["expurgo_gatilho"] = "fora_da_janela"
+            r["exclusao_porque"] = ("a Crítica registra defeito aberto neste transformador, mas em "
+                                    "data que não cabe na janela desta SS")
+            r["cascata_motivo"] = f"Fora do indicador: {r['exclusao_porque']}."
+            movidos += 1
+        else:
+            r["expurgo_gatilho"] = "sem_interrupcao"
+            r["exclusao_porque"] = ("o código não aparece na Crítica em papel nenhum — nem com "
+                                    "defeito, nem interrompido, nem manobrado — nos sete meses do "
+                                    "acervo; nem o teste do vizinho achou explicação")
+            r["cascata_motivo"] = f"Fora do indicador: {r['exclusao_porque']}."
+            somados += 1
+    print(f"  “sem rastro” somado a “ausente”: {somados} · movidos para fora da janela: {movidos}")
+
     # ---------- de quem é cada regra de exclusão
     # O contador "excluídas por você" na tela só sabia contar o que o dono marca no navegador, e
     # por isso mostrava zero — quando na verdade TODAS as categorias de exclusão existem porque
