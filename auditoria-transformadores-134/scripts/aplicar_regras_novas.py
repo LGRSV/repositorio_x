@@ -1407,6 +1407,33 @@ def main():
             "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
             "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
             "chave. Estava caindo na categoria genérica de obra sem transformador."),
+        # ---- OS TRÊS QUE ELE MANDOU PARA "AUSENTE NA BASE DE INTERRUPÇÕES"
+        # Os três entravam pelo TMAE e não pela Crítica — eram F0, atendimento no código do trafo
+        # sem ocorrência que sustentasse. Dois conferem com o rótulo que ele pediu: nunca tiveram
+        # defeito aberto neles, aparecem só como manobrados. O terceiro NÃO confere e por isso vai
+        # para fora da janela: a ETO-RD-GU 00017 tem defeito próprio na ocorrência 20254026190596
+        # de 15/12/2025. Sai do indicador do mesmo jeito — o que muda é o nome, e o nome tem de
+        # ser o que a base sustenta.
+        "ENC-RD-PS 00246/2026": (
+            "EXCLUIR", "", "sem_interrupcao",
+            "o dono mandou mover para ausente da base de interrupções. Conferido na Crítica crua: "
+            "o código 5720337055 nunca teve defeito aberto nele em data nenhuma dos sete meses — "
+            "aparece uma vez, e só como manobrado. O caso entrava pelo TMAE, não pela Crítica: "
+            "era um F0, atendimento no código do trafo sem ocorrência que o sustentasse"),
+        "ETO-RD-AR 00702/2026": (
+            "EXCLUIR", "", "sem_interrupcao",
+            "o dono mandou mover para ausente da base de interrupções. Conferido na Crítica crua: "
+            "o código 5701086022 nunca teve defeito aberto nele em data nenhuma — aparece uma "
+            "vez, e só como manobrado. Entrava pelo TMAE, e o próprio atendimento registra causa "
+            "CHAVE FUSIVEL/RELIGADORA com subcausa porta-fusível danificado, não falha do "
+            "transformador"),
+        "ETO-RD-GU 00017/2026": (
+            "EXCLUIR", "", "fora_da_janela",
+            "o dono mandou os três para ausente da base de interrupções, e para este a Crítica "
+            "não deixa: o código 5701363094 TEM defeito aberto nele, na ocorrência 20254026190596 "
+            "de 15/12/2025, subcausa partido na fase — dezenove dias antes desta SS. Não é "
+            "ausente; é fora da janela, que é a categoria de quem tem registro próprio em outra "
+            "data. Sai do indicador do mesmo jeito, com o nome que a base sustenta"),
         # ---- OS OITO QUE ELE MANDOU PARA PREVENTIVO
         # "Mova do lugar de onde está e coloca no preventivo." Os oito têm uma coisa em comum que
         # o dado confirma: NENHUM foi aberto pelo COI. Seis vieram da própria manutenção, um do
@@ -2632,6 +2659,36 @@ def main():
             "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
         })
     print(f"  fora da janela da interrupção, excluídos: {fora_janela}")
+
+    # ---------- o código não é de transformador: regra do dono, dita num caso
+    # "esse aqui deveria ser excluído pois o ativo não começa com 52 ou 53 ou 57". Ele apontou a
+    # DG-RD-PO 00025, cujo ativo é 4211178035 — começa com 42, e a SS ainda assim diz "Trafo
+    # 4211178035 de 15kva". Na base inteira o padrão é firme: 1.464 códigos começam com 57, 32
+    # com 53 e 3 com 52. Os onze que fogem disso são outra coisa — chave, poste, ou erro de
+    # digitação —, e dez deles já saíam por outro motivo. Vira regra e não veredito porque ele a
+    # enunciou como princípio, e regra pega o próximo caso sozinha; veredito só pega este.
+    PREFIXO_TRAFO = ("52", "53", "57")
+    cod_estranho = 0
+    for r in fluxo["registros"]:
+        if r.get("fora_da_esteira") == "SIM":
+            continue
+        cod = str(r.get("trafo") or "").strip()
+        if not cod or cod.startswith(PREFIXO_TRAFO):
+            continue
+        cod_estranho += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "erro_cadastro", "chega_e1": "NÃO",
+            "exclusao_porque": (
+                f"o código {cod} não é de transformador: nesta base todo transformador começa com "
+                "52, 53 ou 57, e este não. Regra do dono, ditada neste caso — o que estiver "
+                "cadastrado sob um código de outra família não entra no indicador de "
+                "transformador, mesmo com o texto chamando de trafo"),
+            "cascata_motivo": ("Fora do indicador: o código do ativo não é de transformador — não "
+                               "começa com 52, 53 ou 57."),
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+        })
+    print(f"  código fora do padrão de transformador (52/53/57), excluídos: {cod_estranho}")
 
     # ---------- e os que NUNCA tiveram defeito aberto neles vão para "ausente", por ordem dele
     # Estes apareciam como "fora da janela", e a frase da categoria promete o que eles não têm:
