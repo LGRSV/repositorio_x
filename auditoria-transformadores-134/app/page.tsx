@@ -687,9 +687,15 @@ export default function Page() {
     setClassificacao(atual);
     localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
   };
+  /* Os botões do dossiê. Preventivo e Excluído chegaram à tabela como V e X e não chegaram
+     aqui — o dono classificava pela lista e não pelo caso aberto, que é justamente onde ele lê
+     o texto inteiro antes de bater o martelo. A ordem segue a do fluxo: primeiro as duas causas
+     que contam, depois as duas que tiram do indicador, por último as duas de procedimento. */
   const CLASSES: Array<[string, string, string]> = [
     ["QUEIMADO", "Queimado", "good"],
     ["AVARIADO", "Avariado", "pend"],
+    ["PREVENTIVO", "Preventivo", "warn"],
+    ["EXCLUIDO", "Excluído", "bad"],
     ["REGRA", "Vale a regra do fluxo", "warn"],
     ["PROFUNDA", "Análise profunda", "bad"],
   ];
