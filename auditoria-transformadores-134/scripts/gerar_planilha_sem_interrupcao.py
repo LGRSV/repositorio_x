@@ -5,15 +5,14 @@ Pedido dele: "traga o restante das faixas de tempo num excel, quero acompanhar e
 interrupção pela crítica". A planilha existe para acompanhamento — é a lista que ele vai abrir
 para conferir um a um, então cada linha traz o que a base CRUA diz, não o rótulo da tela.
 
-Três abas, e a divisão entre elas é a única que a base sustenta:
+Três abas, e a divisão entre elas é a mesma da tela:
 
   · FORA DA JANELA — tem defeito aberto no próprio transformador, em outra data. Cada linha traz
     a distância em horas e em dias, e a faixa de tempo.
-  · AUSENTES — o código não aparece na Crítica em papel nenhum, nos sete meses. Não há ocorrência
-    para mostrar; a única ligação é o teste do vizinho, que é hipótese e vem marcado como tal.
-  · APARECE SEM DEFEITO NELE — o grupo que ele mandou deixar de lado por ora: aparece na Crítica
-    como interrompido ou manobrado, nunca como o elemento com defeito. Fica em aba própria para
-    não contaminar a distribuição de tempo das outras, porque para estes não existe distância.
+  · AUSENTES — não há defeito aberto no transformador que sustente o caso, e são dois jeitos de
+    isso acontecer: o código não aparece na Crítica em papel nenhum, ou aparece só como
+    interrompido e manobrado. Ele leu os 23 do segundo tipo um a um e mandou somá-los aqui; a
+    coluna "Por que é ausente" separa os dois dentro da aba.
 
 Os três papéis de cada código — COM DEFEITO, INTERROMPIDO e MANOBRADO — são relidos aqui dos
 arquivos originais com csv.QUOTE_NONE. Nenhum campo já calculado decide o que entra em cada aba.
@@ -123,15 +122,13 @@ def main(argv):
     PAROU = {"fora_da_janela", "sem_interrupcao"}
     presos = [r for r in R if t(r.get("cascata")) == "EXCLUÍDA" and t(r.get("expurgo_gatilho")) in PAROU]
 
-    com_def, ausentes, sem_def = [], [], []
+    # A divisão é a mesma da tela, e a tela segue a ordem dele: quem nunca teve defeito aberto
+    # no próprio código é ausente, apareça ou não em outros papéis da Crítica.
+    com_def, ausentes = [], []
     for r in presos:
-        cod = t(r.get("trafo"))
-        if defeito.get(cod):
-            com_def.append(r)
-        elif interrompido.get(cod) or manobrado.get(cod):
-            sem_def.append(r)
-        else:
-            ausentes.append(r)
+        (com_def if defeito.get(t(r.get("trafo"))) else ausentes).append(r)
+    sem_def = [r for r in ausentes
+               if interrompido.get(t(r.get("trafo"))) or manobrado.get(t(r.get("trafo")))]
 
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
@@ -142,8 +139,9 @@ def main(argv):
         ["Presos pela Crítica", len(presos), "não têm interrupção que sustente o caso"],
         ["", "", ""],
         ["Fora da janela — tem defeito nele, em outra data", len(com_def), "é para estes que existe distância"],
-        ["Ausentes — não aparecem em papel nenhum", len(ausentes), "não há ocorrência para mostrar"],
-        ["Aparecem, mas nunca com defeito nele", len(sem_def), "interrompido ou manobrado — sem distância"],
+        ["Ausentes — nunca tiveram defeito aberto neles", len(ausentes), "não há distância para medir"],
+        ["  · não aparecem na Crítica em papel nenhum", len(ausentes) - len(sem_def), ""],
+        ["  · aparecem só como interrompidos ou manobrados", len(sem_def), "ordem dele, lidos um a um"],
         ["", "", ""],
         ["FAIXAS DE TEMPO — só os que têm registro em outra data", "", ""],
     ]
@@ -160,7 +158,7 @@ def main(argv):
     aba(wb, "Resumo", ["O que é", "Quantas", "Leitura"], linhas,
         f"Os {len(presos)} que a Crítica não sustenta — conferidos contra os {n_arq} arquivos "
         f"originais da base, relidos com csv.QUOTE_NONE. Gerado de fluxo-1510.json em {carimbo}. "
-        "A divisão em três é a que a base sustenta, não a que o rótulo diz.",
+        "A divisão é a mesma da tela, e cada linha traz o que a base crua diz.",
         [52, 11, 40])
 
     # ------------------------------------------------------- fora da janela
@@ -186,50 +184,39 @@ def main(argv):
 
     # ------------------------------------------------------------- ausentes
     COLS2 = ["SS", "Transformador", "Localidade", "Alimentador", "Abertura da SS",
-             "Ocorrência no dossiê", "Atendimento do TMAE", "Como está vinculado",
-             "Teste do vizinho", "Texto da SS", "Obra", "Trafos no material"]
+             "Por que é ausente", "Papéis na Crítica", "Ocorrência no dossiê",
+             "Atendimento do TMAE", "Como está vinculado", "Teste do vizinho",
+             "Texto da SS", "Obra", "Trafos no material"]
     linhas = []
     for r in sorted(ausentes, key=lambda x: t(x.get("ss"))):
         viz = t(r.get("vizinho"))
         tem_viz = bool(viz) and not viz.startswith("Nada")
-        linhas.append([t(r.get("ss")), t(r.get("trafo")), t(r.get("localidade")),
+        cod = t(r.get("trafo"))
+        pap = []
+        if interrompido.get(cod): pap.append(f"interrompido em {len(interrompido[cod])}")
+        if manobrado.get(cod): pap.append(f"manobrado em {len(manobrado[cod])}")
+        linhas.append([t(r.get("ss")), cod, t(r.get("localidade")),
                        t(r.get("alimentador")), t(r.get("abertura")),
+                       "aparece, mas nunca com defeito nele" if pap else "não aparece em papel nenhum",
+                       " · ".join(pap) or "— nenhum",
                        t(r.get("oc_num")) or "— nenhuma", t(r.get("at_num")) or "— nenhum",
                        "hipótese do vizinho" if tem_viz else "nada — sobe para campo",
                        viz, t(r.get("desc_ss"))[:300], t(r.get("obra_descricao")),
                        r.get("trafos_material")])
     aba(wb, "Ausentes da Crítica", COLS2, linhas,
-        f"{len(ausentes)} solicitações cujo código não aparece na Crítica em papel nenhum — nem "
-        "com defeito, nem interrompido, nem manobrado — nos sete meses do acervo. As colunas de "
-        "ocorrência e de atendimento vêm vazias de propósito: não existe registro, e mostrar “a "
-        "ocorrência mais próxima” seria inventar vínculo. A única ligação é o teste do vizinho, "
-        "que aponta ocorrência em OUTRO ativo do mesmo alimentador — hipótese, não prova.",
-        [22, 15, 22, 14, 18, 20, 20, 24, 66, 60, 30, 12])
-
-    # ------------------------------------------- aparece, mas sem defeito nele
-    COLS3 = ["SS", "Transformador", "Localidade", "Abertura da SS", "Papéis na Crítica",
-             "Texto da SS", "Obra", "Trafos no material"]
-    linhas = []
-    for r in sorted(sem_def, key=lambda x: t(x.get("ss"))):
-        cod = t(r.get("trafo"))
-        pap = []
-        if interrompido.get(cod): pap.append(f"interrompido em {len(interrompido[cod])}")
-        if manobrado.get(cod): pap.append(f"manobrado em {len(manobrado[cod])}")
-        linhas.append([t(r.get("ss")), cod, t(r.get("localidade")), t(r.get("abertura")),
-                       " · ".join(pap), t(r.get("desc_ss"))[:300], t(r.get("obra_descricao")),
-                       r.get("trafos_material")])
-    aba(wb, "Aparece sem defeito nele", COLS3, linhas,
-        f"{len(sem_def)} solicitações em que o código APARECE na Crítica, mas nunca como o "
-        "elemento com defeito: só como interrompido ou manobrado. Para estas não existe distância "
-        "até a janela, e por isso elas não entram na distribuição de tempo da primeira aba. Hoje "
-        "o site as classifica junto das de fora da janela — é o assunto que ficou em aberto.",
-        [22, 15, 22, 18, 34, 60, 30, 12])
+        f"{len(ausentes)} solicitações em que a Crítica nunca registrou defeito aberto no próprio "
+        "transformador, em data nenhuma dos sete meses. A coluna “Por que é ausente” separa os "
+        "dois jeitos: o código não aparecer em papel nenhum, ou aparecer só como interrompido e "
+        "manobrado — que é o que acontece com quem fica sem energia por defeito de outro "
+        "equipamento. As colunas de ocorrência e de atendimento vêm escritas como “— nenhuma”: "
+        "não existe registro, e mostrar “a ocorrência mais próxima” seria inventar vínculo.",
+        [22, 15, 22, 14, 18, 32, 30, 20, 20, 24, 66, 60, 30, 12])
 
     os.makedirs(os.path.dirname(SAIDA), exist_ok=True)
     wb.save(SAIDA)
     print(SAIDA)
-    print(f"  {len(presos)} presos · {len(com_def)} fora da janela · {len(ausentes)} ausentes · "
-          f"{len(sem_def)} aparecem sem defeito nele")
+    print(f"  {len(presos)} presos · {len(com_def)} fora da janela · {len(ausentes)} ausentes "
+          f"(dos quais {len(sem_def)} aparecem só como interrompidos ou manobrados)")
     return 0
 
 
