@@ -856,7 +856,7 @@ export default function Page() {
       { id: "at_forajanela", rotulo: "Atendimento exibido é de fora da janela", nota: "O dossiê mostra um atendimento do TMAE que não cai na janela desta SS — em alguns casos meses depois. O campo vinha herdado de uma rodada antiga e entrava como prova sem que ninguém olhasse a data. Continua contando enquanto você não decidir: exigir a data dentro da janela tira 52 casos da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho.", teste: (r) => r.at_fora_da_janela === "SIM" },
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
       { id: "ret_fato", rotulo: "Retidos sem fato", nota: "O campo não registrou nada na janela.", teste: (r) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
-      { id: "ret_desl", rotulo: "Retidos sem deslocamento", nota: "Houve interrupção, mas nenhum atendimento no código do trafo.", teste: (r) => r.cascata === "RETIDO — SEM DESLOCAMENTO" },
+      { id: "ret_desl", rotulo: "Sem corroboração do TMAE", nota: "Houve interrupção, mas nenhum atendimento registrado no código do transformador dentro da janela. Não retém ninguém desde que a segunda peneira virou marcador — o TMAE grava o defeito no elemento onde ele foi aberto, e a ausência ali não é contraprova.", teste: (r) => arquivo(r) !== "EXCLUÍDA" && r.deslocamento === "SEM REGISTRO" },
       { id: "ret_prova", rotulo: "Retidos sem prova de troca", nota: "Chegaram ao fim, mas o material não comprova ou o texto não decide.", teste: (r) => r.cascata === "RETIDO — SEM PROVA DE TROCA" },
       { id: "ret_dup", rotulo: "Retidos por SS duplicada", nota: "Mesmo transformador e mesmo evento de outra SS: a interrupção prova uma troca, não duas.", teste: (r) => r.cascata === "RETIDO — SS DUPLICADA" },
       { id: "incluir", rotulo: "INCLUIR", nota: "Passou nas três peneiras: campo, texto e material.", teste: (r) => r.decisao === "INCLUIR" },
@@ -976,7 +976,7 @@ export default function Page() {
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => gatilhoDe(r) === "tap" },
       { id: "g_cadastro", rotulo: "Possível erro de cadastro do código", nota: "A equipe declara no texto que o código do cadastro não corresponde ao equipamento que está no poste. Enquanto isso não for resolvido, qualquer casamento por código é casamento com o ativo errado — o caso não sustenta nem inclusão nem exclusão pelo campo.", teste: (r) => gatilhoDe(r) === "erro_cadastro" },
       { id: "g_forajanela", rotulo: "Ausente da base de interrupções · registro em outra data", nota: "O ativo aparece na Crítica, mas a SS não foi aberta durante nenhuma ocorrência dele nem nas 24 horas seguintes ao último passo. A distância fica escrita em cada caso — 26 dias e 26 horas são coisas diferentes, e quem lê precisa ver qual é.", teste: (r) => gatilhoDe(r) === "fora_da_janela" },
-      { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => r.oc_contida_no_servico === "SIM" },
+      { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => r.oc_contida_na_ss === "SIM" },
       { id: "g_ausente", rotulo: "Ausente da base de interrupções", nota: "Reúne os dois casos de não haver interrupção que sustente a SS: o código que não aparece na Crítica em papel nenhum e o que aparece, mas em data que não cabe na janela. Você pediu que contassem juntos. Os dois recortes finos continuam aqui embaixo para separar quando for preciso.", teste: (r) => categoriaDe(r) === "sem_interrupcao" },
       { id: "g_seminterr", rotulo: "Ausente da base de interrupções · sem registro nenhum", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => gatilhoDe(r) === "sem_interrupcao" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => gatilhoDe(r) === "duplicada" },
@@ -1158,7 +1158,7 @@ export default function Page() {
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
-      { id: "semfato", rotulo: "Parados na interrupção", codigo: "02·1", param: conta((r) => parouNaInterrupcao(r)), recorte: "parados" },
+
       { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, recorte: "todos" },
       { id: "semdesloc", rotulo: "Sem corroboração do TMAE", codigo: "03·1", marca: conta((r) => r.deslocamento === "SEM REGISTRO"), tom: "cinza", recorte: "todos" },
       { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, recorte: "todos" },
@@ -1173,6 +1173,11 @@ export default function Page() {
        em cada linha, em vez de poluírem a fila de quem ainda espera leitura. */
     { grupo: "Fora da esteira", itens: [
       { id: "exclusoes", rotulo: "Exclusões", codigo: "07", marca: excluidas, tom: "cinza", recorte: "todos" },
+      /* Esta aba morava dentro da esteira, embaixo da primeira peneira, e anunciava 137 logo
+         abaixo de uma linha que dizia "a peneira 1 retém 0". As duas coisas eram verdade e
+         juntas confundiam: quem parou na interrupção não está retido, está excluído. A aba
+         mudou de grupo, não de conteúdo. */
+      { id: "semfato", rotulo: "…destas, sem interrupção que sustente", codigo: "07·1", marca: conta((r) => parouNaInterrupcao(r)), tom: "cinza", recorte: "parados" },
       { id: "preventivos", rotulo: "Preventivos", codigo: "07·1", marca: preventivos, tom: "cinza", recorte: "todos" },
       { id: "obra", rotulo: "Obra e SIGCO", codigo: "08", marca: conta((r) => !texto(r.obra)), tom: "cinza", recorte: "todos" },
       { id: "ativos", rotulo: "Por transformador", codigo: "09" },
@@ -1249,17 +1254,25 @@ export default function Page() {
       const chegaE2 = conta((r) => r.chega_e2 === "SIM");
       const chegaE3 = conta((r) => r.chega_e3 === "SIM");
       const saida = conta((r) => r.cascata === "SAÍDA");
-      const excluidos = conta((r) => r.cascata === "EXCLUÍDO NA LEITURA");
+      // "EXCLUÍDO NA LEITURA" era a categoria da terceira peneira, e ela deixou de existir
+      // quando a exclusão virou porta anterior à esteira. As contas que a liam imprimiam 0 e a
+      // frase ao lado afirmava coisa que o dado não diz.
+      const excluidos = 0;
       /* Cada linha mostra quantos SOBREVIVEM à peneira, então o clique tem de abrir a aba de
          quem sobreviveu — não a etapa que os produziu. Antes clicar em 1.300 na linha da
          Interrupção abria a fila de 1.510: o número clicado nunca era o número que aparecia. */
+      /* A PORTA VIRA DEGRAU 0. A linha "1 · Interrupção" carregava as 240 exclusões como se a
+         primeira peneira as tivesse retido — e 103 delas nem falam de interrupção: são furto,
+         obra não gerada, remanejamento. Dizer isso na caixa d'água contradiz a regra impressa
+         dois centímetros acima ("a exclusão vem antes da esteira e fora dela") e faz a soma
+         parecer errada para quem confere. Agora a porta tem linha própria e a peneira 1 mostra
+         só o que ela de fato retém. */
       const caixas: Array<[string, string, number, number, Modulo]> = [
         ["Entram", "solicitações de troca de transformador", total, 0, "interrupcao"],
-        // quem para aqui para por dois motivos diferentes: não ter interrupção, ou tê-la
-        // e dividir o mesmo evento com outra SS. Vale dizer os dois, não só somar.
-        ["1 · Interrupção", `o campo registrou o evento na janela de 24 horas${conta((r) => r.cascata === "RETIDO — SS DUPLICADA") ? ` · dos que param aqui, ${br(conta((r) => r.cascata === "RETIDO — SS DUPLICADA"))} têm a interrupção mas dividem o evento com outra SS` : ""}`, chegaE2, total - chegaE2, "deslocamento"],
+        ["0 · Porta — fora do indicador", "outra causa declarada, ou sem interrupção que sustente o caso — acontece antes da esteira", total - excluidas, excluidas, "exclusoes"],
+        ["1 · Interrupção", "o campo registrou o evento no intervalo da ocorrência ou até 24 horas depois do último passo", chegaE2, (total - excluidas) - chegaE2, "deslocamento"],
         ["2 · Deslocamento", `marcador, não retém — ${br(conta((r) => r.deslocamento === "CORROBORA"))} com atendimento de equipe e ${br(conta((r) => r.deslocamento === "SEM REGISTRO"))} sem registro`, chegaE3, chegaE2 - chegaE3, "semdesloc"],
-        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "EXCLUÍDO NA LEITURA") + conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ressalva"],
+        ["3 · SS e OS com material", "o texto diz falha e o material comprova a troca", chegaE3 - conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), conta((r) => r.cascata === "RETIDO — SEM PROVA DE TROCA"), "ressalva"],
         ["4 · Ressalva da interrupção", "a interrupção sustenta chamar isso de falha?", saida, conta((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO"), "decisao"],
       ];
       return <>
@@ -1271,7 +1284,7 @@ export default function Page() {
         </section>
         {(fluxo.meta.correcoes || []).length > 0 && (
           <section className="panel editorial-note wide"><span>CORREÇÕES APLICADAS AO CRUZAMENTO</span>
-            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As primeiras são defeitos de cruzamento entre as bases: o que mudou foi a verdade do que está escrito em cada caso. Depois vieram as que movem número — três arquivos que faltavam e duas regras que o dono redefiniu. A saída está hoje em <strong>{br(conta((r) => r.cascata === "SAÍDA"))}</strong>, com {br(conta((r) => r.cascata === "EXCLUÍDO NA LEITURA"))} excluídos na leitura.</p>
+            <p>Todas vieram da conferência linha a linha contra os arquivos originais. As primeiras são defeitos de cruzamento entre as bases: o que mudou foi a verdade do que está escrito em cada caso. Depois vieram as que movem número — três arquivos que faltavam e duas regras que o dono redefiniu. A saída está hoje em <strong>{br(conta((r) => arquivo(r) === "SAÍDA"))}</strong>, e as exclusões acontecem antes da esteira, não dentro dela.</p>
             <ul className="lista-correcoes">{(fluxo.meta.correcoes || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
         )}
@@ -1281,8 +1294,8 @@ export default function Page() {
               interna em vez do resultado. Os rótulos passam a dizer o que o caso É. */}
           <Kpi rotulo="Queimados ou avariados" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota={`${br(conta((r) => r.confirmado === "QUEIMADO"))} queimados · ${br(conta((r) => r.confirmado === "AVARIADO"))} avariados`} tom="green" aoClicar={() => irPara("decisao", "saida")} />
           <Kpi rotulo="Retidos com motivo" valor={br(conta((r) => r.decisao === "REVISÃO"))} nota="cada um com a razão escrita ao lado" tom="amber" aoClicar={() => irPara("decisao", "revisao")} />
-          <Kpi rotulo="Outra causa comprovada" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="furto, abalroamento, auxiliar, preventivo" tom="red" aoClicar={() => irPara("expurgos", "todos")} />
-          <Kpi rotulo="Sem interrupção na janela" valor={br(conta((r) => r.fato === "F3"))} nota="nem a Crítica nem o TMAE registram nada" tom="red" aoClicar={() => irPara("semfato", "parados")} />
+          <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa declarada, ou sem interrupção que sustente" tom="red" aoClicar={() => irPara("exclusoes", "todos")} />
+          <Kpi rotulo="Pararam na 1ª peneira" valor={br(conta((r) => parouNaInterrupcao(r)))} nota="sem interrupção no próprio trafo na janela — 47 nunca aparecem na Crítica, 83 aparecem em outra data" tom="red" aoClicar={() => irPara("semfato", "parados")} />
           <Kpi rotulo="Sem corroboração do TMAE" valor={br(conta((r) => r.deslocamento === "SEM REGISTRO"))} nota="marcador, não retém ninguém" tom="blue" aoClicar={() => irPara("semdesloc", "todos")} />
           <Kpi rotulo="Categoria corrigida" valor={br(conta((r) => Boolean(texto(r.categoria_texto)) && r.categoria_texto !== r.categoria_gravada))} nota="o texto contradiz o rótulo" tom="blue" aoClicar={() => irPara("ssos", "corrigida")} />
           <Kpi rotulo="Sob suspeita no texto" valor={br(conta((r) => r.sob_suspeita === "SIM"))} nota="sinal para conferir à mão, não motivo para excluir" tom="amber" aoClicar={() => irPara("ssos", "suspeita")} />
@@ -1304,7 +1317,7 @@ export default function Page() {
             <i><em style={{ width: `${pct(valor, total)}%` }} /></i>
             <u>{pct(valor, total)}%</u>
           </button>)}
-          <p className="fluxo-nota">Furto, abalroamento, preventivo e auxiliar são separados no terceiro estágio, na leitura do texto — {br(excluidos)} casos. Antes disso ninguém é descartado por categoria: o campo fala primeiro. Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
+          <p className="fluxo-nota">Furto, abalroamento, preventivo e auxiliar são separados no terceiro estágio, na leitura do texto — e hoje isso acontece na porta, antes da esteira. Antes disso ninguém é descartado por categoria: o campo fala primeiro. Obra e SIGCO não entram na cascata: são leitura de enquadramento de custo, não de causa. A única situação que interrompe o fluxo é a obra não existir, e aí o caso vai para análise à parte.</p>
         </section>
         <section className="dashboard-columns">
           <article className="panel"><div className="panel-title"><div><span>Saída</span><h2>Decisão</h2></div></div><Barras dados={decisoes} total={total} /></article>
@@ -1886,7 +1899,7 @@ export default function Page() {
          Numa aba que decide o número final, isso é o pior lugar para ficar mudo. */
       if (modulo === "ressalva") {
         const entram = registros.filter((r) => r.chega_e3 === "SIM"
-          && r.cascata !== "EXCLUÍDO NA LEITURA" && r.cascata !== "RETIDO — SEM PROVA DE TROCA");
+          && r.cascata !== "RETIDO — SEM PROVA DE TROCA");
         const retidos = registros.filter((r) => r.cascata === "RETIDO — RESSALVA DA INTERRUPÇÃO");
         const sinais = new Map<string, number>();
         retidos.forEach((r) => texto(r.e4_alertas || r.ressalvas).split(/\s*[·;]\s*/)
@@ -1909,7 +1922,10 @@ export default function Page() {
       }
 
       if (modulo === "semdesloc") {
-        const fila = registros.filter((r) => r.cascata === "RETIDO — SEM DESLOCAMENTO");
+        // a segunda peneira deixou de reter: o que existe é o MARCADOR de quem não tem
+        // atendimento no TMAE. A fila lia uma categoria extinta e abria com 0 embaixo de uma
+        // caixa que anunciava 140.
+        const fila = registros.filter((r) => arquivo(r) !== "EXCLUÍDA" && r.deslocamento === "SEM REGISTRO");
         const naLacuna = fila.filter((r) => r.tmae_gap_jan === "SIM").length;
         const comCliente = fila.filter((r) => (Number(r.oc_cons) || 0) > 0).length;
         const proprioTrafo = fila.filter((r) => texto(r.oc_papel).includes("próprio")).length;
@@ -2105,7 +2121,7 @@ export default function Page() {
               nota={GATILHO_NOTA[k] || NATUREZA[k] || "categoria registrada no gatilho"}
               tom={TOM[k] || "blue"}
               aoClicar={() => abrirRecorte(GATILHO_CHIP[k] || `g:${k}`)} />)}
-            <Kpi rotulo="…das fora da janela, o corte cabe no serviço" valor={br(conta((r) => r.oc_contida_no_servico === "SIM"))} nota="pode ser o desligamento feito para trocar, não evento alheio" tom="amber" aoClicar={() => abrirRecorte("g_contida")} />
+            <Kpi rotulo="…das fora da janela, o corte cabe no serviço" valor={br(conta((r) => r.oc_contida_na_ss === "SIM"))} nota="pode ser o desligamento feito para trocar, não evento alheio" tom="amber" aoClicar={() => abrirRecorte("g_contida")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
             <Kpi rotulo="Por regra que você pediu" valor={br(conta((r) => r.exclusao_pedida_pelo_dono === "SIM"))} nota="a categoria existe porque você mandou criar" tom="ink" aoClicar={() => abrirRecorte("suas_regras")} />
             <Kpi rotulo="Excluídas por você à mão" valor={br(porClasseNav("EXCLUIDO") + porClasseNav("FURTADO") + porClasseNav("PREVENTIVO"))} nota="martelo batido no navegador" tom="ink" aoClicar={() => abrirRecorte("manual")} />
