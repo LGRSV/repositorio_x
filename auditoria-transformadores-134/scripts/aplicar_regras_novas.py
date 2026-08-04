@@ -1407,6 +1407,88 @@ def main():
             "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
             "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
             "chave. Estava caindo na categoria genérica de obra sem transformador."),
+        # ---- E OS TREZE QUE ELE MANDOU MOVER "PARA QUEIMA E AVARIA"
+        # A ordem tem plural de propósito: cada um vai para a SUA natureza, não todos para o
+        # mesmo balde. A natureza sai do texto do próprio caso — onze declaram avaria (vazamento
+        # de óleo, tanque deteriorado, bucha danificada) e dois declaram queima. Os treze saíam
+        # por distância da janela, todos com material comprovando a troca.
+        "ENC-RD-PS 00116/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara queimado; a Crítica registra causa nao "
+            "identificada - especificar e a obra movimentou 1 transformador. Saía do indicador "
+            "por estar a 3801 horas da janela"),
+        "ETO-RD-AG 00117/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra arvore de "
+            "pequeno/ medio porte na rede / na faixa e a obra movimentou 1 transformador. Saía do "
+            "indicador por estar a 691 horas da janela"),
+        "ETO-RD-GR 00373/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra descarga "
+            "atmosferica e a obra movimentou 1 transformador. Saía do indicador por estar a 166 "
+            "horas da janela"),
+        "ETO-RD-GR 00278/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra descarga "
+            "atmosferica e a obra movimentou 1 transformador. Saía do indicador por estar a 142 "
+            "horas da janela"),
+        "ENC-RD-PS 00487/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra queimado por "
+            "sobrecarga e a obra movimentou 1 transformador. Saía do indicador por estar a 28 "
+            "horas da janela"),
+        "ETO-RD-GR 00167/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara queimado; a Crítica registra descarga "
+            "atmosferica e a obra movimentou 1 transformador. Saía do indicador por estar a 24 "
+            "horas da janela"),
+        "ETO-RD-GR 00324/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
+            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 15 horas da janela"),
+        "DG-RD-PO 00209/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra queimado por "
+            "descarga atmosferica e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 15 horas da janela"),
+        "ETO-RD-AG 00327/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
+            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 5 horas da janela"),
+        "ETO-RD-AG 00493/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra rd de at e a obra "
+            "movimentou 1 transformador. Saía do indicador por estar a 4 horas da janela"),
+        "DOLP-RD-PA 00521/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
+            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 3 horas da janela"),
+        "DOLP-RD-PA 00458/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
+            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 2 horas da janela"),
+        "ETO-RD-AG 00501/2026": (
+            "INCLUIR", "AVARIADO", "",
+            "o dono mandou mover: “mova eles de onde estão para queima e avaria”. A natureza sai "
+            "do texto do próprio caso, que declara avariado; a Crítica registra vazamento de oleo "
+            "/ tanque deteriorado e a obra movimentou 1 transformador. Saía do indicador por "
+            "estar a 3 horas da janela"),
         # ---- OS DEZENOVE QUE ELE MANDOU MOVER PARA QUEIMADO
         # "esses aqui você retira de onde ele tiver e move para queimados". Todos saíam por
         # distância da janela — de 2 horas a 2.561 —, todos com texto de falha e dezoito com
