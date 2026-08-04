@@ -454,13 +454,16 @@ const GATILHO_CHIP: Record<string, string> = {
   seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus", meta: "g_meta", cola_fita: "g_cola",
 };
 
-/* FUSÃO DE CATEGORIA — escolha dele, pedida duas vezes. As TRÊS formas de não ter interrupção
-   que sustente o caso contam numa categoria só, com o nome que ele deu: Ausente da base de
-   interrupções. São elas: defeito no próprio código em outra data, código que não aparece na
-   Crítica em papel nenhum, e caso sem rastro em base alguma — nem ocorrência, nem atendimento,
-   nem vizinho. O gatilho de cada caso continua granular no dado e na planilha; o que muda é a
-   caixa e a barra da tela, e os três recortes finos seguem clicáveis para quem precisar separar. */
-const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao" };
+/* FUSÃO DE CATEGORIA — hoje vazia, e é assim de propósito.
+   Ele pediu duas vezes para juntar "ausente da base de interrupções" com "sem interrupção na
+   Crítica", e essa fusão foi feita ONDE ELA PERTENCE: no dado. A categoria "sem rastro" deixou
+   de existir, seus casos viraram ausentes de verdade, e os dois que tinham defeito próprio em
+   outra data foram para fora da janela. Fundir no dado é melhor que fundir na tela, porque a
+   planilha, o gráfico e o chip passam a contar a mesma coisa sem ninguém precisar lembrar.
+   Antes disto, "fora da janela" também era fundida aqui — e a barra "Motivo da saída" mostrava
+   um único bloco de 137. Ele pediu a divisão: são duas perguntas diferentes, "o registro não
+   existe" e "o registro existe noutra data", e a segunda tem distância para medir. */
+const CATEGORIA_FUNDIDA: Record<string, string> = {};
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
 const GATILHO_NOTA: Record<string, string> = {
@@ -1789,6 +1792,7 @@ export default function Page() {
         ["Base_Obras_SIGCO.xlsx", "Obras e SIGCO", "O cadastro da obra: classe, natureza, tipo, projeto, empreiteira, setor, valores e datas.", "0,4 MB"],
         ["Base_Material.xlsx", "Material da obra", "Item a item do que saiu do almoxarifado, com código, descrição, quantidade prevista e realizada e valor.", "0,9 MB"],
         ["Base_Funis.xlsx", "Os funis do site, aba por aba", "Dez abas que reproduzem as telas: o funil degrau a degrau, o resultado, as exclusões por categoria, quem parou sem interrupção, o censo da Crítica, os retidos, as etiquetas, os ativos reincidentes, os vereditos do dono e o corte por localidade. Nenhum número é digitado — todos saem do dado na hora de gerar, e cada aba traz a nota que explica como lê-la.", "0.02 MB".replace(".", ",")],
+        ["Sem_Interrupcao_Critica.xlsx", "Os 137 que a Crítica não sustenta", "Quatro abas, e a divisão entre elas é a que a base sustenta, não a que o rótulo diz: 62 têm defeito aberto no próprio transformador em outra data, e cada linha traz a distância em horas, em dias e a faixa de tempo; 52 não aparecem na Crítica em papel nenhum, com as colunas de ocorrência e de atendimento vazias de propósito e o teste do vizinho marcado como hipótese; 23 aparecem só como interrompidos ou manobrados, em aba separada para não contaminar a distribuição de tempo. Relida dos sete arquivos originais da Crítica.", "0,04 MB"],
         ["Bases_Gerais.xlsx", "Bases gerais — tudo num arquivo, para pesquisa", "As seis bases da auditoria em abas de um mesmo arquivo, com filtro automático ligado e a primeira linha congelada: SS e OS, interrupções, atendimentos, obras e SIGCO, material item a item e a esteira completa. A coluna SS liga todas elas, então dá para cruzar duas bases sem sair de dentro. Cópia fiel: nada é recalculado nem resumido.", "2,4 MB"],
         ["Filtros_do_Site.xlsx", "Todos os filtros do site, aba por aba", "Cada filtro de cada tela com quantos casos tem e o que significa, mais a tabela longa filtro × SS de onde sai qualquer tabela dinâmica, e uma aba de dimensões com uma linha por solicitação. A composição de cada filtro não é recalculada: um robô abre o site, clica filtro por filtro e baixa a planilha de cada um — o que está aqui é o que a tela mostra, porque veio dela.", "PLACEHOLDER_TAM"],
         ["Material_Pendente.xlsx", "Material pendente — as obras a extrair", "As 61 solicitações que o export de material não responde, com a obra de cada uma. Quatro abas, e a que importa é \u201cObras a extrair\u201d: 32 obras que existem no cadastro e não estão no export, agrupadas por obra porque é assim que a extração se pede. As outras 29 não têm obra gerada — para essas não adianta pedir extração, e elas ficam numa aba à parte com o motivo escrito.", "0,03 MB"],
