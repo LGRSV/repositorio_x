@@ -51,6 +51,8 @@ button { cursor: pointer; }
 .scope-strip > div, .scope-strip > p { margin: 0; padding: 14px 16px; }.scope-strip > div + div, .scope-strip > p { border-left: 1px solid #3a3d42; }
 .scope-strip span, .scope-strip strong { display: block; }.scope-strip span { color: #83878c; font-size: 7px; text-transform: uppercase; }.scope-strip strong { margin-top: 4px; font-size: 9px; }
 .scope-strip p { color: #b0b3b7; font-size: 8px; line-height: 1.55; }
+.strip-link { display: block; margin-top: 6px; border: 0; padding: 0; background: none; color: #f0c9cd; font: inherit; font-size: 8px; text-align: left; }
+.strip-link:hover { color: #fff; }
 .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 .kpi { position: relative; min-height: 122px; padding: 17px 15px 14px; overflow: hidden; background: var(--white); border: 1px solid var(--line); }
 .kpi::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #92959a; }
@@ -449,17 +451,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .side-user select { width: 100%; grid-column: 1 / -1; margin-top: 8px; border: 1px solid #4a4d52; padding: 5px; background: #2a2d32; color: #cfd2d6; font-size: 8px; }
 
 /* Caixa d'água da Visão geral: cada linha é uma peneira, com a barra mostrando quanto passou. */
-.caixa-dagua { padding: 21px; }
-.caixa-linha { width: 100%; display: grid; grid-template-columns: 72px minmax(0, 1fr) 120px 46px; align-items: center; gap: 14px; border: 0; border-top: 1px solid var(--soft); padding: 13px 0; background: none; text-align: left; font-family: inherit; }
-.caixa-linha:first-of-type { border-top: 0; }
-.caixa-linha:hover { background: #faf9f7; }
-.caixa-linha > b { font: 500 22px/1 "Newsreader", serif; }
-.caixa-linha strong, .caixa-linha small { display: block; }
-.caixa-linha strong { font-size: 10px; }
-.caixa-linha small { margin-top: 3px; color: #85888c; font-size: 8px; }
-.caixa-linha > i { display: block; height: 6px; overflow: hidden; background: #e7e4df; }
-.caixa-linha > i em { display: block; height: 100%; background: var(--red); }
-.caixa-linha > u { color: #777a7e; font: 500 8px "IBM Plex Mono", monospace; text-decoration: none; text-align: right; }
 
 /* Matriz de decisão: as células com caso são clicáveis e abrem o recorte. */
 .records-table.matriz td { cursor: default; }
@@ -503,13 +494,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .col-classificar > span { display: block; margin-top: 4px; color: #85888c; font-size: 7px; text-transform: uppercase; }
 
 /* O resultado da esteira: o número que a auditoria entrega, em destaque no topo. */
-.resultado-esteira { margin-bottom: 16px; padding: 20px 22px; background: var(--ink); color: #fff; }
-.resultado-esteira > span { display: block; color: #83878c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
-.resultado-esteira > div { display: flex; flex-wrap: wrap; gap: 34px; margin-top: 12px; }
-.resultado-esteira article b { display: block; font: 500 34px/1 "Newsreader", serif; }
-.resultado-esteira article em { display: block; margin-top: 5px; color: #b7babd; font-size: 9px; font-style: normal; }
-.resultado-esteira article.total b { color: #f0c9cd; }
-.resultado-esteira > p { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #3a3d42; color: #b0b3b7; font-size: 8.5px; line-height: 1.6; }
 
 /* Downloads das bases e os blocos de detalhe do dossiê. */
 .arquivos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; padding: 0 20px 18px; }
@@ -628,14 +612,86 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* A régua da janela. O desenho tem de caber numa linha de tabela e ainda assim ser lido de
    longe: trilho fino, a ocorrência sólida, a tolerância em tom fraco, e o pino da SS por cima
    de tudo — verde se entrou, vermelho se ficou de fora. */
+/* AS DUAS RÉGUAS. Duas correções pedidas por ele, olhando a tela: o azul e as fontes. O azul
+   era de outro site — a página inteira usa vermelho, verde e o cinza-tinta, e nada mais. E o
+   quadro misturava três famílias em três linhas seguidas: serifa no algarismo, sans no título,
+   mono na contagem. Agora a ocorrência é o cinza-tinta da casa, o serviço é a mesma tinta em
+   contorno, e o único acento de cor é o que carrega significado: verde entrou, vermelho ficou de
+   fora. Tipografia: uma família só no quadro, DM Sans, com o mono reservado ao rótulo de seção
+   como em todo o resto do site. */
 .regua-janela { display: block; width: 100%; min-width: 220px; }
-.regua-trilho { position: relative; height: 10px; border-radius: 5px; background: #eef1f5; overflow: visible; }
-.regua-antes { position: absolute; top: 0; height: 10px; background: #dfe6ef; border-radius: 5px 0 0 5px; }
-.regua-oc { position: absolute; top: 0; height: 10px; background: #2f6fd0; border-radius: 3px; }
-.regua-depois { position: absolute; top: 0; height: 10px; background: #cfe0f7; border-radius: 0 5px 5px 0; }
-.regua-ss { position: absolute; top: -3px; width: 3px; height: 16px; border-radius: 2px; transform: translateX(-1px); }
-.regua-ss.dentro { background: #1f9254; box-shadow: 0 0 0 2px #fff; }
-.regua-ss.fora { background: #c0392b; box-shadow: 0 0 0 2px #fff; }
-.regua-legenda { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 5px; font-size: 11px; color: #5b6577; }
-.regua-legenda strong.dentro { color: #1f9254; }
-.regua-legenda strong.fora { color: #c0392b; }
+.regua-trilho { position: relative; height: 9px; background: #f0ede8; overflow: visible; }
+.regua-antes, .regua-depois { position: absolute; top: 0; height: 9px; background: #ddd9d2; }
+.regua-oc { position: absolute; top: -1px; height: 11px; background: var(--red); }
+.regua-servico { position: absolute; top: 0; height: 9px; background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+.regua-ss { position: absolute; top: -4px; width: 2px; height: 17px; transform: translateX(-1px); }
+.regua-ss.dentro { background: var(--green); box-shadow: 0 0 0 2px #fff; }
+.regua-ss.fora { background: var(--red); box-shadow: 0 0 0 2px #fff; }
+.regua-legenda { display: flex; flex-wrap: wrap; gap: 3px 14px; margin-top: 6px; color: #7c7f84; font-size: 8px; }
+.regua-legenda strong { font-size: 8px; }
+.regua-legenda strong.dentro { color: var(--green); }
+.regua-legenda strong.fora { color: var(--red); }
+/* A legenda das faixas aparece uma vez só, no quadro de cima: na lista o desenho vem pelado. */
+.regua-chaves { display: flex; flex-wrap: wrap; gap: 3px 13px; margin-top: 8px; color: #85888c; font-size: 8px; }
+.regua-chaves span { display: flex; align-items: center; gap: 5px; }
+.regua-chaves span::before { content: ""; width: 11px; height: 7px; background: #ddd9d2; }
+.regua-chaves .k-oc::before { background: var(--red); }
+.regua-chaves .k-servico::before { background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+.regua-chaves .k-pino::before { width: 2px; height: 12px; background: var(--green); }
+
+.duas-reguas { margin-bottom: 16px; padding: 21px 22px 18px; }
+.reguas-par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-top: 16px; }
+.reguas-par > article { padding: 0 24px; border-left: 1px solid var(--soft); }
+.reguas-par > article:first-child { padding-left: 0; border-left: 0; }
+.reguas-par > article:last-child { padding-right: 0; }
+.reguas-par header { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: baseline; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid var(--soft); }
+.reguas-par header > b { color: var(--red); font-size: 11px; font-weight: 600; }
+.reguas-par header strong, .reguas-par header em { display: block; }
+.reguas-par header strong { font-size: 11px; font-weight: 600; }
+.reguas-par header em { margin-top: 3px; color: #85888c; font-size: 8.5px; font-style: normal; }
+.reguas-par header > u { color: var(--ink); font-size: 8.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.reguas-par > article > p { margin: 11px 0 14px; color: var(--muted); font-size: 9px; line-height: 1.6; }
+.reguas-par > article > p strong { color: var(--ink); font-weight: 600; }
+.reguas-par .fonte-detalhe { margin: 0 0 7px; font-size: 8.5px; }
+@media (max-width: 900px) {
+  .reguas-par { grid-template-columns: minmax(0, 1fr); }
+  .reguas-par > article { padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--soft); }
+  .reguas-par > article:first-child { padding-top: 0; border-top: 0; }
+}
+
+/* A CASCATA EM NÚMEROS GRANDES. O número tem de ser lido do fundo da sala; o porquê, de perto.
+   A diferença de escala é grande de propósito — o degrau é o único lugar do site onde um número
+   passa de 40px — e o porquê fica recuado, como nota de rodapé da linha de cima. O sinal (−, =)
+   vem em mono e apagado: ele orienta a leitura vertical sem competir com o número. */
+.cascata-panel { margin-bottom: 16px; padding: 21px 22px 18px; }
+.cascata-simples { display: grid; }
+.degrau { border-top: 1px solid var(--soft); padding: 14px 0 15px; }
+.degrau:first-child { border-top: 0; padding-top: 4px; }
+.degrau-topo { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: baseline; gap: 4px 14px; }
+.degrau-topo > i { color: #a9acb1; font: 500 17px "IBM Plex Mono", monospace; font-style: normal; text-align: right; }
+.degrau-topo > b { grid-column: 2; font: 500 clamp(34px, 4.4vw, 46px)/1 "Newsreader", serif; letter-spacing: -.02em; }
+.degrau-topo > span { grid-column: 2; color: var(--muted); font-size: 9.5px; line-height: 1.5; }
+.degrau-topo.clicavel { cursor: pointer; }
+.degrau-topo.clicavel:hover > b { color: var(--red); }
+.degrau.forte .degrau-topo > b { color: var(--green); }
+.degrau-porques { list-style: none; margin: 11px 0 0; padding: 0 0 0 38px; display: grid; gap: 1px; }
+.degrau-porques li { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: baseline; gap: 12px; padding: 5px 6px 5px 0; color: #7c7f84; font-size: 8.5px; line-height: 1.5; }
+.degrau-porques li.sub { padding-left: 26px; color: #93969b; }
+.degrau-porques li.sub b { font-size: 13px; color: #55585d; }
+.degrau-porques li.clicavel { cursor: pointer; }
+.degrau-porques li.clicavel:hover { background: #faf9f7; color: var(--ink); }
+.degrau-porques li b { text-align: right; font: 500 15px "Newsreader", serif; color: var(--ink); }
+@media (max-width: 900px) {
+  .degrau-topo { grid-template-columns: 18px minmax(0, 1fr); }
+  .degrau-porques { padding-left: 0; }
+}
+
+/* OS BOTÕES DE CATEGORIA. Vinte e cinco escolhas não cabem na mesma linha dos quatro veredictos
+   e não deveriam caber: os de cima decidem SE o caso conta, estes dizem POR QUE ele não conta.
+   Bloco próprio, tipografia menor, e o mesmo vermelho da casa quando marcado — porque marcar um
+   deles tira o caso do indicador. */
+.classificar-titulo { display: block; margin-top: 16px; color: #85888c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.classificar-categorias { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.classificar-categorias button { border: 1px solid var(--line); padding: 5px 9px; background: var(--white); color: #55585d; font-size: 8.5px; line-height: 1.3; text-align: left; }
+.classificar-categorias button:hover { border-color: var(--red); color: var(--red); }
+.classificar-categorias button.marcado { border-color: var(--red); background: var(--red); color: #fff; font-weight: 600; }
