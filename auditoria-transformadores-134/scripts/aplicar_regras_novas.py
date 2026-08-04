@@ -1256,6 +1256,11 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "ETO-RD-DP 00156/2026": (
+            "EXCLUIR", "", "meta",
+            "o dono mandou excluir na categoria da Meta. A OS diz “TRANSFORMADOR SUBSTITUIDO "
+            "PELA META” e a obra está registrada noutra empreiteira — quem executou não é quem "
+            "o cadastro contratou, e o caso sai do indicador por isso"),
         "ETO-RD-AR 00692/2026": (
             "EXCLUIR", "", "avaliar_matheus",
             "o dono mandou tirar do indicador e marcar para avaliar com o Matheus. O caso tem "

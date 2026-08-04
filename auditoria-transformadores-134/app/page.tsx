@@ -239,6 +239,7 @@ const NATUREZA: Record<string, string> = {
   abalroamento: "Danos a terceiro",
   terceiros: "Danos a terceiro",
   avaliar_matheus: "Em avaliação",
+  meta: "Executado por terceiro fora do cadastro",
   preventivo: "Obra sem defeito",
   divisao: "Obra sem defeito",
   seguranca: "Obra sem defeito",
@@ -288,6 +289,7 @@ const GATILHO_ROTULO: Record<string, string> = {
   sem_fato: "Sem interrupção na base Crítica",
   terceiros: "Causada por terceiros",
   avaliar_matheus: "Avaliar com o Matheus",
+  meta: "Substituído pela Meta",
 };
 
 /* O chip que cada categoria abre na lista. Onde não houver entrada aqui, a aba gera um recorte
@@ -301,7 +303,7 @@ const GATILHO_CHIP: Record<string, string> = {
   particular: "g_part", duplicada: "g_dup", sem_os: "g_semos",
   sem_fato: "g_semfato", sem_obra: "g_semobra", sem_interrupcao: "g_seminterr",
   erro_cadastro: "g_cadastro", fora_da_janela: "g_forajanela",
-  seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus",
+  seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus", meta: "g_meta",
 };
 
 /* FUSÃO DE CATEGORIA — escolha dele. "Fora da janela" e "ausente da Crítica" passam a contar
@@ -340,6 +342,7 @@ const GATILHO_NOTA: Record<string, string> = {
   obra_medidor: "a obra encerrada trocou medidor",
   terceiros: "a Crítica dá a causa como dano de terceiro",
   avaliar_matheus: "parado para avaliação — as vozes do caso não fecham",
+  meta: "a OS diz que quem trocou foi a Meta, não a empreiteira da obra",
   manual: "saiu pelo seu martelo, sem categoria de regra",
 };
 
@@ -940,6 +943,7 @@ export default function Page() {
       { id: "todos", rotulo: "Todas as exclusões", nota: "Saíram do indicador antes da esteira: por causa declarada no texto, por categoria gravada na SS, por duplicidade — ou pela sua classificação. A decisão do fluxo continua gravada em cada uma.", teste: (r) => arquivo(r) === "EXCLUÍDA" },
       { id: "g_furto", rotulo: "Furto, roubo ou vandalismo", nota: "O texto declara furto. Vai para o projeto de reposição de ativo furtado, não é falha de equipamento.", teste: (r) => gatilhoDe(r) === "furto" },
       { id: "g_abalro", rotulo: "Abalroamento", nota: "Colisão de veículo. Vira ressarcimento de terceiro, não indicador de falha.", teste: (r) => gatilhoDe(r) === "abalroamento" },
+      { id: "g_meta", rotulo: "Substituído pela Meta", nota: "A OS declara que quem trocou o transformador foi a Meta, enquanto a obra está registrada noutra empreiteira. Quem executou não é quem o cadastro contratou — e é o texto do executante que diz isso, não uma inferência.", teste: (r) => gatilhoDe(r) === "meta" },
       { id: "g_matheus", rotulo: "Avaliar com o Matheus", nota: "Fora da conta enquanto a avaliação não decidir. Entram aqui os casos que o dono mandou parar para avaliar — não é veredito sobre o equipamento, é reconhecimento de que as fontes do caso não fecham entre si e ninguém deve resolver isso sozinho na régua.", teste: (r) => gatilhoDe(r) === "avaliar_matheus" },
       { id: "g_terc", rotulo: "Causada por terceiros", nota: "A Crítica registra a ocorrência com causa CAUSADA POR TERCEIROS. Não é falha do equipamento: alguém mexeu na rede. Vale a mesma leitura do abalroamento — vira ressarcimento, não indicador. Aqui o defeito pode estar na chave e não no transformador, e é por isso que a esteira não contava a ocorrência como fato: o dano é real, a prova de falha é que não existe.", teste: (r) => gatilhoDe(r) === "terceiros" },
       { id: "g_fase", rotulo: "Falta de fase interna", nota: "O texto declara que o transformador perdeu uma fase por dentro, e a troca foi executada como plano de medida com aumento de potência. As duas coisas cabem: o defeito existiu, e a decisão de trocar foi de capacidade.", teste: (r) => gatilhoDe(r) === "falta_fase" },
