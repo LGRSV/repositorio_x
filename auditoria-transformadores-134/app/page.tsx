@@ -356,10 +356,12 @@ const MEU_ROTULO: Record<string, string> = {
   QUEIMADO: "QUEIMADO", AVARIADO: "AVARIADO", PREVENTIVO: "PREVENTIVO",
   FURTADO: "FURTADO", EXCLUIDO: "EXCLUÍDO", REGRA: "VALE A REGRA", PROFUNDA: "ANÁLISE PROFUNDA",
 };
+
 const MEU_TOM: Record<string, string> = {
   QUEIMADO: "good", AVARIADO: "info", PREVENTIVO: "warn",
   FURTADO: "bad", EXCLUIDO: "bad", REGRA: "pend", PROFUNDA: "warn",
 };
+
 
 /* A natureza agrupa os gatilhos pelo que eles significam para quem paga a conta. Furto é crime
    patrimonial e vai para projeto de reposição; dano de terceiro é acidente e vira ressarcimento
@@ -423,6 +425,20 @@ const GATILHO_ROTULO: Record<string, string> = {
   meta: "Substituído pela Meta",
   cola_fita: "Cola e fita — reparo, não troca",
 };
+
+/* MARTELO COM CATEGORIA. Antes só existiam sete botões, e "Excluído" era um balde: o caso saía
+   do indicador sem dizer por quê, e a aba de exclusões o mostrava como "marcada por você" ao
+   lado de vinte e cinco categorias com nome. Ele pediu um botão para cada categoria que existe
+   na aba de exclusão, para classificar rápido. O identificador é "X:<gatilho>" — o mesmo gatilho
+   que a regra grava —, então o caso marcado à mão cai exatamente no mesmo chip, no mesmo
+   gráfico e na mesma linha da planilha que o caso excluído por regra. Sem tradução no meio. */
+const PREFIXO_EXC = "X:";
+const ehExclusaoManual = (c?: string) => Boolean(c && c.startsWith(PREFIXO_EXC));
+const gatilhoDaClasse = (c?: string) => (ehExclusaoManual(c) ? String(c).slice(PREFIXO_EXC.length) : "");
+const meuRotulo = (c?: string) =>
+  ehExclusaoManual(c) ? (GATILHO_ROTULO[gatilhoDaClasse(c)] || gatilhoDaClasse(c)).toUpperCase()
+                      : (MEU_ROTULO[String(c)] || String(c || ""));
+const meuTom = (c?: string) => (ehExclusaoManual(c) ? "bad" : MEU_TOM[String(c)] || "pend");
 
 /* O chip que cada categoria abre na lista. Onde não houver entrada aqui, a aba gera um recorte
    `g:<gatilho>` sozinha — assim uma categoria nova nasce clicável no mesmo dia em que nasce, em
@@ -621,7 +637,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
           martelo, o martelo aparece aqui; a decisão do fluxo desce para a linha de baixo, em
           cinza, para nunca sumir. */}
       <td>{meu
-        ? <><b className={`pill ${MEU_TOM[meu] || "pend"}`}>{MEU_ROTULO[meu] || meu}</b>
+        ? <><b className={`pill ${meuTom(meu)}`}>{meuRotulo(meu)}</b>
             <span className="decisao-fluxo">o fluxo dizia {texto(r.decisao).toLowerCase()}</span></>
         : <><b className={`pill ${decisaoClasse(texto(r.decisao))}`}>{texto(r.decisao)}</b>
             {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}</>}
@@ -785,6 +801,8 @@ export default function Page() {
     // preventivos continua existindo, mas como recorte das exclusões e não como terceiro
     // destino, senão o mesmo caso ocuparia dois lugares no funil.
     if (c === "EXCLUIDO" || c === "FURTADO" || c === "PREVENTIVO") return "EXCLUÍDA";
+    // e qualquer categoria de exclusão marcada à mão faz o mesmo — é o que o botão promete
+    if (ehExclusaoManual(c)) return "EXCLUÍDA";
     return texto(r.cascata);
   };
   const rearquivado = (r: Registro) => arquivo(r) !== texto(r.cascata);
@@ -797,6 +815,8 @@ export default function Page() {
     const c = classificacao[texto(r.ss)]?.classe;
     if (c === "FURTADO") return "furto";
     if (c === "PREVENTIVO") return "preventivo";
+    // o martelo com categoria vence a regra: foi ele quem escolheu o nome
+    if (ehExclusaoManual(c)) return gatilhoDaClasse(c);
     if (c === "EXCLUIDO") return texto(r.expurgo_gatilho) || "manual";
     return texto(r.expurgo_gatilho);
   };
@@ -924,8 +944,8 @@ export default function Page() {
       /* Furtado e excluído acabam no mesmo lugar — os dois saem do indicador — e por isso têm
          uma entrada só na barra. Os chips separados continuam aqui embaixo para quem quiser ver
          cada um: o que era duas linhas de menu virou uma linha com dois recortes. */
-      { id: "xf", rotulo: "Excluídos e furtados por você", nota: "Os dois saem do indicador e vão para a mesma aba de exclusões: furto entra lá na categoria de furto, roubo e vandalismo; excluído entra com a categoria que a regra já tinha, ou como martelo puro quando não havia nenhuma.", teste: (r) => ["EXCLUIDO", "FURTADO"].includes(classificacao[texto(r.ss)]?.classe || "") },
-      { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura. Sai da esteira e vai para a aba de exclusões.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
+      { id: "xf", rotulo: "Excluídos e furtados por você", nota: "Os dois saem do indicador e vão para a mesma aba de exclusões: furto entra lá na categoria de furto, roubo e vandalismo; excluído entra com a categoria que a regra já tinha, ou como martelo puro quando não havia nenhuma.", teste: (r) => ["EXCLUIDO", "FURTADO", "PREVENTIVO"].includes(classificacao[texto(r.ss)]?.classe || "") || ehExclusaoManual(classificacao[texto(r.ss)]?.classe) },
+      { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura — com ou sem categoria escolhida. Sai da esteira e vai para a aba de exclusões, no chip da categoria que você marcou.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" || ehExclusaoManual(classificacao[texto(r.ss)]?.classe) },
       { id: "f", rotulo: "Furtado", nota: "Furto, roubo ou vandalismo pela sua leitura. Sai da esteira e vai para as exclusões, na categoria de furto.", teste: (r) => classificacao[texto(r.ss)]?.classe === "FURTADO" },
       { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
@@ -1287,11 +1307,20 @@ export default function Page() {
   const CLASSES: Array<[string, string, string]> = [
     ["QUEIMADO", "Queimado", "good"],
     ["AVARIADO", "Avariado", "pend"],
-    ["PREVENTIVO", "Preventivo", "warn"],
-    ["FURTADO", "Furtado", "bad"],
-    ["EXCLUIDO", "Excluído", "bad"],
     ["REGRA", "Vale a regra do fluxo", "warn"],
     ["PROFUNDA", "Análise profunda", "bad"],
+  ];
+  /* Uma categoria por botão, tiradas do mesmo mapa que nomeia as exclusões da regra — se uma
+     categoria nascer lá, o botão dela aparece aqui sozinho. Furto e preventivo já tinham botão
+     próprio e continuam com ele: são os dois identificadores antigos, e trocá-los quebraria as
+     marcações que já estão gravadas no banco. */
+  const CATEGORIAS_EXC: Array<[string, string]> = [
+    ["FURTADO", GATILHO_ROTULO.furto],
+    ["PREVENTIVO", GATILHO_ROTULO.preventivo],
+    ...Object.entries(GATILHO_ROTULO)
+      .filter(([k]) => !["furto", "preventivo"].includes(k))
+      .map(([k, v]) => [`${PREFIXO_EXC}${k}`, v] as [string, string]),
+    ["EXCLUIDO", "Sem categoria — só fora do indicador"],
   ];
 
   /* A barra conta a DESCIDA: quantos entram em cada etapa, em cinza, e quantos ficam presos
@@ -2251,9 +2280,15 @@ export default function Page() {
               foi martelado e abrir só aquilo. */}
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Minha classificação</span><h2>O que eu marquei</h2></div><small>clique para filtrar</small></div>
-              <Barras dados={contar(marcadas.map((r) => ({ ...r, _c: MEU_ROTULO[classificacao[texto(r.ss)].classe] || classificacao[texto(r.ss)].classe })), "_c", 10)} total={marcadas.length} aoSelecionar={(l) => {
-                const classe = Object.entries(MEU_ROTULO).find(([, v]) => v === l)?.[0] || l;
-                setBusca(""); abrirRecorte({ QUEIMADO: "q", AVARIADO: "a", PREVENTIVO: "v", FURTADO: "f", EXCLUIDO: "x", REGRA: "r", PROFUNDA: "p" }[classe] || "todos");
+              <Barras dados={contar(marcadas.map((r) => ({ ...r, _c: meuRotulo(classificacao[texto(r.ss)].classe) })), "_c", 10)} total={marcadas.length} aoSelecionar={(l) => {
+                setBusca("");
+                const classe = Object.entries(MEU_ROTULO).find(([, v]) => v === l)?.[0];
+                if (classe) { abrirRecorte({ QUEIMADO: "q", AVARIADO: "a", PREVENTIVO: "v", FURTADO: "f", EXCLUIDO: "x", REGRA: "r", PROFUNDA: "p" }[classe] || "todos"); return; }
+                /* A barra pode ser uma CATEGORIA de exclusão marcada à mão, e aí o lugar certo
+                   não é esta aba: é o chip daquela categoria nas exclusões, onde ela convive com
+                   os casos que a regra excluiu pelo mesmo motivo. */
+                const gat = Object.entries(GATILHO_ROTULO).find(([, v]) => v.toUpperCase() === l)?.[0];
+                if (gat) irPara("exclusoes", GATILHO_CHIP[gat] || `g:${gat}`); else abrirRecorte("todos");
               }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Minha classificação</span><h2>Onde o caso foi parar</h2></div><small>para onde o seu martelo mandou</small></div>
               <Barras dados={contar(marcadas.map((r) => ({ ...r, _d: arquivo(r) })), "_d", 8)} total={marcadas.length} /></article>
@@ -2489,7 +2524,17 @@ export default function Page() {
             onClick={() => classificar(texto(aberto.ss), id)}>{rotulo}</button>)}
             {classificacao[texto(aberto.ss)] ? <button className="limpar" onClick={() => classificar(texto(aberto.ss), "LIMPAR")}>limpar</button> : null}
           </div>
-          {classificacao[texto(aberto.ss)] ? <p className="classificar-aviso">Você já classificou esta solicitação como <strong>{MEU_ROTULO[classificacao[texto(aberto.ss)].classe] || classificacao[texto(aberto.ss)].classe}</strong>. Clicar noutro botão <strong>substitui</strong> — a SS continua contando uma vez só, e o histórico da mudança fica gravado no banco.</p> : null}
+          {/* AS CATEGORIAS, NUM BLOCO SÓ. Ficam separadas dos quatro de cima porque respondem a
+              outra pergunta: os de cima decidem SE o caso conta, estes dizem POR QUE ele não
+              conta. Um clique aqui tira o caso do indicador e já o entrega na categoria certa —
+              o mesmo chip e o mesmo gráfico que a exclusão por regra. */}
+          <span className="classificar-titulo">Fora do indicador — escolha a categoria</span>
+          <div className="classificar-categorias">{CATEGORIAS_EXC.map(([id, rotulo]) => <button key={id}
+            type="button" title={GATILHO_NOTA[gatilhoDaClasse(id) || id.toLowerCase()] || rotulo}
+            className={classificacao[texto(aberto.ss)]?.classe === id ? "marcado" : ""}
+            onClick={() => classificar(texto(aberto.ss), id)}>{rotulo}</button>)}
+          </div>
+          {classificacao[texto(aberto.ss)] ? <p className="classificar-aviso">Você já classificou esta solicitação como <strong>{meuRotulo(classificacao[texto(aberto.ss)].classe)}</strong>. Clicar noutro botão <strong>substitui</strong> — a SS continua contando uma vez só, e o histórico da mudança fica gravado no banco.</p> : null}
           <em>{classificacao[texto(aberto.ss)]
             ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
             : "A decisão do fluxo continua registrada. Isto é a sua leitura ao lado dela."}</em>

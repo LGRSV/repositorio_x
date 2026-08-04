@@ -685,3 +685,13 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .degrau-topo { grid-template-columns: 18px minmax(0, 1fr); }
   .degrau-porques { padding-left: 0; }
 }
+
+/* OS BOTÕES DE CATEGORIA. Vinte e cinco escolhas não cabem na mesma linha dos quatro veredictos
+   e não deveriam caber: os de cima decidem SE o caso conta, estes dizem POR QUE ele não conta.
+   Bloco próprio, tipografia menor, e o mesmo vermelho da casa quando marcado — porque marcar um
+   deles tira o caso do indicador. */
+.classificar-titulo { display: block; margin-top: 16px; color: #85888c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.classificar-categorias { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.classificar-categorias button { border: 1px solid var(--line); padding: 5px 9px; background: var(--white); color: #55585d; font-size: 8.5px; line-height: 1.3; text-align: left; }
+.classificar-categorias button:hover { border-color: var(--red); color: var(--red); }
+.classificar-categorias button.marcado { border-color: var(--red); background: var(--red); color: #fff; font-weight: 600; }
