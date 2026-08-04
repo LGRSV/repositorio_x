@@ -2315,12 +2315,18 @@ export default function Page() {
                 fechamento) apaga o meio do caminho — e é o meio que conta a história: qual
                 elemento atuou primeiro, quando o transformador entrou, quantos clientes cada
                 manobra atingiu. Cada linha aqui é uma linha da Crítica. */}
-            {Array.isArray(aberto.oc_detalhe) && (aberto.oc_detalhe as unknown[]).length ? <>
+            {Array.isArray(aberto.oc_passos_todos) && (aberto.oc_passos_todos as unknown[]).length ? <>
               <h3>Os passos da ocorrência {texto(aberto.oc_num)}</h3>
-              <p className="fonte-detalhe">Base Crítica CHEIO · {(aberto.oc_detalhe as unknown[]).length} passo{(aberto.oc_detalhe as unknown[]).length > 1 ? "s" : ""} de manobra, em ordem de abertura</p>
+              {/* A ocorrência INTEIRA, e não só os passos cujo defeito é deste código. O índice
+                  da esteira é por (ocorrência, elemento com defeito), porque é assim que ela
+                  casa — e isso partia o evento no dossiê: sumia tudo que aconteceu no mesmo
+                  corte com defeito noutro elemento, inclusive os outros transformadores que
+                  ficaram sem energia junto. */}
+              <p className="fonte-detalhe">Base Crítica CHEIO · {(aberto.oc_passos_todos as unknown[]).length} passo{(aberto.oc_passos_todos as unknown[]).length > 1 ? "s" : ""} de manobra, do primeiro ao último
+                {texto(aberto.oc_outros_trafos) ? ` · outros transformadores no mesmo evento: ${texto(aberto.oc_outros_trafos)}` : ""}</p>
               <div className="table-scroll"><table className="records-table passos-oc">
                 <thead><tr><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
-                <tbody>{(aberto.oc_detalhe as Array<Record<string, string>>).map((p, i) => <tr key={i}>
+                <tbody>{(aberto.oc_passos_todos as Array<Record<string, string>>).map((p, i) => <tr key={i}>
                   <td><strong>{dataBR(p.ini)}</strong></td>
                   <td><strong>{dataBR(p.fim)}</strong></td>
                   <td><code>{p.def || "—"}</code>{p.def === texto(aberto.trafo) ? <span>é este transformador</span> : null}</td>
@@ -2456,18 +2462,19 @@ export default function Page() {
                 três SS e cada uma casou com uma ocorrência, as três cronologias aparecem, em
                 ordem. É onde se enxerga o transformador que queima de novo, e quando. */}
             {registros.filter((r) => texto(r.trafo) === texto(aberto.trafo)
-              && Array.isArray(r.oc_detalhe) && (r.oc_detalhe as unknown[]).length).map((r) => <section key={texto(r.ss)} className="passos-ss">
-              <h3>Passos da ocorrência {texto(r.oc_num)} · {texto(r.ss)}{texto(r.ss) === texto(aberto.ss) ? " (esta SS)" : ""}</h3>
-              <p className="fonte-detalhe">Base Crítica CHEIO · {(r.oc_detalhe as unknown[]).length} passo{(r.oc_detalhe as unknown[]).length > 1 ? "s" : ""} de manobra, em ordem de abertura · {texto(r.cascata)}</p>
+              && Array.isArray(r.oc_passos_todos) && (r.oc_passos_todos as unknown[]).length).map((r) => <section key={texto(r.ss)} className="passos-ss">
+              <h3>Ocorrência {texto(r.oc_num)} · {texto(r.ss)}{texto(r.ss) === texto(aberto.ss) ? " (esta SS)" : ""}</h3>
+              <p className="fonte-detalhe">Base Crítica CHEIO · {(r.oc_passos_todos as unknown[]).length} passo{(r.oc_passos_todos as unknown[]).length > 1 ? "s" : ""} de manobra, do primeiro ao último · {texto(r.cascata)}
+                {texto(r.oc_outros_trafos) ? ` · outros transformadores no mesmo evento: ${texto(r.oc_outros_trafos)}` : ""}</p>
               <div className="table-scroll"><table className="records-table passos-oc">
                 <thead><tr><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
-                <tbody>{(r.oc_detalhe as Array<Record<string, string>>).map((x, i) => <tr key={i}>
+                <tbody>{(r.oc_passos_todos as Array<Record<string, string>>).map((x, i) => <tr key={i}>
                   <td><strong>{dataBR(x.ini)}</strong></td>
                   <td><strong>{dataBR(x.fim)}</strong></td>
-                  <td><span>{texto(x.def_ele)}</span><code>{texto(x.def_cod)}</code></td>
-                  <td><code>{texto(x.interrompido)}</code></td>
-                  <td><code>{texto(x.fechado)}</code></td>
-                  <td><strong>{texto(x.cons)}</strong></td>
+                  <td><code>{x.def || "—"}</code>{x.def === texto(aberto.trafo) ? <span>é este transformador</span> : null}</td>
+                  <td><code>{x.int || "—"}</code><span>{x.int_t}</span></td>
+                  <td><code>{x.fec || "—"}</code><span>{x.fec_t}</span></td>
+                  <td><strong>{x.cons || "0"}</strong></td>
                 </tr>)}</tbody>
               </table></div>
             </section>)}

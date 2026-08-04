@@ -392,7 +392,20 @@ def le_critica():
                         a["ini"] = ini
                     if fim and (not a["fim"] or fim > a["fim"]):
                         a["fim"] = fim
-    return oc, intr, vistos
+    # ---------- e o mesmo acervo indexado só pela OCORRÊNCIA
+    # O índice de cima é por (ocorrência, elemento com defeito) — foi assim que a esteira nasceu,
+    # porque ela casa pelo defeito no próprio transformador. Só que isso PARTE a ocorrência: quem
+    # abre um caso vê apenas os passos cujo defeito é do mesmo código, e some do dossiê tudo que
+    # aconteceu no mesmo evento com defeito noutro elemento — inclusive os outros transformadores
+    # que ficaram sem energia junto. O dono viu e cobrou: "quando eu clico na ocorrência associada
+    # ao ativo não está aparecendo todos os transformadores".
+    passos_oc = {}
+    for (n, _cod), a in oc.items():
+        alvo = passos_oc.setdefault(n, [])
+        alvo.extend(a["detalhe"])
+    for n, lst in passos_oc.items():
+        lst.sort(key=lambda x: parse(x["ini"]) or datetime.datetime.min)
+    return oc, intr, vistos, passos_oc
 
 
 def borda(ab, o):
@@ -479,7 +492,7 @@ def ressalvas_de(o):
 def main():
     with open(FLUXO, encoding="utf-8") as fh:
         fluxo = json.load(fh)
-    oc, intr, vistos = le_critica()
+    oc, intr, vistos, passos_oc = le_critica()
     at = le_tmae()
     por_at = collections.defaultdict(list)
     for a in at.values():
@@ -1401,6 +1414,24 @@ def main():
         for ss, v in sorted(VEREDITO_DONO.items())
     ]
     print(f"  vereditos do dono aplicados um a um: {len(VEREDITO_DONO)}")
+
+    # ------------------------------------------------------- a ocorrência inteira, sem recorte
+    # Cada registro passa a carregar TODOS os passos da sua ocorrência, não só os que têm o
+    # defeito no próprio código — e a lista de outros transformadores que ficaram sem energia no
+    # mesmo evento. São 2.431 passos no acervo inteiro para 1.391 ocorrências: cabe no arquivo
+    # sem inchar, e é o que faltava para o dossiê contar o evento em vez de contar um pedaço.
+    n_compl = 0
+    for r in fluxo["registros"]:
+        n = str(r.get("oc_num") or "").strip()
+        todos = passos_oc.get(n) or []
+        r["oc_passos_todos"] = todos
+        cod = str(r.get("trafo") or "").strip()
+        outros = sorted({v for x in todos for v in (x.get("def"), x.get("int"), x.get("fec"))
+                         if v and v != cod and str(v).startswith("5") and len(str(v)) == 10})
+        r["oc_outros_trafos"] = " · ".join(outros)
+        if len(todos) > len(r.get("oc_detalhe") or []):
+            n_compl += 1
+    print(f"  dossiês que ganharam passos da ocorrência antes invisíveis: {n_compl}")
 
     # ------------------------------------------------------------------ etiquetas do caso
     # Categoria DENTRO do veredito, não em lugar dele. "Ponto quente na conexão" continua sendo
