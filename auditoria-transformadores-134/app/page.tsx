@@ -416,6 +416,16 @@ export default function Page() {
     // das famílias de motivo do revisao.json. Fica vazio aqui de propósito.
     revisao: [],
     interrupcao: [
+      /* ELEMENTO DO DEFEITO. A Crítica diz duas coisas diferentes sobre o mesmo transformador:
+         onde o defeito foi aberto e o que ficou sem energia. A esteira casa pelo primeiro — o
+         defeito tem de ser no próprio ativo. Estes filtros mostram o segundo, sem mudar o
+         casamento: em 19.378 ocorrências da base um transformador foi interrompido com o
+         defeito noutro elemento. Marcador, não peneira. */
+      { id: "def_tr", rotulo: "Defeito no próprio transformador", nota: "A ocorrência foi aberta com o defeito neste transformador. É o único casamento que a esteira aceita como prova.", teste: (r) => texto(r.def_elemento) === "TR" },
+      { id: "def_uc", rotulo: "Defeito na unidade consumidora", nota: "O transformador ficou sem energia, mas o defeito foi aberto na unidade consumidora — é defeito de ligação de cliente, não do equipamento.", teste: (r) => texto(r.def_elemento) === "UC" },
+      { id: "def_ch", rotulo: "Defeito em chave", nota: "O defeito foi aberto numa chave. O transformador aparece como interrompido, não como defeituoso.", teste: (r) => texto(r.def_elemento) === "CH" },
+      { id: "def_dj", rotulo: "Defeito em disjuntor", nota: "O defeito foi aberto num disjuntor.", teste: (r) => texto(r.def_elemento) === "DJ" },
+      { id: "def_nenhum", rotulo: "Sem defeito localizado na janela", nota: "Nenhuma ocorrência na janela, nem com defeito no ativo nem com ele apenas interrompido.", teste: (r) => !texto(r.def_elemento) },
       { id: "todos", rotulo: "Toda a fila", nota: "As 1.510 chegam a esta etapa: ninguém foi filtrado ainda, porque a esteira começa aqui.", teste: () => true },
       { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => ["A", "B", "C"].includes(texto(r.e1_nivel)) },
       { id: "comfato", rotulo: "Viraram fato", nota: "Têm a interrupção na janela e ela não pertence a outra SS. É este o número que segue como prova.", teste: (r) => r.fato === "F1" || r.fato === "F0" },
@@ -473,6 +483,7 @@ export default function Page() {
          MEDIDO_, plano de medida, remanejamento, sobrecarga, pedido de potência específica.
          Nenhum deles tira o caso do indicador sozinho; quando há também gatilho de exclusão,
          a exclusão manda e o caso nem aparece aqui. */
+      { id: "remendo", rotulo: "Reparo improvisado no texto", nota: "O texto relata cola, fita ou remendo no transformador. Não exclui — um trafo remendado que depois vaza e é trocado continua sendo troca de equipamento. Marca o histórico de manutenção do ativo.", teste: (r) => texto(r.suspeitas).includes("improvisado") },
       { id: "suspeita", rotulo: "Sob suspeita no texto", nota: "MEDIDO_, plano de medida, remanejamento, sobrecarga ou pedido de potência específica. Fica no indicador — é sinal para conferir, não motivo para excluir.", teste: (r) => r.sob_suspeita === "SIM" },
     ],
     obra: [

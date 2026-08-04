@@ -113,6 +113,14 @@ SUSPEITAS = [
      "a OS veio pelo formulário MEDIDO_, sem descrição própria do executante"),
     ("aumento_potencia", r"\bINSTALAR\s+TR-?\s*\d{2,3}\s*KVA",
      "o texto pede instalação de potência específica: possível reforço de capacidade"),
+    # Reparo improvisado. São dois casos em 1.510 — "será feito reparo de cola e fita", "já foi
+    # colado" —, poucos demais para virar regra e importantes demais para ficarem invisíveis.
+    # Não excluem: um trafo remendado que depois vaza e é trocado ainda é troca de equipamento.
+    # Marcam o histórico de manutenção do ativo, que é o que interessa a quem for conferir.
+    # "TAP" ficou de fora de propósito: aparece em 682 casos e é sempre "POS. TAP : 03", campo
+    # do formulário da OS descrevendo o equipamento — nunca causa.
+    ("reparo_improvisado", r"\b(COLA|COLADO|COLAGEM|FITA|SILICONE|REMEND\w*)\b",
+     "o texto relata reparo improvisado no ativo — cola, fita ou remendo"),
 ]
 
 
@@ -203,17 +211,53 @@ def le_tmae():
 
 
 def le_critica():
-    """Uma entrada por ocorrência, com o vão do primeiro passo ao último."""
+    """Uma entrada por ocorrência, com o vão do primeiro passo ao último.
+
+    Devolve DOIS índices. O primeiro, `oc`, é o que a esteira usa: ocorrências cujo DEFEITO foi
+    aberto num transformador, com esse transformador como chave. O segundo, `intr`, é marcador:
+    ocorrências em que o transformador foi INTERROMPIDO mas o defeito estava noutro elemento —
+    20.224 linhas apontam para a unidade consumidora, 347 para chave, 7 para disjuntor. Ele não
+    casa ninguém e não move número nenhum; existe para a tela poder responder "onde estava o
+    defeito quando este trafo ficou sem energia", que é pergunta diferente de "este trafo teve
+    defeito".
+    """
     arqs = sorted(glob.glob(f"{SCR}/crit_raw/Critica-CHEIO_*.txt")) + \
         [f"{UP}/0896088f-CriticaCHEIO_122025.txt"]
-    oc = {}
+    oc, intr = {}, {}
     for p in arqs:
         with open(p, encoding="latin-1", newline="") as fh:
             rd = csv.reader(fh, delimiter=";", quoting=csv.QUOTE_NONE)
             head = [h.strip().replace("ABRANGENCIA", "ABRANGÊNCIA") for h in next(rd)]
             k = {n: i for i, n in enumerate(head)}
             for r in rd:
-                if len(r) != len(head) or r[k["COD_ELE_REDE_PROBLEMA"]].strip() != "TR":
+                if len(r) != len(head):
+                    continue
+                if r[k["COD_ELE_REDE_PROBLEMA"]].strip() != "TR":
+                    # defeito fora do transformador: só entra no índice de marcador, e só
+                    # quando o elemento que ficou sem energia é um transformador
+                    if r[k["COD_ELE_REDE_INTERROMPIDO"]].strip() != "TR":
+                        continue
+                    ci = r[k["COD_ELE_INTERROMPIDO"]].strip()
+                    ni = r[k["NUM_SEQ_OPER_INIC_HDE"]].strip()
+                    if not ci or not ni:
+                        continue
+                    ai, af = parse(r[k["DTA_ABERT"]]), parse(r[k["DTA_FECH"]])
+                    b = intr.get((ni, ci))
+                    if b is None:
+                        intr[(ni, ci)] = {
+                            "oc": ni, "trafo": ci, "ini": ai, "fim": af,
+                            "def_ele": r[k["COD_ELE_REDE_PROBLEMA"]].strip(),
+                            "def_cod": r[k["COD_ELE_PROBLEMA"]].strip(),
+                            "causa": r[k["DES_CAUSA_INTER_CAU"]].strip(),
+                            "sub": r[k["DES_SUB_CAUSA_INTER_SCR"]].strip(),
+                            "cons": numero(r[k["QTD_CONS_INTER_FAT"]]),
+                        }
+                    else:
+                        b["cons"] += numero(r[k["QTD_CONS_INTER_FAT"]])
+                        if ai and (not b["ini"] or ai < b["ini"]):
+                            b["ini"] = ai
+                        if af and (not b["fim"] or af > b["fim"]):
+                            b["fim"] = af
                     continue
                 cod = r[k["COD_ELE_PROBLEMA"]].strip()
                 n = r[k["NUM_SEQ_OPER_INIC_HDE"]].strip()
@@ -238,7 +282,7 @@ def le_critica():
                         a["ini"] = ini
                     if fim and (not a["fim"] or fim > a["fim"]):
                         a["fim"] = fim
-    return oc
+    return oc, intr
 
 
 def borda(ab, o):
@@ -277,7 +321,7 @@ def ressalvas_de(o):
 def main():
     with open(FLUXO, encoding="utf-8") as fh:
         fluxo = json.load(fh)
-    oc = le_critica()
+    oc, intr = le_critica()
     at = le_tmae()
     por_at = collections.defaultdict(list)
     for a in at.values():
@@ -286,6 +330,11 @@ def main():
     por = collections.defaultdict(list)
     for o in oc.values():
         por[o["trafo"]].append(o)
+    por_int = collections.defaultdict(list)
+    for o in intr.values():
+        por_int[o["trafo"]].append(o)
+    print(f"Crítica: {len(intr):,} ocorrências que interromperam transformador com defeito "
+          f"em outro elemento (marcador, não casa ninguém)")
     print(f"Crítica: {len(oc):,} ocorrências em transformador (dez/2025 + jan–jun/2026)")
 
     antes = collections.Counter(r["cascata"] for r in fluxo["registros"])
@@ -416,6 +465,25 @@ def main():
                       "at_tmd": melhor_at["tmd"],
                       "at_deslocou": "SIM" if (melhor_at["desloc"] or melhor_at["tmd"] > 0) else "NÃO"})
 
+        # ---------- marcador: onde estava o defeito quando este trafo ficou sem energia
+        # Não decide nada. A esteira continua casando pelo defeito no próprio transformador;
+        # isto responde a outra pergunta, e responde para os dois lados: para quem casou, diz
+        # que o defeito era no ativo; para quem não casou, diz se houve interrupção na janela
+        # com o defeito noutro elemento — unidade consumidora, chave, disjuntor.
+        cand_int = [o for o in por_int.get(cod, [])
+                    if (b := borda(ab, o)) is not None and b <= JANELA]
+        vizinho_int = min(cand_int, key=lambda x: borda(ab, x)) if cand_int else None
+        if melhor:
+            r.update({"def_elemento": "TR", "def_ele_oc": None, "def_ele_causa": None,
+                      "def_ele_sub": None, "def_ele_cod": None})
+        elif vizinho_int:
+            r.update({"def_elemento": vizinho_int["def_ele"], "def_ele_oc": vizinho_int["oc"],
+                      "def_ele_causa": vizinho_int["causa"], "def_ele_sub": vizinho_int["sub"],
+                      "def_ele_cod": vizinho_int["def_cod"]})
+        else:
+            r.update({"def_elemento": "", "def_ele_oc": None, "def_ele_causa": None,
+                      "def_ele_sub": None, "def_ele_cod": None})
+
         # ---------- peneira 1: o fato
         if melhor:
             b = borda(ab, melhor)
@@ -441,6 +509,30 @@ def main():
                       "oc_cons": None, "oc_causa": None, "oc_sub": None, "oc_tipo": None,
                       "oc_prob_ele": None, "oc_dist_h": None, "e1_delta_h": None})
         else:
+            # A ocorrência gravada aqui era de uma rodada antiga do funil — 29 casos retidos
+            # por "sem interrupção" continuavam exibindo um oc_num, e 17 deles com elemento de
+            # defeito UC ou CH, que o leitor de hoje nem indexa. O dossiê dizia "não há registro"
+            # no texto e mostrava um número no campo. Reescreve com o que a busca de agora achou:
+            # a ocorrência mais próxima no código do ativo, marcada como fora da janela.
+            todas = por.get(cod, [])
+            perto = min(todas, key=lambda x: borda(ab, x)) if (todas and ab) else None
+            r.update({
+                "oc_num": perto["oc"] if perto else None,
+                "oc_ini": f"{perto['ini']:%Y-%m-%d %H:%M}" if perto and perto["ini"] else None,
+                "oc_fim": f"{perto['fim']:%Y-%m-%d %H:%M}" if perto and perto["fim"] else None,
+                "oc_dur_h": round((perto["fim"] - perto["ini"]).total_seconds() / 3600, 2)
+                if perto and perto["ini"] and perto["fim"] else None,
+                "oc_cons": int(perto["cons"]) if perto else None,
+                "oc_causa": perto["causa"] if perto else None,
+                "oc_sub": perto["sub"] if perto else None,
+                "oc_tipo": perto["tipo"] if perto else None,
+                "oc_passos": perto["passos"] if perto else None,
+                "oc_prob_ele": "TR" if perto else None,
+                "oc_papel": "defeito no próprio trafo" if perto else None,
+                "oc_dist_h": round(borda(ab, perto) / 3600, 2) if perto else None,
+                "oc_fora_janela": "SIM" if perto else "",
+                "e1_delta_h": None, "e1_nivel": "FORA" if perto else "SEM",
+            })
             r.update({"e1_status": "RETIDO", "chega_e2": "NÃO", "chega_e3": "NÃO", "fato": "F3",
                       "fato_texto": "Sem fato — nem a Crítica nem o TMAE registram nada na janela",
                       "cascata": "RETIDO — SEM INTERRUPÇÃO NA JANELA",
