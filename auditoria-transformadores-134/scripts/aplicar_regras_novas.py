@@ -1276,6 +1276,29 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "ETO-RD-GU 00179/2026": (
+            "EXCLUIR", "", "furto",
+            "o dono mandou excluir como furto, confirmando o que quatro registros independentes "
+            "de campo já diziam: o SIGCO da obra é 61993 “FURTO DE BENS TRAFO”, a SS traz Origem "
+            "e Defeito gravados como FURTADO, a Crítica registra observação “transformador "
+            "furtado” com ZERO cliente interrompido nos dois passos, e o texto da SS diz "
+            "“transformador e medidor furtado”. A subcausa “queimado por descarga atmosférica” "
+            "é codificação genérica do despachante, e não descreve o que a equipe achou"),
+        "ETO-RD-DP 00182/2026": (
+            "EXCLUIR", "", "furto",
+            "o dono mandou excluir como furto. A SS e a OS são idênticas e explícitas: "
+            "“Constatado trafo 5700273116 de 15kVA na 19.9kV e para-raios furtados. Acesso bom.” "
+            "O gatilho de furto já estava aceso e o caso chegava à saída assim mesmo — a "
+            "codificação da Crítica diz queima, mas a observação dela não descreve sintoma "
+            "nenhum, e quem esteve no poste escreveu furto"),
+        "ETO-RD-AG 00587/2026": (
+            "EXCLUIR", "", "tap",
+            "o dono mandou excluir na categoria de tape. A observação da própria ocorrência "
+            "conta o serviço inteiro: “Abertura emergencial do trafo 5700012065 para "
+            "possibilitar alterar TAP melhoria de tensão. Ao remover a tampa do trafo, caiu "
+            "dentro do oleo os parafusos. Foi aberto nota e trocado o mesmo.” O transformador "
+            "foi aberto de propósito para mexer no tape; a troca veio do acidente durante o "
+            "serviço, não de falha do equipamento. Nenhum texto do caso afirma queima"),
         "ETO-RD-DP 00156/2026": (
             "INCLUIR", "QUEIMADO", "",
             "o dono reviu e mandou de volta para a saída como queimado, mantendo a marca: “esse "
