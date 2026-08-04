@@ -307,8 +307,18 @@ def main():
         r["e2_status"] = "MARCADOR — não retém"
         r["chega_e3"] = "SIM"
 
-        if r.get("expurgo") == "SIM":
-            r.update({"cascata": "EXCLUÍDO NA LEITURA", "decisao": "EXCLUIR", "confirmado": ""})
+        # A terceira peneira é onde a CAUSA é julgada — e ela julga pelo que a leitura apurou,
+        # não só pela flag antiga. Cinco casos chegavam à saída carregando categoria_texto
+        # FURTADO, ABALROAMENTO e PREVENTIVO: o texto dizia outra causa e ninguém barrava,
+        # porque a flag expurgo não tinha sido marcada neles. Furto não é queima de equipamento.
+        FORA = {"FURTADO", "ABALROAMENTO", "PREVENTIVO", "PARTICULAR", "TRAFO AUXILIAR",
+                "CONSTRUCAO", "DESATIVACAO"}
+        cat = str(r.get("categoria_texto") or "").strip().upper()
+        if r.get("expurgo") == "SIM" or cat in FORA:
+            r.update({"cascata": "EXCLUÍDO NA LEITURA", "decisao": "EXCLUIR", "confirmado": "",
+                      "expurgo": "SIM",
+                      "cascata_motivo": f"A leitura do texto mostra outra causa: {cat.lower()}"
+                      if cat in FORA else r.get("cascata_motivo", "")})
             continue
         if float(r.get("trafos_material") or 0) <= 0:
             r.update({"e3_status": "RETIDO", "cascata": "RETIDO — SEM PROVA DE TROCA",
