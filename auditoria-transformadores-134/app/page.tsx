@@ -1751,8 +1751,13 @@ export default function Page() {
               <div><span>Término</span><strong>{dataBR(aberto.termino)}</strong></div>
               <div><span>Potência retirada</span><strong>{texto(aberto.pot_ret)} kVA</strong></div>
               <div><span>Potência instalada</span><strong>{texto(aberto.pot_inst)} kVA</strong></div>
-              <div><span>Transformadores no material</span><strong>{texto(aberto.trafos_material)}</strong></div>
-              <div><span>Material conferido</span><strong>{texto(aberto.material_conferido)}</strong></div>
+              {/* Ficavam em branco quando o valor era zero ou vazio, e campo em branco lê-se
+                  como campo que sumiu. Zero é resposta: quer dizer que a obra não movimentou
+                  transformador nenhum, que é exatamente o que retém o caso na terceira peneira. */}
+              <div><span>Transformadores no material</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} — a obra movimentou transformador` : "0 — a obra não movimentou transformador"}</strong></div>
+              <div><span>Material conferido</span><strong>{texto(aberto.material_conferido) === "SIM" ? "SIM — a obra está no export de material" : "NÃO — a obra não está no export de material, ou não foi gerada"}</strong></div>
+              <div><span>Postes no material</span><strong>{texto(aberto.postes_material) || "0"}</strong></div>
+              <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
             </section>
             <BlocoDetalhe titulo="A linha inteira da solicitação" fonte="Base de SS e OS" dados={aberto.det_ss as Detalhe} />
           </>}
@@ -1760,6 +1765,9 @@ export default function Page() {
             <h3>A obra e o enquadramento</h3>
             <section className="detail-grid">
               <div><span>Obra</span><strong>{texto(aberto.obra) || "não gerada"}</strong></div>
+              <div><span>O que a obra diz que é</span><strong>{texto(aberto.obra_descricao) || "sem descrição"}</strong></div>
+              <div><span>Para que serve este SIGCO</span><strong>{texto(aberto.sigco_descricao) || "código sem obras suficientes para dizer"}{aberto.sigco_pureza ? ` (${texto(aberto.sigco_pureza)}% das obras do projeto)` : ""}</strong></div>
+              <div><span>Material movimentado</span><strong>{(Number(aberto.trafos_material) || 0) > 0 ? `${texto(aberto.trafos_material)} transformador` : "nenhum transformador"}{(Number(aberto.postes_material) || 0) > 0 ? ` · ${texto(aberto.postes_material)} poste` : ""}</strong></div>
               <div><span>Classe</span><strong>{texto(aberto.obra_classe) || "—"}</strong></div>
               <div><span>Natureza</span><strong>{texto(aberto.obra_natureza) || "—"}</strong></div>
               <div><span>Tipo</span><strong>{texto(aberto.obra_tipo) || "—"}</strong></div>
