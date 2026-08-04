@@ -182,6 +182,20 @@ relata(10, "fora_da_esteira e a cascata EXCLUÍDA são o mesmo conjunto", exp_si
        f"expurgo=SIM: {len(exp_sim)}  cascata=EXCLUÍDO: {len(casc_exc)}  "
        f"diferença simétrica={len(exp_sim ^ casc_exc)}")
 
+# 10·1 — uma SS, um lugar. A pergunta veio do dono: "certifique-se que eu não possa classificar
+# a mesma SS duas vezes para ela aparecer no funil". A resposta estrutural é que o registro é a
+# unidade — cada SS é uma linha e cada linha tem uma cascata —, mas isso precisa ser testado e
+# não afirmado. Se algum dia dois registros compartilharem o mesmo número de SS, o funil passa a
+# contar o mesmo caso duas vezes e ninguém percebe olhando o total.
+_ss = Counter(r["ss"] for r in regs)
+_dup = [s2 for s2, n2 in _ss.items() if n2 > 1]
+_saida_ss = Counter(r["ss"] for r in regs if r["cascata"] == SAIDA)
+_dup_saida = [s2 for s2, n2 in _saida_ss.items() if n2 > 1]
+relata("10·1", "uma SS ocupa um lugar só no funil", not _dup and not _dup_saida,
+       f"SS distintas={len(_ss)} de {len(regs)} registros · repetidas na base={len(_dup)} · "
+       f"repetidas na saída={len(_dup_saida)}"
+       + ("" if not _dup else "\n" + ", ".join(_dup[:6])))
+
 marcadas = [r for r in regs if r.get("borda_2025") == "SIM" or r.get("tmae_gap_jan") == "SIM"]
 sem_aviso = [r for r in marcadas if not str(r.get("lacuna_base", "")).strip()]
 relata(11, "toda SS em lacuna de base carrega o aviso no dossiê", not sem_aviso,
