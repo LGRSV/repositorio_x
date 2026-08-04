@@ -156,7 +156,7 @@ const COLUNAS: Array<[string, string]> = [
   ["Material", "e3_motivo"], ["Trafos no material", "trafos_material"],
   ["Material conferido", "material_conferido"],
   ["Alertas de obra", "e4_alertas"], ["Classe da obra", "obra_classe"],
-  ["Natureza", "obra_natureza"], ["Tipo da obra", "obra_tipo"],
+  ["Natureza", "obra_natureza"], ["Tipo da obra", "obra_tipo"], ["Proteção que atuou", "protecao"],
   ["SIGCO da SS", "sigco"], ["SIGCO do projeto", "obra_sigco_proj"],
   ["Última movimentação", "obra_ultimo_nome"], ["Setor", "obra_setor"],
   ["Empreiteira", "obra_empreiteira"], ["Realizado", "obra_realizado"],
@@ -536,6 +536,13 @@ export default function Page() {
       { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: (r) => Boolean(classificacao[texto(r.ss)]) },
       { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "QUEIMADO" },
       { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" },
+      /* A pergunta que o dono fez: "essas que eu to aprovando estão casando com a Crítica?"
+         As marcas dele vivem no navegador, então a resposta só existe aqui, na tela — o dado
+         gravado não as conhece. Três recortes respondem: com casamento pleno, com ocorrência
+         mas fora do vão, e sem prova de campo nenhuma. */
+      { id: "meu_casa", rotulo: "Aprovados por você COM casamento na Crítica", nota: "Você marcou como queimado ou avariado e a Crítica registra defeito neste transformador, com a SS caindo dentro do vão da ocorrência. É a prova mais forte que existe nesta base.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) === 0 },
+      { id: "meu_borda", rotulo: "Aprovados por você · ocorrência fora do vão", nota: "Você marcou como falha e existe ocorrência com defeito neste transformador, mas a SS não abre dentro dela — abre perto. Vale conferir a distância caso a caso.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) !== 0 },
+      { id: "meu_sem", rotulo: "Aprovados por você SEM casamento na Crítica", nota: "Você marcou como queimado ou avariado e a Crítica não registra defeito neste transformador — ou não há ocorrência nenhuma, ou o defeito é de outro elemento. A sua leitura entra no indicador do mesmo jeito, porque o martelo é seu; esta lista existe para você saber quais entram sem prova de campo.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) !== "TR" },
       { id: "a_sigco", rotulo: "Avariado por você, no SIGCO de queima", nota: "Você leu como avaria e o custo está no projeto de queimado. Divergência de enquadramento contábil, não de causa.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" && r.sigco_avaria_em_queima === "SIM" },
       { id: "v", rotulo: "Preventivo", nota: "Troca sem defeito. Sai da esteira e vai para a aba de preventivos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PREVENTIVO" },
       { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura. Sai da esteira e vai para a aba de exclusões.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
@@ -607,6 +614,17 @@ export default function Page() {
       /* Avaria enquadrada no projeto de queima. São dois campos do mesmo cadastro discordando —
          a obra diz "SUBST. TRAFO AVARIADO" e o custo entra no SIGCO 8812, que em 98% das 1.152
          obras é "SUBST. TRAFO QUEIMADO". Não muda a causa: muda para onde o custo foi. */
+      /* Influência invocada. Não é causa e não move o caso: o transformador queimou ou não
+         queimou independentemente de quem o cliente conhece. Muda a FILA — quem foi atendido
+         antes de quem. Numa auditoria que vai a conselho é o tipo de frase que alguém encontra
+         depois, e é melhor estar marcada aqui do que descoberta lá. */
+      /* Que proteção atuou. O religador não existe como elemento na Crítica — ela só classifica
+         CH, TR, UC, DJ e SE. Quem conta que a proteção desarmou é a nota do executante, e é
+         informação de peso: proteção que atua é confirmação operacional de corrente de falta. */
+      { id: "prot_rl", rotulo: "Religador atuou", nota: "A nota de campo registra desarme de religador. Não muda a causa nem move o caso: é confirmação operacional de que houve corrente de falta — a proteção viu o defeito e agiu.", teste: (r) => texto(r.protecao) === "RELIGADOR" },
+      { id: "prot_ch", rotulo: "Chave fusível ou elo queimado", nota: "A nota de campo registra elo queimado ou chave fusível atuada.", teste: (r) => texto(r.protecao) === "CHAVE FUSÍVEL" },
+      { id: "prot_dj", rotulo: "Disjuntor atuou", nota: "A nota de campo registra desarme de disjuntor.", teste: (r) => texto(r.protecao) === "DISJUNTOR" },
+      { id: "diretoria", rotulo: "Diretoria invocada para acelerar", nota: "A SS ou a OS pede pressa citando a diretoria — \u201cfavor agilizar devido o cliente ter contato direto com a diretoria\u201d, \u201ca pedido da diretoria\u201d. Não muda a causa nem a decisão: muda a fila de atendimento. Fica marcado porque é pergunta de conselho.", teste: (r) => r.influencia === "SIM" },
       { id: "avaria_sigco", rotulo: "Avaria no SIGCO de queima", nota: "A leitura concluiu avaria e o custo entrou no projeto SIGCO de transformador queimado. É divergência de enquadramento contábil, não de causa técnica — mas numa auditoria que vai a conselho é a divergência que se pergunta primeiro.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
@@ -698,6 +716,10 @@ export default function Page() {
     if (recorte === "x") return marca.classe === "EXCLUIDO";
     if (recorte === "f") return marca.classe === "FURTADO";
     if (recorte === "a_sigco") return marca.classe === "AVARIADO" && linha.sigco_avaria_em_queima === "SIM";
+    const falha = ["QUEIMADO", "AVARIADO"].includes(marca.classe);
+    if (recorte === "meu_casa") return falha && texto(linha.def_elemento) === "TR" && Number(linha.oc_dist_h) === 0;
+    if (recorte === "meu_borda") return falha && texto(linha.def_elemento) === "TR" && Number(linha.oc_dist_h) !== 0;
+    if (recorte === "meu_sem") return falha && texto(linha.def_elemento) !== "TR";
     return true;
   };
   const listadas = useMemo(() => {
@@ -1545,6 +1567,8 @@ export default function Page() {
             <Kpi rotulo="Excluído" valor={br(porClasse("EXCLUIDO"))} nota="fora do indicador pela sua leitura" tom="red" aoClicar={() => abrirRecorte("x")} />
             <Kpi rotulo="Vale a regra" valor={br(porClasse("REGRA"))} nota="concorda com o fluxo" tom="amber" aoClicar={() => abrirRecorte("r")} />
             <Kpi rotulo="Análise profunda" valor={br(porClasse("PROFUNDA"))} nota="precisa de campo ou documento" tom="red" aoClicar={() => abrirRecorte("p")} />
+            <Kpi rotulo="Aprovados COM prova de campo" valor={br(marcadas.filter((r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) === 0).length)} nota="a Crítica registra defeito neste trafo e a SS abre dentro da ocorrência" tom="green" aoClicar={() => abrirRecorte("meu_casa")} />
+            <Kpi rotulo="Aprovados SEM prova de campo" valor={br(marcadas.filter((r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) !== "TR").length)} nota="entram pelo seu martelo, sem casamento na Crítica" tom="red" aoClicar={() => abrirRecorte("meu_sem")} />
             <Kpi rotulo="Marcados sem cliente interrompido" valor={br(marcadas.filter((r) => r.sem_cliente_interrompido === "SIM").length)} nota="a ocorrência não penalizou ninguém — sem DEC nem FEC" tom="amber" aoClicar={() => abrirRecorte("sem_cliente")} />
             <Kpi rotulo="Ainda sem sua leitura" valor={br(total - marcadas.length)} nota="seguem só com a decisão do fluxo" tom="ink" />
           </section>

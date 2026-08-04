@@ -1347,6 +1347,59 @@ def main():
         reescritas += 1
     print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
 
+    # ---------- que proteção atuou
+    # "Desarme do RL 7908300096 atuado sobre corrente de neutro ICC 80 A, causa TR 5700009096
+    # queimado." O religador não existe como elemento na Crítica — ela só classifica CH, TR, UC,
+    # DJ e SE. Quem conta que a proteção atuou é a nota do executante no TMAE, e é informação de
+    # peso: proteção que desarma é a confirmação operacional de que houve corrente de falta.
+    # Não muda a causa e não move ninguém: entra como categoria, para o gráfico poder separar.
+    PROT = [
+        ("RELIGADOR", r"\bDESARME D[OE] RL\b|\bRELIGADOR\b|\bRL \d|\bDESARMOU O RL\b"),
+        ("CHAVE FUSÍVEL", r"\bELO QUEIMADO\b|\bCHAVE FUSIVEL\b|\bCH FUS\b|\bELO ROMPIDO\b"),
+        ("DISJUNTOR", r"\bDISJUNTOR\b|\bDJ \d|\bDESARME D[OE] DJ\b"),
+        ("CHAVE ABERTA", r"\bCHAVE ABERTA\b|\bCHAVE DESLIGADA\b"),
+    ]
+    prot = collections.Counter()
+    for r in fluxo["registros"]:
+        t = norm_txt(str(r.get("at_obs") or "") + " || " + str(r.get("desc_ss") or "")
+                     + " || " + str(r.get("desc_os") or ""))
+        achou = ""
+        for nome, rx in PROT:
+            if re.search(rx, t):
+                achou = nome
+                break
+        r["protecao"] = achou
+        prot[achou or "não citada"] += 1
+    print(f"  proteção citada na nota de campo: {dict(prot)}")
+
+    # ---------- influência invocada para acelerar o atendimento
+    # "Favor agilizar o atendimento devido o cliente ter contato direto com a diretoria."
+    # "Solicitação do Anderson Vieira a pedido da diretoria."
+    #
+    # Isto não é causa: não muda se o transformador queimou. Muda a FILA — quem foi atendido
+    # antes de quem, e por quê. Numa auditoria que vai a conselho é exatamente o tipo de frase
+    # que alguém vai encontrar depois, e é melhor que esteja marcada aqui do que descoberta lá.
+    #
+    # O padrão exige a palavra de cargo perto de um verbo de pedido ou pressa. Sem isso pega
+    # "Avenida Prefeito João de Sousa Lima", que é nome de rua, e "Prefeitura de Ponte Alta",
+    # que é o cliente — os dois falsos positivos que a primeira versão trouxe.
+    infl = 0
+    for r in fluxo["registros"]:
+        t = norm_txt(str(r.get("desc_ss") or "") + " || " + str(r.get("desc_os") or ""))
+        m = re.search(r"(AGILIZAR|URGENCIA|PRIORIDADE|PEDIDO|SOLICITACAO|CONTATO DIRETO|"
+                      r"COBRANDO|DETERMINACAO)[^.|]{0,60}\b(DIRETORIA|DIRETOR|PRESIDENCIA|"
+                      r"SUPERINTEND\w*)\b|"
+                      r"\b(DIRETORIA|DIRETOR|PRESIDENCIA)\b[^.|]{0,60}"
+                      r"(AGILIZAR|URGENCIA|PRIORIDADE|COBROU|PEDIU)", t)
+        if m:
+            r["influencia"] = "SIM"
+            r["influencia_trecho"] = re.sub(r"\s+", " ", t[max(0, m.start() - 60):m.end() + 40]).strip()
+            infl += 1
+        else:
+            r["influencia"] = "NÃO"
+            r["influencia_trecho"] = ""
+    print(f"  SS que invocam a diretoria para acelerar o atendimento: {infl}")
+
     # ---------- quem autorizou a troca
     # Só aparece porque o texto deixou de vir cortado: "SUBSTITUIÇÃO DE TRANSFORMADOR
     # AUTORIZADA PELO DIONE." vinha terminando em "AUTORIZADA PELO". Uma troca autorizada por
