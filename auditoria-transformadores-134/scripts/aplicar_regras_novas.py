@@ -1407,6 +1407,127 @@ def main():
             "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
             "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
             "chave. Estava caindo na categoria genérica de obra sem transformador."),
+        # ---- OS DEZENOVE QUE ELE MANDOU MOVER PARA QUEIMADO
+        # "esses aqui você retira de onde ele tiver e move para queimados". Todos saíam por
+        # distância da janela — de 2 horas a 2.561 —, todos com texto de falha e dezoito com
+        # material comprovando a troca. Ele leu os dezenove com a narrativa à vista e martelou.
+        # Dois deles têm texto e subcausa de AVARIA (falha de bucha de BT e falta de neutro) e
+        # ainda assim vão como queimado, porque foi essa a ordem — fica escrito aqui para quem
+        # for conferir a composição queimado × avariado saber de onde vieram.
+        "DG-RD-PO 00353/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 3 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra queimado por descarga "
+            "atmosferica e a obra movimentou 1 transformador"),
+        "ETO-RD-GR 00405/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 5 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra falha bucha de bt e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-AR 00436/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 12 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra queimado por causa nao "
+            "identificada e a obra movimentou 1 transformador"),
+        "ETO-RD-AR 00604/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 2 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra falha bucha de bt e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-GU 00058/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 19 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra rd de at e a obra movimentou 1 "
+            "transformador"),
+        "DOLP-RD-PA 00101/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 30 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra faltando neutro e a obra está "
+            "fora do export de material"),
+        "DG-RD-PO 00185/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 27 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra queimado por descarga "
+            "atmosferica e a obra movimentou 1 transformador"),
+        "DG-RD-PO 00315/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 81 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra causa nao identificada - "
+            "especificar e a obra movimentou 1 transformador"),
+        "ETO-RD-AR 00224/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 73 horas da janela; o texto da "
+            "SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-AR 00408/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 163 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra causa nao identificada - "
+            "especificar e a obra movimentou 1 transformador"),
+        "DG-RD-PO 00284/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 147 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
+        "ENC-RD-PS 00317/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 235 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra construcao/reforco/extensao "
+            "de rd e a obra movimentou 1 transformador"),
+        "ETO-RD-GU 00305/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 243 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra partido na fase e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-AR 00740/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 1073 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra elo subdimensionado e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-GR 00208/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 1102 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-GR 00199/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 1165 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-DP 00115/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 1437 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
+        "ETO-RD-AR 00327/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 2194 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra animal/passaro na rede e a "
+            "obra movimentou 1 transformador"),
+        "ETO-RD-GU 00061/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono mandou mover para queimado: “esses aqui você retira de onde ele tiver e move "
+            "para queimados”. O caso saía do indicador por estar a 2561 horas da janela; o texto "
+            "da SS declara falha do equipamento, a Crítica registra descarga atmosferica e a obra "
+            "movimentou 1 transformador"),
         "ETO-RD-GU 00685/2026": (
             "EXCLUIR", "", "abalroamento",
             "o dono mandou mover para abalroamento, e as quatro vozes concordam com ele: a "
