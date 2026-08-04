@@ -96,6 +96,14 @@ FORA_DO_INDICADOR = [
     # "foi retirado e remanejado trafo do poste X para o poste Y". Trocar potência ou mudar de
     # poste é decisão de operação — o equipamento saiu porque decidiram, não porque falhou.
     # O padrão exige o verbo COLADO no equipamento, para não pegar "remanejamento" solto.
+    # FALTA DE FASE INTERNA sob plano de medida. O transformador perdeu uma fase por dentro —
+    # é defeito do equipamento —, mas o que a OS executa é um plano de medida com aumento de
+    # potência: 75 para 112,5 kVA. O dono leu como preventivo e pediu a categoria com o nome do
+    # que o campo descreveu, não do que a obra pagou. As duas coisas cabem: o defeito existiu, e
+    # a troca foi decidida como capacidade.
+    ("falta_fase", r"FALTA D[EA] FASE|FALTANDO FASE|SEM (UMA )?FASE INTERN|FASE INTERNA",
+     "o texto declara falta de fase interna, e a troca foi executada como plano de medida com "
+     "aumento de potência — o defeito existiu, mas a decisão foi de capacidade"),
     ("remanejamento", r"\bREMANEJ\w*\s+(DE\s+)?(TRAFO|TRANSFORMADOR)|"
                       r"(TRAFO|TRANSFORMADOR)\s+\w{0,12}\s*REMANEJAD\w*|"
                       r"^(MEDIDO_\s*)?(EMERGENCIAL_\s*)?REMANEJ",
@@ -1438,7 +1446,31 @@ def main():
             continue
         if r.get("fora_da_esteira") == "SIM":
             continue
+        # OBRA QUE NÃO EXECUTOU NÃO DECLARA CAUSA. Quando a obra tem zero material e zero
+        # realizado, ela foi aberta e nada aconteceu — o que está escrito nela é o plano de
+        # quem a abriu, não o registro de quem a executou. Aí ela perde a autoridade que a
+        # justifica como fonte de campo, e o motivo honesto da saída é a falta de execução, não
+        # a causa que ela declara. O caso sai do mesmo jeito; muda o nome, que é o que vai ser
+        # lido depois.
+        sem_execucao = (float(r.get("trafos_material") or 0) == 0
+                        and float(r.get("obra_realizado") or 0) == 0)
         vazou += 1
+        if sem_execucao:
+            r.update({
+                "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+                "expurgo": "SIM", "expurgo_gatilho": "obra_sem_execucao", "chega_e1": "NÃO",
+                "exclusao_porque": (f"a obra {r.get('obra')} foi aberta como \"{od.title()}\" e "
+                                    "não executou nada: zero transformador no material e R$ 0 "
+                                    "realizado. Uma obra que não executou não declara causa — o "
+                                    "que está escrita nela é o plano de quem abriu, não o "
+                                    "registro de quem fez"),
+                "cascata_motivo": ("Fora do indicador: a obra existe e não executou nada — sem "
+                                   "material e sem valor realizado."),
+                "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+                "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+                "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+            })
+            continue
         r.update({
             "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
             "expurgo": "SIM", "expurgo_gatilho": "furto", "chega_e1": "NÃO",
