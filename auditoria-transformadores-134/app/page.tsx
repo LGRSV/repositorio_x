@@ -229,6 +229,7 @@ const GATILHO_ROTULO: Record<string, string> = {
   particular: "Transformador particular",
   duplicada: "SS duplicada",
   sem_os: "Sem OS e sem obra — investigar",
+  sem_obra: "Obra nunca gerada — prazo vencido",
 };
 
 const CLASSES_CURTAS: Array<[string, string, string]> = [
@@ -531,6 +532,7 @@ export default function Page() {
       { id: "g_aux", rotulo: "Auxiliar de religador ou regulador", nota: "Não é unidade de distribuição da concessionária.", teste: (r) => texto(r.expurgo_gatilho) === "auxiliar" },
       { id: "g_part", rotulo: "Transformador particular", nota: "O ativo é do cliente ou de terceiro.", teste: (r) => texto(r.expurgo_gatilho) === "particular" },
       { id: "g_semos", rotulo: "Sem OS e sem obra", nota: "A ordem de serviço não tem descrição e a obra não foi gerada: não há relato do executante nem consulta de material. Não é afirmação sobre a causa — é ausência de documento. O caso é investigável, não confirmável.", teste: (r) => texto(r.expurgo_gatilho) === "sem_os" },
+      { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => texto(r.expurgo_gatilho) === "duplicada" },
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "manual", rotulo: "Excluídas por você", nota: "Não saíram por regra: você bateu o martelo. A decisão do fluxo continua registrada ao lado.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
@@ -1393,11 +1395,13 @@ export default function Page() {
             <Kpi rotulo="Transformador particular" valor={br(g("particular"))} nota="o ativo é do cliente ou de terceiro" tom="ink" aoClicar={() => abrirRecorte("g_part")} />
             <Kpi rotulo="SS duplicada" valor={br(g("duplicada"))} nota="o mesmo evento contado duas vezes" tom="amber" aoClicar={() => abrirRecorte("g_dup")} />
             <Kpi rotulo="Sem OS e sem obra" valor={br(g("sem_os"))} nota="nada para ler, nada para conferir — investigar" tom="amber" aoClicar={() => abrirRecorte("g_semos")} />
+            <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Excluídas por você" valor={br(porClasseNav("EXCLUIDO"))} nota="martelo batido à mão, fora da regra" tom="ink" aoClicar={() => abrirRecorte("manual")} />
           </section>
           <section className="panel editorial-note wide destaque"><span>POR QUE ISTO NÃO É UMA PENEIRA</span>
             <p>Peneira pergunta se o caso se sustenta. Exclusão diz que o caso é de outra natureza — e isso não depende de haver interrupção na janela. Um furto é furto tenha ou não a Crítica registrado corte naquele dia; a ausência de fato não muda a causa declarada, e a presença também não. Enquanto a exclusão morava dentro da terceira peneira, só era julgado quem passasse da primeira: {br(conta((r) => arquivo(r) === "EXCLUÍDA" && r.fato === "F3"))} casos com causa declarada fora do indicador ficavam parados em “sem interrupção na janela”, aparecendo como pendência de leitura quando já tinham resposta.</p>
-            <p>Uma das categorias não fala de causa nenhuma: <strong>sem OS e sem obra</strong>. Ali a ordem de serviço não tem descrição e a obra nunca foi gerada — não há relato do executante para ler nem material para conferir. A interrupção pode até estar registrada, e em vários destes casos está; mas afirmar “queimado” a partir só do fato seria a leitura criando o que o campo não escreveu. Saem como investigáveis, não como falha comprovada.</p>
+            <p>Duas categorias não falam de causa nenhuma, e é preciso lê-las como o que são: falta de documento, não veredito sobre o equipamento. <strong>Obra nunca gerada</strong> reúne {br(g("sem_obra"))} casos em que a obra não foi aberta e a SS já passou de 60 dias — sem obra não há consulta de material, e depois de dois meses ela não vem mais. Todos já estavam retidos por falta de prova; o que muda é parar de prometer uma resposta que o sistema não vai dar. Os que ainda estão dentro do prazo continuam retidos, porque neles a espera é legítima.</p>
+            <p>A outra é: <strong>sem OS e sem obra</strong>. Ali a ordem de serviço não tem descrição e a obra nunca foi gerada — não há relato do executante para ler nem material para conferir. A interrupção pode até estar registrada, e em vários destes casos está; mas afirmar “queimado” a partir só do fato seria a leitura criando o que o campo não escreveu. Saem como investigáveis, não como falha comprovada.</p>
             <p>Nenhum registro é apagado. Cada linha traz o motivo da exclusão escrito, e o dossiê continua mostrando o que a esteira decidiu — inclusive nas {br(porClasseNav("EXCLUIDO"))} que saíram pelo seu martelo, e não por regra.</p>
           </section>
           <section className="panel editorial-note wide"><span>O MATERIAL NÃO DECIDE A CAUSA</span>

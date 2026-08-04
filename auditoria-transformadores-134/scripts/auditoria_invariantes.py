@@ -141,8 +141,14 @@ def lp(v):
 
 # uma ocorrência só vira prova quando o casamento é A, B ou C. Duas SS podem apontar para a
 # mesma ocorrência sem disputá-la: se uma delas está FORA da janela, ela não reivindica nada.
+# E quem foi excluído antes da esteira também não reivindica: ele nunca desceu o primeiro
+# degrau, então a ocorrência que consta no dossiê dele é informação, não prova pleiteada. Sem
+# esta linha, uma SS excluída por obra vencida continuava contando como parte de uma disputa
+# que já não existe — e a rival ficava "sem perdedora marcada".
 prova = {}
 for r in regs:
+    if r.get("fora_da_esteira") == "SIM":
+        continue
     if lp(r["oc_num"]) and r["e1_nivel"] in ("A", "B", "C"):
         prova.setdefault(lp(r["oc_num"]), []).append(r)
 disputadas = {k: v for k, v in prova.items() if len(v) > 1}

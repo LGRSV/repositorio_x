@@ -34,6 +34,10 @@ UP = "/root/.claude/uploads/74dc9c64-5026-54ee-a81e-173d2f38a735"
 BRASILIA = datetime.timezone(datetime.timedelta(hours=-3))
 CARIMBO = datetime.datetime.now(BRASILIA).strftime("%Y-%m-%d %H:%M")
 JANELA = 24 * 3600
+HOJE = datetime.datetime.now(BRASILIA).date()
+# Dois meses. Depois disso a obra não vem mais — e "retido" deixa de ser espera para virar
+# promessa vazia. O número é decisão do dono, não medida: fica aqui à vista para ser mudado.
+PRAZO_OBRA = 60
 
 
 def parse(s):
@@ -315,6 +319,35 @@ def main():
         # Sai do indicador como investigável, não como falha comprovada.
         sem_documento = (not str(r.get("desc_os") or "").strip()
                          and not str(r.get("obra") or "").strip())
+        # SEM OBRA DEPOIS DE 60 DIAS. Sem obra não há consulta de material, e sem material a
+        # troca não se comprova — é por isso que todos estes já estavam retidos por falta de
+        # prova. A diferença é que "retido" promete que a prova ainda pode chegar, e depois de
+        # dois meses ela não chega mais: a obra teria sido gerada. Deixá-los na fila de
+        # pendências é prometer uma resposta que o sistema já não vai dar. Os que ainda estão
+        # dentro do prazo continuam retidos, porque neles a promessa é legítima.
+        dias_ss = None
+        _ab = parse(r.get("abertura"))
+        if _ab:
+            dias_ss = (HOJE - _ab.date()).days
+        sem_obra_vencida = (not str(r.get("obra") or "").strip()
+                            and dias_ss is not None and dias_ss > PRAZO_OBRA)
+        if sem_obra_vencida and not sem_documento and not (fora_txt or cat in FORA_CAT):
+            excluidas["sem_obra"] += 1
+            r.update({
+                "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+                "expurgo": "SIM", "expurgo_gatilho": "sem_obra", "chega_e1": "NÃO",
+                "exclusao_porque": (f"a obra nunca foi gerada e a SS foi aberta há {dias_ss} dias — "
+                                    f"passado o prazo de {PRAZO_OBRA} dias não há mais consulta de "
+                                    "material para confirmar a troca"),
+                "cascata_motivo": (f"Fora do indicador: obra não gerada há {dias_ss} dias — a prova "
+                                   "de material não vai mais chegar."),
+                "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+                "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+                "e1_conflito": "", "e1_sinais": "", "e4_alertas": "",
+                "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "",
+                "disputa_perdida": "NÃO", "deslocamento": "",
+            })
+            continue
         if sem_documento and not (fora_txt or cat in FORA_CAT):
             excluidas["sem_os"] += 1
             r.update({
