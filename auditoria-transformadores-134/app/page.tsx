@@ -460,7 +460,40 @@ export default function Page() {
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
     fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
-    if (salvo) Promise.resolve().then(() => setClassificacao(JSON.parse(salvo)));
+    const local: Record<string, { classe: string; quem: string; quando: string }> =
+      salvo ? JSON.parse(salvo) : {};
+    if (salvo) Promise.resolve().then(() => setClassificacao(local));
+    /* E o que já está no banco entra por cima do que for mais antigo. É isto que permite trocar
+       de máquina no meio do trabalho: o navegador novo chega vazio e se enche do que o outro
+       gravou. O mais recente vence dos dois lados — nem o banco apaga uma decisão local mais
+       nova, nem o local ignora uma decisão feita noutra máquina. A view devolve só a última
+       linha de cada SS, então o histórico fica no banco sem poluir a tela. */
+    fetch("https://uabpevnjfcwidbjscowq.supabase.co/rest/v1/trafo_classificacao_atual?select=ss,classe,quem,marcado_em", {
+      headers: {
+        "apikey": "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+        "Authorization": "Bearer sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+      },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((linhas: Array<{ ss: string; classe: string; quem: string; marcado_em: string }>) => {
+        if (!Array.isArray(linhas) || !linhas.length) return;
+        const juntos = { ...local };
+        let entraram = 0;
+        linhas.forEach((l) => {
+          const quando = new Date(l.marcado_em).toLocaleString("sv-SE").slice(0, 16);
+          const atual = juntos[l.ss];
+          if (!atual || atual.quando < quando) {
+            juntos[l.ss] = { classe: l.classe, quem: l.quem || "análise local", quando };
+            entraram += 1;
+          }
+        });
+        if (!entraram) return;
+        setClassificacao(juntos);
+        localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(juntos));
+        setExportado(`${entraram} classificações recuperadas do banco`);
+        setTimeout(() => setExportado(""), 8000);
+      })
+      .catch(() => {});
   }, []);
 
   const registros = fluxo?.registros ?? [];
@@ -810,12 +843,46 @@ export default function Page() {
     setTimeout(() => setExportado(""), 6000);
   };
 
+  /* ---------------------------------------------------------------- espelho no Supabase
+     O localStorage é frágil por natureza: some se o navegador limpar os dados do site, se o
+     auditor trocar de máquina, ou se abrir numa aba anônima. Uma noite de leitura caso a caso
+     não pode depender disso — e o dono disse a frase que define o requisito: "posso perder as
+     análises dessa noite não".
+
+     O espelho é ESCRITA CEGA, de propósito. Cada martelo dispara um insert e ninguém espera a
+     resposta: se a rede cair, o localStorage já guardou e a tela não trava nem mente. Na volta,
+     o que estiver no banco é mesclado com o que estiver no navegador, e o mais recente vence —
+     assim o auditor pode trocar de máquina no meio do trabalho sem perder nada.
+
+     A tabela não aceita update nem delete. Cada decisão é uma linha nova; mudar de ideia depois
+     de ler o dossiê inteiro é o que se espera de uma revisão, e apagar isso apagaria o caminho. */
+  const SUPA = "https://uabpevnjfcwidbjscowq.supabase.co";
+  const SUPA_KEY = "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh";
+
+  const espelhar = (ss: string, classe: string, quando: string) => {
+    void fetch(`${SUPA}/rest/v1/trafo_classificacao`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPA_KEY,
+        "Authorization": `Bearer ${SUPA_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=ignore-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        ss, classe, quem: "análise local",
+        marcado_em: new Date(`${quando.replace(" ", "T")}:00-03:00`).toISOString(),
+        origem: "site",
+      }),
+    }).catch(() => {});
+  };
+
   const classificar = (ss: string, classe: string) => {
     const atual = { ...classificacao };
     if (classe === "LIMPAR") delete atual[ss];
     else atual[ss] = { classe, quem: "análise local", quando: new Date().toISOString().slice(0, 16).replace("T", " ") };
     setClassificacao(atual);
     localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
+    if (classe !== "LIMPAR") espelhar(ss, classe, atual[ss].quando);
   };
   /* Os botões do dossiê. Preventivo e Excluído chegaram à tabela como V e X e não chegaram
      aqui — o dono classificava pela lista e não pelo caso aberto, que é justamente onde ele lê
@@ -1970,7 +2037,14 @@ export default function Page() {
               <div><span>Setor</span><strong>{texto(aberto.obra_setor) || "—"}</strong></div>
               <div><span>Realizado</span><strong>R$ {br(Math.round(Number(aberto.obra_realizado) || 0))}</strong></div>
             </section>
-            {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>ALERTAS DE OBRA</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>{x}</li>)}</ul></article> : null}
+            {/* O rótulo dizia "ALERTAS DE OBRA" e o conteúdo vinha de dois lugares diferentes.
+                "Nenhum cliente interrompido" é da CRÍTICA — soma de QTD_CONS_INTER_FAT em todas
+                as linhas da ocorrência —, e não tem nada a ver com o cadastro de obras, que é o
+                assunto desta aba. Um alerta no bloco errado faz o leitor procurar a explicação
+                onde ela não está. Agora cada sinal diz de onde veio. */}
+            {texto(aberto.e4_alertas) ? <article className="work-alerts"><span>SINAIS DESTE CASO</span><ul>{texto(aberto.e4_alertas).split(" · ").map((x) => <li key={x}>
+              <b className="fonte-sinal">{/cliente|interromp|programa|elemento|equipamento especial/i.test(x) ? "base Crítica" : "cadastro de obras"}</b> {x}
+            </li>)}</ul></article> : null}
             <article className="editorial-note"><span>SOBRE O NOME DA OBRA</span><p>O cadastro não guarda quem abriu a obra: o nome registrado é o de quem fez a última movimentação. Quem origina o fluxo é o solicitante da SS, porque a obra nasce dela.</p></article>
             <BlocoDetalhe titulo="A linha inteira da obra" fonte="Cadastro de obras · 93 colunas" dados={aberto.det_obra as Detalhe} />
           </>}
