@@ -1341,6 +1341,14 @@ def main():
         ("PONTO QUENTE", r"PONTO[S]? QUENTE",
          "o texto aponta ponto quente na conexão — aquecimento no ponto de ligação, não "
          "queima do enrolamento"),
+        ("CRÍTICA APONTA QUEIMA DO ELO",
+         r"QUEIMA(DO)?\s+(DE|DO)\s+ELO\b|\bELO\s+QUEIMAD",
+         "a nota de campo da ocorrência diz que o que queimou foi o ELO — o fusível da chave —, "
+         "e não o enrolamento do transformador. O elo é proteção: ele queima para o "
+         "transformador não queimar. O caso continua contado como está, porque a SS, a OS e o "
+         "material falam do transformador; a marca existe porque a Crítica, que é o campo, está "
+         "descrevendo outro equipamento",
+         ("oc_obs", "at_obs")),
         ("MATERIAL NÃO CONFERIDO NO EXPORT", None,
          "a obra deste caso não está no export de material que temos, então ninguém conferiu se "
          "um transformador foi de fato movimentado. Não é zero: é ausência de leitura. Quem "
@@ -1358,9 +1366,12 @@ def main():
     ]
     conta_etq = collections.Counter()
     for r in fluxo["registros"]:
-        alvo = norm_txt(" ".join(str(r.get(c) or "") for c in ("desc_ss", "desc_os", "obra_desc")))
+        PADRAO = ("desc_ss", "desc_os", "obra_desc")
         achadas, porques = [], []
-        for nome, rx, explica in ETIQUETAS:
+        for etq in ETIQUETAS:
+            nome, rx, explica = etq[0], etq[1], etq[2]
+            campos = etq[3] if len(etq) > 3 else PADRAO
+            alvo = norm_txt(" ".join(str(r.get(c) or "") for c in campos))
             # "Possível avariado" só faz sentido em cima de quem está contado como QUEIMADO: nos
             # 18 que já estão gravados como avaria a etiqueta não marcaria dúvida nenhuma, só
             # repetiria o veredito. Fica nos 16 em que as duas leituras disputam.
