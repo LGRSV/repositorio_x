@@ -1148,6 +1148,24 @@ def main():
         reescritas += 1
     print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
 
+    # ---------- a interrupção que não interrompeu ninguém
+    # Zero cliente é a ressalva mais forte que existe: se ninguém ficou sem energia, o evento
+    # não gera DEC nem FEC, e um transformador de distribuição que queima sem penalizar cliente
+    # é no mínimo estranho. Conferido na base crua somando TODAS as linhas de cada ocorrência —
+    # o zero não é truncamento de uma linha só: das 93, nenhuma tem cliente escondido em passo
+    # nenhum. Hoje a ressalva já as segura, mas quando o dono bate o martelo de queimado a
+    # classificação dele manda no arquivamento e o caso entra no indicador — é aí que este
+    # marcador precisa existir, para o caso não entrar calado.
+    sem_cli = 0
+    for r in fluxo["registros"]:
+        tem_oc = bool(str(r.get("oc_num") or "").strip())
+        if tem_oc and float(r.get("oc_cons") or 0) == 0:
+            r["sem_cliente_interrompido"] = "SIM"
+            sem_cli += 1
+        else:
+            r["sem_cliente_interrompido"] = "NÃO"
+    print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
+
     # ---------- o resumo tem que ser recontado, é ele que a tela lê
     R = fluxo["registros"]
     def c(campo):

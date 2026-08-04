@@ -536,6 +536,7 @@ export default function Page() {
       { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura. Sai da esteira e vai para a aba de exclusões.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
       { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
+      { id: "sem_cliente", rotulo: "Marcados por você sem nenhum cliente interrompido", nota: "Você bateu o martelo e a ocorrência do caso não penalizou ninguém — nenhum cliente ficou sem energia em passo nenhum dela. Sua classificação manda no arquivamento, então estes entram no indicador; a lista existe para eles não entrarem calados.", teste: (r) => Boolean(classificacao[texto(r.ss)]) && r.sem_cliente_interrompido === "SIM" },
     ],
     ssos: [
       { id: "todos", rotulo: "Toda a fila", nota: "Quem passou pela interrupção e pelo deslocamento e chega à leitura do texto e do material.", teste: (r) => r.chega_e3 === "SIM" },
@@ -577,6 +578,11 @@ export default function Page() {
       { id: "excluir", rotulo: "EXCLUIR", nota: "A leitura mostrou outra causa.", teste: (r) => r.decisao === "EXCLUIR" },
       { id: "mudou", rotulo: "Mudou na revisão", nota: "A decisão é diferente da que o funil anterior dava.", teste: (r) => r.mudou_na_revisao === "SIM" },
       { id: "queimados", rotulo: "Queimados", nota: "Incluídos cujo texto descreve queima.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "QUEIMADO" },
+      /* Zero cliente é a ressalva mais forte que existe: sem cliente sem energia não há DEC nem
+         FEC, e transformador de distribuição que queima sem penalizar ninguém é no mínimo
+         estranho. Conferido na base crua somando TODAS as linhas de cada ocorrência — o zero
+         não é truncamento de um passo só. */
+      { id: "queima_sem_cliente", rotulo: "Queimado sem nenhum cliente interrompido", nota: "A ocorrência existe e não penalizou ninguém: nenhum cliente ficou sem energia em passo nenhum dela. Conferido na base crua, somando todas as linhas da ocorrência. Sem cliente não há DEC nem FEC — e um transformador de distribuição que queima sem penalizar ninguém pede olhar humano antes de contar.", teste: (r) => r.sem_cliente_interrompido === "SIM" && (arquivo(r) === "SAÍDA" || texto(r.categoria_texto) === "QUEIMADO") },
       { id: "avariados", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
@@ -1493,6 +1499,7 @@ export default function Page() {
             <Kpi rotulo="Excluído" valor={br(porClasse("EXCLUIDO"))} nota="fora do indicador pela sua leitura" tom="red" aoClicar={() => abrirRecorte("x")} />
             <Kpi rotulo="Vale a regra" valor={br(porClasse("REGRA"))} nota="concorda com o fluxo" tom="amber" aoClicar={() => abrirRecorte("r")} />
             <Kpi rotulo="Análise profunda" valor={br(porClasse("PROFUNDA"))} nota="precisa de campo ou documento" tom="red" aoClicar={() => abrirRecorte("p")} />
+            <Kpi rotulo="Marcados sem cliente interrompido" valor={br(marcadas.filter((r) => r.sem_cliente_interrompido === "SIM").length)} nota="a ocorrência não penalizou ninguém — sem DEC nem FEC" tom="amber" aoClicar={() => abrirRecorte("sem_cliente")} />
             <Kpi rotulo="Ainda sem sua leitura" valor={br(total - marcadas.length)} nota="seguem só com a decisão do fluxo" tom="ink" />
           </section>
         </>;
