@@ -255,36 +255,42 @@ def main():
     cen = json.load(open(os.path.join(REV, "cenarios.json"), encoding="utf-8")) \
         if os.path.exists(os.path.join(REV, "cenarios.json")) else {}
 
+    # Os cenários B e C deixaram de ser cenário: viraram regra em 04/08/2026, por decisão do
+    # dono. Continuar oferecendo os dois como "e se?" seria mentir sobre o estado da esteira.
+    # Sobra o A — aplicar a revisão caso a caso —, e ele precisa de um aviso: os vereditos
+    # foram escritos contra a cascata antiga, então parte deles julgou uma categoria que o
+    # caso não tem mais. Esses são contados à parte em vez de somados às cegas.
+    atual = {ss: r.get("cascata") for ss, r in por_ss.items()}
+    ainda_vale = [c for c in mudam if atual.get(c["ss"]) == c.get("categoria_atual")]
+    desatualizados = [c for c in mudam if atual.get(c["ss"]) != c.get("categoria_atual")]
+    entram = sum(1 for c in ainda_vale if c.get("categoria_correta") == "SAÍDA")
+    saem = sum(1 for c in ainda_vale if c.get("categoria_atual") == "SAÍDA")
+
     cenarios = [{
         "id": "A",
-        "rotulo": "Aplicar a revisão caso a caso",
-        "descricao": "Reincluir os casos que a leitura da esteira excluiu sem o texto declarar a causa, "
-                     "e retirar da saída os falsos positivos que a revisão fundamentou.",
+        "rotulo": "Aplicar o que sobrou da revisão caso a caso",
+        "descricao": "Dos vereditos escritos na leitura, aplicar os que ainda descrevem a "
+                     "situação atual do caso.",
         "entram": entram,
         "saem": saem,
         "saida": saida_hoje + entram - saem,
-        "base": f"{len(mudam)} mudanças fundamentadas caso a caso; "
-                f"{entram} passam a ser saída e {saem} deixam de ser.",
-    }, {
-        "id": "B",
-        "rotulo": "A, mais medir a janela pela borda da ocorrência",
-        "descricao": "Hoje a distância entre a SS e a ocorrência é medida a partir do início da "
-                     "ocorrência. A regra manda medir pela borda mais próxima — início ou fim.",
-        "entram": cen.get("B_entram", 0),
-        "saem": 0,
-        "saida": saida_hoje + entram - saem + cen.get("B_entram", 0),
-        "base": cen.get("B_base", "Recalculado caso a caso a partir de abertura, oc_ini e oc_fim."),
-    }, {
-        "id": "C",
-        "rotulo": "B, mais rebaixar a segunda peneira a sinalizador",
-        "descricao": "O deslocamento do TMAE deixa de bloquear e passa a apenas sinalizar. Quem "
-                     "parou ali segue para a análise de material e para a ressalva.",
-        "entram": cen.get("C_entram", 0),
-        "saem": 0,
-        "saida": saida_hoje + entram - saem + cen.get("B_entram", 0) + cen.get("C_entram", 0),
-        "base": cen.get("C_base", "Dos retidos por deslocamento, os que têm material provando a "
-                                  "troca e não recebem ressalva."),
+        "base": f"{len(mudam)} mudanças foram escritas caso a caso. {len(ainda_vale)} ainda "
+                f"batem com a categoria que o caso tem hoje; {len(desatualizados)} julgaram uma "
+                f"categoria que mudou depois, com as bases corrigidas e as regras novas, e por "
+                f"isso não entram na conta sem releitura.",
     }]
+    aplicados = [{
+        "id": "B", "rotulo": "Medir a janela pela borda da ocorrência", "quando": "04/08/2026",
+        "efeito": "A janela passou a valer contra o intervalo inteiro da ocorrência, do primeiro "
+                  "passo aberto ao último fechado. Uma ocorrência abre quando a primeira chave "
+                  "atua, não quando o transformador queima.",
+    }, {
+        "id": "C", "rotulo": "Rebaixar o deslocamento de peneira a marcador", "quando": "04/08/2026",
+        "efeito": "O atendimento do TMAE deixou de reter. Em 848 casos o número do atendimento era "
+                  "idêntico ao da ocorrência, e dos 235 que ele barrava nenhum era 'a equipe não "
+                  "saiu' — todos eram 'não há nota no código'.",
+    }]
+
 
     # ---- a verificação automática, agora aferida contra a leitura
     # Enquanto faltava ler, este bloco era uma tela: dizia o que os campos sozinhos conseguiam
@@ -411,6 +417,7 @@ def main():
         },
         "verificacao_aferida": aferida,
         "cenarios": cenarios,
+        "cenarios_aplicados": aplicados,
         "revisores": {"site": revisor("revisor_a.json"), "numeros": revisor("revisor_b.json")},
         "conferencia_dos_achados": conferencia,
         "casos": mudam_ricos,

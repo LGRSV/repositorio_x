@@ -539,3 +539,22 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
    rótulos. O nowrap evita que "Santa Terezinha do Tocantins" quebre em cima de um ativo. */
 .sede-municipio span { display: block; margin-left: 3px; color: #9ca0a5; font: 500 7.5px/1 "IBM Plex Mono", monospace; letter-spacing: .04em; white-space: nowrap; text-transform: uppercase; }
 .sede-municipio span.capital { color: #6f7378; font-size: 8.5px; font-weight: 700; }
+
+/* A cronologia da ocorrência no histórico do transformador. A barra é o vão inteiro, do
+   primeiro passo ao último; o traço vertical é onde a solicitação foi aberta. Ver os dois na
+   mesma régua é o que torna óbvio por que medir a janela a partir do início da ocorrência
+   descartava quem abriu a SS logo depois do religamento. */
+.ocorrencia-linha { padding: 13px 0 15px; border-top: 1px solid var(--line); }
+.ocorrencia-linha:first-of-type { border-top: 0; }
+.ocorrencia-linha header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 9px; }
+.ocorrencia-linha header strong { font: 600 11px/1 "IBM Plex Mono", monospace; }
+.ocorrencia-linha header code { color: #7b7e83; font-size: 9.5px; }
+.ocorrencia-linha header em { color: #8a8d91; font: italic 9.5px/1 "Newsreader", serif; }
+.ocorrencia-linha header b { margin-left: auto; font: 600 8px/1 "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
+.ocorrencia-linha header b.dentro { color: var(--green); }
+.ocorrencia-linha header b.fora { color: var(--amber); }
+.ocorrencia-regua { position: relative; height: 15px; background: repeating-linear-gradient(90deg, #eceded 0 1px, transparent 1px 26px); border-bottom: 1px solid var(--line); }
+.ocorrencia-regua i { position: absolute; top: 4px; height: 7px; background: rgba(165, 42, 52, .22); border-left: 2px solid var(--red); border-right: 2px solid var(--red); }
+.ocorrencia-regua u { position: absolute; top: 0; width: 2px; height: 15px; background: var(--ink); text-decoration: none; }
+.ocorrencia-regua u::after { content: ""; position: absolute; top: -3px; left: -2px; width: 6px; height: 6px; background: var(--ink); border-radius: 50%; }
+.ocorrencia-linha footer { display: flex; justify-content: space-between; margin-top: 5px; color: #8a8d91; font: 500 8px/1 "IBM Plex Mono", monospace; }

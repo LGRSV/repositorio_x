@@ -5,7 +5,7 @@
    "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
    "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
    "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
-   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 884 confirmados, 618 em revisão e 8 excluídos na leitura. Nas duas o motivo fica escrito ao lado do caso."
+   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.213 confirmados, 271 em revisão e 26 excluídos na leitura. Nas duas o motivo fica escrito ao lado do caso."
   ]
  },
  "blocos": [
@@ -197,26 +197,26 @@
      [
       "1 · Interrupção",
       "1.510",
-      "1.278 + 22 recuperados pelo atendimento",
-      "207 sem interrupção na janela · 3 SS duplicada"
+      "1.380",
+      "127 sem interrupção na janela · 3 SS duplicada"
      ],
      [
-      "2 · Deslocamento",
-      "1.300",
-      "1.002",
-      "298 — sem atendimento, 82 na lacuna de janeiro"
+      "2 · Deslocamento (marcador)",
+      "1.380",
+      "1.380",
+      "0 — não retém: 1.225 corroboram, 155 sem registro"
      ],
      [
       "3 · SS e OS com material",
-      "1.002",
-      "953",
-      "41 sem prova de troca · 8 excluídos pela leitura"
+      "1.380",
+      "1.301",
+      "53 sem prova de troca · 26 excluídos pela leitura"
      ],
      [
       "4 · Ressalva da interrupção",
-      "953",
-      "884",
-      "69 — a interrupção só vale com ressalva e o material não comprova a troca"
+      "1.301",
+      "1.213",
+      "88 — a interrupção tem sinal que a enfraquece"
      ]
     ]
    }
