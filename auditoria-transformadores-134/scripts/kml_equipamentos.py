@@ -78,11 +78,12 @@ def main(argv):
         fluxo = json.load(fh)
     ativos = [r for r in fluxo["registros"] if r.get("lat") and r.get("lon")]
 
-    antes, circuitos = {}, {}
+    antes, circuitos, mesmo_cod = {}, {}, {}
     if os.path.exists(SAIDA):
         with open(SAIDA, encoding="utf-8") as fh:
             velho = json.load(fh)
         antes = {p["chave"]: p for p in velho.get("pares", [])}
+        mesmo_cod = {p["chave"]: p for p in velho.get("mesmo_codigo", [])}
         # os circuitos já varridos também acumulam: a varredura vem em rodadas de poucos KML por
         # causa do Drive, e sem isto cada rodada apagava a lista de cobertura da rodada anterior —
         # o arquivo passava a dizer que só dois circuitos tinham sido lidos quando eram seis.
@@ -98,7 +99,14 @@ def main(argv):
                 d = metros((la, lo), (ela, elo))
                 if d <= RAIO_M:
                     ch = f"{r['ss']}|{cod}"
-                    antes[ch] = {
+                    # O código do equipamento ser IGUAL ao do transformador não é achado: é o
+                    # mesmo ativo aparecendo em duas pastas do cadastro de rede. Aconteceu uma
+                    # vez, com 1,2 m de distância, e por um instante pareceu prova de auxiliar —
+                    # não é. Auxiliar é transformador com código PRÓPRIO ao lado de um religador
+                    # ou regulador com código OUTRO. Fica registrado à parte, porque a pergunta
+                    # que ele levanta é diferente: o que esse código é no cadastro.
+                    destino = mesmo_cod if cod == str(r.get("trafo") or "") else antes
+                    destino[ch] = {
                         "chave": ch, "ss": r["ss"], "trafo": r.get("trafo"),
                         "localidade": r.get("localidade"), "cascata": r.get("cascata"),
                         "confirmado": r.get("confirmado"), "potencia": r.get("pot_ret"),
@@ -106,9 +114,15 @@ def main(argv):
                         "circuito": os.path.basename(caminho),
                     }
     pares = sorted(antes.values(), key=lambda x: x["metros"])
+    iguais = sorted(mesmo_cod.values(), key=lambda x: x["metros"])
     with open(SAIDA, "w", encoding="utf-8") as fh:
-        json.dump({"raio_m": RAIO_M, "circuitos_lidos": sorted(circuitos.values()), "pares": pares}, fh,
-                  ensure_ascii=False)
+        json.dump({"raio_m": RAIO_M, "circuitos_lidos": sorted(circuitos.values()),
+                   "pares": pares, "mesmo_codigo": iguais}, fh, ensure_ascii=False)
+    if iguais:
+        print(f"\n{len(iguais)} caso(s) em que o KML traz o PRÓPRIO código do transformador numa "
+              f"pasta de equipamento especial — mesmo ativo, não auxiliar:")
+        for p in iguais:
+            print(f"  {p['metros']:>6.1f} m · {p['ss']} · trafo {p['trafo']} · pasta {p['tipo']} · {p['circuito']}")
     print(f"\n{len(pares)} pares (transformador ↔ equipamento especial) a até {RAIO_M} m")
     for p in pares[:40]:
         print(f"  {p['metros']:>6.1f} m · {p['ss']} · trafo {p['trafo']} · {p['potencia']} kVA · "
