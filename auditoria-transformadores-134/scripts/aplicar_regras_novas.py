@@ -38,6 +38,12 @@ HOJE = datetime.datetime.now(BRASILIA).date()
 # Dois meses. Depois disso a obra não vem mais — e "retido" deixa de ser espera para virar
 # promessa vazia. O número é decisão do dono, não medida: fica aqui à vista para ser mudado.
 PRAZO_OBRA = 60
+# A regra abaixo está escrita e desligada. Ela desfaz a exclusão quando o texto apenas PRESUME
+# a causa ("ao que tudo indica foi furtado") e o campo a contradiz — ocorrência no próprio
+# transformador dentro da janela mais material movimentado. Fica em interruptor porque devolver
+# um caso ao indicador muda o número publicado, e essa escolha é do dono, não da régua. Ligar
+# aqui é a única coisa necessária para aplicá-la.
+DESFAZER_PRESUNCAO = False
 
 
 def parse(s):
@@ -124,6 +130,29 @@ SUSPEITAS = [
 ]
 
 
+# Palavras que declaram FALHA DO EQUIPAMENTO. Servem de guarda para as duas categorias de
+# não-falha abaixo: elas só valem quando o texto inteiro — SS e OS — não declara falha nenhuma.
+# Sem essa guarda, "trocar o poste do trafo queimado" viraria obra de segurança, e "vazamento de
+# óleo no comutador de tap" viraria ajuste de tape. Nos dois casos a falha está escrita.
+FALHA_DECLARADA = (r"QUEIMAD\w*|VAZAMENT\w*|DANIFICAD\w*|AVARIAD\w*|DEFEIT\w*|SEM ENERGIA|"
+                   r"NAO ESTA ATENDENDO|CURTO|ESTOURAD\w*|EXPLOD\w*|DETERIORAD\w*|BUCHA|"
+                   r"SOBRECARG\w*|FALHA")
+
+# Obra de POSTE em que o transformador vai junto. O poste é substituído — por abalroamento,
+# trinca ou base danificada — e o transformador desce com ele. Não falhou: foi movido por
+# necessidade estrutural. Das oito SS que pedem troca de poste, sete dizem também o que o
+# transformador tinha; só uma pede o poste "e transformador", sem uma palavra sobre a condição
+# do equipamento. É essa que sai.
+SEGURANCA = r"SUBST\w* DE POSTE|SUBSTUI\w* DE POSTE|TROCA DE POSTE|\bPOSTE \d+/\d+"
+
+# TAP como PROBLEMA, jamais como campo do formulário. "POS. TAP : 03" aparece em 627 das 1.510
+# descrevendo o equipamento retirado e não é causa de nada — por isso o padrão nunca casa a
+# palavra solta. O que casa é o tape ser o motivo: interno, dentro do óleo, impossível de
+# ajustar em campo. Aí o transformador é trocado para regularizar tensão, não porque falhou.
+TAPE = (r"TAP DENTRO DO OLEO|TAP INTERNO|MUDANCA DE TAP|MUDAR O? ?TAP|AJUSTE DE TAP|"
+        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*")
+
+
 def julga_texto(r):
     """Devolve (motivo_de_exclusao_ou_None, lista_de_suspeitas)."""
     t = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
@@ -138,6 +167,14 @@ def julga_texto(r):
             continue
         fora = (chave, explica)
         break
+    # as duas categorias de não-falha entram por último e só na ausência de falha declarada
+    if not fora and not re.search(FALHA_DECLARADA, t):
+        if re.search(SEGURANCA, t):
+            fora = ("seguranca", "a obra é de poste e o transformador desceu junto — "
+                                 "movido por necessidade estrutural, não por ter falhado")
+        elif re.search(TAPE, t):
+            fora = ("tap", "o transformador foi trocado para regularizar tensão porque o tape é "
+                           "interno e não pode ser ajustado em campo — não houve falha")
     susp = [(c, e) for c, rx, e in SUSPEITAS if re.search(rx, t)]
     return fora, susp
 
@@ -351,6 +388,7 @@ def main():
     FORA_CAT = {"FURTADO", "ABALROAMENTO", "PREVENTIVO", "PARTICULAR", "TRAFO AUXILIAR",
                 "CONSTRUCAO", "DESATIVACAO"}
     excluidas = collections.Counter()
+    devolvidas = []
     for r in fluxo["registros"]:
         cat = str(r.get("categoria_texto") or "").strip().upper()
         fora_txt, susp = julga_texto(r)
@@ -422,6 +460,38 @@ def main():
         # o mesmo motivo chega por dois caminhos com dois nomes — pelo texto ("furto") e pela
         # categoria gravada ("furtado"). Na tela isso viraria dois filtros para a mesma coisa.
         gatilho = {"furtado": "furto", "trafo auxiliar": "auxiliar"}.get(gatilho, gatilho)
+        # PRESUNÇÃO NÃO É CONSTATAÇÃO. "Possivelmente furtado", "ao que tudo indica o mesmo foi
+        # furtado", "sinais de vandalismo", "tentativa de furto" — nesses a equipe supôs a partir
+        # do que viu, não constatou. Continuam fora do indicador, porque quem decide isso é o
+        # dono e não a régua; mas ficam marcados, porque uma suposição arquivada como fato é
+        # exatamente o tipo de coisa que ninguém revisa depois.
+        texto_todo = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+        if re.search(r"POSSIVELMENTE|AO QUE TUDO INDICA|PROVAVELMENTE|SINAIS DE |TENTATIVA DE |"
+                     r"SUSPEITA DE ", texto_todo):
+            r["exclusao_presumida"] = "SIM"
+            porque = porque + " — mas o texto presume, não constata"
+            # E QUANDO O CAMPO CONTRADIZ A PRESUNÇÃO, o campo ganha. É a regra da casa: o campo
+            # é fato consumado, o texto é declaração — e aqui o texto nem declara, supõe. Quando
+            # a Crítica registra o defeito NESTE transformador dentro da janela E a obra registra
+            # transformador movimentado, a suposição não se sustenta: não se retira o que foi
+            # levado. A exclusão é desfeita e o caso volta a descer as peneiras como qualquer
+            # outro — voltar não é entrar, ele ainda tem de passar por todas.
+            _ab = parse(r.get("abertura"))
+            _cod = str(r.get("trafo") or "").strip()
+            tem_oc = any((b := borda(_ab, o)) is not None and b <= JANELA
+                         for o in por.get(_cod, []))
+            if DESFAZER_PRESUNCAO and tem_oc and float(r.get("trafos_material") or 0) > 0:
+                devolvidas.append(r["ss"])
+                r.update({"fora_da_esteira": "NÃO", "exclusao_presumida": "DEVOLVIDA",
+                          "expurgo": "NÃO", "expurgo_gatilho": "", "exclusao_porque": "",
+                          "presuncao_desfeita": (
+                              f"O texto presumia {gatilho}, mas não constatava. A Crítica registra "
+                              "o defeito neste transformador dentro da janela e a obra registra "
+                              "transformador movimentado: não se retira o que foi levado. A "
+                              "exclusão foi desfeita e o caso voltou a descer as peneiras.")})
+                continue
+        else:
+            r["exclusao_presumida"] = "NÃO"
         if gatilho == "construcao" and "DESATIVA" in norm_txt(str(r.get("desc_ss", ""))):
             gatilho, porque = "desativacao", "o texto declara desativação do posto de transformação"
         excluidas[gatilho] += 1
@@ -438,6 +508,9 @@ def main():
             "disputa_perdida": "NÃO", "deslocamento": "",
         })
     print(f"  exclusões antes da esteira: {sum(excluidas.values())} — {dict(excluidas)}")
+    if devolvidas:
+        print(f"  presunções desfeitas pelo campo, devolvidas à esteira: {len(devolvidas)} — "
+              + ", ".join(devolvidas))
 
     for r in fluxo["registros"]:
         if r.get("fora_da_esteira") == "SIM":
@@ -630,6 +703,70 @@ def main():
     print(f"  {'TOTAL':42} {sum(antes.values()):>7} {sum(depois.values()):>7}")
     print("\n  marcador de deslocamento:",
           dict(collections.Counter(r.get("deslocamento") for r in fluxo["registros"] if r.get("deslocamento"))))
+
+    # ---------- a queima do para-raio não é a queima do transformador
+    # "TRAFO: 5700005195 VAZAMENTO DE ÓLEO ... PARA RAIO: QUEIMADO" foi lido como queimado
+    # porque a palavra aparece no texto. Ela aparece descrevendo OUTRO equipamento. O que o
+    # transformador tem, escrito na mesma linha, é vazamento — avaria. São quatro casos com
+    # essa forma exata: a única menção a queima é do para-raio e o trafo vaza. Não muda o
+    # total, muda de que lado ele conta, e é a diferença entre queima e avaria que o indicador
+    # separa.
+    PARA_RAIO = (r"PARA[- ]?RAIO\w*\s*:?\s*(E\s+)?QUEIMAD\w*|PARA[- ]?RAIO\w*\s+QUEIMAD\w*|"
+                 r"E PARA[- ]?RAIO\w* QUEIMAD\w*")
+    corrigidos = 0
+    for r in fluxo["registros"]:
+        if str(r.get("categoria_texto") or "").upper() != "QUEIMADO":
+            continue
+        t = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+        if not re.search(r"VAZAMENT\w*", t):
+            continue
+        if re.search(r"QUEIMAD\w*", re.sub(PARA_RAIO, " ", t)):
+            continue
+        corrigidos += 1
+        r["categoria_texto"] = "AVARIADO"
+        r["regra_leitura"] = "R6-AVARIA-PARARAIO"
+        r["leitura_pararaio"] = ("A única menção a queima no texto é do para-raio; o que o "
+                                 "transformador tem é vazamento de óleo. Lido como avaria.")
+        if r.get("confirmado") == "QUEIMADO":
+            r["confirmado"] = "AVARIADO"
+    marcados = sum(1 for r in fluxo["registros"] if r.get("leitura_pararaio"))
+    print(f"  queima do para-raio relida como avaria do trafo: {marcados} "
+          f"({corrigidos} mudaram nesta rodada)")
+
+    # ---------- a ocorrência mostrada fora da janela pode não ser sobre o transformador
+    # Quando o caso não casou e o dossiê exibe a ocorrência mais próxima só como referência, essa
+    # ocorrência ainda parece prova para quem lê rápido. Se a nota de campo dela descreve trabalho
+    # em conexão, cabo, medidor ou disjuntor e não cita transformador nenhum, ela não explica
+    # coisa alguma sobre este ativo — e dizer isso em voz alta é melhor do que deixar o número
+    # da ocorrência sugerindo o contrário. Restrito a quem está fora da janela: dentro dela, a
+    # nota omitir a palavra "trafo" é rotina e não significa nada (858 casos, 762 na saída).
+    OUTRO_EQUIP = r"CONEXO\w*|CONEXAO|CABO\w*|MEDIDOR|DISJUNTOR|BORNE\w*|REAPERT\w*|ENCABECAMENTO|JUMPER"
+    fora_assunto = 0
+    for r in fluxo["registros"]:
+        if r.get("oc_fora_janela") != "SIM":
+            r["oc_outro_assunto"] = "NÃO"
+            continue
+        obs = norm_txt(str(r.get("oc_obs") or "") + " " + str(r.get("at_obs") or ""))
+        if re.search(OUTRO_EQUIP, obs) and not re.search(r"TRAFO|TRANSFORMADOR", obs):
+            r["oc_outro_assunto"] = "SIM"
+            fora_assunto += 1
+        else:
+            r["oc_outro_assunto"] = "NÃO"
+    print(f"  ocorrência fora da janela cuja nota de campo é de outro equipamento: {fora_assunto}")
+
+    # ---------- avaria enquadrada no projeto de queima
+    # O SIGCO 8812 é o projeto de transformador queimado. Quando a leitura conclui avaria e a
+    # obra foi enquadrada ali, o custo foi para o projeto errado — não muda a causa, muda para
+    # onde o dinheiro foi. Fica como bandeira, não como veredito.
+    bandeiras = 0
+    for r in fluxo["registros"]:
+        if (str(r.get("categoria_texto") or "").upper() == "AVARIADO"
+                and str(r.get("sigco") or "").strip() == "8812"):
+            r["sigco_avaria_em_queima"] = "SIM"
+            bandeiras += 1
+        else:
+            r["sigco_avaria_em_queima"] = "NÃO"
+    print(f"  avarias enquadradas no SIGCO 8812 (projeto de queima): {bandeiras}")
 
     # ---------- os avisos de lacuna envelheceram: as duas lacunas foram fechadas
     # O texto gravado em lacuna_base dizia "a base de interrupção só começa em 01/01/2026" e
