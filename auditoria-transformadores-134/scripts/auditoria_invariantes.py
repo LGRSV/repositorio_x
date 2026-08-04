@@ -39,7 +39,7 @@ SEM_INT = "RETIDO — SEM INTERRUPÇÃO NA JANELA"
 DUP = "RETIDO — SS DUPLICADA"
 SEM_DES = "RETIDO — SEM DESLOCAMENTO"
 SEM_PROVA = "RETIDO — SEM PROVA DE TROCA"
-EXCL = "EXCLUÍDO NA LEITURA"
+EXCL = "EXCLUÍDA"
 RESS = "RETIDO — RESSALVA DA INTERRUPÇÃO"
 SAIDA = "SAÍDA"
 
@@ -56,25 +56,29 @@ soma = sum(casc.values())
 relata(2, "a soma das cascatas dá 1.510", soma == 1510,
        "  ".join(f"{k}={v}" for k, v in casc.most_common()) + f"\nsoma={soma}")
 
-e2 = 1510 - (C(SEM_INT) + C(DUP))
+# A exclusão não é passagem da esteira: ela acontece antes, e quem sai por ela nunca entrou.
+# A corrente começa em 1.510 menos os excluídos, e é esse número que a primeira peneira recebe.
+entra = 1510 - C(EXCL)
+e2 = entra - C(SEM_INT)
 e3 = e2 - C(SEM_DES)
-e4 = e3 - C(SEM_PROVA) - C(EXCL)
+e4 = e3 - C(SEM_PROVA)
 fim = e4 - C(RESS)
+g_e1 = sum(1 for r in regs if r["chega_e1"] == "SIM")
 g_e2 = sum(1 for r in regs if r["chega_e2"] == "SIM")
 g_e3 = sum(1 for r in regs if r["chega_e3"] == "SIM")
-ok3 = e2 == g_e2 and e3 == g_e3 and fim == C(SAIDA)
+ok3 = entra == g_e1 and e2 == g_e2 and e3 == g_e3 and fim == C(SAIDA)
 relata(3, "a corrente fecha nas quatro passagens", ok3,
-       f"1510 − ({C(SEM_INT)} + {C(DUP)}) = {e2}   chega_e2 gravado = {g_e2}\n"
-       f"{e2} − {C(SEM_DES)} = {e3}                chega_e3 gravado = {g_e3}\n"
-       f"{e3} − {C(SEM_PROVA)} − {C(EXCL)} = {e4}\n"
-       f"{e4} − {C(RESS)} = {fim}                  SAÍDA gravada = {C(SAIDA)}")
+       f"1510 − {C(EXCL)} excluídas = {entra}     chega_e1 gravado = {g_e1}\n"
+       f"{entra} − {C(SEM_INT)} = {e2}            chega_e2 gravado = {g_e2}\n"
+       f"{e2} − {C(SEM_DES)} = {e3}               chega_e3 gravado = {g_e3}\n"
+       f"{e3} − {C(SEM_PROVA)} = {e4}\n"
+       f"{e4} − {C(RESS)} = {fim}                 SAÍDA gravada = {C(SAIDA)}")
 
 
 def pela_regra(r):
-    if r["expurgo"] == "SIM":
+    # a ordem espelha o motor: exclusão primeiro, e a duplicada é uma exclusão como as outras
+    if r.get("fora_da_esteira") == "SIM":
         return EXCL
-    if r["disputa_perdida"] == "SIM":
-        return DUP
     if r["chega_e2"] == "NÃO":
         return SEM_INT
     if r["chega_e3"] == "NÃO":
@@ -117,7 +121,8 @@ for bloco, campo in [("cascata", "cascata"), ("decisao", "decisao"),
         if recontado.get(k, 0) != v:
             div7.append(f"{bloco}.{k}: resumo={v} recontado={recontado.get(k, 0)}")
 for chave, valor in [("total", len(regs)), ("confirmadoTotal", C(SAIDA)),
-                     ("expurgos", C(EXCL)), ("duplicadas", C(DUP))]:
+                     ("expurgos", C(EXCL)), ("entramNaEsteira", 1510 - C(EXCL)),
+                     ("duplicadas", sum(1 for r in regs if r.get("expurgo_gatilho") == "duplicada"))]:
     if resumo.get(chave) != valor:
         div7.append(f"{chave}: resumo={resumo.get(chave)} medido={valor}")
 relata(7, "todo bloco de resumo bate com a recontagem", not div7,
@@ -136,33 +141,40 @@ def lp(v):
 
 # uma ocorrência só vira prova quando o casamento é A, B ou C. Duas SS podem apontar para a
 # mesma ocorrência sem disputá-la: se uma delas está FORA da janela, ela não reivindica nada.
+# E quem foi excluído antes da esteira também não reivindica: ele nunca desceu o primeiro
+# degrau, então a ocorrência que consta no dossiê dele é informação, não prova pleiteada. Sem
+# esta linha, uma SS excluída por obra vencida continuava contando como parte de uma disputa
+# que já não existe — e a rival ficava "sem perdedora marcada".
 prova = {}
 for r in regs:
+    if r.get("fora_da_esteira") == "SIM":
+        continue
     if lp(r["oc_num"]) and r["e1_nivel"] in ("A", "B", "C"):
         prova.setdefault(lp(r["oc_num"]), []).append(r)
 disputadas = {k: v for k, v in prova.items() if len(v) > 1}
 mal_resolvidas = []
 for oc, rs in disputadas.items():
     perdem = [r for r in rs if r["disputa_perdida"] == "SIM"]
-    if len(rs) != 2 or len(perdem) != 1 or perdem[0]["cascata"] != DUP:
+    if len(rs) != 2 or len(perdem) != 1 or perdem[0]["cascata"] != EXCL:
         mal_resolvidas.append(f"{oc}: {len(rs)} SS, {len(perdem)} marcadas como perdedoras")
     # o carimbo é de quem cede, não dos dois: o dono segue com a prova limpa
     elif not lp(perdem[0].get("e1_conflito")):
         mal_resolvidas.append(f"{oc}: {perdem[0]['ss']} cede a prova e está sem e1_conflito")
 perdedores = [r for r in regs if r["disputa_perdida"] == "SIM"]
-solto = [r for r in perdedores if r["cascata"] != DUP]
+# a perdedora agora sai pela exclusão, não fica parada numa etapa da esteira
+solto = [r for r in perdedores if r["cascata"] != EXCL]
 relata(9, "toda ocorrência disputada é resolvida: um dono, um duplicado, os dois marcados",
        not mal_resolvidas and not solto,
        f"ocorrências reivindicadas como prova por mais de uma SS={len(disputadas)}  "
-       f"perdedores={len(perdedores)}  perdedor fora de SS DUPLICADA={len(solto)}\n"
+       f"perdedores={len(perdedores)}  perdedor fora da exclusão={len(solto)}\n"
        f"e1_conflito preenchido em {sum(1 for r in regs if lp(r.get('e1_conflito')))} "
        f"({len(perdedores)} perdedores + {sum(1 for r in regs if lp(r.get('e1_conflito'))) - len(perdedores)} "
        f"que apontam para ocorrência de outra SS estando fora da janela)\n"
        + ("\n".join(mal_resolvidas) if mal_resolvidas else "todas as disputas resolvidas"))
 
-exp_sim = {r["ss"] for r in regs if r["expurgo"] == "SIM"}
+exp_sim = {r["ss"] for r in regs if r.get("fora_da_esteira") == "SIM"}
 casc_exc = {r["ss"] for r in regs if r["cascata"] == EXCL}
-relata(10, "expurgo e EXCLUÍDO NA LEITURA são o mesmo conjunto", exp_sim == casc_exc,
+relata(10, "fora_da_esteira e a cascata EXCLUÍDA são o mesmo conjunto", exp_sim == casc_exc,
        f"expurgo=SIM: {len(exp_sim)}  cascata=EXCLUÍDO: {len(casc_exc)}  "
        f"diferença simétrica={len(exp_sim ^ casc_exc)}")
 
@@ -236,12 +248,13 @@ tab = blocos["cascata"]["tabela"]["linhas"]
 # ficavam de fora: "1.279 + 22" somando 1.301 quando a etapa recebia 1.300, o retido da
 # segunda peneira em 299 quando eram 298, e a terceira passando 952 quando passa 953.
 # Agora toda célula de número da tabela é conferida contra o dado.
-e4 = e3 - C(EXCL) - C(SEM_PROVA)
+# A tabela ganhou a linha 0: a exclusão, que acontece antes da esteira e não é peneira.
 esperado_tab = [
-    (0, "Recebe", [1510]), (0, "Passa", [e2]), (0, "Fica retido", [C(SEM_INT), C(DUP)]),
-    (1, "Recebe", [e2]), (1, "Passa", [e3]), (1, "Fica retido", [C(SEM_DES)]),
-    (2, "Recebe", [e3]), (2, "Passa", [e4]), (2, "Fica retido", [C(SEM_PROVA), C(EXCL)]),
-    (3, "Recebe", [e4]), (3, "Passa", [C(SAIDA)]), (3, "Fica retido", [C(RESS)]),
+    (0, "Recebe", [1510]), (0, "Passa", [entra]), (0, "Fica retido", [C(EXCL)]),
+    (1, "Recebe", [entra]), (1, "Passa", [e2]), (1, "Fica retido", [C(SEM_INT)]),
+    (2, "Recebe", [e2]), (2, "Passa", [e3]), (2, "Fica retido", [C(SEM_DES)]),
+    (3, "Recebe", [e3]), (3, "Passa", [e4]), (3, "Fica retido", [C(SEM_PROVA)]),
+    (4, "Recebe", [e4]), (4, "Passa", [C(SAIDA)]), (4, "Fica retido", [C(RESS)]),
 ]
 COL = {"Recebe": 1, "Passa": 2, "Fica retido": 3}
 for i, col, esperados in esperado_tab:
@@ -254,8 +267,9 @@ for i, col, esperados in esperado_tab:
         if num(esp) in celula or esp in numeros or (len(numeros) > 1 and sum(numeros) == esp):
             continue
         problemas.append(f"cascata/linha {i+1}/{col}: tela diz {celula!r}, dado diz {num(esp)}")
-if len(tab) < 4:
-    problemas.append(f"cascata: a tabela tem {len(tab)} peneiras e a esteira tem 4 "
+if len(tab) < 5:
+    problemas.append(f"cascata: a tabela tem {len(tab)} linhas e a esteira tem 5 — a exclusão "
+                     f"antes dela mais as quatro peneiras "
                      f"(falta a ressalva, que retém {C(RESS)})")
 
 # frase de resultado do bloco correcoes
@@ -352,7 +366,7 @@ e2n, e3n = 1510 - C(SEM_INT) - C(DUP), 1510 - C(SEM_INT) - C(DUP) - C(SEM_DES)
 PARES = [
     ("interrupcao", "semfato", "parados", C(SEM_INT) + C(DUP), "Interrupção"),
     ("deslocamento", "semdesloc", "todos", C(SEM_DES), "Deslocamento"),
-    ("ssos", "expurgos", "parados", C(SEM_PROVA) + C(EXCL), "Análise de SS e OS"),
+    ("ssos", "expurgos", "parados", C(SEM_PROVA), "Análise de SS e OS"),
     ("ressalva", "ressalva", "todos", C(RESS), "Ressalva da interrupção"),
 ]
 p18, ok18 = [], []

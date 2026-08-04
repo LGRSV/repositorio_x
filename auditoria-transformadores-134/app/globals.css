@@ -74,6 +74,17 @@ button { cursor: pointer; }
 .search { width: min(410px, 46vw); display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8f7f5; border-bottom: 1px solid #9f9d99; }.search span { color: var(--red); font: 500 17px "Newsreader", serif; }.search input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 9px; }
 .table-scroll { overflow-x: auto; }.records-table { width: 100%; border-collapse: collapse; }.records-table th { padding: 10px 12px; background: #e7e4de; color: #66696e; text-align: left; white-space: nowrap; font: 600 7px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
 .records-table td { min-width: 150px; padding: 12px; border-top: 1px solid var(--soft); vertical-align: top; font-size: 9px; }.records-table td:first-child { min-width: 190px; }.records-table tbody tr { cursor: pointer; }.records-table tbody tr:hover { background: #faf8f5; box-shadow: inset 3px 0 var(--red); }
+/* Linha excluída: fundo vermelho bem claro e uma faixa na borda. A cor é sinal, não decoração
+   — quem passa o olho pela lista precisa ver que aquele caso saiu do indicador sem ter de ler a
+   coluna do motivo. Fica clara o bastante para o texto continuar legível, e mais forte quando a
+   exclusão foi batida à mão, porque essa é a que o leitor precisa distinguir da regra. */
+.records-table tbody tr.linha-excluida { background: #fdf3f2; }
+.records-table tbody tr.linha-excluida:hover { background: #fbe9e7; box-shadow: inset 3px 0 var(--red); }
+.records-table tbody tr.linha-excluida td { border-top-color: #f0dbd8; }
+.records-table tbody tr.linha-excluida.por-mim { background: #fbe7e4; box-shadow: inset 3px 0 var(--red); }
+.records-table tbody tr.linha-preventiva { background: #f5f2ea; }
+.records-table tbody tr.linha-preventiva:hover { background: #efeade; }
+
 .records-table td strong, .records-table td span, .records-table td small, .records-table td code { display: block; }.records-table td strong { font-size: 9px; }.records-table td span { margin-top: 3px; color: #686b6f; }.records-table td small { max-width: 330px; margin-top: 4px; color: #8a8d91; font-size: 7px; line-height: 1.45; }.records-table td code { margin-top: 4px; color: #8c8e91; font: 500 7px "IBM Plex Mono", monospace; }
 .clip { max-width: 380px; margin: 0; color: #686b6f; display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-height: 1.5; }
 .condition { display: inline-block; font-size: 8px; }.condition.queimado { color: var(--red); }.condition.avariado { color: var(--blue); }
