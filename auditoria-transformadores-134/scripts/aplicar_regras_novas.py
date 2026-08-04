@@ -1617,6 +1617,14 @@ def main():
             r["sigco_avaria_em_queima"] = "NÃO"
     print(f"  avarias enquadradas no SIGCO 8812 (projeto de queima): {bandeiras}")
 
+    # o meta também anunciava as duas lacunas como abertas
+    _lac = fluxo.get("meta", {}).get("lacunas")
+    if isinstance(_lac, list):
+        fluxo["meta"]["lacunas"] = [
+            x for x in _lac
+            if "26 a 31 de janeiro" not in str(x) and "dezembro de 2025 não existe" not in str(x)
+        ]
+
     # ---------- os avisos de lacuna envelheceram: as duas lacunas foram fechadas
     # O texto gravado em lacuna_base dizia "a base de interrupção só começa em 01/01/2026" e
     # "o arquivo de atendimento não tem registro entre 26 e 31 de janeiro". As duas frases
@@ -1637,6 +1645,41 @@ def main():
                 "completo agora está no acervo. " + ("O atendimento foi encontrado."
                                                      if r.get("at_num") else
                                                      "Mesmo assim não há atendimento no código do ativo."))
+
+    # ---------- e a frase da lacuna dentro da própria narrativa
+    # O aviso de lacuna foi corrigido no campo lacuna_base, mas a frase continuava escrita
+    # DENTRO do texto da narrativa e dentro dos alertas — 69 dossiês ainda diziam "período em
+    # que a base do TMAE não tem nenhum registro para nenhum ativo". Não tem mais: o arquivo de
+    # janeiro completo traz 3.754 atendimentos entre 26 e 31, e o dono cobrou com razão. A frase
+    # sai dos dois lugares, e o que fica é o fato — havendo ou não atendimento no código.
+    VELHAS = [
+        r", mas a SS abriu entre 26 e 31 de janeiro — período em que a base do TMAE não tem "
+        r"nenhum registro para nenhum ativo; é lacuna conhecida da base, não prova de que a "
+        r"equipe faltou",
+        r"; a SS abriu entre 26 e 31 de janeiro, período sem registro nenhum no TMAE",
+    ]
+    limpas = 0
+    for r in fluxo["registros"]:
+        for campo in ("narrativa", "narrativa_base"):
+            t = str(r.get(campo) or "")
+            if not t:
+                continue
+            antes = t
+            for v in VELHAS:
+                t = t.replace(v, "")
+            # e qualquer sobra que ainda afirme a lacuna, por segurança
+            t = re.sub(r"[^.]*lacuna conhecida da base[^.]*\.\s*", "", t)
+            if t != antes:
+                r[campo] = re.sub(r"\s+", " ", t).strip()
+                if campo == "narrativa_base":
+                    limpas += 1
+        al = r.get("alertas_narrativa")
+        if isinstance(al, list):
+            novo_al = [a for a in al if "lacuna do TMAE" not in str(a)]
+            if len(novo_al) != len(al):
+                r["alertas_narrativa"] = novo_al
+    if limpas:
+        print(f"  frases de lacuna do TMAE removidas das narrativas: {limpas}")
 
     # ---------- a narrativa era de outra rodada e contradizia o próprio cabeçalho
     # 472 dossiês de 1.510 traziam um parágrafo dizendo "o caso ficou retido já na primeira

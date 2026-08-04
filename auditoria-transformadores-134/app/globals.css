@@ -618,3 +618,9 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
    de estar onde ele clica, não num manual: uma SS vale um voto, e o último vale. */
 .classificar-aviso { margin: 8px 0 0; padding: 7px 9px; border-left: 2px solid var(--amber); background: #faf7f0; color: #6b6e72; font-size: 8.5px; line-height: 1.5; }
 .classificar-aviso strong { color: #3f4247; font-weight: 600; }
+
+/* Cada bloco de passos de uma SS dentro do histórico do ativo. Separados por linha e respiro:
+   três cronologias empilhadas sem separação viram uma tabela só, e o leitor perde de vista que
+   são eventos diferentes do mesmo transformador. */
+.passos-ss { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--linha, #2a3140); }
+.passos-ss h3 { margin-bottom: 2px; }

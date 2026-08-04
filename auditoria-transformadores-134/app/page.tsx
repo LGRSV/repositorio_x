@@ -1031,6 +1031,10 @@ export default function Page() {
       base = base.filter((r) => r.fato === f && r.leitura === l);
     } else if (modulo === "profunda") {
       base = base.filter((r) => filtraProfunda(r, recorte?.id || "todos"));
+      // e o teste do próprio recorte por cima, quando ele existir: os chips que não falam de
+      // classe — "natureza divergente", "zero que é do registro" — caíam no `return true` do
+      // filtraProfunda e a lista mostrava tudo que estava marcado, ignorando o recorte
+      if (recorteAtivo) base = base.filter(recorteAtivo.teste);
     } else if (recorteAtivo) {
       base = base.filter(recorteAtivo.teste);
     }
@@ -2099,7 +2103,7 @@ export default function Page() {
           <button type="button" className="sheet-download" onClick={() => baixarCSV(listadas, recorteAtivo ? recorteAtivo.rotulo : recorte ? recorte.rotulo : titulo.titulo, janela)}>Baixar planilha ({br(listadas.length)})</button>
         </div>
         {recortesDoModulo.length ? <div className="fluxo-abas">
-          <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)} title="Sai do recorte desta aba e mostra a base inteira.">Todas as SS ({br(comJanela.length)})</button>
+          <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)} title="Sai do recorte desta aba e mostra tudo que esta aba cobre.">{modulo === "profunda" ? "Tudo que classifiquei" : "Todas as SS"} ({br(modulo === "profunda" ? Object.keys(classificacao).length : comJanela.length)})</button>
           {recortesDoModulo.map((x) => <button key={x.id} type="button" className={recorte?.id === x.id ? "ativo" : ""}
             onClick={() => abrirRecorte(x.id)} title={x.nota}>{x.rotulo} ({br(modulo === "profunda"
               ? comJanela.filter((r) => filtraProfunda(r, x.id) && x.teste(r)).length
@@ -2369,6 +2373,27 @@ export default function Page() {
                 <td><span>{texto(l[12]) || "—"}</span></td>
               </tr>)}</tbody>
             </table></div>
+            {/* OS PASSOS DE TODAS AS SS DESTE ATIVO. Ele pediu isto por escrito — "eu quero
+                poder clicar na interrupção os passos do começo ao fim" — e a aba de Interrupção
+                só mostra os passos da ocorrência DESTA SS. Aqui o ativo é o assunto: se ele tem
+                três SS e cada uma casou com uma ocorrência, as três cronologias aparecem, em
+                ordem. É onde se enxerga o transformador que queima de novo, e quando. */}
+            {registros.filter((r) => texto(r.trafo) === texto(aberto.trafo)
+              && Array.isArray(r.oc_detalhe) && (r.oc_detalhe as unknown[]).length).map((r) => <section key={texto(r.ss)} className="passos-ss">
+              <h3>Passos da ocorrência {texto(r.oc_num)} · {texto(r.ss)}{texto(r.ss) === texto(aberto.ss) ? " (esta SS)" : ""}</h3>
+              <p className="fonte-detalhe">Base Crítica CHEIO · {(r.oc_detalhe as unknown[]).length} passo{(r.oc_detalhe as unknown[]).length > 1 ? "s" : ""} de manobra, em ordem de abertura · {texto(r.cascata)}</p>
+              <div className="table-scroll"><table className="records-table passos-oc">
+                <thead><tr><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
+                <tbody>{(r.oc_detalhe as Array<Record<string, string>>).map((x, i) => <tr key={i}>
+                  <td><strong>{dataBR(x.ini)}</strong></td>
+                  <td><strong>{dataBR(x.fim)}</strong></td>
+                  <td><span>{texto(x.def_ele)}</span><code>{texto(x.def_cod)}</code></td>
+                  <td><code>{texto(x.interrompido)}</code></td>
+                  <td><code>{texto(x.fechado)}</code></td>
+                  <td><strong>{texto(x.cons)}</strong></td>
+                </tr>)}</tbody>
+              </table></div>
+            </section>)}
           </>}
         </div>
       </aside>
