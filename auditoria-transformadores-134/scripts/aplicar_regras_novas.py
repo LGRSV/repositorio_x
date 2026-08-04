@@ -374,6 +374,43 @@ def main():
           f"em outro elemento (marcador, não casa ninguém)")
     print(f"Crítica: {len(oc):,} ocorrências em transformador (dez/2025 + jan–jun/2026)")
 
+    # ---------- o texto da OS estava cortado em 300 caracteres
+    # 688 das 1.510 descrições de OS tinham exatamente 300 caracteres — corte de uma etapa
+    # anterior, não da base. E o corte cai no FIM, que é onde a OS põe o desfecho: as medições
+    # depois da troca, o número de série do equipamento instalado, e quem autorizou o serviço.
+    # O caso que revelou isso terminava em "AUTORIZADA PELO" e o nome ficava do outro lado da
+    # tesoura. O arquivo original tem o texto inteiro, até 3.061 caracteres, e casa nas 1.510
+    # pelo número da SS. Texto truncado não é texto: a leitura decide sobre o que consegue ler.
+    restaurados = 0
+    orig = os.path.join(RAIZ, "public", "bases", "originais", "Original_OS.xlsx")
+    if os.path.exists(orig):
+        import openpyxl
+        wb = openpyxl.load_workbook(orig, read_only=True, data_only=True)
+        ws = wb["BASE SS_OS"]
+        it = ws.iter_rows(values_only=True)
+        cab = [str(h) for h in next(it)]
+        col = {h: i for i, h in enumerate(cab)}
+
+        def _limpa(v):
+            return re.sub(r"\s+", " ", str(v or "").replace("_x000D_", " ")).strip()
+
+        inteiro = {}
+        for linha in it:
+            _ss = _limpa(linha[col["NUMERO_SS"]])
+            if _ss:
+                inteiro[_ss] = (_limpa(linha[col["DESCRIPTION_SS"]]),
+                                _limpa(linha[col["DESCRICAO_OS"]]))
+        for r in fluxo["registros"]:
+            par = inteiro.get(r["ss"])
+            if not par:
+                continue
+            for campo, novo in (("desc_ss", par[0]), ("desc_os", par[1])):
+                if len(novo) > len(str(r.get(campo) or "")):
+                    r[campo] = novo
+                    restaurados += 1
+        wb.close()
+    print(f"  descrições restauradas do arquivo original (estavam cortadas): {restaurados}")
+
     antes = collections.Counter(r["cascata"] for r in fluxo["registros"])
 
     # ---------- etapa 0: a exclusão, que acontece ANTES da esteira e fora dela
@@ -1147,6 +1184,48 @@ def main():
         r["narrativa_regerada"] = CARIMBO
         reescritas += 1
     print(f"  narrativas com conclusão vencida, recompostas do estado de agora: {reescritas}")
+
+    # ---------- quem autorizou a troca
+    # Só aparece porque o texto deixou de vir cortado: "SUBSTITUIÇÃO DE TRANSFORMADOR
+    # AUTORIZADA PELO DIONE." vinha terminando em "AUTORIZADA PELO". Uma troca autorizada por
+    # alguém nominalmente é governança, não causa — não move o caso de lugar. Mas numa
+    # auditoria que vai a conselho, quem autorizou é pergunta que se faz, e ela precisa ter
+    # resposta antes de ser feita.
+    aut = 0
+    for r in fluxo["registros"]:
+        t = norm_txt(str(r.get("desc_os") or "") + " || " + str(r.get("desc_ss") or ""))
+        # o nome vem grudado no que vier depois — "DIONE. OBS", "DIONE. TRAFO RETIRADO SEM A
+        # PLACA". Corta no primeiro ponto ou na primeira palavra de formulário.
+        m = re.search(r"AUTORIZA\w*\s+(PEL[OA]|POR)\s+([A-Z][A-Z\s\.]{1,60})", t)
+        if m:
+            nome = re.split(r"\.|\bOBS\b|\bTRAFO\b|\bFOI\b|\bMEDIC", m.group(2))[0]
+            r["autorizacao"] = re.sub(r"\s+", " ", nome).strip(" .")
+            r["tem_autorizacao"] = "SIM"
+            aut += 1
+        else:
+            r["autorizacao"] = ""
+            r["tem_autorizacao"] = "SIM" if re.search(r"AUTORIZA\w*", t) else "NÃO"
+            if r["tem_autorizacao"] == "SIM":
+                aut += 1
+    print(f"  OS que citam autorização da troca: {aut}")
+
+    # ---------- a interrupção que não interrompeu ninguém
+    # Zero cliente é a ressalva mais forte que existe: se ninguém ficou sem energia, o evento
+    # não gera DEC nem FEC, e um transformador de distribuição que queima sem penalizar cliente
+    # é no mínimo estranho. Conferido na base crua somando TODAS as linhas de cada ocorrência —
+    # o zero não é truncamento de uma linha só: das 93, nenhuma tem cliente escondido em passo
+    # nenhum. Hoje a ressalva já as segura, mas quando o dono bate o martelo de queimado a
+    # classificação dele manda no arquivamento e o caso entra no indicador — é aí que este
+    # marcador precisa existir, para o caso não entrar calado.
+    sem_cli = 0
+    for r in fluxo["registros"]:
+        tem_oc = bool(str(r.get("oc_num") or "").strip())
+        if tem_oc and float(r.get("oc_cons") or 0) == 0:
+            r["sem_cliente_interrompido"] = "SIM"
+            sem_cli += 1
+        else:
+            r["sem_cliente_interrompido"] = "NÃO"
+    print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
 
     # ---------- o resumo tem que ser recontado, é ele que a tela lê
     R = fluxo["registros"]
