@@ -1411,8 +1411,10 @@ def main():
         # E a que NÃO é dele. Fica escrito porque a lista serve para separar o que ele mandou do
         # que a régua fez sozinha — e esta a régua fez sozinha, generalizando o pedido dele de
         # chave fusível para poste, cabo, para-raio e medidor. Ele não pediu isso.
-        "obra_poste": ("regra minha, não pedida: ele pediu categoria só para chave fusível e eu "
-                       "generalizei para poste, cabo, para-raio e medidor", ""),
+        "obra_poste": ("regra minha, generalizada do pedido dele de chave fusível — e corrigida "
+                       "depois de ele mandar ver os quatro casos: só vale quando o material não "
+                       "registra transformador movimentado, senão o rótulo da obra estaria "
+                       "apagando o que o campo consumou", ""),
     }
     for r in fluxo["registros"]:
         g = str(r.get("expurgo_gatilho") or "")
@@ -1547,7 +1549,13 @@ def main():
     }
     for r in fluxo["registros"]:
         if r.get("fora_da_esteira") != "SIM":
+            # e o gatilho junto: o script grava no arquivo que lê, então um gatilho de uma
+            # rodada em que o caso foi excluído sobrevivia pendurado depois de ele voltar. Sete
+            # registros estavam na SAÍDA carregando gatilho de exclusão — contradição interna
+            # que a tela lê como categoria e a planilha exporta como se valesse.
             r["exclusao_porque"] = ""
+            r["expurgo_gatilho"] = ""
+            r["expurgo"] = "NÃO"
     reescritas = 0
     for r in fluxo["registros"]:
         # Guarda a narrativa original uma vez e SEMPRE reconstrói a partir dela. Sem isso, o
@@ -1714,6 +1722,15 @@ def main():
             continue
         od = norm_txt(r.get("obra_descricao"))
         if not od or re.search(r"TRAFO|TRANSFORMADOR", od):
+            continue
+        # A GUARDA QUE FALTAVA, e que inverteu a regra da casa enquanto não existia: se o
+        # material conferido registra transformador movimentado, o rótulo da obra não apaga
+        # isso. Os quatro casos de "Poste Danificado" que caíam aqui tinham 1 transformador no
+        # material, entre R$ 14.900 e R$ 18.679 realizados, e a SS de cada um declarava a falha
+        # — queimado, vazamento de óleo, avariado, "trocar poste e trafo". O campo diz que o
+        # trafo saiu; o texto diz por quê; o rótulo da obra diz o que mais foi trocado junto. O
+        # caso da chave fusível, que ele pediu, é o contrário: zero transformador no material.
+        if float(r.get("trafos_material") or 0) > 0 and r.get("material_conferido") == "SIM":
             continue
         achado = next(((g, q) for g, rx, q in OUTRO_ATIVO if re.search(rx, od)), None)
         if not achado:

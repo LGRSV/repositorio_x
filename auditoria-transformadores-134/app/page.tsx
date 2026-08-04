@@ -661,6 +661,16 @@ export default function Page() {
     return texto(r.expurgo_gatilho);
   };
 
+  /* QUEM PAROU NA PRIMEIRA PENEIRA. Enquanto a falta de interrupção retinha, a resposta era a
+     cascata. Depois que ela passou a excluir, esta aba esvaziou e passou a dizer 0 — quando o
+     que ela deve mostrar é justamente quem não passou: quem não tem interrupção na janela nem
+     nas 24 horas seguintes, e quem não aparece na Crítica em papel nenhum. O caso está fora do
+     indicador, mas continua sendo caso que parou aqui. */
+  const PAROU_NA_1 = ["fora_da_janela", "sem_interrupcao", "sem_fato"];
+  const parouNaInterrupcao = (r: Registro): boolean =>
+    arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA"
+    || (arquivo(r) === "EXCLUÍDA" && PAROU_NA_1.includes(gatilhoDe(r)));
+
   const categoriaDe = (r: Registro): string => {
     const g = gatilhoDe(r);
     return CATEGORIA_FUNDIDA[g] || g;
@@ -884,10 +894,13 @@ export default function Page() {
     semfato: [
       // A primeira peneira hoje retém por um motivo só. A SS duplicada saiu daqui: ela não é
       // caso pendente de leitura, é o mesmo evento contado duas vezes — e foi para as exclusões.
-      { id: "parados", rotulo: "Tudo que parou aqui", nota: "Nem interrupção na Crítica nem atendimento no TMAE dentro da janela de 24 horas. É exatamente o número que a etapa da Interrupção anuncia.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
-      { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
-      { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
-      { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.vizinho).startsWith("Nada") },
+      { id: "parados", rotulo: "Tudo que parou aqui", nota: "Todos os que a primeira peneira não admitiu: sem interrupção no próprio transformador dentro do intervalo da ocorrência nem nas 24 horas seguintes ao último passo, ou ausentes da Crítica em papel nenhum. Hoje eles saem do indicador em vez de ficar retidos — mas continuam sendo quem parou aqui, e é aqui que se lê por quê.", teste: (r) => parouNaInterrupcao(r) },
+      { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção no próprio trafo nem atendimento do TMAE dentro da janela.", teste: (r) => parouNaInterrupcao(r) },
+      { id: "p_outra_data", rotulo: "Tem registro, mas em outra data", nota: "A Crítica registra defeito aberto neste transformador — só que fora do intervalo da ocorrência e das 24 horas seguintes ao último passo. A distância fica escrita em cada caso: 26 dias e 26 horas são coisas diferentes.", teste: (r) => texto(r.expurgo_gatilho) === "fora_da_janela" },
+      { id: "p_ausente", rotulo: "Ausente da base de interrupções", nota: "O código não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — nos sete meses do acervo, dezembro de 2025 incluído.", teste: (r) => texto(r.expurgo_gatilho) === "sem_interrupcao" },
+      { id: "p_semfato", rotulo: "Sem fato em base nenhuma", nota: "Nem ocorrência na Crítica, nem atendimento no TMAE, nem vizinho no alimentador ou na localidade. Nem o teste do vizinho achou nada.", teste: (r) => texto(r.expurgo_gatilho) === "sem_fato" },
+      { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
+      { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => parouNaInterrupcao(r) && texto(r.vizinho).startsWith("Nada") },
       // O chip "provavelmente no histórico de 2025" saiu daqui: apontava para um arquivo que
       // faltava, dezembro/2025 entrou no acervo e as 24 SS de borda foram reprocuradas — as 24
       // acharam ocorrência. Filtro que promete explicação já respondida é pior que nenhum.
@@ -900,7 +913,7 @@ export default function Page() {
       { id: "fora_critica", rotulo: "Ausente da base de interrupção", nota: "O código não aparece na Crítica em papel nenhum — nem como elemento com defeito, nem como interrompido, nem como manobrado para restabelecer. Conferido linha a linha em dezembro de 2025 e nos seis meses de 2026. Estes saem do indicador.", teste: (r) => r.na_critica === "NÃO" || texto(r.expurgo_gatilho) === "sem_interrupcao" },
       { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => r.aberta_antes === "SIM" },
       { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
-      { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.def_elemento)) },
+      { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.def_elemento)) },
       { id: "outro_assunto", rotulo: "A ocorrência mostrada não é deste serviço", nota: "A SS e o transformador são os do caso; o que não bate é a ocorrência exibida no painel. O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
     ],
     expurgos: [
@@ -1124,7 +1137,7 @@ export default function Page() {
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
-      { id: "semfato", rotulo: "Parados na interrupção", codigo: "02·1", param: entramE1 - entramE2, recorte: "parados" },
+      { id: "semfato", rotulo: "Parados na interrupção", codigo: "02·1", param: conta((r) => parouNaInterrupcao(r)), recorte: "parados" },
       { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, recorte: "todos" },
       { id: "semdesloc", rotulo: "Sem corroboração do TMAE", codigo: "03·1", marca: conta((r) => r.deslocamento === "SEM REGISTRO"), tom: "cinza", recorte: "todos" },
       { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, recorte: "todos" },
@@ -1927,27 +1940,35 @@ export default function Page() {
       }
 
       if (modulo === "semfato") {
-        // Só entra aqui quem realmente não tem interrupção própria na janela. Quem tem a
-        // interrupção mas divide o evento com outra SS saiu daqui e virou SS duplicada.
-        const aqui = (r: Registro) => r.cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA";
+        /* A aba dizia 0 e o dono viu antes de mim: "deveria mostrar os excluídos na janela e as
+           24 horas e os que são ausentes da base de interrupções". Enquanto a falta de
+           interrupção RETINHA, esta lista era a dos retidos. Depois que ela passou a EXCLUIR, a
+           cascata deixou de guardar essa gente e a aba esvaziou — mas quem não passou na
+           primeira peneira continua sendo quem não passou, esteja retido ou arquivado. É por
+           isto que agora ela lê pelo gatilho e não pelo lugar. */
+        const aqui = parouNaInterrupcao;
         const semFato = registros.filter(aqui);
+        const g = (k: string) => registros.filter((r) => texto(r.expurgo_gatilho) === k).length;
         const duplicadas = registros.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
         return <>
-        <section className="panel editorial-note wide"><span>O QUE O TEXTO DESSES CASOS DIZ</span>
-          <p>Esta etapa retém por dois motivos: {br(semFato.length)} por não terem interrupção na janela e {br(duplicadas.length)} por SS duplicada, que é o painel abaixo. Dentro dos {br(semFato.length)}, a ausência de interrupção não significa a mesma coisa em todos. {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — e nesses a ausência é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria e não deixaram rastro em nenhuma das duas bases: são esses que sobem para investigação.</p>
+        <section className="panel editorial-note wide"><span>O QUE PAROU NA PRIMEIRA PENEIRA</span>
+          <p>São <strong>{br(semFato.length)}</strong> solicitações que não têm interrupção no próprio transformador dentro do intervalo da ocorrência nem nas 24 horas seguintes ao último passo dela. Elas <strong>saem do indicador</strong> — a peneira 1 arquiva em vez de reter —, mas continuam listadas aqui, porque é aqui que se lê por que cada uma não passou. Não são a mesma coisa e por isso vêm separadas: <strong>{br(g("fora_da_janela"))}</strong> têm defeito registrado no próprio código, só que em outra data; <strong>{br(g("sem_interrupcao"))}</strong> não aparecem na Crítica em papel nenhum nos sete meses; <strong>{br(g("sem_fato"))}</strong> não deixaram rastro em base alguma, nem pelo teste do vizinho.</p>
+          <p>Dentro do conjunto, {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — nesses a ausência de interrupção é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria: são esses que sobem para investigação, e é neles que a ausência de registro é a pergunta.</p>
         </section>
-        {duplicadas.length > 0 && (
-          <section className="panel editorial-note wide"><span>SAÍRAM DESTA ETAPA NA CORREÇÃO</span>
-            <p>{br(duplicadas.length)} SS estavam aqui carimbadas como sem interrupção, mas o próprio registro delas guarda a ocorrência, o horário e a observação do eletricista. O que existe nelas é outra coisa: duas SS abertas para o mesmo transformador e o mesmo evento. A interrupção fica com a SS mais próxima do evento — porque um apagão prova uma troca, não duas — e a outra passa a ser tratada como <strong>SS duplicada</strong>, que é o que ela é. {duplicadas.map((r) => `${texto(r.ss)} (gêmea da ${texto(r.ss_gemea)})`).join(" · ")}.</p>
-          </section>
-        )}
         <section className="kpi-grid">
-          <Kpi rotulo="Sem interrupção na janela" valor={br(conta(aqui))} nota="nada nas duas bases na janela" tom="red" aoClicar={() => abrirRecorte("todos")} />
+          <Kpi rotulo="Pararam na interrupção" valor={br(semFato.length)} nota="não passaram na primeira peneira" tom="red" aoClicar={() => abrirRecorte("parados")} />
+          <Kpi rotulo="Tem registro, mas em outra data" valor={br(g("fora_da_janela"))} nota="defeito no próprio código, fora da janela" tom="amber" aoClicar={() => abrirRecorte("p_outra_data")} />
+          <Kpi rotulo="Ausente da base de interrupções" valor={br(g("sem_interrupcao"))} nota="não aparece na Crítica em papel nenhum" tom="red" aoClicar={() => abrirRecorte("p_ausente")} />
+          <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem vizinho no alimentador ou na localidade" tom="red" aoClicar={() => abrirRecorte("p_semfato")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => aqui(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => aqui(r) && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
-          <Kpi rotulo="Casaram em dezembro de 2025" valor={br(conta((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")))} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
           <Kpi rotulo="Com texto de falha" valor={br(conta((r) => aqui(r) && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
-          <Kpi rotulo="SS duplicada" valor={br(duplicadas.length)} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
+          <Kpi rotulo="Aberta antes da interrupção" valor={br(conta((r) => aqui(r) && r.aberta_antes === "SIM"))} nota="a ocorrência começou depois de a SS abrir" tom="ink" aoClicar={() => abrirRecorte("antes")} />
+          <Kpi rotulo="Casaram em dezembro de 2025" valor={br(conta((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")))} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
+          <Kpi rotulo="SS duplicada" valor={br(duplicadas.length + g("duplicada"))} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
+        </section>
+        <section className="panel editorial-note wide"><span>POR QUE ELAS SAEM E NÃO FICAM ESPERANDO</span>
+          <p>Foi regra sua: “se do primeiro passo aberto até o último passo o cara não abriu a SS e nem 24 horas depois do último passo, desconsidere e resuma nos excluídos”. Enquanto ficavam retidas, apareciam como pendência de leitura — como se ainda faltasse alguém olhar — quando a resposta já existia. Nenhum registro é apagado: a linha continua com o motivo escrito e o dossiê inteiro.</p>
         </section></>;
       }
       if (modulo === "expurgos") {
