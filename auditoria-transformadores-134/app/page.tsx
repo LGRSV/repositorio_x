@@ -223,11 +223,11 @@ function Barras({ dados, total, aoSelecionar }: {
 /* O que a classificação do dono escreve na coluna da decisão, e com que cor. */
 const MEU_ROTULO: Record<string, string> = {
   QUEIMADO: "QUEIMADO", AVARIADO: "AVARIADO", PREVENTIVO: "PREVENTIVO",
-  EXCLUIDO: "EXCLUÍDO", REGRA: "VALE A REGRA", PROFUNDA: "ANÁLISE PROFUNDA",
+  FURTADO: "FURTADO", EXCLUIDO: "EXCLUÍDO", REGRA: "VALE A REGRA", PROFUNDA: "ANÁLISE PROFUNDA",
 };
 const MEU_TOM: Record<string, string> = {
   QUEIMADO: "good", AVARIADO: "info", PREVENTIVO: "warn",
-  EXCLUIDO: "bad", REGRA: "pend", PROFUNDA: "warn",
+  FURTADO: "bad", EXCLUIDO: "bad", REGRA: "pend", PROFUNDA: "warn",
 };
 
 /* A natureza agrupa os gatilhos pelo que eles significam para quem paga a conta. Furto é crime
@@ -649,7 +649,9 @@ export default function Page() {
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "presumida", rotulo: "Exclusão por presunção, não constatação", nota: "O texto diz \u201cpossivelmente furtado\u201d, \u201cao que tudo indica\u201d, \u201csinais de vandalismo\u201d ou \u201ctentativa de furto\u201d. A equipe supôs a partir do que viu; não constatou. Continuam fora do indicador, mas ficam marcadas — suposição arquivada como fato é o que ninguém revisa depois.", teste: (r) => r.exclusao_presumida === "SIM" },
       { id: "suas_regras", rotulo: "Saíram por regra que você pediu", nota: "A categoria existe porque você mandou criar, e em várias delas você apontou o caso que convenceu. O dossiê de cada uma diz qual foi. Autoria não é detalhe: quem defende o número precisa poder dizer de onde veio cada corte.", teste: (r) => r.exclusao_pedida_pelo_dono === "SIM" },
-      { id: "manual", rotulo: "Excluídas por você à mão", nota: "Não saíram por regra: você bateu o martelo. A decisão do fluxo continua registrada ao lado.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
+      { id: "manual", rotulo: "Excluídas por você à mão", nota: "Não saíram por regra: você bateu o martelo. A decisão do fluxo continua registrada ao lado.", teste: (r) => ["EXCLUIDO", "FURTADO"].includes(classificacao[texto(r.ss)]?.classe || ""),
+ },
+      { id: "manual_furto", rotulo: "Marcadas por você como furto", nota: "Furto, roubo ou vandalismo pela sua leitura, não pela régua.", teste: (r) => classificacao[texto(r.ss)]?.classe === "FURTADO" },
     ],
     preventivos: [
       { id: "todos", rotulo: "Todos os preventivos", nota: "Troca sem defeito: programada, por divisão de circuito ou marcada por você. Não conta como falha de equipamento.", teste: (r) => arquivo(r) === "PREVENTIVO" || texto(r.expurgo_gatilho) === "preventivo" || texto(r.expurgo_gatilho) === "divisao" },
