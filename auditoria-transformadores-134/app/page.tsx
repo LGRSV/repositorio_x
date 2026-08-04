@@ -614,6 +614,8 @@ export default function Page() {
       // O chip "provavelmente no histórico de 2025" saiu daqui: apontava para um arquivo que
       // faltava, dezembro/2025 entrou no acervo e as 24 SS de borda foram reprocuradas — as 24
       // acharam ocorrência. Filtro que promete explicação já respondida é pior que nenhum.
+      { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => r.aberta_antes === "SIM" },
+      { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
       { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.def_elemento)) },
       { id: "outro_assunto", rotulo: "A ocorrência mostrada não é deste serviço", nota: "A SS e o transformador são os do caso; o que não bate é a ocorrência exibida no painel. O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
     ],
@@ -1753,6 +1755,25 @@ export default function Page() {
             </section>
             <article className="source-text"><span>OBSERVAÇÃO REGISTRADA EM CAMPO</span><p>{texto(aberto.oc_obs) || "Sem observação."}</p></article>
             {texto(aberto.vizinho) ? <article className="work-alerts"><span>TESTE DO VIZINHO</span><ul><li>{texto(aberto.vizinho)}</li></ul></article> : null}
+            {/* OS PASSOS, UM POR UM. O resumo da ocorrência (primeira abertura, último
+                fechamento) apaga o meio do caminho — e é o meio que conta a história: qual
+                elemento atuou primeiro, quando o transformador entrou, quantos clientes cada
+                manobra atingiu. Cada linha aqui é uma linha da Crítica. */}
+            {Array.isArray(aberto.oc_detalhe) && (aberto.oc_detalhe as unknown[]).length ? <>
+              <h3>Os passos da ocorrência {texto(aberto.oc_num)}</h3>
+              <p className="fonte-detalhe">Base Crítica CHEIO · {(aberto.oc_detalhe as unknown[]).length} passo{(aberto.oc_detalhe as unknown[]).length > 1 ? "s" : ""} de manobra, em ordem de abertura</p>
+              <div className="table-scroll"><table className="records-table passos-oc">
+                <thead><tr><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
+                <tbody>{(aberto.oc_detalhe as Array<Record<string, string>>).map((p, i) => <tr key={i}>
+                  <td><strong>{dataBR(p.ini)}</strong></td>
+                  <td><strong>{dataBR(p.fim)}</strong></td>
+                  <td><code>{p.def || "—"}</code>{p.def === texto(aberto.trafo) ? <span>é este transformador</span> : null}</td>
+                  <td><code>{p.int || "—"}</code><span>{p.int_t}</span></td>
+                  <td><code>{p.fec || "—"}</code><span>{p.fec_t}</span></td>
+                  <td><strong>{p.cons || "0"}</strong></td>
+                </tr>)}</tbody>
+              </table></div>
+            </> : null}
             <BlocoDetalhe titulo="A linha inteira da interrupção" fonte="Base Crítica CHEIO · interrupção de cliente" dados={aberto.det_interrupcao as Detalhe} />
           </>}
           {abaDossie === "deslocamento" && <>

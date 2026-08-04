@@ -129,9 +129,13 @@ relata(7, "todo bloco de resumo bate com a recontagem", not div7,
        "\n".join(div7) if div7 else "os 7 blocos e os 4 totais batem")
 
 # ------------------------------------------------------------------ coerência
+# A janela deixou de ser simétrica: 1h de tolerância para trás, 24h para frente. Um FORA a
+# menos de 24h da borda é normal agora — o que não pode existir é FORA dentro da janela válida,
+# e a janela válida à frente vai até 24h depois do último passo.
 viola8 = [r for r in regs if r["e1_nivel"] == "FORA"
-          and isinstance(r.get("oc_dist_h"), (int, float)) and abs(r["oc_dist_h"]) <= 24]
-relata(8, "nenhum FORA com ocorrência dentro de 24 horas", not viola8,
+          and isinstance(r.get("oc_dist_h"), (int, float))
+          and r.get("aberta_antes") != "SIM" and 0 <= r["oc_dist_h"] <= 24]
+relata(8, "nenhum FORA dentro da janela válida (1h antes, 24h depois)", not viola8,
        f"violações={len(viola8)}" + ("" if not viola8 else
        "\n" + "\n".join(f"{r['ss']}: oc_dist_h={r['oc_dist_h']}" for r in viola8[:8])))
 

@@ -34,6 +34,8 @@ UP = "/root/.claude/uploads/74dc9c64-5026-54ee-a81e-173d2f38a735"
 BRASILIA = datetime.timezone(datetime.timedelta(hours=-3))
 CARIMBO = datetime.datetime.now(BRASILIA).strftime("%Y-%m-%d %H:%M")
 JANELA = 24 * 3600
+# tolerância para trás: a SS costuma nascer minutos antes do registro formal da ocorrência
+ANTES = 1 * 3600
 HOJE = datetime.datetime.now(BRASILIA).date()
 # Dois meses. Depois disso a obra não vem mais — e "retido" deixa de ser espera para virar
 # promessa vazia. O número é decisão do dono, não medida: fica aqui à vista para ser mudado.
@@ -310,10 +312,34 @@ def le_critica():
                         "causa": r[k["DES_CAUSA_INTER_CAU"]].strip(),
                         "tipo": r[k["COD_SUB_TIPO_OS_COS"]].strip(),
                         "loc": r[k["LOCALIDADE"]].strip(), "passos": 1,
+                        # Cada linha da Crítica é UM passo de manobra: um elemento aberto numa
+                        # hora, fechado noutra. O resumo (min das aberturas, max dos fechos)
+                        # apaga o meio do caminho, e é justamente o meio que conta a história —
+                        # qual chave atuou primeiro, quando o transformador entrou, quando a
+                        # última manobra devolveu energia. Guardado inteiro para a tela poder
+                        # abrir a ocorrência passo a passo.
+                        "detalhe": [{
+                            "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
+                            "def": r[k["COD_ELE_PROBLEMA"]].strip(),
+                            "int": r[k["COD_ELE_INTERROMPIDO"]].strip(),
+                            "int_t": r[k["COD_ELE_REDE_INTERROMPIDO"]].strip(),
+                            "fec": r[k["COD_ELE_FECHADO"]].strip(),
+                            "fec_t": r[k["COD_ELE_REDE_FECHADO"]].strip(),
+                            "cons": r[k["QTD_CONS_INTER_FAT"]].strip(),
+                        }],
                     }
                 else:
                     a["passos"] += 1
                     a["cons"] += numero(r[k["QTD_CONS_INTER_FAT"]])
+                    a["detalhe"].append({
+                        "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
+                        "def": r[k["COD_ELE_PROBLEMA"]].strip(),
+                        "int": r[k["COD_ELE_INTERROMPIDO"]].strip(),
+                        "int_t": r[k["COD_ELE_REDE_INTERROMPIDO"]].strip(),
+                        "fec": r[k["COD_ELE_FECHADO"]].strip(),
+                        "fec_t": r[k["COD_ELE_REDE_FECHADO"]].strip(),
+                        "cons": r[k["QTD_CONS_INTER_FAT"]].strip(),
+                    })
                     # o vão é do primeiro passo ao último: mínimo das aberturas, máximo dos fechos
                     if ini and (not a["ini"] or ini < a["ini"]):
                         a["ini"] = ini
@@ -323,15 +349,39 @@ def le_critica():
 
 
 def borda(ab, o):
-    """Distância até a borda mais próxima do intervalo. Dentro do intervalo é zero."""
+    """Distância da abertura da SS até a janela válida da ocorrência.
+
+    A JANELA NÃO É SIMÉTRICA, e a assimetria é medida, não estética.
+
+    Para frente ela é larga: a ocorrência pode fechar e a SS nascer depois, porque a troca é
+    consequência do evento. Valem 24 horas depois do último passo.
+
+    Para trás ela é curta. Se a SS abriu muito antes de a ocorrência começar, não é a mesma
+    história. Mas não pode ser zero, porque a ordem normal do campo é o cliente ligar, a SS
+    nascer, e a ocorrência ser registrada minutos depois: em 47 casos da saída a SS antecede o
+    registro em menos de um quarto de hora, e em 60 em menos de uma hora. Uma hora de
+    tolerância para trás cobre a antecipação do registro sem admitir quem abriu a SS num dia e
+    teve o evento no outro — que era o que a tolerância antiga de 24 horas deixava passar.
+    """
     if not ab or not o["ini"]:
         return None
-    if o["fim"] and o["ini"] <= ab <= o["fim"]:
+    fim = o["fim"] or o["ini"]
+    if o["ini"] <= ab <= fim:
         return 0.0
-    c = [abs((ab - o["ini"]).total_seconds())]
-    if o["fim"]:
-        c.append(abs((ab - o["fim"]).total_seconds()))
-    return min(c)
+    return (ab - fim).total_seconds() if ab > fim else (o["ini"] - ab).total_seconds()
+
+
+def dentro(ab, o):
+    """A SS cai na janela válida desta ocorrência?
+
+    Separado de borda() de propósito: borda mede DISTÂNCIA e é o que a tela mostra; isto decide
+    ADMISSÃO e é o que a esteira usa. Enquanto eram a mesma função, mudar a forma da distância
+    não mudava a régua — a assimetria existia no cálculo e não no veredito.
+    """
+    if not ab or not o["ini"]:
+        return False
+    fim = o["fim"] or o["ini"]
+    return (o["ini"] - datetime.timedelta(seconds=ANTES)) <= ab <= (fim + datetime.timedelta(seconds=JANELA))
 
 
 def ressalvas_de(o):
@@ -703,8 +753,7 @@ def main():
             # outro — voltar não é entrar, ele ainda tem de passar por todas.
             _ab = parse(r.get("abertura"))
             _cod = str(r.get("trafo") or "").strip()
-            tem_oc = any((b := borda(_ab, o)) is not None and b <= JANELA
-                         for o in por.get(_cod, []))
+            tem_oc = any(dentro(_ab, o) for o in por.get(_cod, []))
             if DESFAZER_PRESUNCAO and tem_oc and float(r.get("trafos_material") or 0) > 0:
                 devolvidas.append(r["ss"])
                 r.update({"fora_da_esteira": "NÃO", "exclusao_presumida": "DEVOLVIDA",
@@ -743,10 +792,10 @@ def main():
         r["chega_e1"] = "SIM"
         ab = parse(r.get("abertura"))
         cod = str(r.get("trafo") or "").strip()
-        jan = [o for o in por.get(cod, []) if (b := borda(ab, o)) is not None and b <= JANELA]
+        jan = [o for o in por.get(cod, []) if dentro(ab, o)]
         melhor = min(jan, key=lambda x: borda(ab, x)) if jan else None
         # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
-        cand_at = [a for a in por_at.get(cod, []) if (b := borda(ab, a)) is not None and b <= JANELA]
+        cand_at = [a for a in por_at.get(cod, []) if dentro(ab, a)]
         melhor_at = min(cand_at, key=lambda x: borda(ab, x)) if cand_at else None
         # A busca nova é mais estreita que o campo at_num herdado: uma correção anterior
         # recuperou 23 casos procurando pelo NÚMERO DA OCORRÊNCIA quando a chave do TMAE
@@ -768,8 +817,7 @@ def main():
         # isto responde a outra pergunta, e responde para os dois lados: para quem casou, diz
         # que o defeito era no ativo; para quem não casou, diz se houve interrupção na janela
         # com o defeito noutro elemento — unidade consumidora, chave, disjuntor.
-        cand_int = [o for o in por_int.get(cod, [])
-                    if (b := borda(ab, o)) is not None and b <= JANELA]
+        cand_int = [o for o in por_int.get(cod, []) if dentro(ab, o)]
         vizinho_int = min(cand_int, key=lambda x: borda(ab, x)) if cand_int else None
         if melhor:
             r.update({"def_elemento": "TR", "def_ele_oc": None, "def_ele_causa": None,
@@ -793,6 +841,7 @@ def main():
                 "oc_cons": int(melhor["cons"]), "oc_causa": melhor["causa"], "oc_sub": melhor["sub"],
                 "oc_tipo": melhor["tipo"], "oc_prob_ele": "TR", "oc_passos": melhor["passos"],
                 "oc_dist_h": round(b / 3600, 2), "e1_delta_h": round(b / 3600, 2),
+                "oc_detalhe": sorted(melhor.get("detalhe", []), key=lambda x: parse(x["ini"]) or datetime.datetime.min),
                 "e1_nivel": "A" if b == 0 else "B", "e1_status": "SEGUE", "e1_sinais": "",
                 "chega_e2": "SIM", "fato": "F1",
                 "fato_texto": "Fato pleno — a Crítica registra interrupção no próprio transformador dentro da janela",
@@ -828,7 +877,18 @@ def main():
                 "oc_prob_ele": "TR" if perto else None,
                 "oc_papel": "defeito no próprio trafo" if perto else None,
                 "oc_dist_h": round(borda(ab, perto) / 3600, 2) if perto else None,
+                "oc_detalhe": sorted(perto.get("detalhe", []), key=lambda x: parse(x["ini"]) or datetime.datetime.min) if perto else [],
                 "oc_fora_janela": "SIM" if perto else "",
+                # A SS aberta ANTES da ocorrência é um caso com nome próprio, não um "sem
+                # interrupção" qualquer: o evento existe, o transformador é o mesmo, e a
+                # solicitação apenas antecede o registro formal. Passou a cair aqui quando a
+                # tolerância para trás encolheu de 24 horas para uma. Merece rótulo, porque a
+                # pergunta que ela levanta é outra — não é "houve evento?", é "o registro
+                # atrasou ou é outro evento?".
+                "aberta_antes": ("SIM" if perto and perto["ini"] and ab and ab < perto["ini"]
+                                 else "NÃO"),
+                "aberta_antes_h": (round((perto["ini"] - ab).total_seconds() / 3600, 1)
+                                   if perto and perto["ini"] and ab and ab < perto["ini"] else None),
                 "e1_delta_h": None, "e1_nivel": "FORA" if perto else "SEM",
             })
             r.update({"e1_status": "RETIDO", "chega_e2": "NÃO", "chega_e3": "NÃO", "fato": "F3",
