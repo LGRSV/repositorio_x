@@ -1662,6 +1662,37 @@ def main():
                 r["ressalvas"] = "zero cliente registrado (o ativo atende cliente noutro evento)"
     print(f"  zero que é do registro, não da rede (o ativo atende cliente noutro evento): {corrigidos}")
 
+    # ---------- as duas vozes do campo discordam sobre a natureza da falha
+    # 140 casos contam como QUEIMADO e a Crítica declara subcausa de AVARIA — vazamento de óleo,
+    # tanque deteriorado, falha de bucha. Em 110 deles a obra diz "SUBST. TRAFO QUEIMADO".
+    #
+    # Não é erro de ninguém, e por isso não se resolve com a regra da casa: um transformador que
+    # vaza óleo perde isolamento e DEPOIS queima. A Crítica registra o defeito que a equipe
+    # constatou; a obra registra o que foi trocado e sob qual projeto contábil. Aqui os dois
+    # campos discordam entre si, e "o campo vence o texto" não decide nada.
+    #
+    # O dono decidiu manter como está — a obra manda, o total não muda de qualquer forma, e
+    # trocar 140 rótulos moveria o split de 1.216/55 para 1.092/179 sem ganho de verdade. Fica a
+    # marca, para que quem for auditar encontre isso já contado em vez de descobrir sozinho.
+    AVARIA_SUB = r"VAZAMENTO|TANQUE DETERIORADO|FALHA BUCHA|FALTANDO FASE|ATERRAMENTO PARTIDO"
+    disc = 0
+    for r in fluxo["registros"]:
+        r["campo_discorda_natureza"] = "NÃO"
+        cf, sub = str(r.get("confirmado") or ""), str(r.get("oc_sub") or "")
+        if not cf or not sub:
+            continue
+        if (cf == "QUEIMADO" and re.search(AVARIA_SUB, sub)) or \
+           (cf == "AVARIADO" and "QUEIMADO POR" in sub):
+            r["campo_discorda_natureza"] = "SIM"
+            r["natureza_nota"] = (
+                f"Conta como {cf.lower()}, e a Crítica declara \"{sub.lower()}\". As duas vozes do "
+                "campo discordam sobre a natureza: a subcausa registra o defeito que a equipe "
+                f"constatou, e a obra — \"{str(r.get('obra_descricao') or 'sem descrição').lower()}\" — "
+                "registra o que foi trocado e sob qual projeto. Vazamento que evolui para queima "
+                "acaba como queima; o total não muda, porque as duas categorias contam.")
+            disc += 1
+    print(f"  casos em que a subcausa e a obra discordam sobre a natureza da falha: {disc}")
+
     # ---------- o que a Crítica não conhece sai do indicador
     fora_critica = 0
     for r in fluxo["registros"]:
