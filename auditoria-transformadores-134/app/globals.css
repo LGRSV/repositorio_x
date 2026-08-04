@@ -622,7 +622,7 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-janela { display: block; width: 100%; min-width: 220px; }
 .regua-trilho { position: relative; height: 9px; background: #f0ede8; overflow: visible; }
 .regua-antes, .regua-depois { position: absolute; top: 0; height: 9px; background: #ddd9d2; }
-.regua-oc { position: absolute; top: -1px; height: 11px; background: var(--ink); }
+.regua-oc { position: absolute; top: -1px; height: 11px; background: var(--red); }
 .regua-servico { position: absolute; top: 0; height: 9px; background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
 .regua-ss { position: absolute; top: -4px; width: 2px; height: 17px; transform: translateX(-1px); }
 .regua-ss.dentro { background: var(--green); box-shadow: 0 0 0 2px #fff; }
@@ -635,7 +635,7 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-chaves { display: flex; flex-wrap: wrap; gap: 3px 13px; margin-top: 8px; color: #85888c; font-size: 8px; }
 .regua-chaves span { display: flex; align-items: center; gap: 5px; }
 .regua-chaves span::before { content: ""; width: 11px; height: 7px; background: #ddd9d2; }
-.regua-chaves .k-oc::before { background: var(--ink); }
+.regua-chaves .k-oc::before { background: var(--red); }
 .regua-chaves .k-servico::before { background: #e5e1da; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
 .regua-chaves .k-pino::before { width: 2px; height: 12px; background: var(--green); }
 
