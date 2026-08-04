@@ -82,6 +82,12 @@ button { cursor: pointer; }
 .records-table tbody tr.linha-excluida:hover { background: #fbe9e7; box-shadow: inset 3px 0 var(--red); }
 .records-table tbody tr.linha-excluida td { border-top-color: #f0dbd8; }
 .records-table tbody tr.linha-excluida.por-mim { background: #fbe7e4; box-shadow: inset 3px 0 var(--red); }
+.records-table tbody tr.linha-queimada { background: #eef6f0; box-shadow: inset 3px 0 var(--green); }
+.records-table tbody tr.linha-queimada:hover { background: #e4f0e8; }
+.records-table tbody tr.linha-avariada { background: #eef2f8; box-shadow: inset 3px 0 #3d6ea8; }
+.records-table tbody tr.linha-avariada:hover { background: #e3ebf5; }
+.records-table td .decisao-fluxo { margin-top: 4px; color: #9a9c9f; font: 500 6.5px "IBM Plex Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
+.pill.info { color: #3d6ea8; background: #eef2f8; }
 .records-table tbody tr.linha-preventiva { background: #f5f2ea; }
 .records-table tbody tr.linha-preventiva:hover { background: #efeade; }
 

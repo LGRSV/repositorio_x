@@ -130,6 +130,29 @@ SUSPEITAS = [
 ]
 
 
+# Palavras que declaram FALHA DO EQUIPAMENTO. Servem de guarda para as duas categorias de
+# não-falha abaixo: elas só valem quando o texto inteiro — SS e OS — não declara falha nenhuma.
+# Sem essa guarda, "trocar o poste do trafo queimado" viraria obra de segurança, e "vazamento de
+# óleo no comutador de tap" viraria ajuste de tape. Nos dois casos a falha está escrita.
+FALHA_DECLARADA = (r"QUEIMAD\w*|VAZAMENT\w*|DANIFICAD\w*|AVARIAD\w*|DEFEIT\w*|SEM ENERGIA|"
+                   r"NAO ESTA ATENDENDO|CURTO|ESTOURAD\w*|EXPLOD\w*|DETERIORAD\w*|BUCHA|"
+                   r"SOBRECARG\w*|FALHA")
+
+# Obra de POSTE em que o transformador vai junto. O poste é substituído — por abalroamento,
+# trinca ou base danificada — e o transformador desce com ele. Não falhou: foi movido por
+# necessidade estrutural. Das oito SS que pedem troca de poste, sete dizem também o que o
+# transformador tinha; só uma pede o poste "e transformador", sem uma palavra sobre a condição
+# do equipamento. É essa que sai.
+SEGURANCA = r"SUBST\w* DE POSTE|SUBSTUI\w* DE POSTE|TROCA DE POSTE|\bPOSTE \d+/\d+"
+
+# TAP como PROBLEMA, jamais como campo do formulário. "POS. TAP : 03" aparece em 627 das 1.510
+# descrevendo o equipamento retirado e não é causa de nada — por isso o padrão nunca casa a
+# palavra solta. O que casa é o tape ser o motivo: interno, dentro do óleo, impossível de
+# ajustar em campo. Aí o transformador é trocado para regularizar tensão, não porque falhou.
+TAPE = (r"TAP DENTRO DO OLEO|TAP INTERNO|MUDANCA DE TAP|MUDAR O? ?TAP|AJUSTE DE TAP|"
+        r"ALTERAR O? ?TAP|TROCA DE TAP|COMUTADOR|TAP DANIFICAD\w*|TAP QUEBRAD\w*")
+
+
 def julga_texto(r):
     """Devolve (motivo_de_exclusao_ou_None, lista_de_suspeitas)."""
     t = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
@@ -144,6 +167,14 @@ def julga_texto(r):
             continue
         fora = (chave, explica)
         break
+    # as duas categorias de não-falha entram por último e só na ausência de falha declarada
+    if not fora and not re.search(FALHA_DECLARADA, t):
+        if re.search(SEGURANCA, t):
+            fora = ("seguranca", "a obra é de poste e o transformador desceu junto — "
+                                 "movido por necessidade estrutural, não por ter falhado")
+        elif re.search(TAPE, t):
+            fora = ("tap", "o transformador foi trocado para regularizar tensão porque o tape é "
+                           "interno e não pode ser ajustado em campo — não houve falha")
     susp = [(c, e) for c, rx, e in SUSPEITAS if re.search(rx, t)]
     return fora, susp
 

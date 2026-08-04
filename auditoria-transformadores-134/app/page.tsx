@@ -218,6 +218,44 @@ function Barras({ dados, total, aoSelecionar }: {
    contam a história daquele estágio. */
 /* O gatilho da exclusão é gravado como chave curta pelo motor de regras. Aqui ele vira frase,
    uma só, usada em toda a tela — para não existirem dois nomes para o mesmo motivo. */
+/* O elemento vem da Crítica em sigla — TR, UC, CH, DJ. Na tela vira palavra, uma só, para o
+   gráfico e o dossiê não chamarem a mesma coisa por dois nomes. */
+/* O que a classificação do dono escreve na coluna da decisão, e com que cor. */
+const MEU_ROTULO: Record<string, string> = {
+  QUEIMADO: "QUEIMADO", AVARIADO: "AVARIADO", PREVENTIVO: "PREVENTIVO",
+  EXCLUIDO: "EXCLUÍDO", REGRA: "VALE A REGRA", PROFUNDA: "ANÁLISE PROFUNDA",
+};
+const MEU_TOM: Record<string, string> = {
+  QUEIMADO: "good", AVARIADO: "info", PREVENTIVO: "warn",
+  EXCLUIDO: "bad", REGRA: "pend", PROFUNDA: "warn",
+};
+
+/* A natureza agrupa os gatilhos pelo que eles significam para quem paga a conta. Furto é crime
+   patrimonial e vai para projeto de reposição; dano de terceiro é acidente e vira ressarcimento
+   — somar os dois apaga a diferença que decide para onde o custo vai. */
+const NATUREZA: Record<string, string> = {
+  furto: "Furto, roubo e vandalismo",
+  abalroamento: "Danos a terceiro",
+  preventivo: "Obra sem defeito",
+  divisao: "Obra sem defeito",
+  seguranca: "Obra sem defeito",
+  tap: "Obra sem defeito",
+  construcao: "Obra sem defeito",
+  desativacao: "Retirada do ativo",
+  particular: "Ativo de terceiro",
+  auxiliar: "Não é unidade de distribuição",
+  duplicada: "Evento contado duas vezes",
+  sem_os: "Sem documento para conferir",
+  sem_obra: "Sem documento para conferir",
+};
+
+const ELEMENTO_ROTULO: Record<string, string> = {
+  TR: "Defeito no transformador",
+  UC: "Defeito na unidade consumidora",
+  CH: "Defeito em chave",
+  DJ: "Defeito em disjuntor",
+};
+
 const GATILHO_ROTULO: Record<string, string> = {
   furto: "Furto, roubo ou vandalismo",
   abalroamento: "Abalroamento",
@@ -228,6 +266,8 @@ const GATILHO_ROTULO: Record<string, string> = {
   auxiliar: "Auxiliar de religador ou regulador",
   particular: "Transformador particular",
   duplicada: "SS duplicada",
+  seguranca: "Obra de poste — segurança",
+  tap: "Tape interno — regularização de tensão",
   sem_os: "Sem OS e sem obra — investigar",
   sem_obra: "Obra nunca gerada — prazo vencido",
 };
@@ -284,10 +324,12 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
          distinguida da exclusão por regra. */
       const meu = classificacoes[texto(r.ss)]?.classe;
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
-      const preventiva = meu === "PREVENTIVO";
-      return <tr key={texto(r.ss)}
-        className={excluida ? `linha-excluida${meu === "EXCLUIDO" ? " por-mim" : ""}` : preventiva ? "linha-preventiva" : undefined}
-        onClick={() => aoAbrir(r)}>
+      const cor = meu === "QUEIMADO" ? "linha-queimada"
+        : meu === "AVARIADO" ? "linha-avariada"
+        : meu === "PREVENTIVO" ? "linha-preventiva"
+        : excluida ? `linha-excluida${meu === "EXCLUIDO" ? " por-mim" : ""}`
+        : undefined;
+      return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
 
@@ -338,8 +380,15 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
         <td><p className="clip">{texto(r.motivo_decisao)}</p></td>
       </>}
 
-      <td><b className={`pill ${decisaoClasse(texto(r.decisao))}`}>{texto(r.decisao)}</b>
-        {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}
+      {/* A coluna mostrava sempre a decisão da regra, e a classificação do dono ficava numa
+          coluna ao lado — duas verdades no mesmo lugar, sem dizer qual vale. Quando ele bate o
+          martelo, o martelo aparece aqui; a decisão do fluxo desce para a linha de baixo, em
+          cinza, para nunca sumir. */}
+      <td>{meu
+        ? <><b className={`pill ${MEU_TOM[meu] || "pend"}`}>{MEU_ROTULO[meu] || meu}</b>
+            <span className="decisao-fluxo">o fluxo dizia {texto(r.decisao).toLowerCase()}</span></>
+        : <><b className={`pill ${decisaoClasse(texto(r.decisao))}`}>{texto(r.decisao)}</b>
+            {r.mudou_na_revisao === "SIM" ? <span className="expurgo-tag">mudou na revisão</span> : null}</>}
       </td>
       <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
         <div className="classificar-linha">{CLASSES_CURTAS.map(([id, curto, tom]) => <button key={id} type="button"
@@ -544,6 +593,8 @@ export default function Page() {
       { id: "g_part", rotulo: "Transformador particular", nota: "O ativo é do cliente ou de terceiro.", teste: (r) => texto(r.expurgo_gatilho) === "particular" },
       { id: "g_semos", rotulo: "Sem OS e sem obra", nota: "A ordem de serviço não tem descrição e a obra não foi gerada: não há relato do executante nem consulta de material. Não é afirmação sobre a causa — é ausência de documento. O caso é investigável, não confirmável.", teste: (r) => texto(r.expurgo_gatilho) === "sem_os" },
       { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
+      { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => texto(r.expurgo_gatilho) === "seguranca" },
+      { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => texto(r.expurgo_gatilho) === "tap" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => texto(r.expurgo_gatilho) === "duplicada" },
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "presumida", rotulo: "Exclusão por presunção, não constatação", nota: "O texto diz \u201cpossivelmente furtado\u201d, \u201cao que tudo indica\u201d, \u201csinais de vandalismo\u201d ou \u201ctentativa de furto\u201d. A equipe supôs a partir do que viu; não constatou. Continuam fora do indicador, mas ficam marcadas — suposição arquivada como fato é o que ninguém revisa depois.", teste: (r) => r.exclusao_presumida === "SIM" },
@@ -636,13 +687,15 @@ export default function Page() {
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
-      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, param: entramE1 - entramE2, recorte: "todos" },
+      // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
+      // aparecendo duas vezes na mesma barra confunde mais do que informa.
+      { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
       { id: "semfato", rotulo: "Parados na interrupção", codigo: "02·1", param: entramE1 - entramE2, recorte: "parados" },
-      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, param: 0, recorte: "todos" },
+      { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, recorte: "todos" },
       { id: "semdesloc", rotulo: "Sem corroboração do TMAE", codigo: "03·1", marca: conta((r) => r.deslocamento === "SEM REGISTRO"), tom: "cinza", recorte: "todos" },
-      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, param: paramE3, recorte: "todos" },
+      { id: "ssos", rotulo: "Análise de SS e OS", codigo: "04", entram: entramE3, recorte: "todos" },
       { id: "expurgos", rotulo: "Parados na análise", codigo: "04·1", param: paramE3, recorte: "parados" },
-      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "05", entram: entramE3 - paramE3, param: paramE4, recorte: "fila" },
+      { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "05", entram: entramE3 - paramE3, recorte: "fila" },
       { id: "ressalva", rotulo: "Retidos pela ressalva", codigo: "05·1", param: paramE4, recorte: "todos" },
       { id: "decisao", rotulo: "Decisão final", codigo: "06", marca: naSaida, tom: "verde", recorte: "saida" },
     ]},
@@ -1186,8 +1239,13 @@ export default function Page() {
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Causa registrada</h2></div><small>clique para filtrar</small></div>
               <Barras dados={contar(registros.filter((r) => r.oc_num), "oc_causa", 8)} total={total} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
-            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Elemento do defeito</h2></div></div>
-              <Barras dados={contar(registros.filter((r) => r.oc_num), "oc_prob_ele", 6)} total={total} /></article>
+            {/* Este gráfico lia oc_prob_ele e por isso só sabia dizer "TR": o leitor da Crítica
+                indexa apenas ocorrência cujo defeito é em transformador, então o campo era
+                constante por construção — uma barra de 100% que não informava nada. Agora lê
+                def_elemento, que é o marcador construído do segundo índice e sabe dizer que o
+                trafo ficou sem energia por defeito na chave, na UC ou no disjuntor. */}
+            <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Elemento do defeito</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(registros.map((r) => ({ ...r, _de: ELEMENTO_ROTULO[texto(r.def_elemento)] || "Sem defeito na janela" })), "_de", 6)} total={total} aoSelecionar={(l) => abrirRecorte({ "Defeito no transformador": "def_tr", "Defeito na unidade consumidora": "def_uc", "Defeito em chave": "def_ch", "Defeito em disjuntor": "def_dj" }[l] || "def_nenhum")} /></article>
           </section>
         </>;
       }
@@ -1400,7 +1458,9 @@ export default function Page() {
           <section className="kpi-grid">
             <Kpi rotulo="Total de exclusões" valor={br(excluidas)} nota="saíram antes da esteira" tom="red" aoClicar={() => abrirRecorte("todos")} />
             <Kpi rotulo="Furto, roubo ou vandalismo" valor={br(g("furto"))} nota="vai para o projeto de ativo furtado" tom="ink" aoClicar={() => abrirRecorte("g_furto")} />
-            <Kpi rotulo="Abalroamento" valor={br(g("abalroamento"))} nota="colisão de veículo" tom="amber" aoClicar={() => abrirRecorte("g_abalro")} />
+            <Kpi rotulo="Danos a terceiro" valor={br(g("abalroamento"))} nota="colisão de veículo — vira ressarcimento, não indicador" tom="amber" aoClicar={() => abrirRecorte("g_abalro")} />
+            <Kpi rotulo="Obra de poste — segurança" valor={br(g("seguranca"))} nota="o transformador desceu com o poste" tom="blue" aoClicar={() => abrirRecorte("g_seg")} />
+            <Kpi rotulo="Tape interno" valor={br(g("tap"))} nota="troca para regularizar tensão, não por falha" tom="blue" aoClicar={() => abrirRecorte("g_tap")} />
             <Kpi rotulo="Preventivo ou divisão" valor={br(g("preventivo") + g("divisao"))} nota="obra de capacidade, não falha" tom="blue" aoClicar={() => abrirRecorte("g_prev")} />
             <Kpi rotulo="Construção ou desativação" valor={br(g("construcao") + g("desativacao"))} nota="obra nova ou retirada definitiva" tom="ink" aoClicar={() => abrirRecorte("g_constr")} />
             <Kpi rotulo="Auxiliar de religador" valor={br(g("auxiliar"))} nota="serve ao equipamento, não ao cliente" tom="ink" aoClicar={() => abrirRecorte("g_aux")} />
@@ -1410,6 +1470,16 @@ export default function Page() {
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
             <Kpi rotulo="Excluídas por você" valor={br(porClasseNav("EXCLUIDO"))} nota="martelo batido à mão, fora da regra" tom="ink" aoClicar={() => abrirRecorte("manual")} />
+          </section>
+          {/* O mesmo analítico que a Interrupção tem: barra por categoria, clicável. Sem ele a
+              aba respondia "quantas saíram" e não "por quê", que é a pergunta de quem audita.
+              Danos a terceiro ficam separados de furto: um é acidente e vira ressarcimento, o
+              outro é crime patrimonial e vai para projeto próprio. Somá-los apaga a diferença. */}
+          <section className="dashboard-columns">
+            <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Motivo da saída</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "Marcada por você" })), "_g", 12)} total={excluidas} aoSelecionar={(l) => { setBusca(""); setRecorte(null); }} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Natureza do motivo</h2></div></div>
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[texto(r.expurgo_gatilho)] || "Classificada por você" })), "_n", 8)} total={excluidas} /></article>
           </section>
           <section className="panel editorial-note wide destaque"><span>POR QUE ISTO NÃO É UMA PENEIRA</span>
             <p>Peneira pergunta se o caso se sustenta. Exclusão diz que o caso é de outra natureza — e isso não depende de haver interrupção na janela. Um furto é furto tenha ou não a Crítica registrado corte naquele dia; a ausência de fato não muda a causa declarada, e a presença também não. Enquanto a exclusão morava dentro da terceira peneira, só era julgado quem passasse da primeira: {br(conta((r) => arquivo(r) === "EXCLUÍDA" && r.fato === "F3"))} casos com causa declarada fora do indicador ficavam parados em “sem interrupção na janela”, aparecendo como pendência de leitura quando já tinham resposta.</p>
@@ -1550,7 +1620,7 @@ export default function Page() {
               <div><span>Duração</span><strong>{texto(aberto.oc_dur_h)} h</strong></div>
               <div><span>Clientes interrompidos</span><strong>{texto(aberto.oc_cons)}</strong></div>
               <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel)}</strong></div>
-              <div><span>Elemento do defeito</span><strong>{texto(aberto.oc_prob_ele)}</strong></div>
+              <div><span>Elemento do defeito</span><strong>{ELEMENTO_ROTULO[texto(aberto.def_elemento)] || "sem defeito na janela"}</strong>{texto(aberto.def_ele_oc) ? <em>ocorrência {texto(aberto.def_ele_oc)} · {texto(aberto.def_ele_causa)}</em> : null}</div>
               <div><span>Causa</span><strong>{texto(aberto.oc_causa)}</strong></div>
               <div><span>Subcausa</span><strong>{texto(aberto.oc_sub)}</strong></div>
             </section>
