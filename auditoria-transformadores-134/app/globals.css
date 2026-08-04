@@ -594,3 +594,11 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* Onde o caso parou na esteira, ao lado da decisão. Discreto de propósito: é referência, não
    veredito — quem lê a coluna quer a decisão primeiro e o degrau logo depois. */
 .records-table td .etapa-flag { display: block; margin-top: 5px; color: #8a8d91; font: 500 6.5px "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Os passos da ocorrência, no dossiê. Tabela densa: são poucas linhas e todas importam, então
+   nada de truncar — o que se quer ver aqui é a sequência inteira de uma vez. */
+.records-table.passos-oc td { min-width: 0; cursor: default; }
+.records-table.passos-oc tbody tr { cursor: default; }
+.records-table.passos-oc tbody tr:hover { background: #faf8f5; box-shadow: none; }
+.records-table.passos-oc td code { margin-top: 0; color: #3f4247; font-size: 8px; }
+.records-table.passos-oc td span { font-size: 7px; color: #8a8d91; text-transform: uppercase; letter-spacing: .06em; }
