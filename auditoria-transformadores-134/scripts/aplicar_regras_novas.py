@@ -1379,7 +1379,41 @@ def main():
             "o dono pediu categoria própria: “Substituição de chave fusível”. A obra "
             "encerrada e conferida não movimentou transformador nenhum — o que ela trocou foi a "
             "chave. Estava caindo na categoria genérica de obra sem transformador."),
+        "ETO-RD-GU 00685/2026": (
+            "EXCLUIR", "", "abalroamento",
+            "o dono mandou mover para abalroamento, e as quatro vozes concordam com ele: a "
+            "Crítica registra causa POSTE DE AT e subcausa ABALROADO, o TMAE repete as duas, a "
+            "SS foi gravada como ABALROAMENTO e a obra 0412600528 entra no SIGCO 20497 — DANOS "
+            "CAUSADOS POR TERCEIROS. O caso saía como obra de poste por segurança, que é outra "
+            "coisa: segurança é a companhia decidindo trocar um poste, abalroamento é um "
+            "terceiro derrubando. A diferença muda para onde o custo vai — ressarcimento, não "
+            "manutenção"),
     }
+    # ---------- correção de LEITURA, caso a caso: muda o rótulo, não a decisão
+    # Diferente do veredito: aqui o dono não move o caso de lugar, ele conserta o que o leitor
+    # entendeu. Existe porque o leitor pega a palavra "QUEIMADO" onde ela é só o NOME DO SERVIÇO
+    # — "SUBST DE TRAFO QUEIMADO" é o tipo da SS, não o estado do equipamento — e a natureza real
+    # fica escrita na descrição, que fala de outra coisa.
+    LEITURA_CORRIGIDA = {
+        "ETO-RD-AG 00389/2026": (
+            "AVARIADO",
+            "a SS descreve “TRAFO COM BUCHA SECUNDARIA NEUTRO QUEBRADA” e não usa a palavra "
+            "queima em lugar nenhum; a única menção a queimado no dossiê está na frase da OS que "
+            "nomeia o tipo do serviço — “SUBST DE TRAFO QUEIMADO”. Bucha partida é avaria "
+            "mecânica, não queima de enrolamento. O caso continua fora do indicador por "
+            "remanejamento; o que muda é como ele é lido"),
+    }
+    for r in fluxo["registros"]:
+        c = LEITURA_CORRIGIDA.get(str(r.get("ss") or ""))
+        if not c:
+            continue
+        nova, porque = c
+        r["categoria_texto"] = nova
+        r["leitura_corrigida"] = porque
+        if r.get("confirmado") in ("QUEIMADO", "AVARIADO"):
+            r["confirmado"] = nova
+    print(f"  leituras corrigidas caso a caso: {len(LEITURA_CORRIGIDA)}")
+
     for r in fluxo["registros"]:
         v = VEREDITO_DONO.get(str(r.get("ss") or ""))
         if not v:
@@ -1746,6 +1780,11 @@ def main():
         # porque o script grava no mesmo arquivo que lê
         r"^A causa confirmada é|^Motivo da exclusão:|^Campo, texto e material convergem|"
         r"^Saiu antes da esteira|^Parou na (primeira|terceira|quarta)|^Passou pelas quatro|"
+        # "Fora do indicador: …" é o cascata_motivo, e ele também é escrito por este bloco. Ficou
+        # de fora da lista e o resultado apareceu num dossiê que ele leu: a mesma frase quatro
+        # vezes no fim do texto — três vindas da narrativa_base guardada com as cópias antigas,
+        # uma recém-anexada. Frase repetida faz o leitor procurar a diferença que não existe.
+        r"^Fora do indicador:|"
         # Quando o campo derruba o rótulo herdado, a frase que narra a leitura antiga fica
         # afirmando a causa vencida — "concluindo furtado" num dossiê que decide AVARIADO. E a
         # frase da terceira peneira ("a leitura mostrou que a natureza do evento não é falha")
@@ -1794,7 +1833,11 @@ def main():
             fim += f" A causa confirmada é {str(r['confirmado']).lower()}."
         # exclusao_porque só vale para quem está excluído. Ficava grudado em quem o campo
         # devolveu à esteira, e o dossiê terminava com "motivo da exclusão" num caso INCLUIR.
-        if r.get("exclusao_porque") and r.get("fora_da_esteira") == "SIM":
+        # …e só quando o motivo da cascata já não disser a mesma coisa: para os excluídos,
+        # cascata_motivo É "Fora do indicador: <exclusao_porque>", então acrescentar "Motivo da
+        # exclusão: <exclusao_porque>" imprimia a mesma frase duas vezes seguidas.
+        if (r.get("exclusao_porque") and r.get("fora_da_esteira") == "SIM"
+                and str(r["exclusao_porque"]).strip(" .") not in mot):
             fim += f" Motivo da exclusão: {r['exclusao_porque']}."
         # e quando o rótulo foi derrubado, o dossiê tem de dizer isso — é a frase que explica
         # por que a categoria gravada e a decisão não batem
