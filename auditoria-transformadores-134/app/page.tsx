@@ -677,6 +677,15 @@ export default function Page() {
          defeito tem de ser no próprio ativo. Estes filtros mostram o segundo, sem mudar o
          casamento: em 19.378 ocorrências da base um transformador foi interrompido com o
          defeito noutro elemento. Marcador, não peneira. */
+      /* CENSO DA CRÍTICA — a pergunta dele: "eu achei que tinham muito mais ativos ausentes da
+         base de interrupções". A resposta não é caso a caso, é dos 1.510 de uma vez, contra os
+         sete meses da Crítica (dezembro de 2025 incluído). E são quatro estados que não são
+         graus do mesmo: ausente é ausente; ter defeito noutra data é outra coisa; aparecer sem
+         nunca ter defeito aberto no próprio código é uma terceira. */
+      { id: "censo_ausente", rotulo: "Censo · ausente da Crítica", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — nos sete meses do acervo. Ausente aqui é ausente de verdade.", teste: (r) => texto(r.censo_critica) === "AUSENTE" },
+      { id: "censo_semdef", rotulo: "Censo · aparece, nunca com defeito nele", nota: "O código aparece na Crítica, mas sempre como interrompido ou manobrado: nenhuma ocorrência foi aberta com o defeito neste transformador, em nenhuma data.", teste: (r) => texto(r.censo_critica) === "SEM DEFEITO NELE" },
+      { id: "censo_outradata", rotulo: "Censo · defeito nele, mas em outra data", nota: "Existe ocorrência com o defeito aberto neste transformador, só que fora da janela desta SS. É diferente de não existir: a distância é que não fecha.", teste: (r) => texto(r.censo_critica) === "DEFEITO EM OUTRA DATA" },
+      { id: "censo_janela", rotulo: "Censo · defeito nele dentro da janela", nota: "A Crítica registra ocorrência com o defeito aberto neste transformador dentro da janela desta SS. É o casamento que a esteira aceita como prova.", teste: (r) => texto(r.censo_critica) === "DEFEITO NA JANELA" },
       { id: "def_tr", rotulo: "Defeito no próprio transformador", nota: "A ocorrência foi aberta com o defeito neste transformador. É o único casamento que a esteira aceita como prova.", teste: (r) => texto(r.def_elemento) === "TR" },
       { id: "def_uc", rotulo: "Defeito na unidade consumidora", nota: "O transformador ficou sem energia, mas o defeito foi aberto na unidade consumidora — é defeito de ligação de cliente, não do equipamento.", teste: (r) => texto(r.def_elemento) === "UC" },
       { id: "def_ch", rotulo: "Defeito em chave", nota: "O defeito foi aberto numa chave. O transformador aparece como interrompido, não como defeituoso.", teste: (r) => texto(r.def_elemento) === "CH" },
@@ -1644,6 +1653,15 @@ export default function Page() {
             <span>Janela da interrupção</span>
             <div className="janela-botoes">{[12, 24, 48].map((h) => <button key={h} type="button" className={janela === h ? "ativo" : ""} onClick={() => setJanela(h)}>{h}h</button>)}</div>
             <small>{janela === fluxo.meta.janelaHoras ? "Janela padrão, a mesma da decisão gravada." : `${br(mudamComJanela)} solicitações mudariam de lado com ${janela}h. A decisão gravada continua a de ${fluxo.meta.janelaHoras}h.`}</small>
+          </section>
+          <section className="kpi-grid">
+            {/* O CENSO, respondendo de uma vez a "quantos ativos estão mesmo ausentes". Contado
+                contra os sete meses da Crítica, dezembro de 2025 incluído — foi essa a conta que
+                eu tinha feito errado uma vez, lendo só 2026, e que dava 94 em vez de 78. */}
+            <Kpi rotulo="Censo · defeito nele na janela" valor={br(conta((r) => texto(r.censo_critica) === "DEFEITO NA JANELA"))} nota="a Crítica prova o defeito neste trafo, na data" tom="green" aoClicar={() => abrirRecorte("censo_janela")} />
+            <Kpi rotulo="Censo · defeito nele em outra data" valor={br(conta((r) => texto(r.censo_critica) === "DEFEITO EM OUTRA DATA"))} nota="existe ocorrência com defeito nele, só que fora da janela" tom="amber" aoClicar={() => abrirRecorte("censo_outradata")} />
+            <Kpi rotulo="Censo · ausente da Crítica" valor={br(conta((r) => texto(r.censo_critica) === "AUSENTE"))} nota="o código não aparece em papel nenhum, nos sete meses" tom="red" aoClicar={() => abrirRecorte("censo_ausente")} />
+            <Kpi rotulo="Censo · aparece, nunca com defeito nele" valor={br(conta((r) => texto(r.censo_critica) === "SEM DEFEITO NELE"))} nota="só como interrompido ou manobrado" tom="ink" aoClicar={() => abrirRecorte("censo_semdef")} />
           </section>
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Campo</span><h2>Causa registrada</h2></div><small>clique para filtrar</small></div>

@@ -418,7 +418,11 @@ def borda(ab, o):
     return (ab - fim).total_seconds() if ab > fim else (o["ini"] - ab).total_seconds()
 
 
-AT_HERDADO_SO_NA_JANELA = os.environ.get("AT_HERDADO_SO_NA_JANELA") == "1"
+# Ligada por decisão dele: "se não tem interrupção registrada de verdade deveria ir direto
+# para exclusão". Um atendimento herdado de rodada antiga não prova nada se a data dele não
+# cabe na janela — havia atendimento de 11 de junho sustentando SS de 3 de janeiro. Desligar
+# volta ao número velho, e o que muda são 51 casos.
+AT_HERDADO_SO_NA_JANELA = os.environ.get("AT_HERDADO_SO_NA_JANELA", "1") == "1"
 
 
 def dentro(ab, o):
@@ -1319,6 +1323,34 @@ def main():
         r["etiquetas"] = " · ".join(achadas)
         r["etiquetas_porque"] = " | ".join(porques)
     print(f"  etiquetas aplicadas: {dict(conta_etq)}")
+
+    # ------------------------------------------------------------------ censo da Crítica
+    # "Eu achei que tinham muito mais ativos ausentes da base de interrupções." A pergunta merece
+    # resposta em todos os 1.510 e não caso a caso: para cada transformador, em que estado ele
+    # está na Crítica inteira — os sete meses, dezembro de 2025 incluído. São quatro estados e
+    # eles não são graus do mesmo: ausente é ausente, e ter defeito noutra data é outra coisa.
+    CENSO = {
+        "AUSENTE": "o código não aparece na Crítica em papel nenhum",
+        "SEM DEFEITO NELE": "aparece na Crítica, mas nunca com o defeito aberto nele",
+        "DEFEITO EM OUTRA DATA": "tem defeito aberto nele, mas em data que não cabe na janela",
+        "DEFEITO NA JANELA": "tem ocorrência com defeito nele dentro da janela desta SS",
+    }
+    conta_censo = collections.Counter()
+    for r in fluxo["registros"]:
+        cod = str(r.get("trafo") or "").strip()
+        ab = parse(r.get("abertura"))
+        if cod not in vistos:
+            e = "AUSENTE"
+        elif not por.get(cod):
+            e = "SEM DEFEITO NELE"
+        elif any(dentro(ab, o) for o in por.get(cod, [])):
+            e = "DEFEITO NA JANELA"
+        else:
+            e = "DEFEITO EM OUTRA DATA"
+        r["censo_critica"] = e
+        r["censo_critica_porque"] = CENSO[e]
+        conta_censo[e] += 1
+    print(f"  censo da Crítica: {dict(conta_censo)}")
 
     ORIGEM = {
         "furto": ("o dono pediu que furto excluísse mesmo com trafo movimentado", ""),
