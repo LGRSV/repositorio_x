@@ -602,3 +602,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .records-table.passos-oc tbody tr:hover { background: #faf8f5; box-shadow: none; }
 .records-table.passos-oc td code { margin-top: 0; color: #3f4247; font-size: 8px; }
 .records-table.passos-oc td span { font-size: 7px; color: #8a8d91; text-transform: uppercase; letter-spacing: .06em; }
+
+/* O T da marca vira botão de exportar. Cursor e realce dizem que é clicável sem precisar de
+   rótulo — o title explica, e a confirmação aparece embaixo do nome por seis segundos. */
+.brand i.exportador { cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.brand i.exportador:hover { transform: scale(1.06); box-shadow: 0 0 0 3px rgba(165,42,52,.25); }
+.brand i.exportador:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.brand small.exportou { display: block; margin-top: 4px; color: #6f9a7f; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
