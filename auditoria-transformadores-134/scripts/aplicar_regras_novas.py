@@ -1276,6 +1276,15 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "DG-RD-PO 00073/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono martelou queimado assumindo a falta da terceira prova: “classifica como "
+            "queimado porém material ainda não conferido pelo export”. O campo e o texto "
+            "convergem — a Crítica registra o defeito no próprio transformador com subcausa "
+            "“queimado por descarga atmosférica”, o TMAE confirma o código e o número da "
+            "ocorrência com 32h26 de atendimento, e a SS diz “trafo e para-raios queimados”. O "
+            "que falta não é prova, é a extração: a obra 0312600077 existe e não está no export "
+            "de material. A etiqueta MATERIAL NÃO CONFERIDO NO EXPORT continua no caso"),
         "ETO-RD-GU 00179/2026": (
             "EXCLUIR", "", "furto",
             "o dono mandou excluir como furto, confirmando o que quatro registros independentes "
