@@ -714,6 +714,11 @@ export default function Page() {
       // exclusão por causa saiu daqui — ela acontece antes da esteira e tem aba própria.
       { id: "parados", rotulo: "Tudo que parou aqui", nota: "A terceira peneira retém por um motivo só: a obra não comprova que um transformador foi movimentado. É exatamente o número que a etapa da Análise de SS e OS anuncia.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" },
       { id: "semprova", rotulo: "Sem prova de troca", nota: "Chegaram ao terceiro estágio, mas o material não comprova a troca ou o texto não decide. Não é exclusão: é ausência de prova.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" },
+      /* Duas coisas que a peneira tratava como uma só. A obra que NUNCA FOI GERADA não tem o
+         que conferir — e essa sai do indicador, por regra do dono. A obra que EXISTE mas não
+         está no export de material tem: o que falta é a extração chegar. Chamar as duas de
+         "sem prova" é dizer que a prova não existe, quando o que não existe é o nosso acesso. */
+      { id: "siago", rotulo: "Só falta a extração do SIAGO", nota: "A obra existe, com número, descrição e enquadramento — e não está no export de material que temos. Não é ausência de prova: é ausência da extração. Estes 25 fecham sozinhos quando o SIAGO vier, e são a fila mais barata de resolver desta auditoria.", teste: (r) => r.pendente_siago === "SIM" },
       { id: "semprova_mat", rotulo: "Sem prova · material não conferido", nota: "A obra está fora do export de material, ou não chegou a ser gerada.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.material_conferido !== "SIM" },
       { id: "semprova_texto", rotulo: "Sem prova · texto não decide", nota: "A leitura ficou indefinida, e ela nunca decide sozinha.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.leitura === "L3" },
       { id: "suspeita", rotulo: "Sob suspeita no texto", nota: "MEDIDO_, plano de medida, remanejamento ou sobrecarga. Não retém ninguém: marca para quem for conferir à mão.", teste: (r) => r.sob_suspeita === "SIM" && arquivo(r) === "RETIDO — SEM PROVA DE TROCA" },
@@ -1334,7 +1339,7 @@ export default function Page() {
         ["Base_Atendimentos_TMAE.xlsx", "Atendimentos", "A linha do TMAE: cronologia completa, os quatro tempos, equipe e a observação do executante.", "0,3 MB"],
         ["Base_Obras_SIGCO.xlsx", "Obras e SIGCO", "O cadastro da obra: classe, natureza, tipo, projeto, empreiteira, setor, valores e datas.", "0,4 MB"],
         ["Base_Material.xlsx", "Material da obra", "Item a item do que saiu do almoxarifado, com código, descrição, quantidade prevista e realizada e valor.", "0,9 MB"],
-        ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão, a causa confirmada, o gatilho da exclusão com a frase que a explica, o intervalo inteiro da ocorrência e o marcador de deslocamento.", "0,35 MB"],
+        ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão, a causa confirmada, o gatilho da exclusão com a frase que a explica, o intervalo inteiro da ocorrência e o marcador de deslocamento.", "0,37 MB"],
       ];
       // as originais são o arquivo cru, sem filtro e sem recorte: é contra elas que qualquer
       // número deste site pode ser refeito do zero por quem quiser conferir
@@ -1731,6 +1736,7 @@ export default function Page() {
         return <>
           <section className="kpi-grid">
             <Kpi rotulo="Parados sem prova de troca" valor={br(paramE3)} nota="a obra não comprova movimentação de transformador" tom="amber" aoClicar={() => abrirRecorte("semprova")} />
+            <Kpi rotulo="Só falta a extração do SIAGO" valor={br(conta((r) => r.pendente_siago === "SIM"))} nota="a obra existe; o material dela é que não está no export" tom="blue" aoClicar={() => abrirRecorte("siago")} />
             <Kpi rotulo="Material não conferido" valor={br(conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.material_conferido !== "SIM"))} nota="a obra está fora do export de material" tom="ink" aoClicar={() => abrirRecorte("semprova_mat")} />
             <Kpi rotulo="Texto não decide" valor={br(conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.leitura === "L3"))} nota="a leitura ficou indefinida" tom="ink" aoClicar={() => abrirRecorte("semprova_texto")} />
             <Kpi rotulo="Sob suspeita no texto" valor={br(conta((r) => r.sob_suspeita === "SIM" && arquivo(r) === "RETIDO — SEM PROVA DE TROCA"))} nota="medido, plano de medida, remanejamento ou sobrecarga" tom="amber" aoClicar={() => abrirRecorte("suspeita")} />
