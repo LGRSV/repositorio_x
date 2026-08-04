@@ -1292,6 +1292,7 @@ def main():
             somados += 1
     print(f"  “sem rastro” somado a “ausente”: {somados} · movidos para fora da janela: {movidos}")
 
+
     # ---------- de quem é cada regra de exclusão
     # O contador "excluídas por você" na tela só sabia contar o que o dono marca no navegador, e
     # por isso mostrava zero — quando na verdade TODAS as categorias de exclusão existem porque
@@ -2363,6 +2364,34 @@ def main():
             "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
         })
     print(f"  fora da janela da interrupção, excluídos: {fora_janela}")
+
+    # ---------- e os que NUNCA tiveram defeito aberto neles vão para "ausente", por ordem dele
+    # Estes apareciam como "fora da janela", e a frase da categoria promete o que eles não têm:
+    # defeito registrado no próprio código, em outra data. Eles não têm em data nenhuma — só
+    # aparecem na Crítica como interrompidos ou manobrados, nunca como o elemento onde o defeito
+    # foi aberto. Ele leu os vinte e três, um a um, e mandou para "ausente da base de
+    # interrupções". A categoria passa a significar "não há defeito aberto neste transformador
+    # que sustente o caso", que é o que a peneira de fato mede — e aí a frase volta a ser
+    # verdadeira para todo mundo que está lá dentro.
+    #
+    # Efeito colateral bem-vindo: "fora da janela" fica sendo exatamente quem TEM distância para
+    # medir. Antes a barra dizia 85 e a planilha das faixas trazia 62, porque 23 não tinham de
+    # onde medir. Os dois números passam a ser o mesmo.
+    com_defeito_proprio = {cod for (_n, cod) in oc}
+    sem_defeito_nenhum = 0
+    for r in fluxo["registros"]:
+        if str(r.get("expurgo_gatilho") or "") != "fora_da_janela":
+            continue
+        if str(r.get("trafo") or "").strip() in com_defeito_proprio:
+            continue
+        r["expurgo_gatilho"] = "sem_interrupcao"
+        r["exclusao_porque"] = ("a Crítica nunca registrou defeito aberto neste transformador — em "
+                                "data nenhuma dos sete meses. O código aparece na base, mas só como "
+                                "interrompido ou manobrado, que é o que acontece com quem fica sem "
+                                "energia por defeito de outro equipamento")
+        r["cascata_motivo"] = f"Fora do indicador: {r['exclusao_porque']}."
+        sem_defeito_nenhum += 1
+    print(f"  sem defeito aberto neles em data nenhuma, somados a “ausente”: {sem_defeito_nenhum}")
 
     # ---------- até onde o caso desceu, dito em uma linha
     # A cascata já diz isso, mas dita como motivo de parada ("RETIDO — SEM PROVA DE TROCA"),
