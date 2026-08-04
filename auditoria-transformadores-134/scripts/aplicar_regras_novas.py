@@ -480,6 +480,27 @@ def main():
         wb.close()
     print(f"  descrições restauradas do arquivo original (estavam cortadas): {restaurados}")
 
+    # ---------- a vírgula da potência foi comida na importação
+    # 112,5 kVA virou 1125 em 64 registros, e 37,5 virou 375 em um. São os dois únicos valores
+    # fora da tabela de potências de distribuição (5, 10, 15, 25, 30, 45, 75, 112,5, 150) — não
+    # existe transformador de poste de 1.125 kVA. O erro é do import, não da base, e aparecia
+    # escrito na narrativa: "trocando a potência de 75 kVA para 1125 kVA".
+    DECIMAL = {"1125": "112,5", "375": "37,5", "2250": "225", "225.0": "225"}
+    trocadas = 0
+    for r in fluxo["registros"]:
+        for campo in ("pot_ret", "pot_inst"):
+            v = str(r.get(campo) or "").strip()
+            if v in DECIMAL:
+                r[campo] = DECIMAL[v]
+                trocadas += 1
+        det = r.get("det_ss")
+        if isinstance(det, dict):
+            for campo in ("Potencia Inst", "Potencia Ret"):
+                v = str(det.get(campo) or "").strip()
+                if v in DECIMAL:
+                    det[campo] = DECIMAL[v]
+    print(f"  potências com a vírgula recuperada: {trocadas}")
+
     antes = collections.Counter(r["cascata"] for r in fluxo["registros"])
 
     # ---------- o que a OBRA diz que é: a terceira leitura, que estava no dado e ninguém lia
@@ -1388,6 +1409,48 @@ def main():
             "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
         })
     print(f"  ausentes da Crítica em qualquer papel, excluídos: {fora_critica}")
+
+    # ---------- fora da janela da interrupção: sai do indicador
+    # Regra do dono, dita assim: "se do primeiro passo aberto até o último passo o cara não
+    # abriu a SS, e nem 24 horas depois do último passo, desconsidere e resuma nos excluídos
+    # por fora da janela de interrupção".
+    #
+    # Vale para quem SOBROU aqui depois de a ausência ter saído: estes existem na Crítica, o
+    # defeito até pode ser do próprio transformador, mas em outra data. A distância fica escrita
+    # em cada um, porque 26 dias e 26 horas são coisas diferentes e quem lê precisa ver qual é.
+    #
+    # A CONTENÇÃO fica marcada, não excluída junto. Em 31 casos a ocorrência cabe inteira entre
+    # a abertura e o término da SS: é o corte que a própria equipe fez para trocar, não um
+    # evento alheio. Sai daqui como os outros — a regra é a regra —, mas com bandeira própria,
+    # para o dono poder puxá-los de volta com uma decisão só.
+    fora_janela = 0
+    for r in fluxo["registros"]:
+        if r.get("cascata") != "RETIDO — SEM INTERRUPÇÃO NA JANELA":
+            continue
+        ab, tm = parse(r.get("abertura")), parse(r.get("termino"))
+        oi, of = parse(r.get("oc_ini")), parse(r.get("oc_fim"))
+        contida = bool(ab and tm and oi and of and ab <= oi and of <= tm + datetime.timedelta(hours=2))
+        r["oc_contida_no_servico"] = "SIM" if contida else "NÃO"
+        dist = r.get("oc_dist_h")
+        quanto = (f"a ocorrência mais próxima no código do ativo está a {abs(float(dist)):.0f} horas "
+                  f"({abs(float(dist))/24:.0f} dias) da janela" if isinstance(dist, (int, float))
+                  else "não há ocorrência no código do ativo em data nenhuma")
+        fora_janela += 1
+        r.update({
+            "fora_da_esteira": "SIM", "cascata": "EXCLUÍDA", "decisao": "EXCLUIR",
+            "expurgo": "SIM", "expurgo_gatilho": "fora_da_janela", "chega_e1": "NÃO",
+            "exclusao_porque": (
+                "a SS não foi aberta durante a ocorrência nem nas 24 horas seguintes ao último "
+                f"passo dela — {quanto}"
+                + (". A ocorrência cabe inteira entre a abertura e o término desta SS: pode ser "
+                   "o corte que a própria equipe fez para trocar, e não um evento alheio"
+                   if contida else "")),
+            "cascata_motivo": "Fora do indicador: a SS não cai na janela de nenhuma interrupção.",
+            "confirmado": "", "chega_e2": "NÃO", "chega_e3": "NÃO",
+            "e1_status": "—", "e2_status": "—", "e3_status": "—", "e4_status": "—",
+            "ressalvas": "", "ressalvas_graves": "", "ressalvas_medias": "", "e4_alertas": "",
+        })
+    print(f"  fora da janela da interrupção, excluídos: {fora_janela}")
 
     # ---------- até onde o caso desceu, dito em uma linha
     # A cascata já diz isso, mas dita como motivo de parada ("RETIDO — SEM PROVA DE TROCA"),

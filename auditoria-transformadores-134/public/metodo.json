@@ -5,7 +5,7 @@
    "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
    "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
    "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
-   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a porta de exclusão mais a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.205 confirmados, 193 em revisão e 112 excluídos antes de entrar. Nas duas o motivo fica escrito ao lado do caso."
+   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a porta de exclusão mais a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.205 confirmados, 124 em revisão e 181 excluídos antes de entrar. Nas duas o motivo fica escrito ao lado do caso."
   ]
  },
  "blocos": [
@@ -182,7 +182,7 @@
    "titulo": "5. A ordem das peneiras",
    "paragrafos": [
     "Antes da cascata existe uma porta, e ela não é peneira. Peneira pergunta se o caso se sustenta; a porta pergunta se o caso é deste indicador. Saem por ali 112 solicitações: as de causa declarada fora do indicador — furto, abalroamento, desativação, construção, divisão de circuito, transformador auxiliar de religador, transformador particular —, as que duplicam o evento de outra SS, as que não têm documento nenhum, e as que a base de interrupção simplesmente não conhece: 48 códigos de transformador não aparecem na Crítica em papel nenhum, nem com defeito, nem interrompidos, nem manobrados para restabelecer. Isso foi conferido linha a linha, em dezembro de 2025 e nos seis meses de 2026, antes de virar regra — porque \"não tem interrupção\" era uma frase só para quatro situações diferentes, e apenas uma delas é ausência de verdade.",
-    "Falta de documento não é motivo de exclusão, e por um tempo foi. A régua tirava do indicador quem não tinha obra gerada ou OS sem descrição — e em 16 desses casos a base de interrupção registrava causa TRANSFORMADOR com subcausa de falha, onze deles a distância zero da janela. Isso convertia \"não consigo provar a troca\" em \"a falha não conta\", que são coisas diferentes. O campo é fato consumado: a obra que não existe não desfaz o que duas bases independentes registraram. O que ela desfaz é a prova da troca, e essa pergunta é da terceira peneira. Esses casos voltaram à esteira e param lá, com o rótulo honesto.",
+    "A primeira peneira ficou vazia, e isso é consequência de uma decisão e não acidente: quem não tem interrupção na janela não fica mais parado esperando leitura, sai do indicador com o motivo escrito. São 181 exclusões, e a maior categoria é essa. Dentro dela a distinção importa: 48 códigos não existem na Crítica em papel nenhum — nem com defeito, nem interrompidos, nem manobrados —, enquanto 69 existem e a SS é que caiu fora da janela deles, com a distância escrita caso a caso. E 31 desses 69 merecem segunda leitura: neles a ocorrência começa depois de a SS abrir e termina antes de ela fechar, às vezes no mesmo minuto. Pode não ser evento alheio — pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado; ninguém fica sem luz até alguém desligar.",
     "O que entra na esteira são as 1.446 restantes. Primeiro a interrupção prova que o evento existiu, e a janela não é simétrica: vale de uma hora antes do primeiro passo da ocorrência até vinte e quatro horas depois do último. Para frente ela é larga porque a troca é consequência do evento; para trás é curta porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois — em 47 casos essa antecipação é de menos de um quarto de hora. 35 solicitações abrem antes disso e ficam com rótulo próprio, porque a pergunta que levantam é outra: o registro atrasou, ou é outro evento? Depois o deslocamento mostra que houve equipe no código do transformador — e não retém ninguém, é marcador. No terceiro estágio o material da obra responde a uma pergunta só: um transformador foi mesmo movimentado? No quarto, a ressalva separa a interrupção que tem sinal enfraquecedor.",
     "Essa ordem foi corrigida. A exclusão morava dentro da terceira peneira, e por isso só era julgado quem passasse da primeira — um furto sem interrupção registrada ficava parado como pendência de leitura, quando já tinha resposta. A causa declarada não depende de a Crítica ter registrado corte naquele dia: a ausência de fato não muda a causa, e a presença também não.",
     "O que entra na esteira são as 1.451 restantes. Primeiro a interrupção prova que o evento existiu. Depois o deslocamento mostra que houve equipe no código do transformador — e não retém ninguém, é marcador. No terceiro estágio o material da obra responde a uma pergunta só: um transformador foi mesmo movimentado? No quarto, a ressalva separa a interrupção que tem sinal enfraquecedor.",
@@ -199,14 +199,14 @@
      [
       "0 · Exclusão (antes da esteira)",
       "1.510",
-      "1.398",
-      "112 fora do indicador"
+      "1.329",
+      "181 fora do indicador"
      ],
      [
       "1 · Interrupção",
-      "1.398",
       "1.329",
-      "69 sem interrupção na janela"
+      "1.329",
+      "0 — quem não tinha interrupção já saiu na etapa 0"
      ],
      [
       "2 · Deslocamento (marcador)",
