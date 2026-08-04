@@ -562,6 +562,14 @@ export default function Page() {
       // o alerta é gravado como "8812 espera queimado" — a palavra SIGCO não aparece nele,
       // e procurá-la deixava este filtro em zero desde sempre
       { id: "sigco_av", rotulo: "Avaria no projeto de queima", nota: "A leitura concluiu avaria e a obra foi enquadrada no SIGCO 8812, que é o projeto de transformador queimado. Não muda a causa — muda para onde o custo foi. É bandeira contábil, não veredito técnico.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
+      /* Tipo de obra. Quase tudo é manutenção corretiva emergencial, e é por isso que as
+         exceções importam: obra programada ou preventiva descreve troca decidida antes, não
+         falha súbita. São poucas — o filtro existe para que sejam encontráveis. */
+      { id: "obr_emerg", rotulo: "Manutenção corretiva emergencial", nota: "A obra padrão da troca por falha: 1.474 das 1.510.", teste: (r) => normalize(texto(r.obra_tipo)).includes("EMERGENCIAL") },
+      { id: "obr_prog", rotulo: "Manutenção corretiva programada", nota: "A troca foi decidida antes, não em emergência — indício de que não houve falha súbita.", teste: (r) => normalize(texto(r.obra_tipo)).includes("PROGRAMADA") },
+      { id: "obr_prev", rotulo: "Manutenção preventiva", nota: "Obra de prevenção: não pressupõe defeito.", teste: (r) => normalize(texto(r.obra_tipo)).includes("PREVENTIVA") },
+      { id: "obr_outra", rotulo: "Outro tipo de obra", nota: "Linha morta, desativação e o que mais não seja manutenção corretiva emergencial.", teste: (r) => Boolean(texto(r.obra_tipo)) && !normalize(texto(r.obra_tipo)).includes("EMERGENCIAL") },
+      { id: "obr_imob", rotulo: "Ordem de imobilização", nota: "A obra imobiliza o ativo — enquadramento esperado para troca de equipamento.", teste: (r) => normalize(texto(r.obra_classe)).includes("IMOBILIZA") },
       { id: "obra_diz", rotulo: "A obra diz outra causa", nota: "O cadastro de obras traz um campo de descrição preenchido depois da execução — \u201cSUBST. TRAFO QUEIMADO\u201d, \u201cFURTO DE BENS TRAFO\u201d. É a terceira voz do caso: a SS diz o que pediu, a OS o que executou, a obra sob que rótulo o custo entrou. Aqui ela não bate com a leitura.", teste: (r) => r.obra_diverge === "SIM" },
       { id: "sigco_dic", rotulo: "SIGCO divergente da leitura", nota: "O custo entrou num projeto que pressupõe uma causa e a leitura concluiu outra. O dicionário de projetos foi construído das 1.479 obras: 8812 é queima em 98%, 61993 é furto em 85%, 20497 é dano de terceiro em 100%, 8444 é vazamento de óleo. Só acusa projeto com mais de 60% de pureza — abaixo disso ele mistura causas e não pressupõe nada.", teste: (r) => r.sigco_diverge === "SIM" },
       { id: "obra_sigco", rotulo: "A obra e o SIGCO discordam entre si", nota: "O sinal mais limpo do acervo: dois campos do próprio cadastro se contradizendo, sem leitura nossa envolvida. A obra foi aberta com um rótulo e o custo entrou noutro projeto — quem escreveu os dois foi a mesma casa, depois da execução.", teste: (r) => r.obra_sigco_discordam === "SIM" },
@@ -681,6 +689,7 @@ export default function Page() {
     return base.filter((r) => normalize([
       r.ss, r.os, r.obra, r.trafo, r.localidade, r.alimentador, r.solicitante, r.origem,
       r.equipe_ss, r.at_equipe, r.categoria_texto, r.oc_causa, r.oc_sub, r.decisao, r.motivo_decisao,
+      r.obra_tipo, r.obra_descricao, r.sigco, r.autorizacao, r.expurgo_gatilho,
     ].join(" ")).includes(agulha));
   }, [comJanela, recorte, recorteAtivo, agulha, modulo, classificacao]);
 
@@ -1357,7 +1366,10 @@ export default function Page() {
           </section>
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Enquadramento</span><h2>Tipo da obra</h2></div></div>
-              <Barras dados={contar(registros.filter((r) => texto(r.obra)), "obra_tipo", 8)} total={total} /></article>
+              <Barras dados={contar(registros.filter((r) => texto(r.obra)), "obra_tipo", 8)} total={total} aoSelecionar={(l) => {
+                const n = normalize(l);
+                setBusca(""); abrirRecorte(n.includes("PROGRAMADA") ? "obr_prog" : n.includes("PREVENTIVA") ? "obr_prev" : n.includes("EMERGENCIAL") ? "obr_emerg" : "obr_outra");
+              }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Responsáveis</span><h2>Setor da última movimentação</h2></div></div>
               <Barras dados={contar(registros.filter((r) => texto(r.obra_setor)), "obra_setor", 8)} /></article>
           </section>
