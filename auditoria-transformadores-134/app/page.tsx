@@ -1976,7 +1976,27 @@ export default function Page() {
           <Kpi rotulo="Casaram em dezembro de 2025" valor={br(conta((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")))} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
           <Kpi rotulo="SS duplicada" valor={br(duplicadas.length + g("duplicada"))} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
         </section>
-        <section className="panel editorial-note wide"><span>POR QUE ELAS SAEM E NÃO FICAM ESPERANDO</span>
+        {/* O analítico que as outras abas têm e esta não tinha. Três perguntas diferentes sobre
+            o mesmo conjunto: por que parou, o que o texto do caso diz, e em que estado o ativo
+            está na Crítica inteira. Cada barra filtra a lista embaixo. */}
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>Por que parou aqui</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(semFato.map((r) => ({ ...r, _p: GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "Ainda retido" })), "_p", 10)} total={semFato.length} aoSelecionar={(l) => {
+              const chave = Object.entries(GATILHO_ROTULO).find(([, v]) => v === l)?.[0];
+              setBusca(""); abrirRecorte({ fora_da_janela: "p_outra_data", sem_interrupcao: "p_ausente", sem_fato: "p_semfato" }[chave || ""] || "parados");
+            }} /></article>
+          <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>O que o texto do caso diz</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(semFato.map((r) => ({ ...r, _t: texto(r.categoria_texto) || "não decide" })), "_t", 8)} total={semFato.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
+        </section>
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>Onde o ativo está na Crítica</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={contar(semFato.map((r) => ({ ...r, _c: texto(r.censo_critica) || "—" })), "_c", 6)} total={semFato.length} aoSelecionar={(l) => {
+              setBusca(""); abrirRecorte({ "AUSENTE": "censo_ausente", "SEM DEFEITO NELE": "censo_semdef", "DEFEITO EM OUTRA DATA": "censo_outradata", "DEFEITO NA JANELA": "censo_janela" }[l] || "parados");
+            }} /></article>
+          <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>Mês da abertura da SS</h2></div></div>
+            <Barras dados={contar(semFato.map((r) => ({ ...r, _m: String(r.abertura || "").slice(0, 7) || "—" })), "_m", 8)} total={semFato.length} /></article>
+        </section>
+                <section className="panel editorial-note wide"><span>POR QUE ELAS SAEM E NÃO FICAM ESPERANDO</span>
           <p>Foi regra sua: “se do primeiro passo aberto até o último passo o cara não abriu a SS e nem 24 horas depois do último passo, desconsidere e resuma nos excluídos”. Enquanto ficavam retidas, apareciam como pendência de leitura — como se ainda faltasse alguém olhar — quando a resposta já existia. Nenhum registro é apagado: a linha continua com o motivo escrito e o dossiê inteiro.</p>
         </section></>;
       }
