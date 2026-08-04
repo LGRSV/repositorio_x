@@ -583,3 +583,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .classificacao-arquivo .restaurar { border-color: var(--line); background: var(--white); color: #62656a; }
 .classificacao-arquivo .restaurar:hover { border-color: var(--ink); color: var(--ink); }
 .classificacao-arquivo .restaurar input { display: none; }
+
+/* Aviso dentro da grade de detalhe: a ocorrência exibida não é a prova do caso. Ocupa a linha
+   inteira porque é uma ressalva sobre tudo o que vem depois dela, não mais um campo. */
+.detail-grid .fora-janela-aviso { grid-column: 1 / -1; padding: 10px 12px; border-left: 3px solid var(--red); background: #fdf3f2; }
+.detail-grid .fora-janela-aviso strong { color: var(--red); }
+.detail-grid .fora-janela-aviso em { display: block; margin-top: 4px; color: #7a6a68; font-size: 8px; font-style: normal; line-height: 1.5; }
+.detail-grid div em { display: block; margin-top: 3px; color: #9a9c9f; font: 500 7px "IBM Plex Mono", monospace; font-style: normal; letter-spacing: .03em; }

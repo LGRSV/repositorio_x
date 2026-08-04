@@ -1699,12 +1699,17 @@ export default function Page() {
             <h3>O que a base de interrupção registra</h3>
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{texto(aberto.oc_num) || "nenhuma"}</strong></div>
+              {aberto.oc_fora_janela === "SIM" ? <div className="fora-janela-aviso"><span>Atenção</span><strong>Esta ocorrência está FORA da janela</strong><em>Ela aparece aqui como a mais próxima no código do ativo, para referência. Não é a prova do caso — a esteira não a aceitou.</em></div> : null}
               <div><span>Distância da SS</span><strong>{aberto.oc_dist_h !== null ? `${texto(aberto.oc_dist_h)} h` : "—"}</strong></div>
               <div><span>Início</span><strong>{dataBR(aberto.oc_ini)}</strong></div>
               <div><span>Fim</span><strong>{dataBR(aberto.oc_fim)}</strong></div>
               <div><span>Duração</span><strong>{texto(aberto.oc_dur_h)} h</strong></div>
               <div><span>Clientes interrompidos</span><strong>{texto(aberto.oc_cons)}</strong></div>
-              <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel)}</strong></div>
+              {/* Dizia "defeito no próprio trafo" ao lado de "sem defeito na janela", no mesmo
+                  painel: duas afirmações opostas sobre o mesmo caso. O papel descreve a
+                  ocorrência EXIBIDA, e quando ela está fora da janela isso precisa vir escrito
+                  junto — senão o campo parece prova do que não é. */}
+              <div><span>Papel do transformador</span><strong>{texto(aberto.oc_papel) || "—"}</strong>{aberto.oc_fora_janela === "SIM" ? <em>nesta ocorrência, que está fora da janela</em> : null}</div>
               <div><span>Elemento do defeito</span><strong>{ELEMENTO_ROTULO[texto(aberto.def_elemento)] || "sem defeito na janela"}</strong>{texto(aberto.def_ele_oc) ? <em>ocorrência {texto(aberto.def_ele_oc)} · {texto(aberto.def_ele_causa)}</em> : null}</div>
               <div><span>Causa</span><strong>{texto(aberto.oc_causa)}</strong></div>
               <div><span>Subcausa</span><strong>{texto(aberto.oc_sub)}</strong></div>

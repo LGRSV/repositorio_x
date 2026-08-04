@@ -419,6 +419,28 @@ def main():
             dias_ss = (HOJE - _ab.date()).days
         sem_obra_vencida = (not str(r.get("obra") or "").strip()
                             and dias_ss is not None and dias_ss > PRAZO_OBRA)
+        # FALTA DE DOCUMENTO NÃO APAGA FATO. Esta era a falha mais grave da régua, e um revisor
+        # externo a resumiu numa frase: ela convertia "não consigo provar a troca" em "a falha
+        # não conta". Em 16 das 22 exclusões documentais a Crítica registra causa TRANSFORMADOR
+        # com subcausa de falha — em onze delas a distância da janela é ZERO, e o TMAE quase
+        # sempre confirma. O campo é fato consumado; a obra que não existe não desfaz o que duas
+        # bases independentes registraram. O que ela desfaz é a PROVA DA TROCA, e essa pergunta
+        # é da terceira peneira, não da porta de exclusão. Estes casos voltam à esteira e param
+        # lá, com o rótulo honesto: o fato existe, a troca não se comprova.
+        _campo = " ".join(str(r.get(k) or "") for k in ("oc_causa", "oc_sub", "at_causa", "at_sub")).upper()
+        _dist = r.get("oc_dist_h")
+        campo_tem_falha = ("TRANSFORMADOR" in _campo
+                           and re.search(r"QUEIMAD|VAZAMENTO|TANQUE|FALHA BUCHA", _campo)
+                           and isinstance(_dist, (int, float)) and abs(_dist) <= 24)
+        if campo_tem_falha and (sem_documento or sem_obra_vencida):
+            r["documento_nao_apaga_fato"] = (
+                "A obra não foi gerada, ou a OS não tem descrição — mas a base de interrupção "
+                f"registra {r.get('oc_causa')} / {r.get('oc_sub')} neste transformador dentro da "
+                "janela. Falta de documento não desfaz fato registrado: o caso volta à esteira e "
+                "para na peneira do material, que é onde a pergunta sobre a troca mora.")
+            sem_documento = False
+            sem_obra_vencida = False
+
         if sem_obra_vencida and not sem_documento and not (fora_txt or cat in FORA_CAT):
             excluidas["sem_obra"] += 1
             r.update({
