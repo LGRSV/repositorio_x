@@ -449,17 +449,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .side-user select { width: 100%; grid-column: 1 / -1; margin-top: 8px; border: 1px solid #4a4d52; padding: 5px; background: #2a2d32; color: #cfd2d6; font-size: 8px; }
 
 /* Caixa d'água da Visão geral: cada linha é uma peneira, com a barra mostrando quanto passou. */
-.caixa-dagua { padding: 21px; }
-.caixa-linha { width: 100%; display: grid; grid-template-columns: 72px minmax(0, 1fr) 120px 46px; align-items: center; gap: 14px; border: 0; border-top: 1px solid var(--soft); padding: 13px 0; background: none; text-align: left; font-family: inherit; }
-.caixa-linha:first-of-type { border-top: 0; }
-.caixa-linha:hover { background: #faf9f7; }
-.caixa-linha > b { font: 500 22px/1 "Newsreader", serif; }
-.caixa-linha strong, .caixa-linha small { display: block; }
-.caixa-linha strong { font-size: 10px; }
-.caixa-linha small { margin-top: 3px; color: #85888c; font-size: 8px; }
-.caixa-linha > i { display: block; height: 6px; overflow: hidden; background: #e7e4df; }
-.caixa-linha > i em { display: block; height: 100%; background: var(--red); }
-.caixa-linha > u { color: #777a7e; font: 500 8px "IBM Plex Mono", monospace; text-decoration: none; text-align: right; }
 
 /* Matriz de decisão: as células com caso são clicáveis e abrem o recorte. */
 .records-table.matriz td { cursor: default; }
@@ -503,13 +492,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .col-classificar > span { display: block; margin-top: 4px; color: #85888c; font-size: 7px; text-transform: uppercase; }
 
 /* O resultado da esteira: o número que a auditoria entrega, em destaque no topo. */
-.resultado-esteira { margin-bottom: 16px; padding: 20px 22px; background: var(--ink); color: #fff; }
-.resultado-esteira > span { display: block; color: #83878c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
-.resultado-esteira > div { display: flex; flex-wrap: wrap; gap: 34px; margin-top: 12px; }
-.resultado-esteira article b { display: block; font: 500 34px/1 "Newsreader", serif; }
-.resultado-esteira article em { display: block; margin-top: 5px; color: #b7babd; font-size: 9px; font-style: normal; }
-.resultado-esteira article.total b { color: #f0c9cd; }
-.resultado-esteira > p { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #3a3d42; color: #b0b3b7; font-size: 8.5px; line-height: 1.6; }
 
 /* Downloads das bases e os blocos de detalhe do dossiê. */
 .arquivos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; padding: 0 20px 18px; }
@@ -639,3 +621,30 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-legenda { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 5px; font-size: 11px; color: #5b6577; }
 .regua-legenda strong.dentro { color: #1f9254; }
 .regua-legenda strong.fora { color: #c0392b; }
+
+/* A CASCATA EM NÚMEROS GRANDES. O número tem de ser lido do fundo da sala; o porquê, de perto.
+   A diferença de escala é grande de propósito — o degrau é o único lugar do site onde um número
+   passa de 40px — e o porquê fica recuado, como nota de rodapé da linha de cima. O sinal (−, =)
+   vem em mono e apagado: ele orienta a leitura vertical sem competir com o número. */
+.cascata-panel { margin-bottom: 16px; padding: 21px 22px 18px; }
+.cascata-simples { display: grid; }
+.degrau { border-top: 1px solid var(--soft); padding: 14px 0 15px; }
+.degrau:first-child { border-top: 0; padding-top: 4px; }
+.degrau-topo { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: baseline; gap: 4px 14px; }
+.degrau-topo > i { color: #a9acb1; font: 500 17px "IBM Plex Mono", monospace; font-style: normal; text-align: right; }
+.degrau-topo > b { grid-column: 2; font: 500 clamp(34px, 4.4vw, 46px)/1 "Newsreader", serif; letter-spacing: -.02em; }
+.degrau-topo > span { grid-column: 2; color: var(--muted); font-size: 9.5px; line-height: 1.5; }
+.degrau-topo.clicavel { cursor: pointer; }
+.degrau-topo.clicavel:hover > b { color: var(--red); }
+.degrau.forte .degrau-topo > b { color: var(--green); }
+.degrau-porques { list-style: none; margin: 11px 0 0; padding: 0 0 0 38px; display: grid; gap: 1px; }
+.degrau-porques li { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: baseline; gap: 12px; padding: 5px 6px 5px 0; color: #7c7f84; font-size: 8.5px; line-height: 1.5; }
+.degrau-porques li.sub { padding-left: 26px; color: #93969b; }
+.degrau-porques li.sub b { font-size: 13px; color: #55585d; }
+.degrau-porques li.clicavel { cursor: pointer; }
+.degrau-porques li.clicavel:hover { background: #faf9f7; color: var(--ink); }
+.degrau-porques li b { text-align: right; font: 500 15px "Newsreader", serif; color: var(--ink); }
+@media (max-width: 900px) {
+  .degrau-topo { grid-template-columns: 18px minmax(0, 1fr); }
+  .degrau-porques { padding-left: 0; }
+}
