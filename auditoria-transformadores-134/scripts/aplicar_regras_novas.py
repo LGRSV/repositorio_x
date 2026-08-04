@@ -405,9 +405,19 @@ def main():
             if not par:
                 continue
             for campo, novo in (("desc_ss", par[0]), ("desc_os", par[1])):
-                if len(novo) > len(str(r.get(campo) or "")):
-                    r[campo] = novo
-                    restaurados += 1
+                velho = str(r.get(campo) or "")
+                # Comparar tamanho cru é errado e me custou duas rodadas: o texto do arquivo
+                # original guarda o espaçamento do formulário — quatro espaços entre campos —
+                # e a limpeza colapsa isso. Um texto COMPLETO de 240 caracteres limpos perde
+                # para um CORTADO de 300 com o espaçamento intacto, e a restauração recusava
+                # exatamente os casos que precisava consertar. Compara-se o conteúdo, não a
+                # quantidade de espaço em branco. E 300 exatos é assinatura de corte: nesses,
+                # o original entra sempre que exista.
+                cortado = len(velho) == 300
+                if cortado or len(novo) > len(re.sub(r"\s+", " ", velho).strip()):
+                    if novo and novo != velho:
+                        r[campo] = novo
+                        restaurados += 1
         wb.close()
     print(f"  descrições restauradas do arquivo original (estavam cortadas): {restaurados}")
 
