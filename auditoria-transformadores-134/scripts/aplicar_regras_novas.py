@@ -1542,25 +1542,36 @@ def main():
     #
     # A bandeira continua, e é forte: quem for defender o número precisa saber que 74 dos casos
     # não penalizaram ninguém.
+    # "MANOBRA SEM PROGRAMAÇÃO PRÉVIA" também deixa de trancar, e pelo mesmo motivo do zero
+    # cliente. Essa ressalva vem da causa da Crítica — DESLIGAMENTO SEM PROGRAMAÇÃO PREVIA / RD
+    # DE BT —, e essa causa classifica o TIPO DO DESLIGAMENTO, não o que falhou: diz que a
+    # equipe cortou sem aviso, o que é o normal numa emergência. Nos cinco casos que ela segurava
+    # a obra declara "subst. trafo queimado" (quatro) ou "com sobrecarga" (um), e o material
+    # registra 1 transformador movimentado nos cinco. Segurar o caso por causa do rótulo do
+    # corte é deixar a forma decidir contra o conteúdo.
+    NAO_TRANCA = {"nenhum cliente interrompido", "manobra sem programação prévia"}
     voltaram = 0
     for r in fluxo["registros"]:
         if r.get("cascata") != "RETIDO — RESSALVA DA INTERRUPÇÃO":
             continue
         restante = [x.strip() for x in str(r.get("ressalvas") or "").split("·")
-                    if x.strip() and x.strip() != "nenhum cliente interrompido"]
+                    if x.strip() and x.strip() not in NAO_TRANCA]
         if restante:
-            continue  # tem outra ressalva além do zero cliente: continua presa
+            continue  # tem outra ressalva além dessas duas: continua presa
+        # e só volta quem tem a obra e o material a favor — a ressalva cai, a prova não
+        if float(r.get("trafos_material") or 0) <= 0:
+            continue
         voltaram += 1
         cat = str(r.get("categoria_texto") or "").strip().upper()
         r.update({
             "cascata": "SAÍDA", "decisao": "INCLUIR",
             "confirmado": "AVARIADO" if cat == "AVARIADO" else "QUEIMADO",
             "e4_status": "MARCADOR — não retém",
-            "ressalvas": "nenhum cliente interrompido",
             "ressalvas_graves": "", "ressalvas_medias": "",
-            "cascata_motivo": ("Campo, texto e material convergem. A interrupção não penalizou "
-                               "nenhum cliente — fica marcado, não retém: sem cliente não há DEC "
-                               "nem FEC, mas o transformador falhou do mesmo jeito."),
+            "cascata_motivo": ("Campo, texto e material convergem. A ressalva da interrupção fica "
+                               "marcada e não retém: ela descreve o corte — sem cliente faturado, "
+                               "ou manobrado sem aviso —, e não o que falhou. A obra e o material "
+                               "registram transformador movimentado."),
         })
     print(f"  presos só por zero cliente, agora marcados em vez de retidos: {voltaram}")
 
