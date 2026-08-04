@@ -833,6 +833,14 @@ export default function Page() {
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
+      { id: "reincidente", rotulo: "Ativos reincidentes", nota: "O mesmo transformador saiu pela ponta da esteira mais de uma vez no semestre. Não é erro de contagem quando os dois eventos existem e cada um tem ocorrência e material próprios — é informação de rede. Vale conferir quando o intervalo é curto.", teste: (r) => registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo)).length > 1 && arquivo(r) === "SAÍDA" },
+      { id: "reincidente_30", rotulo: "Reincidentes em 30 dias ou menos", nota: "Saiu duas vezes com menos de um mês entre uma e outra. É onde a duplicidade, se existir, se esconde — e é onde a rede merece uma olhada de engenharia.", teste: (r) => {
+        if (arquivo(r) !== "SAÍDA") return false;
+        const irmas = registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo));
+        if (irmas.length < 2) return false;
+        const dts = irmas.map((x) => new Date(String(x.abertura).replace(" ", "T")).getTime()).sort((a, b) => a - b);
+        return (dts[dts.length - 1] - dts[0]) / 86400000 <= 30;
+      } },
       /* ETIQUETAS — categoria dentro do veredito, não em lugar dele. Ele leu dois casos e pediu
          nome para o que estava escrito: "ponto quente na conexão" e "substituído pela Meta". Não
          mudam nem a decisão nem o número; respondem a pergunta seguinte, que avaria e quem
@@ -1792,14 +1800,42 @@ export default function Page() {
       }
       if (modulo === "decisao") {
         const celula = (f: string, l: string) => conta((r) => r.fato === f && r.leitura === l);
+        /* REINCIDENTES — pedido dele: "leva só para comparativo em queimados e avariados os
+           ativos reincidentes". Não muda número nenhum: é leitura. Um transformador que sai
+           duas vezes no mesmo semestre não é erro de contagem se os dois eventos existem — é
+           informação de rede, e é a primeira coisa que alguém pergunta numa reunião. */
+        const naSaidaLista = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const porAtivo = new Map<string, Registro[]>();
+        naSaidaLista.forEach((r) => {
+          const k = texto(r.trafo);
+          if (!k) return;
+          porAtivo.set(k, [...(porAtivo.get(k) || []), r]);
+        });
+        const reincidentes = [...porAtivo.entries()].filter(([, v]) => v.length > 1)
+          .map(([k, v]) => {
+            const ord = [...v].sort((a, b) => String(a.abertura).localeCompare(String(b.abertura)));
+            const d1 = new Date(String(ord[0].abertura).replace(" ", "T"));
+            const d2 = new Date(String(ord[ord.length - 1].abertura).replace(" ", "T"));
+            const dias = Math.round((d2.getTime() - d1.getTime()) / 86400000);
+            const mesmaOc = new Set(ord.map((r) => texto(r.oc_num)).filter(Boolean)).size < ord.filter((r) => texto(r.oc_num)).length;
+            return { trafo: k, linhas: ord, dias, mesmaOc };
+          }).sort((a, b) => a.dias - b.dias);
         return <>
+          {/* UMA CONTA SÓ NESTA TELA. Havia duas fileiras de caixas aqui, e elas discordavam:
+              uma contava pela decisão gravada no arquivo, a outra pelo arquivamento de agora,
+              que inclui o martelo dele. "Queimados 1.185" em cima e "Queimados 1.188" embaixo,
+              na mesma tela, é o tipo de coisa que derruba uma reunião. Ficou a conta de agora,
+              que é a que a barra lateral e o funil também usam. */}
           <section className="kpi-grid">
-            <Kpi rotulo="Incluir" valor={br(conta((r) => r.decisao === "INCLUIR"))} nota="contam no indicador" tom="green" aoClicar={() => abrirRecorte("incluir")} />
-            <Kpi rotulo="Revisão" valor={br(conta((r) => r.decisao === "REVISÃO"))} nota="esperam leitura humana" tom="amber" aoClicar={() => abrirRecorte("revisao")} />
-            <Kpi rotulo="Excluir" valor={br(conta((r) => r.decisao === "EXCLUIR"))} nota="outra causa comprovada" tom="red" aoClicar={() => abrirRecorte("excluir")} />
+            <Kpi rotulo="Queimados e avariados" valor={br(naSaidaLista.length)} nota="saíram pela ponta da esteira e contam no indicador" tom="green" aoClicar={() => abrirRecorte("saida")} />
+            <Kpi rotulo="Queimados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "QUEIMADO").length)} nota="causa confirmada: queima" tom="red" />
+            <Kpi rotulo="Avariados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "AVARIADO").length)} nota="vazamento, bucha, tensão, fase" tom="blue" />
+            <Kpi rotulo="Em revisão" valor={br(conta((r) => String(arquivo(r)).startsWith("RETIDO")))} nota="esperam prova de material" tom="amber" aoClicar={() => irPara("expurgos", "parados")} />
+            <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa, ou sem interrupção que sustente" tom="ink" aoClicar={() => irPara("exclusoes", "todos")} />
             <Kpi rotulo="Mudaram na revisão" valor={br(conta((r) => r.mudou_na_revisao === "SIM"))} nota="decisão diferente do funil anterior" tom="blue" aoClicar={() => abrirRecorte("mudou")} />
-            <Kpi rotulo="Queimados" valor={br(conta((r) => r.decisao === "INCLUIR" && r.categoria_texto === "QUEIMADO"))} nota="pelo texto, não pelo rótulo" tom="red" aoClicar={() => abrirRecorte("queimados")} />
-            <Kpi rotulo="Avariados" valor={br(conta((r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO"))} nota="vazamento, bucha, tensão, fase" tom="blue" aoClicar={() => abrirRecorte("avariados")} />
+            <Kpi rotulo="Ativos reincidentes" valor={br(reincidentes.length)} nota="mesmo transformador saindo mais de uma vez" tom="amber" aoClicar={() => abrirRecorte("reincidente")} />
+            <Kpi rotulo="Solicitações dos reincidentes" valor={br(reincidentes.reduce((a, x) => a + x.linhas.length, 0))} nota="já estão somadas no total acima" tom="ink" aoClicar={() => abrirRecorte("reincidente")} />
+            <Kpi rotulo="Reincidência em 30 dias ou menos" valor={br(reincidentes.filter((x) => x.dias <= 30).length)} nota="voltou a sair no mesmo mês" tom="red" aoClicar={() => abrirRecorte("reincidente_30")} />
           </section>
           <section className="panel"><div className="panel-title"><div><span>A matriz</span><h2>Fato contra leitura</h2></div><small>clique numa célula para abrir os casos</small></div>
             <div className="table-scroll"><table className="records-table matriz">
@@ -1817,6 +1853,31 @@ export default function Page() {
                 })}
               </tr>)}</tbody>
             </table></div>
+          </section>
+          {reincidentes.length ? <section className="panel"><div className="panel-title"><div><span>Comparativo</span><h2>Ativos que saíram mais de uma vez</h2></div><small>clique numa linha para abrir o dossiê</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Transformador</th><th>Intervalo</th><th>Solicitações</th><th>Ocorrências</th><th>Material</th><th>Causa</th></tr></thead>
+              <tbody>{reincidentes.map((x) => <tr key={x.trafo} onClick={() => { setAtivo(x.trafo); irPara("ativos"); }}>
+                <td><strong>{x.trafo}</strong><span>{texto(x.linhas[0].localidade)}</span></td>
+                <td><strong>{x.dias} dias</strong><span>{x.linhas.length} saídas</span>{x.mesmaOc ? <small className="expurgo-tag">dividem ocorrência</small> : null}</td>
+                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.ss)} · {dataBR(r.abertura)}</span>)}</td>
+                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.oc_num) || "sem ocorrência"}</span>)}</td>
+                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{texto(r.trafos_material)} trafo{texto(r.material_conferido) === "SIM" ? "" : " (não conferido)"}</span>)}</td>
+                <td>{x.linhas.map((r) => <span key={texto(r.ss)}>{classificacao[texto(r.ss)]?.classe || texto(r.confirmado)}</span>)}</td>
+              </tr>)}</tbody>
+            </table></div>
+          </section> : null}
+          <section className="dashboard-columns">
+            <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Causa confirmada</h2></div></div>
+              <Barras dados={contar(naSaidaLista.map((r) => ({ ...r, _c: classificacao[texto(r.ss)]?.classe || texto(r.confirmado) })), "_c", 6)} total={naSaidaLista.length} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Etiquetas do caso</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(naSaidaLista.flatMap((r) => texto(r.etiquetas).split(" · ").filter(Boolean).map((e) => ({ ...r, _e: e }))), "_e", 10)} total={naSaidaLista.length} aoSelecionar={(l) => { setBusca(""); abrirRecorte(`etq:${l}`); }} /></article>
+          </section>
+          <section className="dashboard-columns">
+            <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Subcausa da Crítica</h2></div><small>clique para filtrar</small></div>
+              <Barras dados={contar(naSaidaLista.map((r) => ({ ...r, _s: texto(r.oc_sub) || "sem ocorrência" })), "_s", 10)} total={naSaidaLista.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Queimados e avariados</span><h2>Mês da abertura</h2></div></div>
+              <Barras dados={contar(naSaidaLista.map((r) => ({ ...r, _m: String(r.abertura || "").slice(0, 7) })), "_m", 8)} total={naSaidaLista.length} /></article>
           </section>
         </>;
       }

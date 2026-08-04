@@ -1265,6 +1265,13 @@ def main():
     # de um caso foi exatamente o erro que ele já apanhou uma vez ("esse claramente é queimado
     # só está no SIGCO incorreto"). Um caso julgado é um caso julgado, não uma família.
     VEREDITO_DONO = {
+        "ETO-RD-GR 00279/2026": (
+            "INCLUIR", "QUEIMADO", "",
+            "o dono martelou queimado e mandou marcar o zero: “queimado e classifica com zero "
+            "clientes interrompidos”. A Crítica registra a ocorrência 20264137433112 com defeito "
+            "no próprio transformador e a SS abrindo dentro do intervalo dela — fato pleno —, "
+            "mas nenhum cliente foi interrompido, e a obra 0712600198 está fora do export de "
+            "material. Entra pelo campo e pelo texto, com as duas marcas escritas na linha"),
         "ETO-RD-AR 00468/2026": (
             "EXCLUIR", "", "sem_interrupcao",
             "o dono reviu a própria decisão: “se estiver fora daquelas janelas … deverão ser "
@@ -1404,6 +1411,12 @@ def main():
         ("PONTO QUENTE", r"PONTO[S]? QUENTE",
          "o texto aponta ponto quente na conexão — aquecimento no ponto de ligação, não "
          "queima do enrolamento"),
+        ("MEDIDO EM LINHA MORTA",
+         r"LINHA MORTA",
+         "a OS registra que o serviço foi medido em regime de linha morta — a equipe trabalhou "
+         "com o trecho desenergizado. É informação sobre COMO se executou, não sobre por que o "
+         "transformador saiu: o caso continua contado como está, e a marca fica para quem "
+         "precisar separar o que foi feito em emergência do que foi feito com a linha desligada"),
         ("CRÍTICA APONTA QUEIMA DO ELO",
          r"QUEIMA(DO)?\s+(DE|DO)\s+ELO\b|\bELO\s+QUEIMAD",
          "a nota de campo da ocorrência diz que o que queimou foi o ELO — o fusível da chave —, "
