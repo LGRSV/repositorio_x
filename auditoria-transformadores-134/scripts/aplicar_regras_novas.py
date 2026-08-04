@@ -1631,6 +1631,37 @@ def main():
             r["sem_cliente_interrompido"] = "NÃO"
     print(f"  ocorrências que não interromperam nenhum cliente: {sem_cli}")
 
+    # ---------- "zero cliente" nem sempre quer dizer que o trafo não atende ninguém
+    # A auditoria dos 69 achou seis casos em que o MESMO ativo aparece com um cliente
+    # interrompido noutra ocorrência do acervo. Num deles — DG-RD-PO 00169 — o mesmo
+    # transformador interrompeu 1 cliente três dias antes e zero no evento auditado.
+    #
+    # Nesses, o zero descreve o REGISTRO, não o mundo. Dizer "nenhum cliente interrompido" no
+    # dossiê afirma sobre o ativo algo que o próprio acervo desmente, e num relatório de conselho
+    # essa é a frase que alguém vai testar. A bandeira passa a dizer o que sabe: o registro veio
+    # com zero, e o ativo comprovadamente atende cliente noutro evento.
+    com_cli = collections.defaultdict(int)
+    for o in oc.values():
+        if o["cons"] > 0:
+            com_cli[o["trafo"]] = max(com_cli[o["trafo"]], int(o["cons"]))
+    corrigidos = 0
+    for r in fluxo["registros"]:
+        if r.get("sem_cliente_interrompido") != "SIM":
+            r["zero_e_registro"] = "NÃO"
+            continue
+        n = com_cli.get(str(r.get("trafo") or "").strip(), 0)
+        r["zero_e_registro"] = "SIM" if n else "NÃO"
+        if n:
+            corrigidos += 1
+            r["zero_cliente_nota"] = (
+                f"O registro desta ocorrência veio com zero cliente, mas o mesmo transformador "
+                f"aparece com {n} cliente{'s' if n > 1 else ''} interrompido{'s' if n > 1 else ''} "
+                "noutra ocorrência do acervo — o ativo atende cliente. Aqui o zero descreve o "
+                "registro, não a rede.")
+            if str(r.get("ressalvas") or "").strip() == "nenhum cliente interrompido":
+                r["ressalvas"] = "zero cliente registrado (o ativo atende cliente noutro evento)"
+    print(f"  zero que é do registro, não da rede (o ativo atende cliente noutro evento): {corrigidos}")
+
     # ---------- o que a Crítica não conhece sai do indicador
     fora_critica = 0
     for r in fluxo["registros"]:
