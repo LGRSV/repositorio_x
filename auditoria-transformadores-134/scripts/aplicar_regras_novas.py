@@ -1276,6 +1276,13 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "ETO-RD-GR 00534/2026": (
+            "EXCLUIR", "", "cola_fita",
+            "o dono mandou mudar para cola e fita, e o campo confirma sem depender de leitura: a "
+            "base de SS e OS grava DEFEITO = “COLA E FITA” neste caso — preenchido depois da "
+            "execução, é o que a equipe fechou. A OS diz “REPARO EM TRAFO COM VAZAMENTO DE ÓLEO” "
+            "e a obra encerrada e conferida não movimentou transformador nenhum. A SS pediu "
+            "substituição com aumento de potência; o que se fez foi reparo"),
         "ETO-RD-AR 00739/2026": (
             "EXCLUIR", "", "cola_fita",
             "o dono achou o caso que procurava desde o começo da revisão: “finalmente um caso de "
