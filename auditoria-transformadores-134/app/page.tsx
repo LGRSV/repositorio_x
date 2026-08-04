@@ -417,7 +417,7 @@ const GATILHO_ROTULO: Record<string, string> = {
   obra_medidor: "A obra trocou medidor",
   erro_cadastro: "Possível erro de cadastro do código",
   fora_da_janela: "Fora da janela da interrupção",
-  sem_interrupcao: "Ausente da base de interrupções",
+  sem_interrupcao: "Ausente da base de interrupções",  // inclui o que se chamava “sem rastro”
   sem_obra: "Obra nunca gerada — prazo vencido",
   sem_fato: "Sem interrupção na base Crítica",
   terceiros: "Causada por terceiros",
@@ -460,7 +460,7 @@ const GATILHO_CHIP: Record<string, string> = {
    Crítica em papel nenhum, e caso sem rastro em base alguma — nem ocorrência, nem atendimento,
    nem vizinho. O gatilho de cada caso continua granular no dado e na planilha; o que muda é a
    caixa e a barra da tela, e os três recortes finos seguem clicáveis para quem precisar separar. */
-const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao", sem_fato: "sem_interrupcao" };
+const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao" };
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
 const GATILHO_NOTA: Record<string, string> = {
@@ -1087,7 +1087,6 @@ export default function Page() {
       { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção no próprio trafo nem atendimento do TMAE dentro da janela.", teste: (r) => parouNaInterrupcao(r) },
       { id: "p_outra_data", rotulo: "Tem registro, mas em outra data", nota: "A Crítica registra defeito aberto neste transformador — só que fora do intervalo da ocorrência e das 24 horas seguintes ao último passo. A distância fica escrita em cada caso: 26 dias e 26 horas são coisas diferentes.", teste: (r) => texto(r.expurgo_gatilho) === "fora_da_janela" },
       { id: "p_ausente", rotulo: "Ausente da base de interrupções", nota: "O código não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — nos sete meses do acervo, dezembro de 2025 incluído.", teste: (r) => texto(r.expurgo_gatilho) === "sem_interrupcao" },
-      { id: "p_semfato", rotulo: "Sem fato em base nenhuma", nota: "Nem ocorrência na Crítica, nem atendimento no TMAE, nem vizinho no alimentador ou na localidade. Nem o teste do vizinho achou nada.", teste: (r) => texto(r.expurgo_gatilho) === "sem_fato" },
       { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
       { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => parouNaInterrupcao(r) && texto(r.vizinho).startsWith("Nada") },
       // O chip "provavelmente no histórico de 2025" saiu daqui: apontava para um arquivo que
@@ -1099,7 +1098,6 @@ export default function Page() {
          35 têm defeito próprio noutra data; 8 só aparecem interrompidos por defeito alheio. A
          pergunta "tem interrupção?" tem resposta diferente em cada um. */
       { id: "sem_no_trafo", rotulo: "Sem interrupção NO TRANSFORMADOR", nota: "A Crítica não registra defeito neste transformador dentro da janela. Pode haver interrupção — inclusive uma que o deixou sem energia —, mas com o defeito aberto noutro elemento: unidade consumidora, chave, disjuntor. O que falta é o registro de defeito no próprio ativo.", teste: (r) => texto(r.def_elemento) !== "TR" },
-      { id: "fora_critica", rotulo: "Ausente da base de interrupção", nota: "O código não aparece na Crítica em papel nenhum — nem como elemento com defeito, nem como interrompido, nem como manobrado para restabelecer. Conferido linha a linha em dezembro de 2025 e nos seis meses de 2026. Estes saem do indicador.", teste: (r) => r.na_critica === "NÃO" || texto(r.expurgo_gatilho) === "sem_interrupcao" },
       { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => r.aberta_antes === "SIM" },
       { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
       { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.def_elemento)) },
@@ -1478,8 +1476,7 @@ export default function Page() {
                 /* A quebra fina usa gatilhoDe, não categoriaDe: a categoria funde as três numa só
                    na caixa e na barra — fusão que ele pediu — e usá-la aqui zerava uma linha. */
                 { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "fora_da_janela"), texto: "tem defeito no transformador, mas em outra data", sub: true, aoClicar: () => irPara("semfato", "p_outra_data") },
-                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_interrupcao"), texto: "não aparece na Crítica em papel nenhum", sub: true, aoClicar: () => irPara("semfato", "p_ausente") },
-                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_fato"), texto: "sem rastro em base alguma", sub: true, aoClicar: () => irPara("semfato", "p_semfato") },
+                { n: conta((r) => arquivo(r) === "EXCLUÍDA" && gatilhoDe(r) === "sem_interrupcao"), texto: "não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado", sub: true, aoClicar: () => irPara("semfato", "p_ausente") },
               ]} />
             <Degrau n={posCritica} sinal="igual" rotulo="passaram pela Crítica"
               aoClicar={() => irPara("decisao", "pos_critica")}
@@ -1929,7 +1926,6 @@ export default function Page() {
             <Kpi rotulo="Fora do indicador por falta de interrupção" valor={br(conta((r) => parouNaInterrupcao(r)))} nota="não têm ocorrência no próprio trafo que sustente o caso" tom="red" aoClicar={() => irPara("semfato", "parados")} />
             <Kpi rotulo="…sem registro nenhum na Crítica" valor={br(conta((r) => texto(r.expurgo_gatilho) === "sem_interrupcao"))} nota="o código não aparece em papel nenhum, nos sete meses" tom="red" aoClicar={() => irPara("semfato", "p_ausente")} />
             <Kpi rotulo="…com registro, mas em outra data" valor={br(conta((r) => texto(r.expurgo_gatilho) === "fora_da_janela"))} nota="tem defeito no próprio código fora da janela" tom="amber" aoClicar={() => irPara("semfato", "p_outra_data")} />
-            <Kpi rotulo="…sem rastro em base alguma" valor={br(conta((r) => texto(r.expurgo_gatilho) === "sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="ink" aoClicar={() => irPara("semfato", "p_semfato")} />
             <Kpi rotulo="Com interrupção no próprio trafo" valor={br(conta((r) => texto(r.censo_critica) === "DEFEITO NA JANELA"))} nota="a Crítica prova o defeito neste transformador, na data" tom="green" aoClicar={() => abrirRecorte("censo_janela")} />
             <Kpi rotulo="Entraram pela contenção" valor={br(conta((r) => r.oc_contida_na_ss === "SIM"))} nota="a SS abriu antes, e o corte aconteceu com ela já aberta" tom="blue" aoClicar={() => abrirRecorte("contida")} />
           </section>
@@ -2309,20 +2305,64 @@ export default function Page() {
         const duplicadas = registros.filter((r) => r.cascata === "RETIDO — SS DUPLICADA");
         return <>
         <section className="panel editorial-note wide"><span>O QUE PAROU NA PRIMEIRA PENEIRA</span>
-          <p>São <strong>{br(semFato.length)}</strong> solicitações que não têm interrupção no próprio transformador dentro do intervalo da ocorrência nem nas 24 horas seguintes ao último passo dela. Elas <strong>saem do indicador</strong> — a peneira 1 arquiva em vez de reter —, mas continuam listadas aqui, porque é aqui que se lê por que cada uma não passou. Não são a mesma coisa e por isso vêm separadas: <strong>{br(g("fora_da_janela"))}</strong> têm defeito registrado no próprio código, só que em outra data; <strong>{br(g("sem_interrupcao"))}</strong> não aparecem na Crítica em papel nenhum nos sete meses; <strong>{br(g("sem_fato"))}</strong> não deixaram rastro em base alguma, nem pelo teste do vizinho.</p>
+          <p>São <strong>{br(semFato.length)}</strong> solicitações que não têm interrupção no próprio transformador dentro do intervalo da ocorrência nem nas 24 horas seguintes ao último passo dela. Elas <strong>saem do indicador</strong> — a peneira 1 arquiva em vez de reter —, mas continuam listadas aqui, porque é aqui que se lê por que cada uma não passou. São duas situações, e só duas: <strong>{br(g("fora_da_janela"))}</strong> têm defeito registrado no próprio código, só que em outra data, e <strong>{br(g("sem_interrupcao"))}</strong> não aparecem na Crítica em papel nenhum nos sete meses do acervo — nem com defeito, nem interrompidas, nem manobradas.</p>
+          <p>A categoria “sem rastro em base alguma” deixou de existir por ordem dele: <strong>é a mesma coisa que ausente</strong>. Dos sete casos que estavam nela, cinco foram somados aos ausentes; os outros dois, conferidos na base crua, têm defeito aberto no próprio transformador em data que não cabe na janela — esses não são ausentes e foram para a categoria de fora da janela.</p>
           <p>Dentro do conjunto, {br(semFato.filter((r) => r.leitura === "L2").length)} têm texto de furto, abalroamento, preventivo ou auxiliar — nesses a ausência de interrupção é esperada, porque não são falha de equipamento. Os outros {br(semFato.filter((r) => r.leitura !== "L2").length)} descrevem queima ou avaria: são esses que sobem para investigação, e é neles que a ausência de registro é a pergunta.</p>
         </section>
         <section className="kpi-grid">
           <Kpi rotulo="Pararam na interrupção" valor={br(semFato.length)} nota="não passaram na primeira peneira" tom="red" aoClicar={() => abrirRecorte("parados")} />
           <Kpi rotulo="Tem registro, mas em outra data" valor={br(g("fora_da_janela"))} nota="defeito no próprio código, fora da janela" tom="amber" aoClicar={() => abrirRecorte("p_outra_data")} />
           <Kpi rotulo="Ausente da base de interrupções" valor={br(g("sem_interrupcao"))} nota="não aparece na Crítica em papel nenhum" tom="red" aoClicar={() => abrirRecorte("p_ausente")} />
-          <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem vizinho no alimentador ou na localidade" tom="red" aoClicar={() => abrirRecorte("p_semfato")} />
           <Kpi rotulo="Vizinho encontrado" valor={br(conta((r) => aqui(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada")))} nota="número operativo provavelmente trocado" tom="amber" aoClicar={() => abrirRecorte("vizinho")} />
           <Kpi rotulo="Nada encontrado" valor={br(conta((r) => aqui(r) && texto(r.vizinho).startsWith("Nada")))} nota="sobe para investigação de campo" tom="red" aoClicar={() => abrirRecorte("nada")} />
           <Kpi rotulo="Com texto de falha" valor={br(conta((r) => aqui(r) && r.leitura === "L1"))} nota="texto diz queima, campo não registra" tom="amber" />
           <Kpi rotulo="Aberta antes da interrupção" valor={br(conta((r) => aqui(r) && r.aberta_antes === "SIM"))} nota="a ocorrência começou depois de a SS abrir" tom="ink" aoClicar={() => abrirRecorte("antes")} />
           <Kpi rotulo="Casaram em dezembro de 2025" valor={br(conta((r) => r.borda_2025 === "SIM" && String(r.oc_ini || "").startsWith("2025")))} nota="a janela retrocedia para antes de 2026 e a base de dezembro respondeu" tom="green" />
           <Kpi rotulo="SS duplicada" valor={br(duplicadas.length + g("duplicada"))} nota="mesmo trafo e mesmo evento de outra SS" tom="amber" aoClicar={() => abrirRecorte("duplicada")} />
+        </section>
+        {/* HÁ QUANTO TEMPO, E LIGADO A QUÊ. Ele pediu as duas coisas nestas palavras: "me mostra
+            pelo site quanto tempo esses realmente estão fora da janela, e os ausentes como são
+            vinculados — não mostre interrupção neles". São perguntas opostas e por isso ficam
+            lado a lado: de um lado a distância de quem TEM registro, do outro a única ligação
+            que existe para quem não tem nenhum. */}
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Tem registro, em outra data</span><h2>Há quanto tempo, de verdade</h2></div><small>distância da SS até o intervalo da ocorrência</small></div>
+            {(() => {
+              const fora = registros.filter((r) => texto(r.expurgo_gatilho) === "fora_da_janela"
+                && r.oc_dist_h !== null && r.oc_dist_h !== undefined && r.oc_dist_h !== "");
+              const h = (r: Registro) => Math.abs(Number(r.oc_dist_h) || 0);
+              const FAIXAS: Array<[string, (x: number) => boolean]> = [
+                ["até 24 horas", (x) => x <= 24],
+                ["1 a 7 dias", (x) => x > 24 && x <= 168],
+                ["7 a 30 dias", (x) => x > 168 && x <= 720],
+                ["1 a 3 meses", (x) => x > 720 && x <= 2160],
+                ["mais de 3 meses", (x) => x > 2160],
+              ];
+              const ds = fora.map(h).sort((a, b) => a - b);
+              return <>
+                <Barras dados={FAIXAS.map(([rot, teste]) => ({ label: rot, value: fora.filter((r) => teste(h(r))).length }))}
+                  total={fora.length} aoSelecionar={() => abrirRecorte("p_outra_data")} />
+                {ds.length ? <p className="fluxo-nota">A mais perto está a <strong>{ds[0].toFixed(1)} h</strong> da janela e a mais longe a <strong>{Math.round(ds[ds.length - 1] / 24)} dias</strong>; a mediana é de <strong>{Math.round(ds[Math.floor(ds.length / 2)] / 24)} dias</strong>. A distância é medida da abertura da SS até a borda mais próxima do intervalo inteiro da ocorrência — a mesma régua da peneira, não uma régua nova.</p> : null}
+              </>;
+            })()}
+          </article>
+          <article className="panel"><div className="panel-title"><div><span>Ausentes da Crítica</span><h2>A que eles se ligam</h2></div><small>e por que nenhuma interrupção aparece</small></div>
+            {(() => {
+              const aus = registros.filter((r) => texto(r.expurgo_gatilho) === "sem_interrupcao");
+              const comOc = aus.filter((r) => texto(r.oc_num)).length;
+              const comViz = aus.filter((r) => texto(r.vizinho) && !texto(r.vizinho).startsWith("Nada")).length;
+              const comAt = aus.filter((r) => texto(r.at_num)).length;
+              return <>
+                <Barras dados={[
+                  { label: "Nenhuma ocorrência exibida", value: aus.length - comOc },
+                  { label: "Vizinho no alimentador — hipótese", value: comViz },
+                  { label: "Nada encontrado nem no vizinho", value: aus.length - comViz },
+                  { label: "Com atendimento do TMAE", value: comAt },
+                ]} total={aus.length} aoSelecionar={(l) => abrirRecorte(l.startsWith("Vizinho") ? "vizinho" : l.startsWith("Nada") ? "nada" : "p_ausente")} />
+                <p className="fluxo-nota">Para estes <strong>{br(aus.length)}</strong> o dossiê <strong>não mostra ocorrência nenhuma</strong>, e não é omissão: o código não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — em sete meses de acervo. Exibir “a ocorrência mais próxima” aqui seria inventar vínculo. A única ligação que existe é o <strong>teste do vizinho</strong>, e ele é hipótese declarada, não prova: aponta uma ocorrência em OUTRO ativo do mesmo alimentador na janela, com a suspeita de número operativo trocado. Quem for a campo confere isso; a tela não decide por ele.</p>
+              </>;
+            })()}
+          </article>
         </section>
         {/* O analítico que as outras abas têm e esta não tinha. Três perguntas diferentes sobre
             o mesmo conjunto: por que parou, o que o texto do caso diz, e em que estado o ativo
@@ -2331,7 +2371,7 @@ export default function Page() {
           <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>Por que parou aqui</h2></div><small>clique para filtrar</small></div>
             <Barras dados={contar(semFato.map((r) => ({ ...r, _p: GATILHO_ROTULO[texto(r.expurgo_gatilho)] || "Ainda retido" })), "_p", 10)} total={semFato.length} aoSelecionar={(l) => {
               const chave = Object.entries(GATILHO_ROTULO).find(([, v]) => v === l)?.[0];
-              setBusca(""); abrirRecorte({ fora_da_janela: "p_outra_data", sem_interrupcao: "p_ausente", sem_fato: "p_semfato" }[chave || ""] || "parados");
+              setBusca(""); abrirRecorte({ fora_da_janela: "p_outra_data", sem_interrupcao: "p_ausente" }[chave || ""] || "parados");
             }} /></article>
           <article className="panel"><div className="panel-title"><div><span>Parados na interrupção</span><h2>O que o texto do caso diz</h2></div><small>clique para filtrar</small></div>
             <Barras dados={contar(semFato.map((r) => ({ ...r, _t: texto(r.categoria_texto) || "não decide" })), "_t", 8)} total={semFato.length} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
