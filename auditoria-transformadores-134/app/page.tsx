@@ -544,6 +544,7 @@ export default function Page() {
       { id: "despesa", rotulo: "Obra em despesa", nota: "A obra não imobiliza o ativo.", teste: (r) => normalize(texto(r.obra_classe)).includes("DESPESA") },
       // o alerta é gravado como "8812 espera queimado" — a palavra SIGCO não aparece nele,
       // e procurá-la deixava este filtro em zero desde sempre
+      { id: "sigco_av", rotulo: "Avaria no projeto de queima", nota: "A leitura concluiu avaria e a obra foi enquadrada no SIGCO 8812, que é o projeto de transformador queimado. Não muda a causa — muda para onde o custo foi. É bandeira contábil, não veredito técnico.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
     ],
     decisao: [
@@ -558,6 +559,7 @@ export default function Page() {
       { id: "mudou", rotulo: "Mudou na revisão", nota: "A decisão é diferente da que o funil anterior dava.", teste: (r) => r.mudou_na_revisao === "SIM" },
       { id: "queimados", rotulo: "Queimados", nota: "Incluídos cujo texto descreve queima.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "QUEIMADO" },
       { id: "avariados", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
+      { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
     semfato: [
       // A primeira peneira hoje retém por um motivo só. A SS duplicada saiu daqui: ela não é
@@ -566,7 +568,11 @@ export default function Page() {
       { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção nem atendimento na janela de 24 horas.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
       { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
       { id: "nada", rotulo: "Nada encontrado", nota: "Nem vizinho. É a lista que sobe para investigação de campo.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.vizinho).startsWith("Nada") },
-      { id: "borda", rotulo: "Provavelmente no histórico de 2025", nota: "A janela de 24 horas desta SS retrocede para dezembro de 2025, e a base de interrupção só começa em 01/01/2026 às 01:14. No dia 1º de janeiro 52% das SS ficaram sem interrupção, contra 13% de média nos outros dias: a prova está no arquivo que falta.", teste: (r) => r.borda_2025 === "SIM" && arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
+      // O chip "provavelmente no histórico de 2025" saiu daqui: apontava para um arquivo que
+      // faltava, dezembro/2025 entrou no acervo e as 24 SS de borda foram reprocuradas — as 24
+      // acharam ocorrência. Filtro que promete explicação já respondida é pior que nenhum.
+      { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.def_elemento)) },
+      { id: "outro_assunto", rotulo: "A ocorrência exibida é de outro equipamento", nota: "O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
     ],
     expurgos: [
       // A terceira peneira hoje tem UM motivo de parada: a obra não comprova a troca. A
@@ -1654,6 +1660,9 @@ export default function Page() {
           {abaDossie === "ssos" && <>
             <h3>O que foi pedido e o que foi executado</h3>
             {texto(aberto.motivo_reclassificacao) ? <article className="work-alerts"><span>EXCLUSÃO DESFEITA</span><ul><li>{texto(aberto.motivo_reclassificacao)}</li></ul></article> : null}
+            {texto(aberto.leitura_pararaio) ? <article className="work-alerts"><span>LEITURA CORRIGIDA</span><ul><li>{texto(aberto.leitura_pararaio)}</li></ul></article> : null}
+            {aberto.oc_outro_assunto === "SIM" ? <article className="work-alerts"><span>A OCORRÊNCIA EXIBIDA É DE OUTRO EQUIPAMENTO</span><ul><li>Ela está fora da janela e aparece só como referência. A nota de campo descreve trabalho em conexão, cabo, medidor ou disjuntor, sem citar transformador — não explica nada sobre este ativo. Caso para análise profunda.</li></ul></article> : null}
+            {aberto.sigco_avaria_em_queima === "SIM" ? <article className="work-alerts"><span>BANDEIRA CONTÁBIL</span><ul><li>Avaria enquadrada no SIGCO 8812, que é o projeto de transformador queimado. Não muda a causa — muda para onde o custo foi.</li></ul></article> : null}
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA SS</span><p>{texto(aberto.desc_ss) || "Sem texto."}</p></article>
             <article className="source-text"><span>DESCRIÇÃO ORIGINAL DA OS</span><p>{texto(aberto.desc_os) || "Sem texto."}</p></article>
             <section className="detail-grid">

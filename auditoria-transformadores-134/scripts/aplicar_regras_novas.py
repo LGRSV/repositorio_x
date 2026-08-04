@@ -704,6 +704,70 @@ def main():
     print("\n  marcador de deslocamento:",
           dict(collections.Counter(r.get("deslocamento") for r in fluxo["registros"] if r.get("deslocamento"))))
 
+    # ---------- a queima do para-raio não é a queima do transformador
+    # "TRAFO: 5700005195 VAZAMENTO DE ÓLEO ... PARA RAIO: QUEIMADO" foi lido como queimado
+    # porque a palavra aparece no texto. Ela aparece descrevendo OUTRO equipamento. O que o
+    # transformador tem, escrito na mesma linha, é vazamento — avaria. São quatro casos com
+    # essa forma exata: a única menção a queima é do para-raio e o trafo vaza. Não muda o
+    # total, muda de que lado ele conta, e é a diferença entre queima e avaria que o indicador
+    # separa.
+    PARA_RAIO = (r"PARA[- ]?RAIO\w*\s*:?\s*(E\s+)?QUEIMAD\w*|PARA[- ]?RAIO\w*\s+QUEIMAD\w*|"
+                 r"E PARA[- ]?RAIO\w* QUEIMAD\w*")
+    corrigidos = 0
+    for r in fluxo["registros"]:
+        if str(r.get("categoria_texto") or "").upper() != "QUEIMADO":
+            continue
+        t = norm_txt(str(r.get("desc_ss", "")) + " || " + str(r.get("desc_os", "")))
+        if not re.search(r"VAZAMENT\w*", t):
+            continue
+        if re.search(r"QUEIMAD\w*", re.sub(PARA_RAIO, " ", t)):
+            continue
+        corrigidos += 1
+        r["categoria_texto"] = "AVARIADO"
+        r["regra_leitura"] = "R6-AVARIA-PARARAIO"
+        r["leitura_pararaio"] = ("A única menção a queima no texto é do para-raio; o que o "
+                                 "transformador tem é vazamento de óleo. Lido como avaria.")
+        if r.get("confirmado") == "QUEIMADO":
+            r["confirmado"] = "AVARIADO"
+    marcados = sum(1 for r in fluxo["registros"] if r.get("leitura_pararaio"))
+    print(f"  queima do para-raio relida como avaria do trafo: {marcados} "
+          f"({corrigidos} mudaram nesta rodada)")
+
+    # ---------- a ocorrência mostrada fora da janela pode não ser sobre o transformador
+    # Quando o caso não casou e o dossiê exibe a ocorrência mais próxima só como referência, essa
+    # ocorrência ainda parece prova para quem lê rápido. Se a nota de campo dela descreve trabalho
+    # em conexão, cabo, medidor ou disjuntor e não cita transformador nenhum, ela não explica
+    # coisa alguma sobre este ativo — e dizer isso em voz alta é melhor do que deixar o número
+    # da ocorrência sugerindo o contrário. Restrito a quem está fora da janela: dentro dela, a
+    # nota omitir a palavra "trafo" é rotina e não significa nada (858 casos, 762 na saída).
+    OUTRO_EQUIP = r"CONEXO\w*|CONEXAO|CABO\w*|MEDIDOR|DISJUNTOR|BORNE\w*|REAPERT\w*|ENCABECAMENTO|JUMPER"
+    fora_assunto = 0
+    for r in fluxo["registros"]:
+        if r.get("oc_fora_janela") != "SIM":
+            r["oc_outro_assunto"] = "NÃO"
+            continue
+        obs = norm_txt(str(r.get("oc_obs") or "") + " " + str(r.get("at_obs") or ""))
+        if re.search(OUTRO_EQUIP, obs) and not re.search(r"TRAFO|TRANSFORMADOR", obs):
+            r["oc_outro_assunto"] = "SIM"
+            fora_assunto += 1
+        else:
+            r["oc_outro_assunto"] = "NÃO"
+    print(f"  ocorrência fora da janela cuja nota de campo é de outro equipamento: {fora_assunto}")
+
+    # ---------- avaria enquadrada no projeto de queima
+    # O SIGCO 8812 é o projeto de transformador queimado. Quando a leitura conclui avaria e a
+    # obra foi enquadrada ali, o custo foi para o projeto errado — não muda a causa, muda para
+    # onde o dinheiro foi. Fica como bandeira, não como veredito.
+    bandeiras = 0
+    for r in fluxo["registros"]:
+        if (str(r.get("categoria_texto") or "").upper() == "AVARIADO"
+                and str(r.get("sigco") or "").strip() == "8812"):
+            r["sigco_avaria_em_queima"] = "SIM"
+            bandeiras += 1
+        else:
+            r["sigco_avaria_em_queima"] = "NÃO"
+    print(f"  avarias enquadradas no SIGCO 8812 (projeto de queima): {bandeiras}")
+
     # ---------- os avisos de lacuna envelheceram: as duas lacunas foram fechadas
     # O texto gravado em lacuna_base dizia "a base de interrupção só começa em 01/01/2026" e
     # "o arquivo de atendimento não tem registro entre 26 e 31 de janeiro". As duas frases
