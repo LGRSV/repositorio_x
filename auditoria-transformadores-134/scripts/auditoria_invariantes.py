@@ -459,6 +459,29 @@ try:
 except ImportError:
     det19 = "openpyxl não instalado: não deu para abrir a planilha"
     p19 = ["openpyxl ausente"]
+# 20 — cada veredito do dono está aplicado, um a um
+# Guarda contra o erro que já aconteceu: uma edição por índice de texto apagou o bloco de um
+# veredito junto com o do vizinho, e o caso voltou calado para dentro do indicador. Aqui a lista
+# de vereditos viaja no próprio arquivo e é conferida contra o estado de cada registro.
+por_ss = {r["ss"]: r for r in regs}
+falta = []
+for v in fluxo.get("meta", {}).get("vereditos_do_dono", []):
+    r = por_ss.get(v["ss"])
+    if not r:
+        falta.append(f"{v['ss']}: não existe no dado")
+        continue
+    esperado = "EXCLUÍDA" if v["decisao"] == "EXCLUIR" else "SAÍDA"
+    if r.get("cascata") != esperado:
+        falta.append(f"{v['ss']}: veredito diz {esperado}, dado diz {r.get('cascata')}")
+    elif v["decisao"] == "EXCLUIR" and str(r.get("expurgo_gatilho") or "") != v["gatilho"]:
+        falta.append(f"{v['ss']}: gatilho deveria ser {v['gatilho']}, é {r.get('expurgo_gatilho')}")
+    elif v["decisao"] != "EXCLUIR" and str(r.get("confirmado") or "") != v["confirmado"]:
+        falta.append(f"{v['ss']}: confirmado deveria ser {v['confirmado']}, é {r.get('confirmado')}")
+n_ver = len(fluxo.get("meta", {}).get("vereditos_do_dono", []))
+relata(20, "todo veredito do dono está aplicado no dado", not falta,
+       f"vereditos={n_ver} · divergências={len(falta)}"
+       + ("" if not falta else "\n" + "\n".join(falta[:8])))
+
 relata(19, "a planilha para download conta a mesma história que o dado", not p19, det19)
 
 # ---------------------------------------------------------------------- placar

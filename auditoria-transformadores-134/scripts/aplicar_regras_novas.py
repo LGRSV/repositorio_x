@@ -1266,10 +1266,12 @@ def main():
     # só está no SIGCO incorreto"). Um caso julgado é um caso julgado, não uma família.
     VEREDITO_DONO = {
         "ETO-RD-AR 00468/2026": (
-            "INCLUIR", "QUEIMADO", "",
-            "o dono leu o caso e disse: “esse claramente é queimado, só está no SIGCO "
-            "incorreto”. A regra o havia excluído por ausência na base de interrupção; a "
-            "leitura dele prevalece e o caso volta ao indicador."),
+            "EXCLUIR", "", "sem_interrupcao",
+            "o dono reviu a própria decisão: “se estiver fora daquelas janelas … deverão ser "
+            "excluídos”. Ele havia mandado incluir por ler queima com SIGCO incorreto; conferido "
+            "na Crítica crua, o código 5301889004 não aparece em papel nenhum nos sete meses — "
+            "nem com defeito, nem interrompido, nem manobrado. Nem o 5701889004 que a OS escreve, "
+            "nem o 570188904 que a SS escreve. Sem registro de interrupção não há evento a medir"),
         "ETO-RD-AR 01030/2026": (
             "EXCLUIR", "", "tap",
             "o dono leu o caso e mandou excluir na categoria de tape interno. A OS registra o "
@@ -1383,6 +1385,14 @@ def main():
                 "chega_e1": "SIM", "chega_e2": "SIM", "chega_e3": "SIM",
                 "etapa_num": 5, "etapa_rotulo": "Saiu pela ponta — por veredito do dono",
             })
+    # o registro dos vereditos vai para o meta do arquivo, e o invariante 20 confere um a um se
+    # cada um está mesmo aplicado. Um veredito sumiu daqui uma vez — uma edição por índice de
+    # texto apagou o bloco vizinho junto — e o caso voltou calado para dentro do indicador. O
+    # número que vai a conselho não pode depender de eu reler a lista inteira a cada rodada.
+    fluxo.setdefault("meta", {})["vereditos_do_dono"] = [
+        {"ss": ss, "decisao": v[0], "confirmado": v[1], "gatilho": v[2]}
+        for ss, v in sorted(VEREDITO_DONO.items())
+    ]
     print(f"  vereditos do dono aplicados um a um: {len(VEREDITO_DONO)}")
 
     # ------------------------------------------------------------------ etiquetas do caso

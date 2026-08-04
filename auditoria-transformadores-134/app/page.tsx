@@ -1153,7 +1153,7 @@ export default function Page() {
       { id: "expurgos", rotulo: "Parados na análise", codigo: "04·1", param: paramE3, recorte: "parados" },
       { id: "ressalva", rotulo: "Ressalva da interrupção", codigo: "05", entram: entramE3 - paramE3, recorte: "fila" },
       { id: "ressalva", rotulo: "Retidos pela ressalva", codigo: "05·1", param: paramE4, recorte: "todos" },
-      { id: "decisao", rotulo: "Saídos pelo funil", codigo: "06", marca: naSaida, tom: "verde", recorte: "saida" },
+      { id: "decisao", rotulo: "Queimados e avariados", codigo: "06", marca: naSaida, tom: "verde", recorte: "saida" },
     ]},
     /* As exclusões vêm DEPOIS da esteira na barra e ANTES dela no tempo. Não é contradição: o
        leitor precisa entender a esteira para entender o que foi tirado dela, mas o caso
@@ -1189,7 +1189,7 @@ export default function Page() {
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
     obra: { olho: "Fora da cascata", titulo: "Obra e SIGCO", texto: "Não decide causa: lê o enquadramento de custo. A única situação que interrompe o fluxo é a obra não existir." },
-    decisao: { olho: "Saída do funil", titulo: "Saídos pelo funil", texto: "Quem passou pela porta de exclusão e pelas quatro peneiras. Uma linha por solicitação: a mesma SS não entra duas vezes, e reclassificar substitui a decisão anterior em vez de somar outra." },
+    decisao: { olho: "Saída do funil", titulo: "Queimados e avariados", texto: "Quem passou pela porta de exclusão e pelas quatro peneiras. Uma linha por solicitação: a mesma SS não entra duas vezes, e reclassificar substitui a decisão anterior em vez de somar outra." },
     ressalva: { olho: "Fila de revisão", titulo: "Ressalva da interrupção", texto: "Texto e material dizem falha, mas a interrupção tem um sinal que enfraquece: programada, sem cliente, de outro elemento ou de equipamento especial." },
     semdesloc: { olho: "Estágio 2 · marcador", titulo: "Sem corroboração do TMAE", texto: "Houve interrupção no transformador e não há atendimento de equipe registrado no código dele. Não retém ninguém: é informação, e a ausência de registro não é o mesmo que ausência de atendimento." },
     profunda: { olho: "Minha classificação", titulo: "O que eu classifiquei", texto: "O que você marcou à mão, com o seu nome e a hora. Fica ao lado da decisão do fluxo, nunca por cima dela — mas manda no arquivamento: o que você marca como queimado, excluído ou preventivo sai da fila de pendências e vai para a aba que corresponde." },
@@ -2101,7 +2101,9 @@ export default function Page() {
         {recortesDoModulo.length ? <div className="fluxo-abas">
           <button type="button" className={!recorte ? "ativo" : ""} onClick={() => setRecorte(null)} title="Sai do recorte desta aba e mostra a base inteira.">Todas as SS ({br(comJanela.length)})</button>
           {recortesDoModulo.map((x) => <button key={x.id} type="button" className={recorte?.id === x.id ? "ativo" : ""}
-            onClick={() => abrirRecorte(x.id)} title={x.nota}>{x.rotulo} ({br(registros.filter(x.teste).length)})</button>)}
+            onClick={() => abrirRecorte(x.id)} title={x.nota}>{x.rotulo} ({br(modulo === "profunda"
+              ? comJanela.filter((r) => filtraProfunda(r, x.id) && x.teste(r)).length
+              : registros.filter(x.teste).length)})</button>)}
         </div> : null}
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
