@@ -1256,6 +1256,13 @@ def main():
             "tape do retirado na posição 05 e o do instalado na 04: a troca moveu o tape, e o "
             "tape é interno — não se ajusta em campo. Vale só para este caso: a mesma diferença "
             "de posição aparece em 236 das 1.510 e não sustenta regra."),
+        "ETO-RD-AR 00692/2026": (
+            "EXCLUIR", "", "avaliar_matheus",
+            "o dono mandou tirar do indicador e marcar para avaliar com o Matheus. O caso tem "
+            "três vozes e elas não fecham: a SS escreve “QUEIMADO AVARIADO” — as duas palavras, "
+            "na mesma linha —, a obra foi aberta como substituição de trafo avariado, e o custo "
+            "entrou no projeto SIGCO 8495, que é de avaria. Fica fora da conta enquanto a "
+            "avaliação não decidir qual das três vale"),
         "DG-RD-PO 00127/2026": (
             "EXCLUIR", "", "terceiros",
             "o dono mandou conferir se a ocorrência por terceiros era mesmo deste ativo, e é: a "

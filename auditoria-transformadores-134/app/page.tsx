@@ -238,6 +238,7 @@ const NATUREZA: Record<string, string> = {
   furto: "Furto, roubo e vandalismo",
   abalroamento: "Danos a terceiro",
   terceiros: "Danos a terceiro",
+  avaliar_matheus: "Em avaliação",
   preventivo: "Obra sem defeito",
   divisao: "Obra sem defeito",
   seguranca: "Obra sem defeito",
@@ -282,10 +283,11 @@ const GATILHO_ROTULO: Record<string, string> = {
   obra_medidor: "A obra trocou medidor",
   erro_cadastro: "Possível erro de cadastro do código",
   fora_da_janela: "Fora da janela da interrupção",
-  sem_interrupcao: "Ausente da base de interrupção",
+  sem_interrupcao: "Ausente da base de interrupções",
   sem_obra: "Obra nunca gerada — prazo vencido",
   sem_fato: "Sem interrupção na base Crítica",
   terceiros: "Causada por terceiros",
+  avaliar_matheus: "Avaliar com o Matheus",
 };
 
 /* O chip que cada categoria abre na lista. Onde não houver entrada aqui, a aba gera um recorte
@@ -299,8 +301,14 @@ const GATILHO_CHIP: Record<string, string> = {
   particular: "g_part", duplicada: "g_dup", sem_os: "g_semos",
   sem_fato: "g_semfato", sem_obra: "g_semobra", sem_interrupcao: "g_seminterr",
   erro_cadastro: "g_cadastro", fora_da_janela: "g_forajanela",
-  seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc",
+  seguranca: "g_seg", tap: "g_tap", terceiros: "g_terc", avaliar_matheus: "g_matheus",
 };
+
+/* FUSÃO DE CATEGORIA — escolha dele. "Fora da janela" e "ausente da Crítica" passam a contar
+   numa categoria só, com o nome que ele deu: Ausente da base de interrupções. O gatilho de cada
+   caso continua granular no dado e na planilha — o que muda é a caixa e a barra da tela, e os
+   dois recortes finos seguem clicáveis para quem precisar separar. */
+const CATEGORIA_FUNDIDA: Record<string, string> = { fora_da_janela: "sem_interrupcao" };
 
 /* A linha de baixo de cada caixa: o que a categoria quer dizer em uma frase. */
 const GATILHO_NOTA: Record<string, string> = {
@@ -320,7 +328,7 @@ const GATILHO_NOTA: Record<string, string> = {
   sem_os: "nada para ler, nada para conferir — investigar",
   sem_obra: "passou de 60 dias — a prova de material não vem mais",
   sem_fato: "nem ocorrência, nem atendimento, nem vizinho",
-  sem_interrupcao: "o código não aparece na Crítica em papel nenhum",
+  sem_interrupcao: "sem interrupção registrada na janela — sem registro nenhum, ou registro em outra data",
   erro_cadastro: "o código não corresponde ao equipamento no poste",
   fora_da_janela: "o ativo existe na Crítica, mas em outra data",
   obra_sem_transformador: "obra encerrada e conferida, zero transformador",
@@ -331,6 +339,7 @@ const GATILHO_NOTA: Record<string, string> = {
   obra_pararaio: "a obra encerrada trocou para-raio",
   obra_medidor: "a obra encerrada trocou medidor",
   terceiros: "a Crítica dá a causa como dano de terceiro",
+  avaliar_matheus: "parado para avaliação — as vozes do caso não fecham",
   manual: "saiu pelo seu martelo, sem categoria de regra",
 };
 
@@ -652,6 +661,11 @@ export default function Page() {
     return texto(r.expurgo_gatilho);
   };
 
+  const categoriaDe = (r: Registro): string => {
+    const g = gatilhoDe(r);
+    return CATEGORIA_FUNDIDA[g] || g;
+  };
+
   /* O nível de casamento é recalculado no navegador para a janela escolhida. A decisão
      gravada continua sendo a de 24h — o controle serve para ver a sensibilidade, e a tela
      diz quantos casos mudariam. */
@@ -913,6 +927,7 @@ export default function Page() {
       { id: "todos", rotulo: "Todas as exclusões", nota: "Saíram do indicador antes da esteira: por causa declarada no texto, por categoria gravada na SS, por duplicidade — ou pela sua classificação. A decisão do fluxo continua gravada em cada uma.", teste: (r) => arquivo(r) === "EXCLUÍDA" },
       { id: "g_furto", rotulo: "Furto, roubo ou vandalismo", nota: "O texto declara furto. Vai para o projeto de reposição de ativo furtado, não é falha de equipamento.", teste: (r) => gatilhoDe(r) === "furto" },
       { id: "g_abalro", rotulo: "Abalroamento", nota: "Colisão de veículo. Vira ressarcimento de terceiro, não indicador de falha.", teste: (r) => gatilhoDe(r) === "abalroamento" },
+      { id: "g_matheus", rotulo: "Avaliar com o Matheus", nota: "Fora da conta enquanto a avaliação não decidir. Entram aqui os casos que o dono mandou parar para avaliar — não é veredito sobre o equipamento, é reconhecimento de que as fontes do caso não fecham entre si e ninguém deve resolver isso sozinho na régua.", teste: (r) => gatilhoDe(r) === "avaliar_matheus" },
       { id: "g_terc", rotulo: "Causada por terceiros", nota: "A Crítica registra a ocorrência com causa CAUSADA POR TERCEIROS. Não é falha do equipamento: alguém mexeu na rede. Vale a mesma leitura do abalroamento — vira ressarcimento, não indicador. Aqui o defeito pode estar na chave e não no transformador, e é por isso que a esteira não contava a ocorrência como fato: o dano é real, a prova de falha é que não existe.", teste: (r) => gatilhoDe(r) === "terceiros" },
       { id: "g_fase", rotulo: "Falta de fase interna", nota: "O texto declara que o transformador perdeu uma fase por dentro, e a troca foi executada como plano de medida com aumento de potência. As duas coisas cabem: o defeito existiu, e a decisão de trocar foi de capacidade.", teste: (r) => gatilhoDe(r) === "falta_fase" },
       { id: "g_semtrafo", rotulo: "Obra encerrada sem transformador movimentado", nota: "A obra está no export de material, foi encerrada e tem valor realizado — e o material conferido não traz transformador nenhum. Aqui o zero é medida, não ausência de dado: alguém executou e cobrou algo que não foi a troca. Diferente das que só esperam o SIAGO, em que o zero é lacuna.", teste: (r) => gatilhoDe(r) === "obra_sem_transformador" },
@@ -930,9 +945,10 @@ export default function Page() {
       { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => gatilhoDe(r) === "seguranca" },
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => gatilhoDe(r) === "tap" },
       { id: "g_cadastro", rotulo: "Possível erro de cadastro do código", nota: "A equipe declara no texto que o código do cadastro não corresponde ao equipamento que está no poste. Enquanto isso não for resolvido, qualquer casamento por código é casamento com o ativo errado — o caso não sustenta nem inclusão nem exclusão pelo campo.", teste: (r) => gatilhoDe(r) === "erro_cadastro" },
-      { id: "g_forajanela", rotulo: "Fora da janela da interrupção", nota: "O ativo aparece na Crítica, mas a SS não foi aberta durante nenhuma ocorrência dele nem nas 24 horas seguintes ao último passo. A distância fica escrita em cada caso — 26 dias e 26 horas são coisas diferentes, e quem lê precisa ver qual é.", teste: (r) => gatilhoDe(r) === "fora_da_janela" },
+      { id: "g_forajanela", rotulo: "Ausente da base de interrupções · registro em outra data", nota: "O ativo aparece na Crítica, mas a SS não foi aberta durante nenhuma ocorrência dele nem nas 24 horas seguintes ao último passo. A distância fica escrita em cada caso — 26 dias e 26 horas são coisas diferentes, e quem lê precisa ver qual é.", teste: (r) => gatilhoDe(r) === "fora_da_janela" },
       { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => r.oc_contida_no_servico === "SIM" },
-      { id: "g_seminterr", rotulo: "Ausente da base de interrupção", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => gatilhoDe(r) === "sem_interrupcao" },
+      { id: "g_ausente", rotulo: "Ausente da base de interrupções", nota: "Reúne os dois casos de não haver interrupção que sustente a SS: o código que não aparece na Crítica em papel nenhum e o que aparece, mas em data que não cabe na janela. Você pediu que contassem juntos. Os dois recortes finos continuam aqui embaixo para separar quando for preciso.", teste: (r) => categoriaDe(r) === "sem_interrupcao" },
+      { id: "g_seminterr", rotulo: "Ausente da base de interrupções · sem registro nenhum", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => gatilhoDe(r) === "sem_interrupcao" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => gatilhoDe(r) === "duplicada" },
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "presumida", rotulo: "Exclusão por presunção, não constatação", nota: "O texto diz \u201cpossivelmente furtado\u201d, \u201cao que tudo indica\u201d, \u201csinais de vandalismo\u201d ou \u201ctentativa de furto\u201d. A equipe supôs a partir do que viu; não constatou. Continuam fora do indicador, mas ficam marcadas — suposição arquivada como fato é o que ninguém revisa depois.", teste: (r) => r.exclusao_presumida === "SIM" },
@@ -1950,7 +1966,7 @@ export default function Page() {
       }
 
       if (modulo === "exclusoes") {
-        const g = (k: string) => conta((r) => gatilhoDe(r) === k);
+        const g = (k: string) => conta((r) => categoriaDe(r) === k);
         /* UMA CAIXA POR CATEGORIA, gerada do próprio dado.
            A lista era escrita à mão e fazia duas coisas erradas ao mesmo tempo: somava
            categorias diferentes na mesma caixa — "construção ou desativação" num número só,
@@ -1958,7 +1974,7 @@ export default function Page() {
            nenhuma o que tivesse nascido depois da última vez que alguém editou esta linha.
            Agora quem manda é o gatilho: o que existir no dado aparece, na ordem do tamanho. */
         const categorias = [...new Set(registros.filter((r) => arquivo(r) === "EXCLUÍDA")
-          .map((r) => gatilhoDe(r)).filter(Boolean))]
+          .map((r) => categoriaDe(r)).filter(Boolean))]
           .map((k) => ({ k, n: g(k) })).sort((a, b) => b.n - a.n);
         const TOM: Record<string, "red" | "amber" | "blue" | "ink" | "green"> = {
           furto: "ink", abalroamento: "amber", sem_fato: "red", sem_interrupcao: "red",
@@ -1986,12 +2002,12 @@ export default function Page() {
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Motivo da saída</h2></div><small>clique para filtrar</small></div>
               {/* a barra filtra de verdade: cada rótulo volta ao gatilho que o gerou */}
-              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[gatilhoDe(r)] || "Marcada por você" })), "_g", 40)} total={excluidas} aoSelecionar={(l) => {
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _g: GATILHO_ROTULO[categoriaDe(r)] || "Marcada por você" })), "_g", 40)} total={excluidas} aoSelecionar={(l) => {
                 const chave = Object.entries(GATILHO_ROTULO).find(([, v]) => v === l)?.[0];
                 setBusca(""); abrirRecorte(chave ? GATILHO_CHIP[chave] || `g:${chave}` : "manual");
               }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Natureza do motivo</h2></div></div>
-              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[gatilhoDe(r)] || "Classificada por você" })), "_n", 12)} total={excluidas} /></article>
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[categoriaDe(r)] || "Classificada por você" })), "_n", 12)} total={excluidas} /></article>
           </section>
           <section className="panel editorial-note wide destaque"><span>POR QUE ISTO NÃO É UMA PENEIRA</span>
             <p>Peneira pergunta se o caso se sustenta. Exclusão diz que o caso é de outra natureza — e isso não depende de haver interrupção na janela. Um furto é furto tenha ou não a Crítica registrado corte naquele dia; a ausência de fato não muda a causa declarada, e a presença também não. Enquanto a exclusão morava dentro da terceira peneira, só era julgado quem passasse da primeira: {br(conta((r) => arquivo(r) === "EXCLUÍDA" && r.fato === "F3"))} casos com causa declarada fora do indicador ficavam parados em “sem interrupção na janela”, aparecendo como pendência de leitura quando já tinham resposta.</p>
