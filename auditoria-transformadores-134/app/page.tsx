@@ -275,7 +275,7 @@ const GATILHO_ROTULO: Record<string, string> = {
 
 const CLASSES_CURTAS: Array<[string, string, string]> = [
   ["QUEIMADO", "Q", "good"], ["AVARIADO", "A", "pend"],
-  ["PREVENTIVO", "V", "warn"], ["EXCLUIDO", "X", "bad"],
+  ["PREVENTIVO", "V", "warn"], ["FURTADO", "F", "bad"], ["EXCLUIDO", "X", "bad"],
   ["REGRA", "R", "warn"], ["PROFUNDA", "P", "bad"],
 ];
 
@@ -455,7 +455,7 @@ export default function Page() {
   const arquivo = (r: Registro): string => {
     const c = classificacao[texto(r.ss)]?.classe;
     if (c === "QUEIMADO" || c === "AVARIADO") return "SAÍDA";
-    if (c === "EXCLUIDO") return "EXCLUÍDA";
+    if (c === "EXCLUIDO" || c === "FURTADO") return "EXCLUÍDA";
     if (c === "PREVENTIVO") return "PREVENTIVO";
     return texto(r.cascata);
   };
@@ -536,8 +536,10 @@ export default function Page() {
       { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: (r) => Boolean(classificacao[texto(r.ss)]) },
       { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "QUEIMADO" },
       { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" },
+      { id: "a_sigco", rotulo: "Avariado por você, no SIGCO de queima", nota: "Você leu como avaria e o custo está no projeto de queimado. Divergência de enquadramento contábil, não de causa.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" && r.sigco_avaria_em_queima === "SIM" },
       { id: "v", rotulo: "Preventivo", nota: "Troca sem defeito. Sai da esteira e vai para a aba de preventivos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PREVENTIVO" },
       { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura. Sai da esteira e vai para a aba de exclusões.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
+      { id: "f", rotulo: "Furtado", nota: "Furto, roubo ou vandalismo pela sua leitura. Sai da esteira e vai para as exclusões, na categoria de furto.", teste: (r) => classificacao[texto(r.ss)]?.classe === "FURTADO" },
       { id: "r", rotulo: "Vale a regra", nota: "Você concordou com a decisão do fluxo.", teste: (r) => classificacao[texto(r.ss)]?.classe === "REGRA" },
       { id: "p", rotulo: "Análise profunda", nota: "Precisa de campo ou de documento que não temos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PROFUNDA" },
       { id: "sem_cliente", rotulo: "Marcados por você sem nenhum cliente interrompido", nota: "Você bateu o martelo e a ocorrência do caso não penalizou ninguém — nenhum cliente ficou sem energia em passo nenhum dela. Sua classificação manda no arquivamento, então estes entram no indicador; a lista existe para eles não entrarem calados.", teste: (r) => Boolean(classificacao[texto(r.ss)]) && r.sem_cliente_interrompido === "SIM" },
@@ -602,6 +604,10 @@ export default function Page() {
       { id: "autorizacao", rotulo: "Investigar autorização da troca", nota: "A OS registra que a substituição foi autorizada por alguém, nominalmente. Não é causa e não muda a decisão — é governança: quem mandou trocar. Este filtro só passou a existir depois que o texto da OS deixou de vir cortado em 300 caracteres, que era onde o nome ficava.", teste: (r) => r.tem_autorizacao === "SIM" },
       { id: "queima_sem_cliente", rotulo: "Queimado sem nenhum cliente interrompido", nota: "A ocorrência existe e não penalizou ninguém: nenhum cliente ficou sem energia em passo nenhum dela. Conferido na base crua, somando todas as linhas da ocorrência. Sem cliente não há DEC nem FEC — e um transformador de distribuição que queima sem penalizar ninguém pede olhar humano antes de contar.", teste: (r) => r.sem_cliente_interrompido === "SIM" && (arquivo(r) === "SAÍDA" || texto(r.categoria_texto) === "QUEIMADO") },
       { id: "avariados", rotulo: "Avariados", nota: "Incluídos cujo texto descreve avaria.", teste: (r) => r.decisao === "INCLUIR" && r.categoria_texto === "AVARIADO" },
+      /* Avaria enquadrada no projeto de queima. São dois campos do mesmo cadastro discordando —
+         a obra diz "SUBST. TRAFO AVARIADO" e o custo entra no SIGCO 8812, que em 98% das 1.152
+         obras é "SUBST. TRAFO QUEIMADO". Não muda a causa: muda para onde o custo foi. */
+      { id: "avaria_sigco", rotulo: "Avaria no SIGCO de queima", nota: "A leitura concluiu avaria e o custo entrou no projeto SIGCO de transformador queimado. É divergência de enquadramento contábil, não de causa técnica — mas numa auditoria que vai a conselho é a divergência que se pergunta primeiro.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
     semfato: [
@@ -614,6 +620,13 @@ export default function Page() {
       // O chip "provavelmente no histórico de 2025" saiu daqui: apontava para um arquivo que
       // faltava, dezembro/2025 entrou no acervo e as 24 SS de borda foram reprocuradas — as 24
       // acharam ocorrência. Filtro que promete explicação já respondida é pior que nenhum.
+      /* "Sem interrupção" era uma coisa só e são quatro. A conferência linha a linha na base
+         crua, sobre os 115 retidos, separou: 47 não existem na Crítica em papel nenhum — esses
+         saíram do indicador; 25 foram interrompidos na janela com o defeito noutro elemento;
+         35 têm defeito próprio noutra data; 8 só aparecem interrompidos por defeito alheio. A
+         pergunta "tem interrupção?" tem resposta diferente em cada um. */
+      { id: "sem_no_trafo", rotulo: "Sem interrupção NO TRANSFORMADOR", nota: "A Crítica não registra defeito neste transformador dentro da janela. Pode haver interrupção — inclusive uma que o deixou sem energia —, mas com o defeito aberto noutro elemento: unidade consumidora, chave, disjuntor. O que falta é o registro de defeito no próprio ativo.", teste: (r) => texto(r.def_elemento) !== "TR" },
+      { id: "fora_critica", rotulo: "Ausente da base de interrupção", nota: "O código não aparece na Crítica em papel nenhum — nem como elemento com defeito, nem como interrompido, nem como manobrado para restabelecer. Conferido linha a linha em dezembro de 2025 e nos seis meses de 2026. Estes saem do indicador.", teste: (r) => r.na_critica === "NÃO" || texto(r.expurgo_gatilho) === "sem_interrupcao" },
       { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => r.aberta_antes === "SIM" },
       { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
       { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && Boolean(texto(r.def_elemento)) },
@@ -647,6 +660,7 @@ export default function Page() {
       { id: "g_semobra", rotulo: "Obra nunca gerada", nota: "A obra não foi aberta e a SS já passou de 60 dias. Sem obra não há consulta de material, e depois de dois meses ela não vem mais: o caso deixa de ser espera e vira promessa vazia. As que ainda estão no prazo continuam retidas.", teste: (r) => texto(r.expurgo_gatilho) === "sem_obra" },
       { id: "g_seg", rotulo: "Obra de poste — segurança", nota: "A obra é de poste e o transformador desceu junto: foi movido por necessidade estrutural, não por ter falhado. A regra só vale quando o texto não declara nenhuma falha do equipamento — das oito SS que pedem troca de poste, sete dizem também o que o transformador tinha.", teste: (r) => texto(r.expurgo_gatilho) === "seguranca" },
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => texto(r.expurgo_gatilho) === "tap" },
+      { id: "g_seminterr", rotulo: "Ausente da base de interrupção", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => texto(r.expurgo_gatilho) === "sem_interrupcao" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => texto(r.expurgo_gatilho) === "duplicada" },
       { id: "commat", rotulo: "Excluídas que TÊM material", nota: "Instalaram um transformador no lugar — no furto, no lugar do que levaram. O material prova que houve troca; não prova por quê.", teste: (r) => arquivo(r) === "EXCLUÍDA" && (Number(r.trafos_material) || 0) > 0 },
       { id: "presumida", rotulo: "Exclusão por presunção, não constatação", nota: "O texto diz \u201cpossivelmente furtado\u201d, \u201cao que tudo indica\u201d, \u201csinais de vandalismo\u201d ou \u201ctentativa de furto\u201d. A equipe supôs a partir do que viu; não constatou. Continuam fora do indicador, mas ficam marcadas — suposição arquivada como fato é o que ninguém revisa depois.", teste: (r) => r.exclusao_presumida === "SIM" },
@@ -680,6 +694,8 @@ export default function Page() {
     if (recorte === "p") return marca.classe === "PROFUNDA";
     if (recorte === "v") return marca.classe === "PREVENTIVO";
     if (recorte === "x") return marca.classe === "EXCLUIDO";
+    if (recorte === "f") return marca.classe === "FURTADO";
+    if (recorte === "a_sigco") return marca.classe === "AVARIADO" && linha.sigco_avaria_em_queima === "SIM";
     return true;
   };
   const listadas = useMemo(() => {
@@ -724,6 +740,7 @@ export default function Page() {
     ["QUEIMADO", "Queimado", "good"],
     ["AVARIADO", "Avariado", "pend"],
     ["PREVENTIVO", "Preventivo", "warn"],
+    ["FURTADO", "Furtado", "bad"],
     ["EXCLUIDO", "Excluído", "bad"],
     ["REGRA", "Vale a regra do fluxo", "warn"],
     ["PROFUNDA", "Análise profunda", "bad"],
@@ -779,8 +796,9 @@ export default function Page() {
       { id: "profunda", rotulo: "Queimados", codigo: "11·1", marca: porClasseNav("QUEIMADO"), tom: "verde", recorte: "q" },
       { id: "profunda", rotulo: "Avariados", codigo: "11·2", marca: porClasseNav("AVARIADO"), tom: "cinza", recorte: "a" },
       { id: "profunda", rotulo: "Preventivos", codigo: "11·3", marca: porClasseNav("PREVENTIVO"), tom: "cinza", recorte: "v" },
-      { id: "profunda", rotulo: "Excluídos", codigo: "11·4", marca: porClasseNav("EXCLUIDO"), tom: "cinza", recorte: "x" },
-      { id: "profunda", rotulo: "Análise profunda", codigo: "11·5", marca: porClasseNav("PROFUNDA"), tom: "cinza", recorte: "p" },
+      { id: "profunda", rotulo: "Furtados", codigo: "11·4", marca: porClasseNav("FURTADO"), tom: "cinza", recorte: "f" },
+      { id: "profunda", rotulo: "Excluídos", codigo: "11·5", marca: porClasseNav("EXCLUIDO"), tom: "cinza", recorte: "x" },
+      { id: "profunda", rotulo: "Análise profunda", codigo: "11·6", marca: porClasseNav("PROFUNDA"), tom: "cinza", recorte: "p" },
     ]},
     { grupo: "Controle", itens: [
       { id: "regras", rotulo: "Regras e método", codigo: "12" },
@@ -1586,6 +1604,7 @@ export default function Page() {
             <Kpi rotulo="Sem OS e sem obra" valor={br(g("sem_os"))} nota="nada para ler, nada para conferir — investigar" tom="amber" aoClicar={() => abrirRecorte("g_semos")} />
             <Kpi rotulo="Sem fato em base nenhuma" valor={br(g("sem_fato"))} nota="nem ocorrência, nem atendimento, nem vizinho" tom="red" aoClicar={() => abrirRecorte("g_semfato")} />
             <Kpi rotulo="Obra nunca gerada" valor={br(g("sem_obra"))} nota="passou de 60 dias — a prova de material não vem mais" tom="amber" aoClicar={() => abrirRecorte("g_semobra")} />
+            <Kpi rotulo="Ausente da base de interrupção" valor={br(g("sem_interrupcao"))} nota="o código não aparece na Crítica em papel nenhum" tom="red" aoClicar={() => abrirRecorte("g_seminterr")} />
             <Kpi rotulo="Por presunção, não constatação" valor={br(conta((r) => r.exclusao_presumida === "SIM"))} nota="a equipe supôs a partir do que viu" tom="amber" aoClicar={() => abrirRecorte("presumida")} />
             <Kpi rotulo="Por regra que você pediu" valor={br(conta((r) => r.exclusao_pedida_pelo_dono === "SIM"))} nota="a categoria existe porque você mandou criar" tom="ink" aoClicar={() => abrirRecorte("suas_regras")} />
             <Kpi rotulo="Excluídas por você à mão" valor={br(porClasseNav("EXCLUIDO"))} nota="martelo batido no navegador" tom="ink" aoClicar={() => abrirRecorte("manual")} />
