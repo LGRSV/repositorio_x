@@ -413,6 +413,53 @@ def main():
 
     antes = collections.Counter(r["cascata"] for r in fluxo["registros"])
 
+    # ---------- o que a OBRA diz que é: a terceira leitura, que estava no dado e ninguém lia
+    # O cadastro de obras traz um campo Descricao — "SUBST. TRAFO QUEIMADO", "SUBST. TRAFO
+    # VAZANDO ÓLEO", "FURTO DE BENS TRAFO" — preenchido por quem abriu a obra, depois da
+    # execução. Ele vinha no dossiê dentro do bloco de detalhe e nunca foi cruzado com nada.
+    # É a terceira voz independente do caso: a SS diz o que pediu, a OS diz o que executou, a
+    # obra diz sob que rótulo o custo entrou. Quando a obra e a leitura discordam, isso não
+    # decide nada sozinho — mas é exatamente o tipo de divergência que ninguém deveria
+    # descobrir na reunião.
+    #
+    # E o dicionário de SIGCO deixa de ser palpite: agrupando as 1.479 obras por número de
+    # projeto, cada código mostra para que serve. 8812 é SUBST. TRAFO QUEIMADO em 98% das
+    # obras; 61993 é FURTO DE BENS TRAFO em 85%; 20497 é DANO(S) CAUSADO POR TERCEIROS em
+    # 100%; 8444, que aparece uma vez só, é SUBST. TRAFO VAZANDO ÓLEO.
+    def limpa_desc(x):
+        x = re.sub(r"\s*-\s*(TR:?\s*)?\d{6,}.*$", "", str(x or "").strip())
+        return re.sub(r"\s*-\s*ID:.*$", "", x).strip().upper()
+
+    # o rótulo que a obra dá ao caso, reduzido à causa que ele afirma
+    OBRA_CAUSA = {
+        "SUBST. TRAFO QUEIMADO": "QUEIMADO",
+        "SUBST. TRAFO AVARIADO": "AVARIADO",
+        "SUBST. TRAFO VAZANDO ÓLEO": "AVARIADO",
+        "SUBST. TRAFO COM SOBRECARGA": "SOBRECARGA",
+        "FURTO DE BENS TRAFO": "FURTADO",
+        "FURTO DE BENS (MATERIAIS DIVERSOS)": "FURTADO",
+        "DANO(S) CAUSADO POR TERCEIROS": "ABALROAMENTO",
+        "POSTE DANIFICADO": "POSTE",
+        "DESATIVAÇÃO DE TRAFO": "DESATIVACAO",
+        "SUBST. CHAVE FUSÍVEL": "OUTRO EQUIPAMENTO",
+        "MANUTENÇÃO CORRETIVA": "",
+    }
+    sigco_obras = collections.defaultdict(collections.Counter)
+    for r in fluxo["registros"]:
+        des = limpa_desc((r.get("det_obra") or {}).get("Descricao"))
+        r["obra_descricao"] = des
+        r["obra_causa"] = OBRA_CAUSA.get(des, "")
+        sig = str(r.get("sigco") or "").strip()
+        if sig and des:
+            sigco_obras[sig][des] += 1
+    dic = {}
+    for sig, cc in sigco_obras.items():
+        top, n = cc.most_common(1)[0]
+        dic[sig] = {"descricao": top, "obras": sum(cc.values()),
+                    "pureza": round(100 * n / sum(cc.values()))}
+    fluxo["sigco"] = dic
+    print(f"  dicionário de SIGCO construído das obras: {len(dic)} códigos")
+
     # ---------- etapa 0: a exclusão, que acontece ANTES da esteira e fora dela
     # Exclusão não é peneira. Peneira pergunta se o caso se sustenta; exclusão diz que o caso
     # nunca foi deste indicador. Um furto é furto tenha ou não a Crítica registrado interrupção
@@ -544,15 +591,33 @@ def main():
             # caso saía como abalroamento, o texto dizia "trafo queimado" — que descreve o
             # estado, não a causa — e eu o devolvi ao indicador contra o que o campo declarava.
             campo_confirma = bool(re.search(r"CAUSADA POR TERCEIROS|VANDALIS|ROUBO|FURTO", campo))
-            if (pelo_texto or pelo_campo) and not campo_confirma:
+            # A OBRA TAMBÉM É CAMPO. Três revisores independentes apontaram o mesmo caso —
+            # ETO-RD-GU 00007 — que o dono já tinha mandado devolver: a SS pede troca sem dizer
+            # por quê, a OS registra 150 kVA por 150 kVA (não há ganho de capacidade que faça
+            # obra preventiva), e a obra E o projeto SIGCO dizem "SUBST. TRAFO QUEIMADO". A
+            # regra não o devolvia porque só lia causa e subcausa da Crítica e do TMAE. O
+            # cadastro de obras é preenchido depois da execução por quem executou: quando ele e
+            # o projeto contábil concordam entre si e contradizem um rótulo herdado que nada no
+            # texto sustenta, o rótulo perde também.
+            _od = str(r.get("obra_descricao") or "").upper()
+            _sd = str((dic.get(str(r.get("sigco") or "").strip()) or {}).get("descricao") or "").upper()
+            obra_diz_falha = (_od == _sd and re.search(r"QUEIMAD|AVARIAD|VAZANDO", _od) is not None)
+            if (pelo_texto or pelo_campo or obra_diz_falha) and not campo_confirma:
                 fonte = ("o texto declara falha do próprio transformador" if pelo_texto
-                         else "o campo declara o transformador como elemento com defeito")
+                         else "o campo declara o transformador como elemento com defeito" if pelo_campo
+                         else f"a obra foi aberta como \"{_od}\" e o projeto SIGCO é o mesmo — "
+                              "dois registros do cadastro, preenchidos depois da execução, "
+                              "concordando entre si contra o rótulo")
                 # E A CAUSA TEM DE SER REDERIVADA. Derrubar o rótulo e manter categoria_texto
                 # deixou FURTADO, ABALROAMENTO e PREVENTIVO como causa confirmada DENTRO do
                 # indicador de queima — seis casos. O rótulo que cai leva junto a causa que ele
                 # afirmava; quem responde no lugar dela é a prova que o derrubou.
                 if re.search(r"VAZAMENTO|TANQUE", campo) or "VAZAMENTO DE OLEO" in texto_todo:
                     nova = "AVARIADO"
+                elif obra_diz_falha:
+                    # quando quem derrubou o rótulo foi o cadastro de obras, é ele que diz a
+                    # causa — e não o palpite de reserva do fim da escada
+                    nova = "AVARIADO" if re.search(r"AVARIAD|VAZANDO", _od) else "QUEIMADO"
                 elif re.search(r"QUEIMAD", campo) or re.search(
                         r"TRAFO QUEIMAD|TRANSFORMADOR QUEIMAD|QUEIMAD\w* \d{6,}", texto_todo):
                     nova = "QUEIMADO"
@@ -854,6 +919,25 @@ def main():
     print("\n  marcador de deslocamento:",
           dict(collections.Counter(r.get("deslocamento") for r in fluxo["registros"] if r.get("deslocamento"))))
 
+    # ---------- quem foi devolvido pelo cadastro de obras herda a causa que ELE declara
+    # Passe corretivo, e ele existe por um motivo chato: este script grava no arquivo que lê.
+    # Quando o rótulo herdado cai, categoria_texto é reescrita — e na rodada seguinte o ramo que
+    # a reescreveu não dispara mais, porque a categoria já não é de exclusão. Se a primeira
+    # rodada errou a causa, o erro fossiliza. Este passe não depende de ramo nenhum: se o
+    # cadastro de obras foi quem derrubou o rótulo, é o cadastro que diz a causa, sempre.
+    for r in fluxo["registros"]:
+        nota = str(r.get("categoria_herdada_vencida") or "")
+        if "cadastro" not in nota:
+            continue
+        od = str(r.get("obra_descricao") or "").upper()
+        if not re.search(r"QUEIMAD|AVARIAD|VAZANDO", od):
+            continue
+        certa = "AVARIADO" if re.search(r"AVARIAD|VAZANDO", od) else "QUEIMADO"
+        if r.get("categoria_texto") != certa:
+            r["categoria_texto"] = certa
+            if r.get("confirmado"):
+                r["confirmado"] = certa
+
     # ---------- a queima do para-raio não é a queima do transformador
     # "TRAFO: 5700005195 VAZAMENTO DE ÓLEO ... PARA RAIO: QUEIMADO" foi lido como queimado
     # porque a palavra aparece no texto. Ela aparece descrevendo OUTRO equipamento. O que o
@@ -903,53 +987,6 @@ def main():
         else:
             r["oc_outro_assunto"] = "NÃO"
     print(f"  ocorrência fora da janela cuja nota de campo é de outro equipamento: {fora_assunto}")
-
-    # ---------- o que a OBRA diz que é: a terceira leitura, que estava no dado e ninguém lia
-    # O cadastro de obras traz um campo Descricao — "SUBST. TRAFO QUEIMADO", "SUBST. TRAFO
-    # VAZANDO ÓLEO", "FURTO DE BENS TRAFO" — preenchido por quem abriu a obra, depois da
-    # execução. Ele vinha no dossiê dentro do bloco de detalhe e nunca foi cruzado com nada.
-    # É a terceira voz independente do caso: a SS diz o que pediu, a OS diz o que executou, a
-    # obra diz sob que rótulo o custo entrou. Quando a obra e a leitura discordam, isso não
-    # decide nada sozinho — mas é exatamente o tipo de divergência que ninguém deveria
-    # descobrir na reunião.
-    #
-    # E o dicionário de SIGCO deixa de ser palpite: agrupando as 1.479 obras por número de
-    # projeto, cada código mostra para que serve. 8812 é SUBST. TRAFO QUEIMADO em 98% das
-    # obras; 61993 é FURTO DE BENS TRAFO em 85%; 20497 é DANO(S) CAUSADO POR TERCEIROS em
-    # 100%; 8444, que aparece uma vez só, é SUBST. TRAFO VAZANDO ÓLEO.
-    def limpa_desc(x):
-        x = re.sub(r"\s*-\s*(TR:?\s*)?\d{6,}.*$", "", str(x or "").strip())
-        return re.sub(r"\s*-\s*ID:.*$", "", x).strip().upper()
-
-    # o rótulo que a obra dá ao caso, reduzido à causa que ele afirma
-    OBRA_CAUSA = {
-        "SUBST. TRAFO QUEIMADO": "QUEIMADO",
-        "SUBST. TRAFO AVARIADO": "AVARIADO",
-        "SUBST. TRAFO VAZANDO ÓLEO": "AVARIADO",
-        "SUBST. TRAFO COM SOBRECARGA": "SOBRECARGA",
-        "FURTO DE BENS TRAFO": "FURTADO",
-        "FURTO DE BENS (MATERIAIS DIVERSOS)": "FURTADO",
-        "DANO(S) CAUSADO POR TERCEIROS": "ABALROAMENTO",
-        "POSTE DANIFICADO": "POSTE",
-        "DESATIVAÇÃO DE TRAFO": "DESATIVACAO",
-        "SUBST. CHAVE FUSÍVEL": "OUTRO EQUIPAMENTO",
-        "MANUTENÇÃO CORRETIVA": "",
-    }
-    sigco_obras = collections.defaultdict(collections.Counter)
-    for r in fluxo["registros"]:
-        des = limpa_desc((r.get("det_obra") or {}).get("Descricao"))
-        r["obra_descricao"] = des
-        r["obra_causa"] = OBRA_CAUSA.get(des, "")
-        sig = str(r.get("sigco") or "").strip()
-        if sig and des:
-            sigco_obras[sig][des] += 1
-    dic = {}
-    for sig, cc in sigco_obras.items():
-        top, n = cc.most_common(1)[0]
-        dic[sig] = {"descricao": top, "obras": sum(cc.values()),
-                    "pureza": round(100 * n / sum(cc.values()))}
-    fluxo["sigco"] = dic
-    print(f"  dicionário de SIGCO construído das obras: {len(dic)} códigos")
 
     # divergência entre o que a obra afirma e o que a leitura concluiu — bandeira, não veredito
     div = 0
