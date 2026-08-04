@@ -1583,6 +1583,7 @@ export default function Page() {
         ["Base_Atendimentos_TMAE.xlsx", "Atendimentos", "A linha do TMAE: cronologia completa, os quatro tempos, equipe e a observação do executante.", "0,3 MB"],
         ["Base_Obras_SIGCO.xlsx", "Obras e SIGCO", "O cadastro da obra: classe, natureza, tipo, projeto, empreiteira, setor, valores e datas.", "0,4 MB"],
         ["Base_Material.xlsx", "Material da obra", "Item a item do que saiu do almoxarifado, com código, descrição, quantidade prevista e realizada e valor.", "0,9 MB"],
+        ["Base_Funis.xlsx", "Os funis do site, aba por aba", "Dez abas que reproduzem as telas: o funil degrau a degrau, o resultado, as exclusões por categoria, quem parou sem interrupção, o censo da Crítica, os retidos, as etiquetas, os ativos reincidentes, os vereditos do dono e o corte por localidade. Nenhum número é digitado — todos saem do dado na hora de gerar, e cada aba traz a nota que explica como lê-la.", "0.02 MB".replace(".", ",")],
         ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão, a causa confirmada, o gatilho da exclusão com a frase que a explica, o intervalo inteiro da ocorrência e o marcador de deslocamento.", "0,37 MB"],
       ];
       // as originais são o arquivo cru, sem filtro e sem recorte: é contra elas que qualquer
@@ -1779,8 +1780,13 @@ export default function Page() {
           <section className="dashboard-columns">
             <article className="panel"><div className="panel-title"><div><span>Leitura</span><h2>Categoria pelo texto</h2></div><small>clique para filtrar</small></div>
               <Barras dados={contar(registros, "categoria_texto", 10)} total={total} aoSelecionar={(l) => { setBusca(l); setRecorte(null); }} /></article>
-            <article className="panel"><div className="panel-title"><div><span>Origem</span><h2>Quem abriu a solicitação</h2></div></div>
-              <Barras dados={contar(registros, "origem", 6)} total={total} /></article>
+            <article className="panel"><div className="panel-title"><div><span>Origem</span><h2>Quem abriu a solicitação</h2></div><small>clique para filtrar</small></div>
+              {/* Este gráfico era o único da tela que não filtrava. Quem abre a SS muda a
+                  natureza do que se lê: o COI abre pelo relato do cliente, a MANUT abre pelo que
+                  a equipe viu no poste, e as duas coisas não são a mesma prova. */}
+              <Barras dados={contar(registros, "origem", 8)} total={total} aoSelecionar={(l) => {
+                setRecorte(null); setBusca(l === "—" ? "" : l);
+              }} /></article>
           </section>
         </>;
       }

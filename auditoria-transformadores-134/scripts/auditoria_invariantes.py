@@ -394,6 +394,13 @@ PARES = [
 ]
 p18, ok18 = [], []
 for etapa, aba, rec, esperado, nome in PARES:
+    # Peneira que não retém ninguém não tem aba de retidos para vir logo depois, e cobrar isso
+    # dela é cobrar a existência de uma fila vazia. A peneira 1 é o caso: quem não tem
+    # interrupção deixou de ficar retido e passou a sair pela porta, então a aba que lista essa
+    # gente mudou de grupo — foi para junto das exclusões, que é onde eles estão.
+    if esperado == 0:
+        ok18.append(f"{nome}: não retém ninguém, não há fila para seguir a etapa")
+        continue
     pos = [i for i, (m, _, _) in enumerate(ordem) if m == etapa]
     if not pos:
         p18.append(f"{nome}: a etapa não está na barra")
