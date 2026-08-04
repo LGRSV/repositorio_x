@@ -471,14 +471,38 @@ def main():
             campo = " ".join(str(r.get(k) or "") for k in ("oc_causa", "oc_sub", "at_causa", "at_sub")).upper()
             pelo_campo = ("TRANSFORMADOR" in campo
                           and re.search(r"QUEIMAD|VAZAMENTO|TANQUE|FALHA BUCHA", campo))
-            if pelo_texto or pelo_campo:
+            # O CAMPO TAMBÉM PODE CONFIRMAR A EXCLUSÃO, e aí o rótulo não cai. A Crítica
+            # declarando CAUSADA POR TERCEIROS / VANDALISMO é fato consumado no mesmo grau: um
+            # caso saía como abalroamento, o texto dizia "trafo queimado" — que descreve o
+            # estado, não a causa — e eu o devolvi ao indicador contra o que o campo declarava.
+            campo_confirma = bool(re.search(r"CAUSADA POR TERCEIROS|VANDALIS|ROUBO|FURTO", campo))
+            if (pelo_texto or pelo_campo) and not campo_confirma:
                 fonte = ("o texto declara falha do próprio transformador" if pelo_texto
                          else "o campo declara o transformador como elemento com defeito")
+                # E A CAUSA TEM DE SER REDERIVADA. Derrubar o rótulo e manter categoria_texto
+                # deixou FURTADO, ABALROAMENTO e PREVENTIVO como causa confirmada DENTRO do
+                # indicador de queima — seis casos. O rótulo que cai leva junto a causa que ele
+                # afirmava; quem responde no lugar dela é a prova que o derrubou.
+                if re.search(r"VAZAMENTO|TANQUE", campo) or "VAZAMENTO DE OLEO" in texto_todo:
+                    nova = "AVARIADO"
+                elif re.search(r"QUEIMAD", campo) or re.search(
+                        r"TRAFO QUEIMAD|TRANSFORMADOR QUEIMAD|QUEIMAD\w* \d{6,}", texto_todo):
+                    nova = "QUEIMADO"
+                elif "FALHA BUCHA" in campo:
+                    nova = "QUEIMADO"
+                else:
+                    nova = "AVARIADO"
                 r["categoria_herdada_vencida"] = (
                     f"A categoria {cat.lower()} veio do classificador anterior e nada a "
-                    f"sustenta — {fonte}. O rótulo perdeu.")
+                    f"sustenta — {fonte}. O rótulo perdeu, e a causa passou a ser "
+                    f"{nova.lower()}, que é o que a prova que o derrubou declara.")
+                r["categoria_texto"] = nova
                 r["fora_da_esteira"] = "NÃO"
                 continue
+            if campo_confirma and (pelo_texto or pelo_campo):
+                r["exclusao_confirmada_pelo_campo"] = (
+                    f"O texto descreve falha do equipamento, mas o campo declara \"{campo.strip()}\" "
+                    "— causa fora do indicador. O campo é fato consumado: a exclusão fica.")
         if not (fora_txt or cat in FORA_CAT):
             r["fora_da_esteira"] = "NÃO"
             continue
