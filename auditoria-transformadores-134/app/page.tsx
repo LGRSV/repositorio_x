@@ -146,7 +146,8 @@ const COLUNAS: Array<[string, string]> = [
   ["Motivo da decisão", "motivo_decisao"], ["Narrativa da análise", "narrativa"], ["Abertura da SS", "abertura"], ["Término", "termino"],
   ["Situação da SS", "situacao"], ["Criticidade", "criticidade"],
   ["Ocorrência", "oc_num"], ["Início da ocorrência", "oc_ini"], ["Fim da ocorrência", "oc_fim"],
-  ["Duração (h)", "oc_dur_h"], ["Clientes interrompidos", "oc_cons"], ["Distância (h)", "oc_dist_h"],
+  ["Duração (h)", "oc_dur_h"], ["Clientes interrompidos", "oc_cons"],
+  ["Distância até o intervalo", "oc_dist_h"],
   ["Papel do trafo", "oc_papel"], ["Elemento do defeito", "oc_prob_ele"], ["Tipo da ocorrência", "oc_tipo"],
   ["Causa em campo", "oc_causa"], ["Subcausa em campo", "oc_sub"], ["Ressalvas", "ressalvas"],
   ["Atendimento", "at_num"], ["Início do atendimento", "at_ini"], ["Equipe", "at_equipe"],
@@ -156,7 +157,7 @@ const COLUNAS: Array<[string, string]> = [
   ["Material", "e3_motivo"], ["Trafos no material", "trafos_material"],
   ["Material conferido", "material_conferido"],
   ["Alertas de obra", "e4_alertas"], ["Classe da obra", "obra_classe"],
-  ["Natureza", "obra_natureza"], ["Tipo da obra", "obra_tipo"],
+  ["Natureza", "obra_natureza"], ["Tipo da obra", "obra_tipo"], ["Proteção que atuou", "protecao"],
   ["SIGCO da SS", "sigco"], ["SIGCO do projeto", "obra_sigco_proj"],
   ["Última movimentação", "obra_ultimo_nome"], ["Setor", "obra_setor"],
   ["Empreiteira", "obra_empreiteira"], ["Realizado", "obra_realizado"],
@@ -273,6 +274,20 @@ const GATILHO_ROTULO: Record<string, string> = {
   sem_fato: "Sem fato em base nenhuma",
 };
 
+/* "12.4h da borda do intervalo" é verdade e não comunica: não diz de que lado, e "borda" é
+   palavra de quem escreveu o código, não de quem lê o caso. A mesma informação vira frase —
+   antes ou depois do intervalo da ocorrência, com a unidade que couber. */
+function distanciaEmPalavras(h: unknown, antes?: unknown): string {
+  const n = Number(h);
+  if (h === null || h === undefined || Number.isNaN(n)) return "—";
+  if (n === 0) return "a SS abriu dentro do intervalo da ocorrência";
+  const abs = Math.abs(n);
+  const quanto = abs < 1 ? `${Math.round(abs * 60)} minutos`
+    : abs < 48 ? `${abs.toFixed(1).replace(".", ",").replace(",0", "")} horas`
+    : `${Math.round(abs / 24)} dias`;
+  return `${quanto} ${antes === "SIM" ? "antes" : "depois"} do intervalo da ocorrência`;
+}
+
 const CLASSES_CURTAS: Array<[string, string, string]> = [
   ["QUEIMADO", "Q", "good"], ["AVARIADO", "A", "pend"],
   ["PREVENTIVO", "V", "warn"], ["FURTADO", "F", "bad"], ["EXCLUIDO", "X", "bad"],
@@ -337,7 +352,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
       {modo === "interrupcao" && <>
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
         <td><strong>{texto(r.oc_causa) || "—"}</strong><span>{texto(r.oc_sub)}</span><small>{texto(r.oc_papel)}</small></td>
-        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{r.oc_dist_h !== null && r.oc_dist_h !== undefined ? `${r.oc_dist_h}h da borda do intervalo` : "—"}</span><small>{texto(r.ressalvas)}</small></td>
+        <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b><span>{distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</span><small>{texto(r.ressalvas)}</small></td>
       </>}
 
       {modo === "deslocamento" && <>
@@ -426,6 +441,10 @@ export default function Page() {
   const [revisao, setRevisao] = useState<Revisao | null>(null);
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
+  // Este useState mora aqui e não junto da função que o usa, lá embaixo: entre um e outro há um
+  // `return` antecipado para o estado de carregamento, e hook declarado depois de um return
+  // condicional quebra a ordem dos hooks — React #310, tela em branco. Foi o que aconteceu.
+  const [exportado, setExportado] = useState("");
   const [busca, setBusca] = useState("");
   const [recorte, setRecorte] = useState<{ id: string; rotulo: string } | null>(null);
   const [aberto, setAberto] = useState<Registro | null>(null);
@@ -536,6 +555,13 @@ export default function Page() {
       { id: "todos", rotulo: "Tudo que você classificou", nota: "A sua leitura, ao lado da decisão do fluxo.", teste: (r) => Boolean(classificacao[texto(r.ss)]) },
       { id: "q", rotulo: "Queimado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "QUEIMADO" },
       { id: "a", rotulo: "Avariado", nota: "Martelo batido por você.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" },
+      /* A pergunta que o dono fez: "essas que eu to aprovando estão casando com a Crítica?"
+         As marcas dele vivem no navegador, então a resposta só existe aqui, na tela — o dado
+         gravado não as conhece. Três recortes respondem: com casamento pleno, com ocorrência
+         mas fora do vão, e sem prova de campo nenhuma. */
+      { id: "meu_casa", rotulo: "Aprovados por você COM casamento na Crítica", nota: "Você marcou como queimado ou avariado e a Crítica registra defeito neste transformador, com a SS caindo dentro do vão da ocorrência. É a prova mais forte que existe nesta base.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) === 0 },
+      { id: "meu_borda", rotulo: "Aprovados por você · ocorrência fora do vão", nota: "Você marcou como falha e existe ocorrência com defeito neste transformador, mas a SS não abre dentro dela — abre perto. Vale conferir a distância caso a caso.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) !== 0 },
+      { id: "meu_sem", rotulo: "Aprovados por você SEM casamento na Crítica", nota: "Você marcou como queimado ou avariado e a Crítica não registra defeito neste transformador — ou não há ocorrência nenhuma, ou o defeito é de outro elemento. A sua leitura entra no indicador do mesmo jeito, porque o martelo é seu; esta lista existe para você saber quais entram sem prova de campo.", teste: (r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) !== "TR" },
       { id: "a_sigco", rotulo: "Avariado por você, no SIGCO de queima", nota: "Você leu como avaria e o custo está no projeto de queimado. Divergência de enquadramento contábil, não de causa.", teste: (r) => classificacao[texto(r.ss)]?.classe === "AVARIADO" && r.sigco_avaria_em_queima === "SIM" },
       { id: "v", rotulo: "Preventivo", nota: "Troca sem defeito. Sai da esteira e vai para a aba de preventivos.", teste: (r) => classificacao[texto(r.ss)]?.classe === "PREVENTIVO" },
       { id: "x", rotulo: "Excluído", nota: "Fora do indicador pela sua leitura. Sai da esteira e vai para a aba de exclusões.", teste: (r) => classificacao[texto(r.ss)]?.classe === "EXCLUIDO" },
@@ -607,6 +633,17 @@ export default function Page() {
       /* Avaria enquadrada no projeto de queima. São dois campos do mesmo cadastro discordando —
          a obra diz "SUBST. TRAFO AVARIADO" e o custo entra no SIGCO 8812, que em 98% das 1.152
          obras é "SUBST. TRAFO QUEIMADO". Não muda a causa: muda para onde o custo foi. */
+      /* Influência invocada. Não é causa e não move o caso: o transformador queimou ou não
+         queimou independentemente de quem o cliente conhece. Muda a FILA — quem foi atendido
+         antes de quem. Numa auditoria que vai a conselho é o tipo de frase que alguém encontra
+         depois, e é melhor estar marcada aqui do que descoberta lá. */
+      /* Que proteção atuou. O religador não existe como elemento na Crítica — ela só classifica
+         CH, TR, UC, DJ e SE. Quem conta que a proteção desarmou é a nota do executante, e é
+         informação de peso: proteção que atua é confirmação operacional de corrente de falta. */
+      { id: "prot_rl", rotulo: "Religador atuou", nota: "A nota de campo registra desarme de religador. Não muda a causa nem move o caso: é confirmação operacional de que houve corrente de falta — a proteção viu o defeito e agiu.", teste: (r) => texto(r.protecao) === "RELIGADOR" },
+      { id: "prot_ch", rotulo: "Chave fusível ou elo queimado", nota: "A nota de campo registra elo queimado ou chave fusível atuada.", teste: (r) => texto(r.protecao) === "CHAVE FUSÍVEL" },
+      { id: "prot_dj", rotulo: "Disjuntor atuou", nota: "A nota de campo registra desarme de disjuntor.", teste: (r) => texto(r.protecao) === "DISJUNTOR" },
+      { id: "diretoria", rotulo: "Diretoria invocada para acelerar", nota: "A SS ou a OS pede pressa citando a diretoria — \u201cfavor agilizar devido o cliente ter contato direto com a diretoria\u201d, \u201ca pedido da diretoria\u201d. Não muda a causa nem a decisão: muda a fila de atendimento. Fica marcado porque é pergunta de conselho.", teste: (r) => r.influencia === "SIM" },
       { id: "avaria_sigco", rotulo: "Avaria no SIGCO de queima", nota: "A leitura concluiu avaria e o custo entrou no projeto SIGCO de transformador queimado. É divergência de enquadramento contábil, não de causa técnica — mas numa auditoria que vai a conselho é a divergência que se pergunta primeiro.", teste: (r) => r.sigco_avaria_em_queima === "SIM" },
       { id: "pararaio", rotulo: "Queima do para-raio, avaria do trafo", nota: "O texto cita queima, mas do para-raio; o que o transformador tem é vazamento de óleo. Relidos como avaria — não muda o total, muda de que lado contam.", teste: (r) => Boolean(texto(r.leitura_pararaio)) },
     ],
@@ -698,6 +735,10 @@ export default function Page() {
     if (recorte === "x") return marca.classe === "EXCLUIDO";
     if (recorte === "f") return marca.classe === "FURTADO";
     if (recorte === "a_sigco") return marca.classe === "AVARIADO" && linha.sigco_avaria_em_queima === "SIM";
+    const falha = ["QUEIMADO", "AVARIADO"].includes(marca.classe);
+    if (recorte === "meu_casa") return falha && texto(linha.def_elemento) === "TR" && Number(linha.oc_dist_h) === 0;
+    if (recorte === "meu_borda") return falha && texto(linha.def_elemento) === "TR" && Number(linha.oc_dist_h) !== 0;
+    if (recorte === "meu_sem") return falha && texto(linha.def_elemento) !== "TR";
     return true;
   };
   const listadas = useMemo(() => {
@@ -726,6 +767,40 @@ export default function Page() {
   const CAP = 300;
   const historicoDoAtivo = ativo ? fluxo.historico.filter((l) => texto(l[0]) === ativo) : [];
   const ssDoAtivo = ativo ? registros.filter((r) => texto(r.trafo) === ativo) : [];
+
+  /* Tudo o que este navegador guardou, num arquivo só. Não é só a classificação: varre o
+     localStorage inteiro, porque o que interessa a quem for conferir é o estado completo, e
+     amanhã pode haver outra coisa guardada aqui. Vai com o carimbo de hora e a contagem, para
+     quem receber saber do que se trata sem abrir. */
+  const exportarLocal = () => {
+    const tudo: Record<string, unknown> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const chave = localStorage.key(i);
+      if (!chave) continue;
+      const bruto = localStorage.getItem(chave) || "";
+      try { tudo[chave] = JSON.parse(bruto); } catch { tudo[chave] = bruto; }
+    }
+    const marcas = (tudo["fluxo-1510-classificacao"] || {}) as Record<string, { classe: string }>;
+    const porClasse: Record<string, number> = {};
+    Object.values(marcas).forEach((m) => { porClasse[m.classe] = (porClasse[m.classe] || 0) + 1; });
+    const pacote = {
+      exportado_em: new Date().toISOString().slice(0, 16).replace("T", " "),
+      total_classificado: Object.keys(marcas).length,
+      por_classe: porClasse,
+      dados: tudo,
+    };
+    const texto = JSON.stringify(pacote, null, 1);
+    const blob = new Blob([texto], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `minhas-classificacoes-${pacote.exportado_em.replace(/[: ]/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    // e o mesmo conteúdo na área de transferência, para colar numa conversa sem anexar arquivo
+    void navigator.clipboard?.writeText(texto).catch(() => {});
+    setExportado(`${pacote.total_classificado} classificações exportadas e copiadas`);
+    setTimeout(() => setExportado(""), 6000);
+  };
 
   const classificar = (ss: string, classe: string) => {
     const atual = { ...classificacao };
@@ -1258,7 +1333,7 @@ export default function Page() {
               return <div key={String(r.ss)} className="ocorrencia-linha">
                 <header><strong>{texto(r.ss)}</strong><code>{texto(r.oc_num)}</code>
                   <em>{texto(r.oc_passos) ? `${texto(r.oc_passos)} passos · ` : ""}{texto(r.oc_dur_h)} h de vão</em>
-                  <b className={dentro ? "dentro" : "fora"}>{dentro ? "a SS abre dentro da ocorrência" : `a SS abre a ${Math.abs(Number(r.oc_dist_h) || 0)} h da borda`}</b>
+                  <b className={dentro ? "dentro" : "fora"}>{dentro ? "a SS abre dentro da ocorrência" : `a SS abre ${distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}`}</b>
                 </header>
                 <div className="ocorrencia-regua">
                   <i style={{ left: esc(ini), width: `calc(${esc(fim)} - ${esc(ini)})` }} />
@@ -1310,7 +1385,7 @@ export default function Page() {
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
             <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota="o código não aparece em seis meses" tom="red" aoClicar={() => abrirRecorte("sem")} />
-            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota={`da SS até a ocorrência — ${br(conta((r) => Number(r.oc_dist_h) === 0))} abrem dentro dela`} tom="ink" />
+            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota={`da SS até o intervalo da ocorrência — ${br(conta((r) => Number(r.oc_dist_h) === 0))} abrem dentro dele`} tom="ink" />
             <Kpi rotulo="Clientes interrompidos" valor={br(registros.reduce((s, r) => s + (Number(r.oc_cons) || 0), 0))} nota="somados nas ocorrências casadas" tom="ink" />
           </section>
           <section className="janela-controle">
@@ -1545,6 +1620,8 @@ export default function Page() {
             <Kpi rotulo="Excluído" valor={br(porClasse("EXCLUIDO"))} nota="fora do indicador pela sua leitura" tom="red" aoClicar={() => abrirRecorte("x")} />
             <Kpi rotulo="Vale a regra" valor={br(porClasse("REGRA"))} nota="concorda com o fluxo" tom="amber" aoClicar={() => abrirRecorte("r")} />
             <Kpi rotulo="Análise profunda" valor={br(porClasse("PROFUNDA"))} nota="precisa de campo ou documento" tom="red" aoClicar={() => abrirRecorte("p")} />
+            <Kpi rotulo="Aprovados COM prova de campo" valor={br(marcadas.filter((r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) === "TR" && Number(r.oc_dist_h) === 0).length)} nota="a Crítica registra defeito neste trafo e a SS abre dentro da ocorrência" tom="green" aoClicar={() => abrirRecorte("meu_casa")} />
+            <Kpi rotulo="Aprovados SEM prova de campo" valor={br(marcadas.filter((r) => ["QUEIMADO", "AVARIADO"].includes(classificacao[texto(r.ss)]?.classe || "") && texto(r.def_elemento) !== "TR").length)} nota="entram pelo seu martelo, sem casamento na Crítica" tom="red" aoClicar={() => abrirRecorte("meu_sem")} />
             <Kpi rotulo="Marcados sem cliente interrompido" valor={br(marcadas.filter((r) => r.sem_cliente_interrompido === "SIM").length)} nota="a ocorrência não penalizou ninguém — sem DEC nem FEC" tom="amber" aoClicar={() => abrirRecorte("sem_cliente")} />
             <Kpi rotulo="Ainda sem sua leitura" valor={br(total - marcadas.length)} nota="seguem só com a decisão do fluxo" tom="ink" />
           </section>
@@ -1683,7 +1760,18 @@ export default function Page() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><i>T</i><div><strong>Transforma</strong><span>Auditoria · 1.510 SS</span></div></div>
+      {/* O T exporta. A classificação manual vive só no localStorage deste navegador — quem
+          analisa do outro lado não a enxerga, e sem isso a pergunta "as que eu aprovei estão
+          casando com a Crítica?" não tem como ser respondida fora daqui. Um clique baixa o
+          arquivo e copia o mesmo conteúdo para a área de transferência, para poder ser colado
+          numa conversa sem precisar anexar nada. */}
+      <div className="brand" title="Clique no T para exportar suas classificações">
+        <i role="button" tabIndex={0} className="exportador"
+          onClick={() => exportarLocal()}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") exportarLocal(); }}>T</i>
+        <div><strong>Transforma</strong><span>Auditoria · 1.510 SS</span>
+          {exportado ? <small className="exportou">{exportado}</small> : null}</div>
+      </div>
       <nav>{NAV.map((g) => <div className="nav-group" key={g.grupo}>
         <span>{g.grupo}</span>
         {g.itens.map((item) => <button key={item.codigo} className={modulo === item.id && (item.recorte ? recorte?.id === item.recorte : true) ? "active" : ""}
@@ -1762,7 +1850,7 @@ export default function Page() {
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{texto(aberto.oc_num) || "nenhuma"}</strong></div>
               {aberto.oc_fora_janela === "SIM" ? <div className="fora-janela-aviso"><span>Atenção</span><strong>Esta ocorrência está FORA da janela</strong><em>Ela aparece aqui como a mais próxima no código do ativo, para referência. Não é a prova do caso — a esteira não a aceitou.</em></div> : null}
-              <div><span>Distância da SS</span><strong>{aberto.oc_dist_h !== null ? `${texto(aberto.oc_dist_h)} h` : "—"}</strong></div>
+              <div><span>Distância da SS</span><strong>{distanciaEmPalavras(aberto.oc_dist_h, aberto.aberta_antes)}</strong></div>
               <div><span>Início</span><strong>{dataBR(aberto.oc_ini)}</strong></div>
               <div><span>Fim</span><strong>{dataBR(aberto.oc_fim)}</strong></div>
               <div><span>Duração</span><strong>{texto(aberto.oc_dur_h)} h</strong></div>
