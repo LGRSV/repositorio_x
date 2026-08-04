@@ -1406,13 +1406,57 @@ export default function Page() {
         const porClasse = (c: string) => marcadas.filter((r) => classificacao[texto(r.ss)].classe === c).length;
         return <>
           <section className="panel editorial-note wide"><span>SUA ANÁLISE</span>
-            <p>O que você classificou fica aqui, ao lado da decisão do fluxo — nunca por cima dela. A marcação é gravada neste navegador, com o seu nome e a hora, e aparece em todas as listas.</p>
-            <p>Marque <strong>Queimado</strong> ou <strong>Avariado</strong> quando bater o martelo, <strong>Vale a regra do fluxo</strong> quando concordar com o que o sistema decidiu, e <strong>Análise profunda</strong> quando o caso precisar de campo ou de documento que não temos.</p>
+            <p>O que você classificou fica aqui, ao lado da decisão do fluxo — nunca por cima dela. A marcação é gravada neste navegador, com o seu nome e a hora, e aparece em todas as listas. Ela também manda no arquivamento: o que você marca como queimado, avariado, preventivo ou excluído sai da fila de pendências e vai para a aba correspondente.</p>
+            <p>Marque <strong>Queimado</strong> ou <strong>Avariado</strong> quando bater o martelo, <strong>Preventivo</strong> ou <strong>Excluído</strong> quando o caso não for deste indicador, <strong>Vale a regra do fluxo</strong> quando concordar com o que o sistema decidiu, e <strong>Análise profunda</strong> quando o caso precisar de campo ou de documento que não temos.</p>
+          </section>
+          {/* A marcação vive no armazenamento local deste navegador. Publicar o site não a toca —
+              troca o JavaScript e o dado, nunca o armazenamento —, mas ela existe num navegador
+              SÓ. Classificar no computador e abrir no celular não traz nada junto, e limpar os
+              dados do navegador apaga tudo sem aviso. Para um trabalho que vai para reunião isso
+              é frágil demais: aqui está a saída e a entrada dele, em arquivo. */}
+          <section className="panel editorial-note wide destaque"><span>GUARDE O SEU TRABALHO</span>
+            <p>As {br(marcadas.length)} marcações estão gravadas <strong>neste navegador</strong>. Publicar o site não as apaga — mas trocar de máquina, usar o celular ou limpar os dados do navegador, sim. Baixe o arquivo antes de qualquer uma dessas coisas; ele traz a SS, a classe, quem marcou e quando.</p>
+            <div className="classificacao-arquivo">
+              <button type="button" onClick={() => {
+                const linhas = [["SS", "Classe", "Quem", "Quando"].join(";")].concat(
+                  Object.entries(classificacao).map(([ss, c]) => [ss, c.classe, c.quem, c.quando].join(";")));
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(new Blob(["\ufeff" + linhas.join("\n")], { type: "text/csv;charset=utf-8" }));
+                a.download = `minha-classificacao-${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click(); URL.revokeObjectURL(a.href);
+              }}>Baixar as minhas marcações ({br(marcadas.length)})</button>
+              <label className="restaurar">Restaurar de um arquivo
+                <input type="file" accept=".csv,text/csv" onChange={(e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  const leitor = new FileReader();
+                  leitor.onload = () => {
+                    const linhas = String(leitor.result || "").replace(/^\ufeff/, "").split(/\r?\n/).slice(1);
+                    // funde em vez de substituir: quem restaura num navegador que já tem marcação
+                    // não pode perder a que está aqui só por abrir o arquivo do outro
+                    const novo = { ...classificacao };
+                    let lidas = 0;
+                    linhas.forEach((l) => {
+                      const [ss, classe, quem, quando] = l.split(";");
+                      if (!ss || !classe) return;
+                      novo[ss] = { classe, quem: quem || "arquivo restaurado", quando: quando || "" };
+                      lidas += 1;
+                    });
+                    setClassificacao(novo);
+                    localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(novo));
+                    window.alert(`${lidas} marcações restauradas. As que já estavam aqui foram mantidas.`);
+                  };
+                  leitor.readAsText(f, "utf-8");
+                  e.target.value = "";
+                }} />
+              </label>
+            </div>
           </section>
           <section className="kpi-grid">
             <Kpi rotulo="Classificadas por você" valor={br(marcadas.length)} nota={`de ${br(total)} no recorte`} tom="ink" aoClicar={() => abrirRecorte("todos")} />
             <Kpi rotulo="Queimado" valor={br(porClasse("QUEIMADO"))} nota="martelo batido" tom="green" aoClicar={() => abrirRecorte("q")} />
             <Kpi rotulo="Avariado" valor={br(porClasse("AVARIADO"))} nota="martelo batido" tom="blue" aoClicar={() => abrirRecorte("a")} />
+            <Kpi rotulo="Preventivo" valor={br(porClasse("PREVENTIVO"))} nota="troca sem defeito" tom="amber" aoClicar={() => abrirRecorte("v")} />
+            <Kpi rotulo="Excluído" valor={br(porClasse("EXCLUIDO"))} nota="fora do indicador pela sua leitura" tom="red" aoClicar={() => abrirRecorte("x")} />
             <Kpi rotulo="Vale a regra" valor={br(porClasse("REGRA"))} nota="concorda com o fluxo" tom="amber" aoClicar={() => abrirRecorte("r")} />
             <Kpi rotulo="Análise profunda" valor={br(porClasse("PROFUNDA"))} nota="precisa de campo ou documento" tom="red" aoClicar={() => abrirRecorte("p")} />
             <Kpi rotulo="Ainda sem sua leitura" valor={br(total - marcadas.length)} nota="seguem só com a decisão do fluxo" tom="ink" />
