@@ -1290,6 +1290,15 @@ export default function Page() {
     if (!(ab && oi && of) || ssDentroDaCritica(r)) return false;
     return (ab as number) >= (oi as number) - H_MS && (ab as number) <= (of as number) + 24 * H_MS;
   };
+  /* A pergunta do gráfico da aba Tempos, em quatro caixas que somam o total: a abertura da SS
+     caiu DENTRO do intervalo da ocorrência, ANTES dele, DEPOIS dele — ou não há ocorrência. */
+  const posNaCritica = (r: Registro): "dentro" | "antes" | "depois" | "sem" => {
+    const ab = emMs(r.abertura), oi = emMs(r.oc_ini), of = emMs(r.oc_fim);
+    if (!(ab && oi && of)) return "sem";
+    if ((ab as number) < (oi as number)) return "antes";
+    if ((ab as number) > (of as number)) return "depois";
+    return "dentro";
+  };
 
   /* EXATAMENTE DENTRO. Ordem dele: sem a faixa de uma hora antes e vinte e quatro depois — a SS
      e o atendimento têm de caber INTEIROS no intervalo da ocorrência, do primeiro passo aberto
@@ -1447,6 +1456,9 @@ export default function Page() {
     insight_tempos: [
       { id: "ss_dentro", rotulo: "A SS nasceu com o cliente sem energia", nota: "A abertura da SS cai entre o primeiro passo aberto e o último fechado da ocorrência — sem tolerância nenhuma, nem a hora antes nem as 24 horas depois. É a prova mais direta de que o pedido e o apagão são o mesmo evento, e não depende de o TMAE existir.", teste: (r) => arquivo(r) === "SAÍDA" && ssDentroDaCritica(r) },
       { id: "ss_tolerancia", rotulo: "Entrou pela tolerância da janela", nota: "A abertura da SS não cai dentro do intervalo da ocorrência, mas cai na tolerância — até uma hora antes do primeiro passo ou até 24 horas depois do último. Continua casando pela régua da esteira; só não é o casamento mais forte.", teste: (r) => arquivo(r) === "SAÍDA" && ssNaTolerancia(r) },
+      { id: "ss_antes_oc", rotulo: "Aberta ANTES de a interrupção começar", nota: "A ocorrência existe, mas a SS abriu antes do primeiro passo dela. Até uma hora, é a ordem normal do registro — o cliente liga, a SS nasce, a ocorrência é lançada minutos depois; mais que isso, vale ler o caso.", teste: (r) => arquivo(r) === "SAÍDA" && posNaCritica(r) === "antes" },
+      { id: "ss_depois_oc", rotulo: "Aberta DEPOIS de a interrupção terminar", nota: "A SS abriu depois do último passo fechado da ocorrência — a energia já tinha voltado. Até 24 horas é a tolerância da esteira (a troca formalizada no dia seguinte); depois disso o caso entrou por contenção ou por veredito.", teste: (r) => arquivo(r) === "SAÍDA" && posNaCritica(r) === "depois" },
+      { id: "ss_sem_oc", rotulo: "Não estão na Crítica", nota: "Não há ocorrência com intervalo para comparar com a abertura da SS. Entraram no indicador por outro caminho — contenção ou veredito — e a régua de tempos fica sem a faixa de cima.", teste: (r) => arquivo(r) === "SAÍDA" && posNaCritica(r) === "sem" },
       { id: "ss_fora_janela", rotulo: "A abertura não cai nem na tolerância", nota: "A SS nasceu fora do intervalo da ocorrência e fora da tolerância. Todos entraram por outro caminho: pela contenção (a ocorrência coube inteira dentro do serviço, que é a segunda régua) ou pelo veredito do dono. Nenhum entrou por distração da régua.", teste: (r) => arquivo(r) === "SAÍDA" && !ssDentroDaCritica(r) && !ssNaTolerancia(r) },
       { id: "ordem", rotulo: "A ordem esperada: Crítica → equipe sai → SS", nota: "A teoria do campo, testada com os tempos REAIS do TMAE: a ocorrência abre, a equipe sai um pouco depois e a solicitação nasce um pouco depois disso. Nos que seguem, a mediana é de 7,7 h da Crítica até a equipe sair e 2,6 h daí até a SS nascer.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); } },
       { id: "fora_ordem", rotulo: "Fora da ordem esperada", nota: "A equipe saiu antes de a ocorrência abrir, ou a SS nasceu antes de a equipe sair. Não é erro por si: pode ser atendimento de outro evento no mesmo ativo, SS aberta por outro canal, ou hora lançada depois. É a lista de conferência.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); } },
@@ -3149,26 +3161,24 @@ export default function Page() {
       /* INSIGHT · TEMPOS. Também só olha. */
       if (modulo === "insight_tempos") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
-        const q = (f: (x: ReturnType<typeof tempos>) => boolean) => naConta.filter((r) => f(tempos(r))).length;
         const duracoes = naConta.map((r) => tempos(r).duracaoSS).filter((d): d is number => d !== null && d >= 0).sort((a, b) => a - b);
         const p = (n: number) => (duracoes.length ? duracoes[Math.floor((duracoes.length - 1) * n)] : 0);
+        /* Ordem dele: fora o tanto de card — UM gráfico de barras vermelho respondendo a
+           pergunta desta aba. As quatro barras somam o total, e cada uma filtra a tabela. */
+        const cx = { dentro: 0, antes: 0, depois: 0, sem: 0 };
+        for (const r of naConta) cx[posNaCritica(r)] += 1;
+        const BARRAS_TEMPOS: [string, number, string][] = [
+          ["No intervalo correto — a SS nasceu com o cliente sem energia", cx.dentro, "ss_dentro"],
+          ["Antes — a SS abriu antes de a interrupção começar", cx.antes, "ss_antes_oc"],
+          ["Depois — a SS abriu depois de a interrupção terminar", cx.depois, "ss_depois_oc"],
+          ["Não estão na Crítica — sem ocorrência para comparar", cx.sem, "ss_sem_oc"],
+        ];
         return <>
-          <section className="kpi-grid">
-            <Kpi rotulo="SS dentro da Crítica" valor={br(naConta.filter(ssDentroDaCritica).length)} nota="a SS nasceu com o cliente ainda sem energia" tom="green" aoClicar={() => abrirRecorte("ss_dentro")} />
-            <Kpi rotulo="Pela tolerância da janela" valor={br(naConta.filter(ssNaTolerancia).length)} nota="1 h antes ou 24 h depois — casa, mas é o casamento fraco" tom="amber" aoClicar={() => abrirRecorte("ss_tolerancia")} />
-            <Kpi rotulo="Nem na tolerância" valor={br(naConta.filter((r) => !ssDentroDaCritica(r) && !ssNaTolerancia(r)).length)} nota="entraram por contenção ou por veredito seu" tom="ink" aoClicar={() => abrirRecorte("ss_fora_janela")} />
-            <Kpi rotulo="Segue a ordem esperada" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); }).length)} nota="Crítica abre · equipe sai · SS nasce — nessa ordem" tom="green" aoClicar={() => abrirRecorte("ordem")} />
-            <Kpi rotulo="Fora da ordem" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); }).length)} nota="a equipe saiu antes da Crítica, ou a SS nasceu antes da equipe" tom="amber" aoClicar={() => abrirRecorte("fora_ordem")} />
-            <Kpi rotulo="Exatamente dentro" valor={br(naConta.filter((r) => exatamenteDentro(r).ambos).length)} nota="SS e atendimento inteiros dentro da interrupção" tom="green" aoClicar={() => abrirRecorte("exato")} />
-            <Kpi rotulo="Tem as três bases" valor={br(naConta.filter((r) => tresBases(r)).length)} nota="ocorrência, atendimento e SS com término" tom="ink" aoClicar={() => abrirRecorte("tres_bases")} />
-            <Kpi rotulo="Só como manobra" valor={br(naConta.filter((r) => passos.por_ss[texto(r.ss)]?.so_manobra).length)} nota="o ativo é caminho de volta, não vítima" tom="red" aoClicar={() => abrirRecorte("so_manobra_passos")} />
-            <Kpi rotulo="Voltou por socorro" valor={br(naConta.filter((r) => passos.por_ss[texto(r.ss)]?.socorrido).length)} nota="outro elemento foi fechado para devolver" tom="amber" aoClicar={() => abrirRecorte("socorrido")} />
-            <Kpi rotulo="SS encerrada antes de aberta" valor={br(q((x) => x.invertida))} nota="erro de data — a faixa anda para trás" tom="red" aoClicar={() => abrirRecorte("invertida")} />
-            <Kpi rotulo="Atendimento depois do término" valor={br(q((x) => x.atDepoisDoFim))} nota="a equipe aparece com a SS já fechada" tom="amber" aoClicar={() => abrirRecorte("at_depois")} />
-            <Kpi rotulo="Atendimento antes da SS" valor={br(q((x) => x.atAntes))} nota="a ordem normal do campo" tom="green" aoClicar={() => abrirRecorte("at_antes")} />
-            <Kpi rotulo="Sem atendimento" valor={br(q((x) => x.semAt))} nota="a faixa do meio fica vazia" tom="ink" aoClicar={() => abrirRecorte("sem_at_tempo")} />
-            <Kpi rotulo="SS aberta mais de 7 dias" valor={br(q((x) => x.duracaoSS !== null && x.duracaoSS > 168))} nota="tempo no sistema, não causa" tom="ink" aoClicar={() => abrirRecorte("ss_longa")} />
-            <Kpi rotulo="Duração mediana da SS" valor={`${Math.round(p(0.5))} h`} nota={`p10 ${Math.round(p(0.1))} h · p90 ${Math.round(p(0.9))} h`} tom="ink" />
+          <section className="panel">
+            <div className="panel-title"><div><span>A pergunta desta aba</span><h2>A abertura da SS contra o intervalo da ocorrência</h2></div><small>as quatro barras somam as {br(naConta.length)} · clique numa barra para filtrar a tabela</small></div>
+            <Barras total={naConta.length} dados={BARRAS_TEMPOS.map(([label, value]) => ({ label, value }))}
+              aoSelecionar={(label) => { const alvo = BARRAS_TEMPOS.find(([l]) => l === label); if (alvo) abrirRecorte(alvo[2]); }} />
+            <p className="fonte-detalhe">Duração mediana da SS: {Math.round(p(0.5))} h · p10 {Math.round(p(0.1))} h · p90 {Math.round(p(0.9))} h. As outras leituras — ordem esperada, exatamente dentro, manobra, datas impossíveis — continuam nos filtros acima da tabela.</p>
           </section>
           <section className="panel"><div className="panel-title"><div><span>Como ler</span><h2>As três bases, uma embaixo da outra</h2></div><small>abra qualquer linha na aba Tempos do dossiê</small></div>
             <div className="tempos-exemplo">
