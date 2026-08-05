@@ -243,10 +243,21 @@ button { cursor: pointer; }
 @media (max-width: 820px) {
   .drawer-layer { height: 100dvh; }
   .drawer { width: 100vw; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  /* Sem isto as abas da gaveta ficavam com UM PIXEL de altura. A gaveta é flex em coluna com
+     altura travada na tela; quando o conteúdo passa disso, o flex encolhe os filhos que
+     puderem encolher — e a tira de abas, feita de botões, encolhe até sumir. Some sem aviso:
+     os botões continuam no DOM, clicáveis por código, invisíveis para quem está olhando. Era
+     por isso que não dava para abrir SS e OS, Obra, Deslocamento nem Interrupção no celular.
+     flex: 0 0 auto em cada bloco de cima diz que ninguém encolhe; quem cresce é a rolagem. */
+  .drawer > header, .drawer-status, .drawer > nav, .classificar { flex: 0 0 auto; }
   .drawer > header { position: sticky; top: 0; z-index: 3; padding: 14px 16px; }
   .drawer > header h2 { font-size: 18px; }
   .drawer-status { flex-wrap: wrap; gap: 6px; padding: 8px 16px; }
-  .drawer > nav { position: sticky; top: 64px; z-index: 2; padding: 0 16px; }
+  /* A tira de abas NÃO gruda no topo: grudava a 64px enquanto o cabeçalho tem 85, então ela
+     ficava escondida atrás dele e o toque não chegava. Rola junto com o conteúdo, e o que fica
+     grudado é só o cabeçalho, para o botão de fechar continuar ao alcance. */
+  .drawer > nav { padding: 0 16px; }
+  .drawer > nav button { padding: 13px 12px 11px; font-size: 9px; }
   /* o corpo deixa de ser o dono da rolagem: quem rola agora é a gaveta */
   .drawer-body { flex: none; overflow: visible; padding: 18px 16px 90px; }
   .classificar { padding: 10px 16px; }
