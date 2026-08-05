@@ -11,7 +11,8 @@ type Modulo =
   | "ressalva"
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
-  | "ativos" | "regras" | "revisao" | "bases" | "mapa";
+  | "ativos" | "regras" | "revisao" | "bases" | "mapa"
+  | "insight_valor";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -432,6 +433,26 @@ const GATILHO_ROTULO: Record<string, string> = {
    na aba de exclusão, para classificar rápido. O identificador é "X:<gatilho>" — o mesmo gatilho
    que a regra grava —, então o caso marcado à mão cai exatamente no mesmo chip, no mesmo
    gráfico e na mesma linha da planilha que o caso excluído por regra. Sem tradução no meio. */
+/* A POTÊNCIA ESCRITA NA SS. Ordem dele: "pega pelo o que foi escrito na SS".
+   A base tem três campos numéricos de potência e eles brigam entre si — POTENCIA_RET e POT_RET
+   discordam em 222 das que contam. Quem não briga é o texto: quando o solicitante escreve
+   "trafo de 45 kva", ele está descrevendo o equipamento que viu no poste. Por isso a leitura
+   aqui é do texto, e só dele.
+   Aceita 15KVA, 15 kVA, 112,5 kva, 30 kvar (o campo escreve kvar por vício, e é kVA). Só vale
+   potência que existe em transformador de distribuição: número solto no meio da frase — tensão,
+   telefone, número de cliente — não entra. Se a frase citar mais de uma potência, o caso não é
+   julgado: duas potências no mesmo texto é ambiguidade, não achado. */
+const POTENCIAS = [5, 10, 15, 25, 30, 45, 75, 112.5, 150, 225, 300];
+const kvaEscrito = (txt?: string): number | null => {
+  const s = String(txt || "").toUpperCase().replace(/\./g, ",");
+  const achadas = new Set<number>();
+  for (const m of s.matchAll(/(\d{1,4}(?:,\d)?)\s*K?\s?VA/g)) {
+    const n = Number(m[1].replace(",", "."));
+    if (POTENCIAS.includes(n)) achadas.add(n);
+  }
+  return achadas.size === 1 ? [...achadas][0] : null;
+};
+
 const PREFIXO_EXC = "X:";
 const ehExclusaoManual = (c?: string) => Boolean(c && c.startsWith(PREFIXO_EXC));
 const gatilhoDaClasse = (c?: string) => (ehExclusaoManual(c) ? String(c).slice(PREFIXO_EXC.length) : "");
@@ -873,10 +894,70 @@ export default function Page() {
     return fatoBase !== (r.casa_na_janela === "SIM");
   }).length, [comJanela]);
 
+  /* A FAIXA DO PRATICADO, potência por potência. Nenhum valor aqui é digitado: a faixa de cada
+     potência sai das próprias solicitações que contam, agrupadas pela potência que a SS
+     escreveu.
+     A faixa é a cerca de Tukey — do primeiro quartil menos uma vez e meia a amplitude
+     interquartil até o terceiro quartil mais o mesmo. A primeira versão desta tela usava p10 a
+     p90 e estava errada por construção: percentil fixo marca 20% dos casos sempre, então ela
+     "achava" 188 achados numa base perfeita. A cerca não tem cota: numa potência em que todo
+     mundo custa parecido ela não marca ninguém, e é isso que uma régua de exceção precisa
+     poder fazer.
+     Potência com menos de oito casos não vira faixa: oito é pouco para dizer o que é praticado,
+     e uma faixa fraca acusaria caso bom. Quem cai nessas potências aparece como não julgável,
+     e não como achado. */
+  const faixaValor = useMemo(() => {
+    const porKva = new Map<number, number[]>();
+    for (const r of registros) {
+      if (arquivo(r) !== "SAÍDA") continue;
+      const k = kvaEscrito(texto(r.desc_ss));
+      const v = Number(r.obra_realizado || 0);
+      if (!k || !(v > 0)) continue;
+      if (!porKva.has(k)) porKva.set(k, []);
+      (porKva.get(k) as number[]).push(v);
+    }
+    const pct = (v: number[], p: number) => {
+      const i = ((v.length - 1) * p) / 100;
+      const b = Math.floor(i);
+      return v[b] + (v[Math.min(b + 1, v.length - 1)] - v[b]) * (i - b);
+    };
+    const faixas = new Map<number, { n: number; p10: number; p50: number; p90: number }>();
+    for (const [k, arr] of porKva) {
+      arr.sort((a, b) => a - b);
+      if (arr.length < 8) continue;
+      const q1 = pct(arr, 25), q3 = pct(arr, 75), iqr = q3 - q1;
+      faixas.set(k, { n: arr.length, p10: Math.max(0, q1 - 1.5 * iqr), p50: pct(arr, 50), p90: q3 + 1.5 * iqr });
+    }
+    return faixas;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registros, classificacao]);
+
+  /* Três respostas possíveis, e a diferença entre elas importa: "acima"/"abaixo" é achado,
+     "" é caso normal, e null é caso que esta régua não sabe julgar — a SS não escreveu a
+     potência, escreveu duas, a obra não tem valor, ou a potência não tem faixa. Não julgável
+     nunca é apresentado como suspeito. */
+  const foraDaFaixa = (r: Registro): "acima" | "abaixo" | "" | null => {
+    if (arquivo(r) !== "SAÍDA") return null;
+    const k = kvaEscrito(texto(r.desc_ss));
+    const v = Number(r.obra_realizado || 0);
+    const f = k ? faixaValor.get(k) : undefined;
+    if (!k || !(v > 0) || !f) return null;
+    return v > f.p90 ? "acima" : v < f.p10 ? "abaixo" : "";
+  };
+
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
     // A revisão não filtra registros da esteira: ela tem os próprios chips, montados a partir
     // das famílias de motivo do revisao.json. Fica vazio aqui de propósito.
     revisao: [],
+    /* A aba de insight não move ninguém: ela só olha. Os chips são leituras do mesmo conjunto
+       de queimados e avariados, e nenhum deles muda decisão, categoria ou conta. */
+    insight_valor: [
+      { id: "fora", rotulo: "Fora da faixa", nota: "O valor realizado da obra cai fora da cerca de Tukey da potência que a SS escreveu — longe o bastante do que se pratica para não ser variação normal. Achado para olhar, não veredito: obra que cobre duas trocas sobe o valor com razão, e obra que só apropriou parte do custo desce.", teste: (r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; } },
+      { id: "acima", rotulo: "Custou acima do praticado", nota: "Acima da cerca superior da potência escrita na SS. As três causas que a gente já viu: a obra pagou mais de um transformador, o material trouxe potência maior que a do texto, ou a obra levou serviço que não é a troca.", teste: (r) => foraDaFaixa(r) === "acima" },
+      { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência escrita na SS. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
+      { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência escrita na SS. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
+      { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: a SS não escreveu a potência, escreveu duas potências diferentes, a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
+    ],
     visao: [
       { id: "sem_origem", rotulo: "Sem origem gravada", nota: "A base de SS não registra qual setor abriu a solicitação. São duas, e as duas já saíram do indicador por outro motivo: uma é aviso de anomalia aberto por técnico, a outra foi criada para substituir uma SS cancelada. O campo em branco não decidiu nada em nenhuma das duas — é lacuna de cadastro, não sinal.", teste: (r) => !texto(r.origem) },
     ],
@@ -1413,6 +1494,7 @@ export default function Page() {
     { grupo: "Proposta", itens: [
       // abre já no recorte que lista os 1.305 — o mesmo conjunto que os cartões contam
       { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
+      { id: "insight_valor", rotulo: "Valor × potência da SS", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
     ]},
   ];
   const navAtual = oficina ? NAV_OFICINA : NAV;
@@ -1436,6 +1518,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência escrita na SS", texto: "A faixa do praticado sai das próprias solicitações que contam, agrupadas pela potência que o solicitante escreveu no texto — não pelos campos numéricos, que discordam entre si. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
   };
 
   const titulo = TITULOS[modulo];
@@ -1452,6 +1535,7 @@ export default function Page() {
     interrupcao: "todos", deslocamento: "todos", ssos: "todos", ressalva: "fila",
     obra: "todos", decisao: "saida", semfato: "parados", semdesloc: "todos", expurgos: "parados",
     profunda: "todos", exclusoes: "todos", preventivos: "todos",
+    insight_valor: "fora",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -2500,6 +2584,50 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · VALOR × POTÊNCIA ESCRITA NA SS. Aba de olhar, não de mexer: nenhum caso muda
+         de lugar, de categoria ou de conta por causa dela. Tudo aqui é contado na hora, do
+         mesmo conjunto de queimados e avariados que a aba ao lado mostra. */
+      if (modulo === "insight_valor") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const acima = naConta.filter((r) => foraDaFaixa(r) === "acima");
+        const abaixo = naConta.filter((r) => foraDaFaixa(r) === "abaixo");
+        const dentro = naConta.filter((r) => foraDaFaixa(r) === "");
+        const cego = naConta.filter((r) => foraDaFaixa(r) === null);
+        const julgados = acima.length + abaixo.length + dentro.length;
+        const dinheiro = (v: number) => `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
+        return <>
+          <section className="kpi-grid">
+            <Kpi rotulo="Fora da faixa" valor={br(acima.length + abaixo.length)} nota={`de ${br(julgados)} que a régua consegue julgar`} tom="amber" aoClicar={() => abrirRecorte("fora")} />
+            <Kpi rotulo="Acima do praticado" valor={br(acima.length)} nota="passam da cerca superior da potência escrita na SS" tom="red" aoClicar={() => abrirRecorte("acima")} />
+            <Kpi rotulo="Abaixo do praticado" valor={br(abaixo.length)} nota="ficam abaixo da cerca — a obra comprova menos do que a SS pediu" tom="blue" aoClicar={() => abrirRecorte("abaixo")} />
+            <Kpi rotulo="Dentro da faixa" valor={br(dentro.length)} nota="o valor cabe no que se pratica para aquela potência" tom="green" aoClicar={() => abrirRecorte("dentro")} />
+            <Kpi rotulo="A régua não julga" valor={br(cego.length)} nota="a SS não escreveu potência, escreveu duas, ou falta valor" tom="ink" aoClicar={() => abrirRecorte("nao_julgavel")} />
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>A régua</span><h2>A faixa do praticado, potência por potência</h2></div><small>tirada destas mesmas solicitações</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Potência escrita na SS</th><th>Solicitações</th><th>Faixa normal (cerca de Tukey)</th><th>Mediana</th><th>Fora da faixa</th></tr></thead>
+              <tbody>
+                {[...faixaValor.entries()].sort((a, b) => a[0] - b[0]).map(([k, f]) => {
+                  const fora = naConta.filter((r) => kvaEscrito(texto(r.desc_ss)) === k && (foraDaFaixa(r) === "acima" || foraDaFaixa(r) === "abaixo")).length;
+                  return <tr key={k}>
+                    <td><strong>{String(k).replace(".", ",")} kVA</strong></td>
+                    <td>{br(f.n)}</td>
+                    <td>{dinheiro(f.p10)} a {dinheiro(f.p90)}</td>
+                    <td>{dinheiro(f.p50)}</td>
+                    <td>{fora ? br(fora) : "—"}</td>
+                  </tr>;
+                })}
+              </tbody>
+            </table></div>
+            <p className="fonte-detalhe">Nenhum número desta tabela é digitado. A faixa de cada potência sai das próprias solicitações que contam, e muda sozinha quando o conjunto muda. A faixa é a cerca de Tukey: quartis mais uma vez e meia a amplitude interquartil. Ela não tem cota — numa potência em que todo mundo custa parecido, ela não marca ninguém. Potência com menos de oito casos não forma faixa, e quem cai nelas vai para “a régua não julga”, não para a lista de achados.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>POR QUE PELO TEXTO E NÃO PELO CAMPO</span>
+            <p>A base traz três campos numéricos de potência para o mesmo transformador, e eles brigam: <strong>POTENCIA_RET</strong> e <strong>POT_RET</strong> discordam em 222 das que contam. Já o texto é escrito por quem esteve no poste — quando a SS diz “trafo de 45 kva”, está descrevendo o equipamento que a equipe viu.</p>
+            <p>Por isso a leitura aqui é do texto, e só dele. Onde a SS cita <strong>duas</strong> potências diferentes, o caso não é julgado: duas potências na mesma frase é ambiguidade, não achado.</p>
+            <p>E o que sai daqui é <strong>achado, não veredito</strong>. Valor acima da faixa costuma ser obra que cobriu mais de uma troca ou que instalou potência maior que a do texto; valor abaixo costuma ser obra que não apropriou o custo inteiro. Nenhum dos dois, sozinho, prova erro — os dois merecem uma olhada.</p>
+          </section>
+        </>;
+      }
       if (modulo === "preventivos") {
         const candidatos = conta((r) => r.sob_suspeita === "SIM" && arquivo(r) === "SAÍDA");
         return <>
