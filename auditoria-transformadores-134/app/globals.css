@@ -587,11 +587,19 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .records-table.passos-oc td code { margin-top: 0; color: #3f4247; font-size: 8px; }
 .records-table.passos-oc td span { font-size: 7px; color: #8a8d91; text-transform: uppercase; letter-spacing: .06em; }
 
-/* O T da marca vira botão de exportar. Cursor e realce dizem que é clicável sem precisar de
-   rótulo — o title explica, e a confirmação aparece embaixo do nome por seis segundos. */
+/* O T da marca é a porta da oficina — a área que não aparece em menu nenhum. Cursor e realce
+   dizem que é clicável sem prometer o quê: quem não sabe, não descobre por acidente. Dentro
+   dela o T muda de cor, que é o único aviso de que a tela não é a de fora. */
 .brand i.exportador { cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
 .brand i.exportador:hover { transform: scale(1.06); box-shadow: 0 0 0 3px rgba(165,42,52,.25); }
 .brand i.exportador:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.brand.na-oficina > i { background: #35634b; }
+.brand.na-oficina span { color: #7fae91; }
+/* O export saiu do T e ganhou nome. Discreto no pé da barra: é ferramenta, não navegação. */
+.side-export { width: 100%; margin-top: 22px; border: 1px solid #3a3d42; border-radius: 2px;
+  padding: 9px 10px; background: transparent; color: #aeb1b5;
+  font: 600 8px/1.3 "IBM Plex Mono", monospace; letter-spacing: .09em; text-transform: uppercase; cursor: pointer; }
+.side-export:hover { border-color: var(--red); background: #292c31; color: #fff; }
 .brand small.exportou { display: block; margin-top: 4px; color: #6f9a7f; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
 
 /* De onde vem cada sinal do caso. O bloco misturava alerta de obra com ressalva da interrupção
