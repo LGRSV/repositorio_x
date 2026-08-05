@@ -25,7 +25,7 @@ type Modulo =
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
-  | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide";
+  | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -378,6 +378,60 @@ function ReguaTmae({ r }: { r: Registro }) {
   </div>;
 }
 
+/* AS TRÊS RÉGUAS, UMA EMBAIXO DA OUTRA, NO MESMO EIXO. Pedido dele: a régua da Crítica, embaixo
+   a do TMAE, embaixo a da SS da abertura ao término.
+   O que faz isto valer é o eixo COMPARTILHADO: as três dividem o mesmo começo e o mesmo fim, e
+   por isso a ordem dos eventos se lê de relance — quem veio antes, quem cabe dentro de quem,
+   quanto tempo separa um do outro. Três réguas com escalas próprias, empilhadas, mentiriam: a
+   ocorrência de duas horas ficaria do mesmo tamanho da SS de duas semanas.
+   Cada faixa diz também quando ela NÃO existe, em vez de sumir — trilho vazio com a razão
+   escrita ao lado. Ausência de atendimento é informação, e some do desenho se a gente deixar. */
+function ReguaTempos({ r }: { r: Registro }) {
+  const ab = emMs(r.abertura), te = emMs(r.termino);
+  const oi = emMs(r.oc_ini), of = emMs(r.oc_fim) ?? emMs(r.oc_ini);
+  const ai = emMs(r.at_ini), af = emMs(r.at_fim) ?? emMs(r.at_ini);
+  const pontos = [ab, te, oi, of, ai, af].filter((x): x is number => typeof x === "number");
+  if (!pontos.length) return null;
+  const folga = Math.max((Math.max(...pontos) - Math.min(...pontos)) * 0.04, H_MS);
+  const de = Math.min(...pontos) - folga, ate = Math.max(...pontos) + folga;
+  const larg = Math.max(1, ate - de);
+  const onde = (t: number) => `${((t - de) / larg) * 100}%`;
+  const quanto = (ms: number) => `${(Math.max(ms, larg / 400) / larg) * 100}%`;
+  const horas = (a?: number | null, b?: number | null) =>
+    a && b ? `${Math.round(Math.abs(b - a) / H_MS)} h` : "";
+  return <div className="tempos">
+    <div className="tempos-faixa">
+      <span className="tempos-nome">Crítica</span>
+      <div className="regua-trilho">
+        {oi && of ? <>
+          <span className="regua-antes" style={{ left: onde(oi - H_MS), width: quanto(H_MS) }} title="uma hora antes do primeiro passo" />
+          <span className="regua-oc" style={{ left: onde(oi), width: quanto(of - oi) }} title={`ocorrência ${dataBR(r.oc_ini)} → ${dataBR(r.oc_fim)}`} />
+          <span className="regua-depois" style={{ left: onde(of), width: quanto(24 * H_MS) }} title="vinte e quatro horas depois do último passo" />
+        </> : null}
+      </div>
+      <span className="tempos-dado">{oi ? `${dataBR(r.oc_ini)} · ${horas(oi, of)}` : "sem ocorrência na Crítica"}</span>
+    </div>
+    <div className="tempos-faixa">
+      <span className="tempos-nome">TMAE</span>
+      <div className="regua-trilho">
+        {ai && af ? <span className="regua-at" style={{ left: onde(ai), width: quanto(af - ai) }} title={`atendimento ${dataBR(r.at_ini)} → ${dataBR(r.at_fim)}`} /> : null}
+      </div>
+      <span className="tempos-dado">{ai ? `${dataBR(r.at_ini)} · ${horas(ai, af)}` : "sem atendimento registrado"}</span>
+    </div>
+    <div className="tempos-faixa">
+      <span className="tempos-nome">SS</span>
+      <div className="regua-trilho">
+        {ab && te ? <span className={`regua-servico${te < ab ? " invertida" : ""}`}
+          style={{ left: onde(Math.min(ab, te)), width: quanto(Math.abs(te - ab)) }}
+          title={`SS ${dataBR(r.abertura)} → ${dataBR(r.termino)}`} /> : null}
+        {ab ? <b className="regua-ss dentro" style={{ left: onde(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} /> : null}
+      </div>
+      <span className="tempos-dado">{ab ? `${dataBR(r.abertura)} · ${horas(ab, te)}` : "sem abertura"}</span>
+    </div>
+    {te && ab && te < ab ? <p className="tempos-aviso">O término está gravado ANTES da abertura — a faixa da SS anda para trás. É erro de cadastro de data, não de execução.</p> : null}
+  </div>;
+}
+
 function Barras({ dados, total, aoSelecionar }: {
   dados: Par[]; total?: number; aoSelecionar?: (label: string) => void;
 }) {
@@ -658,6 +712,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_garantia: ["Fabricação e vida", "Séries e tombamento", "Motivo"],
     insight_material: ["Obra e material", "O que saiu do almoxarifado", "Motivo"],
     insight_divide: ["Ocorrência e com quem divide", "Atendimento e com quem divide", "Motivo"],
+    insight_tempos: ["Os três tempos, no mesmo eixo", "Durações", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -688,6 +743,14 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
+
+      {modo === "insight_tempos" && <>
+        <td colSpan={1}><ReguaTempos r={r} /></td>
+        <td><strong>{r.oc_dur_h ? `${texto(r.oc_dur_h)} h de interrupção` : "sem ocorrência"}</strong>
+          <span>{r.at_tma ? `TMA ${texto(r.at_tma)} min` : "sem atendimento"}</span>
+          <small>SS {dataBR(r.abertura)} → {dataBR(r.termino)}</small></td>
+        <td><p className="clip">{texto(r.motivo_decisao)}</p></td>
+      </>}
 
       {modo === "insight_divide" && <>
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong>
@@ -1136,6 +1199,21 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
+  /* OS TEMPOS DE UM CASO. Tudo em horas, do mesmo relógio, para as perguntas de ordem: o
+     atendimento veio antes da SS? depois de ela fechar? a SS fechou antes de abrir? */
+  const tempos = (r: Registro) => {
+    const ab = emMs(r.abertura), te = emMs(r.termino);
+    const oi = emMs(r.oc_ini), ai = emMs(r.at_ini);
+    return {
+      ab, te, oi, ai,
+      duracaoSS: ab && te ? (te - ab) / H_MS : null,
+      atAntes: ab && ai ? ai < ab : false,
+      atDepoisDoFim: te && ai ? ai > te : false,
+      invertida: ab && te ? te < ab : false,
+      semAt: !ai,
+    };
+  };
+
   /* QUEM DIVIDE O MESMO EVENTO. Dois índices, calculados só entre os que contam: quantas SS
      apontam para a mesma ocorrência da Crítica, e quantas para o mesmo atendimento do TMAE.
      Uma interrupção prova uma troca, não duas — quando duas SS carregam o mesmo número, uma
@@ -1256,6 +1334,15 @@ export default function Page() {
             && (coleta[texto(r.ss)]?.fabricante || "sem fabricante") === f,
         })),
       { id: "sem_coleta", rotulo: "Sem ficha na COLETA", nota: "A aba COLETA não tem linha que case com esta SS — nem por ocorrência, nem por obra, nem por código do ativo. Sem ficha não há série, tombamento nem data de fabricação, e não há o que perguntar sobre garantia.", teste: (r) => arquivo(r) === "SAÍDA" && !coleta[texto(r.ss)] },
+    ],
+    /* Tempos: só olha. Cada recorte é uma pergunta de ordem entre as três bases. */
+    insight_tempos: [
+      { id: "invertida", rotulo: "SS encerrada antes de ser aberta", nota: "O término está gravado antes da abertura. É erro de cadastro de data, não de execução — mas enquanto estiver assim, qualquer conta de duração desta SS sai negativa, e quem somar o tempo médio de atendimento leva o erro junto.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).invertida },
+      { id: "at_depois", rotulo: "Atendimento começa depois do término da SS", nota: "A equipe aparece no TMAE depois de a solicitação já estar encerrada. Ou o atendimento exibido é de outro evento — herança do casamento por elemento —, ou o encerramento da SS foi lançado antes de o serviço acabar.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).atDepoisDoFim },
+      { id: "at_antes", rotulo: "Atendimento começa antes da SS", nota: "A ordem normal do campo: o cliente liga, a equipe é acionada e a SS nasce depois, para formalizar a troca. É a maioria — está aqui para dar tamanho às outras leituras, não como suspeita.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).atAntes },
+      { id: "sem_at_tempo", rotulo: "Sem atendimento para comparar", nota: "Não há registro do TMAE no código deste transformador, então a faixa do meio fica vazia. Não é contraprova: a chave do TMAE é o elemento onde o defeito foi aberto, e a equipe costuma abrir na chave.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).semAt },
+      { id: "ss_longa", rotulo: "SS aberta por mais de 7 dias", nota: "Da abertura ao término passaram mais de 168 horas. Não diz nada sobre a causa da falha — diz sobre o tempo que a solicitação ficou viva no sistema.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d > 168; } },
+      { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
     ],
     /* Quem divide o mesmo evento: também só olha. */
     insight_divide: [
@@ -1827,6 +1914,7 @@ export default function Page() {
       { id: "insight_valor", rotulo: "Valor × potência instalada", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
       { id: "insight_material", rotulo: "Material × trafos", codigo: "04", marca: conta((r) => ["mais_ss", "mais_trafos", "sem_trafo"].includes(String(estadoMaterial(r)))), tom: "cinza", recorte: "mais_ss" },
       { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
+      { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
     ]},
   ];
@@ -1851,6 +1939,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     insight_divide: { olho: "Insight · não move ninguém", titulo: "Quem divide a mesma interrupção", texto: "Duas SS apoiadas no mesmo evento: a mesma ocorrência da Crítica, ou o mesmo atendimento do TMAE. Uma interrupção prova uma troca, não duas — esta aba lista os pares para leitura, sem mover ninguém." },
     insight_material: { olho: "Insight · não move ninguém", titulo: "Material × transformador, obra por obra", texto: "A obra pagou quantos transformadores, e isso bate com quantas SS ela atende? A conta vem do export do SIAGO, deduplicado entre os dois arquivos e contado por quantidade realizada — linha de transformador não é transformador." },
     insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
@@ -1875,6 +1964,7 @@ export default function Page() {
     insight_garantia: "menos_ano",
     insight_material: "mais_ss",
     insight_divide: "divide_oc",
+    insight_tempos: "invertida",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -2935,6 +3025,35 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · TEMPOS. Também só olha. */
+      if (modulo === "insight_tempos") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const q = (f: (x: ReturnType<typeof tempos>) => boolean) => naConta.filter((r) => f(tempos(r))).length;
+        const duracoes = naConta.map((r) => tempos(r).duracaoSS).filter((d): d is number => d !== null && d >= 0).sort((a, b) => a - b);
+        const p = (n: number) => (duracoes.length ? duracoes[Math.floor((duracoes.length - 1) * n)] : 0);
+        return <>
+          <section className="kpi-grid">
+            <Kpi rotulo="SS encerrada antes de aberta" valor={br(q((x) => x.invertida))} nota="erro de data — a faixa anda para trás" tom="red" aoClicar={() => abrirRecorte("invertida")} />
+            <Kpi rotulo="Atendimento depois do término" valor={br(q((x) => x.atDepoisDoFim))} nota="a equipe aparece com a SS já fechada" tom="amber" aoClicar={() => abrirRecorte("at_depois")} />
+            <Kpi rotulo="Atendimento antes da SS" valor={br(q((x) => x.atAntes))} nota="a ordem normal do campo" tom="green" aoClicar={() => abrirRecorte("at_antes")} />
+            <Kpi rotulo="Sem atendimento" valor={br(q((x) => x.semAt))} nota="a faixa do meio fica vazia" tom="ink" aoClicar={() => abrirRecorte("sem_at_tempo")} />
+            <Kpi rotulo="SS aberta mais de 7 dias" valor={br(q((x) => x.duracaoSS !== null && x.duracaoSS > 168))} nota="tempo no sistema, não causa" tom="ink" aoClicar={() => abrirRecorte("ss_longa")} />
+            <Kpi rotulo="Duração mediana da SS" valor={`${Math.round(p(0.5))} h`} nota={`p10 ${Math.round(p(0.1))} h · p90 ${Math.round(p(0.9))} h`} tom="ink" />
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Como ler</span><h2>As três bases, uma embaixo da outra</h2></div><small>abra qualquer linha na aba Tempos do dossiê</small></div>
+            <div className="tempos-exemplo">
+              {(() => { const alvo = naConta.find((r) => tempos(r).invertida) || naConta[0];
+                return alvo ? <><p className="fonte-detalhe">{texto(alvo.ss)} · trafo {texto(alvo.trafo)}</p><ReguaTempos r={alvo} /></> : null; })()}
+            </div>
+            <p className="fonte-detalhe">As três dividem o mesmo começo e o mesmo fim. É isso que permite comparar: com escalas próprias, uma ocorrência de duas horas ficaria do mesmo tamanho de uma SS de duas semanas. Faixa vazia quer dizer que aquela base não tem registro para este caso — e isso está escrito ao lado, em vez de a faixa sumir.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>O QUE ESTA ABA NÃO DIZ</span>
+            <p>Nenhum destes recortes fala sobre a <strong>causa</strong> da falha. SS aberta por muito tempo não é caso mal decidido; atendimento antes da SS é o comportamento normal do campo — o cliente liga, a equipe vai, a solicitação nasce depois para formalizar.</p>
+            <p>Os dois que merecem leitura são os de <strong>ordem impossível</strong>: SS encerrada antes de ser aberta, que é erro de data no cadastro, e atendimento que começa depois de a SS fechar, que costuma ser atendimento herdado de outro evento. Nos dois casos o número do indicador continua onde está — o que está errado é a data, não a decisão.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · QUEM DIVIDE A MESMA INTERRUPÇÃO. Também só olha. */
       if (modulo === "insight_divide") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3220,10 +3339,23 @@ export default function Page() {
             ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
             : "A decisão do fluxo continua registrada. Isto é a sua leitura ao lado dela."}</em>
         </div>
-        <nav>{([["consolidado", "Consolidado"], ["interrupcao", "Interrupção"], ["deslocamento", "Deslocamento"],
+        <nav>{([["tempos", "Tempos"], ["consolidado", "Consolidado"], ["interrupcao", "Interrupção"], ["deslocamento", "Deslocamento"],
                 ["ssos", "SS e OS"], ["obra", "Obra e SIGCO"], ["historico", "Histórico do ativo"]] as const).map(([id, rotulo]) => <button key={id}
           className={`${abaDossie === id ? "active" : ""} no-caps`.trim()} onClick={() => setAbaDossie(id)}>{rotulo}</button>)}</nav>
         <div className="drawer-body">
+          {abaDossie === "tempos" && <>
+            <h3>Os três tempos deste caso</h3>
+            <p className="fonte-detalhe">As três bases no MESMO eixo: o que a Crítica registra, quando a equipe esteve lá e quanto tempo a solicitação ficou aberta. É o eixo compartilhado que faz a leitura — a ordem dos eventos e a distância entre eles se leem de relance.</p>
+            <ReguaTempos r={aberto} />
+            <section className="detail-grid">
+              <div><span>Ocorrência</span><strong>{dataBR(aberto.oc_ini)} → {dataBR(aberto.oc_fim)}</strong>{aberto.oc_dur_h ? <em>{texto(aberto.oc_dur_h)} h de interrupção</em> : null}</div>
+              <div><span>Atendimento</span><strong>{aberto.at_ini ? `${dataBR(aberto.at_ini)} → ${dataBR(aberto.at_fim)}` : "nenhum no código deste trafo"}</strong>{aberto.at_tma ? <em>TMA {texto(aberto.at_tma)} min</em> : null}</div>
+              <div><span>Solicitação</span><strong>{dataBR(aberto.abertura)} → {dataBR(aberto.termino)}</strong></div>
+              <div><span>A SS caiu na janela?</span><strong>{texto(aberto.casa_na_janela) === "SIM" || Number(aberto.oc_dist_h) === 0 ? "sim" : distanciaEmPalavras(aberto.oc_dist_h, aberto.aberta_antes)}</strong>{texto(aberto.oc_contida_na_ss) === "SIM" ? <em>a ocorrência coube dentro do serviço</em> : null}</div>
+            </section>
+            {aberto.at_fora_da_janela === "SIM" ? <article className="work-alerts danger"><span>O ATENDIMENTO É DE FORA DA JANELA</span>
+              <ul><li>A faixa azul não encosta na vermelha: a ida ao poste que este dossiê exibe não pertence ao evento desta SS.</li></ul></article> : null}
+          </>}
           {abaDossie === "consolidado" && <>
             {texto(aberto.narrativa) ? <article className="narrativa">
               <span>COMO ESTE CASO FOI ANALISADO</span>
