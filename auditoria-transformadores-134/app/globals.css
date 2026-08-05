@@ -762,3 +762,12 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* Quando as categorias saem de dentro do botão, elas viram card: mesma borda vermelha, colada
    embaixo dele. É por isso que esta regra vem depois — precisa vencer o margin-top de cima. */
 .classificar-abrir + .classificar-categorias { margin-top: 0; border: 1px solid var(--red); border-top: 0; padding: 10px 10px 11px; background: #fff; }
+
+/* A tela de carregamento passou a poder falhar em voz alta: sem isto, rede ruim virava spinner
+   eterno e o site parecia fora do ar quando estava publicado e respondendo. */
+.loading-erro { margin-bottom: 4px; color: var(--red); font: 500 20px/1.2 "Newsreader", serif; }
+.loading span { max-width: 42ch; text-align: center; line-height: 1.5; }
+.loading-demora { margin-top: 10px; color: #85888c; font-size: 8px; }
+.loading-botao { margin-top: 16px; border: 1px solid var(--ink); padding: 10px 18px; background: var(--ink);
+  color: #fff; font: 600 8px "IBM Plex Mono", monospace; letter-spacing: .09em; text-transform: uppercase; cursor: pointer; }
+.loading-botao:hover { background: var(--red); border-color: var(--red); }

@@ -779,6 +779,13 @@ export default function Page() {
      ele descreveu como "tá foda". Agora ficam atrás de um botão, e só aparecem quando ele diz
      que quer tirar o caso do indicador. Fecham sozinhas ao escolher e ao trocar de SS. */
   const [motivosAbertos, setMotivosAbertos] = useState(false);
+  /* CARREGAMENTO QUE FALA. O fluxo é o único arquivo sem o qual não há tela, e o catch dele
+     engolia a falha: em vez de erro aparecia "Carregando as 1.510 solicitações…" para sempre.
+     Sinal ruim, rede caindo, ou a janela de segundos em que o Pages troca os arquivos depois de
+     uma publicação — em qualquer um deles o site parecia fora do ar, e não estava. Agora a
+     falha tem nome, botão de tentar de novo, e a demora tem aviso. */
+  const [erroCarga, setErroCarga] = useState("");
+  const [demorando, setDemorando] = useState(false);
   const [ativo, setAtivo] = useState("");
   // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
   // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
@@ -829,9 +836,24 @@ export default function Page() {
     setPendentes(sobrou.length);
   };
 
+  const carregarFluxo = () => {
+    setErroCarga("");
+    setDemorando(false);
+    fetch(assetUrl("fluxo-1510.json"))
+      .then((r) => {
+        if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
+        return r.json();
+      })
+      .then(setFluxo)
+      .catch((e) => { setFluxo(null); setErroCarga(String(e?.message || e)); });
+  };
+
   useEffect(() => {
-    fetch(assetUrl("fluxo-1510.json")).then((r) => r.json()).then(setFluxo).catch(() => setFluxo(null));
+    carregarFluxo();
+    // 15 segundos sem resposta já é tempo de dizer alguma coisa, em vez de deixar girando
+    const t = setTimeout(() => setDemorando(true), 15000);
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
+    void t;
     fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
     fetch(assetUrl("coleta-ativos.json")).then((r) => r.json())
       .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
@@ -890,6 +912,7 @@ export default function Page() {
         void drenar(faltando);
       })
       .catch(() => { void drenar(); });
+    return () => clearTimeout(t);
   }, []);
 
   const registros = fluxo?.registros ?? [];
@@ -1428,7 +1451,19 @@ export default function Page() {
     ].join(" ")).includes(agulha));
   }, [comJanela, recorte, recorteAtivo, agulha, modulo, classificacao]);
 
-  if (!fluxo) return <main className="loading"><i /><span>Carregando as 1.510 solicitações…</span></main>;
+  if (!fluxo) return <main className="loading">
+    {erroCarga ? <>
+      <strong className="loading-erro">Não consegui carregar a base</strong>
+      <span>{erroCarga}. O site está publicado — isto é a rede entre o seu aparelho e ele, ou a janela de alguns segundos logo depois de uma publicação.</span>
+      <button type="button" className="loading-botao" onClick={() => carregarFluxo()}>Tentar de novo</button>
+    </> : <>
+      <i /><span>Carregando as 1.510 solicitações…</span>
+      {demorando ? <>
+        <span className="loading-demora">Está demorando mais que o normal. São 2 MB de dados — em sinal fraco isso leva um tempo.</span>
+        <button type="button" className="loading-botao" onClick={() => carregarFluxo()}>Tentar de novo</button>
+      </> : null}
+    </>}
+  </main>;
 
   const total = registros.length;
   const conta = (teste: (r: Registro) => boolean) => registros.filter(teste).length;
