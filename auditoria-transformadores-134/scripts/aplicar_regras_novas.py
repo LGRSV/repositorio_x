@@ -336,6 +336,10 @@ def le_critica():
                     if _af and (v[1] is None or _af > v[1]):
                         v[1] = _af
                     passos_todos.setdefault(_ni, []).append({
+                        # o NÚMERO do passo no sistema operativo — é ele que denuncia manobra
+                        # que aconteceu e não virou linha aqui (passo 4 ausente entre o 3 e o 5)
+                        "p": r[k["NUM_PASSO_INIC_HDE"]].strip(),
+                        "pf": r[k["NUM_PASSO_FIM_HDE"]].strip(),
                         "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
                         "def": r[k["COD_ELE_PROBLEMA"]].strip(),
                         "int": r[k["COD_ELE_INTERROMPIDO"]].strip(),
@@ -1872,6 +1876,18 @@ def main():
         outros = sorted({v for x in todos for v in (x.get("def"), x.get("int"), x.get("fec"))
                          if v and v != cod and str(v).startswith("5") and len(str(v)) == 10})
         r["oc_outros_trafos"] = " · ".join(outros)
+        # A LACUNA DA PRÓPRIA BASE, dita em voz alta. A Crítica CHEIO só escreve o trecho que
+        # interrompeu cliente faturado: a manobra que abriu e fechou sem tirar ninguém da luz
+        # existiu no sistema operativo e não virou linha. O número do passo entrega isso — se a
+        # ocorrência vai até o passo 6 e só há linhas dos passos 1, 2, 3, 5 e 6, o passo 4
+        # aconteceu e não está aqui. Sem esta marca, quem lê a tabela jura que viu tudo.
+        nums = set()
+        for x in todos:
+            for v in (x.get("p"), x.get("pf")):
+                if str(v or "").strip().isdigit():
+                    nums.add(int(v))
+        faltam = [k for k in range(1, max(nums) + 1) if k not in nums] if nums else []
+        r["oc_passos_faltam"] = " · ".join(str(x) for x in faltam)
         if len(todos) > len(r.get("oc_detalhe") or []):
             n_compl += 1
     print(f"  dossiês que ganharam passos da ocorrência antes invisíveis: {n_compl}")
