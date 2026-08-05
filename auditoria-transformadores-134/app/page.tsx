@@ -13,6 +13,11 @@ type ColetaItem = {
   ocorrencias_12m: string; carregamento: string; gd: string;
 };
 
+type MaterialObra = {
+  trafos: number; itens: number; valor: number; troca_tipo: boolean;
+  linhas: Array<{ desc: string; kva: string; prev: number; real: number; valor: number }>;
+};
+
 type Modulo =
   | "visao" | "interrupcao" | "deslocamento" | "ssos" | "obra" | "decisao"
   | "profunda"
@@ -20,7 +25,7 @@ type Modulo =
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
-  | "insight_valor" | "insight_garantia";
+  | "insight_valor" | "insight_garantia" | "insight_material";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -583,7 +588,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -591,6 +596,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   potenciaDe?: (r: Registro) => { kva: number | null; fonte: string };
   distanciaDe?: (r: Registro) => number;
   ladoDe?: (r: Registro) => string | null;
+  materialDe?: (r: Registro) => MaterialObra | undefined;
+  ssNaObraDe?: (r: Registro) => number;
+  estadoDe?: (r: Registro) => string | null;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -609,6 +617,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     bases: ["Fato", "Leitura", "Motivo"],
     insight_valor: ["Fato", "Leitura", "Motivo"],
     insight_garantia: ["Fabricação e vida", "Séries e tombamento", "Motivo"],
+    insight_material: ["Obra e material", "O que saiu do almoxarifado", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -625,6 +634,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const potencia = potenciaDe ? potenciaDe(r) : null;
       const distancia = distanciaDe ? distanciaDe(r) : 0;
       const foraMarca = (ladoDe ? ladoDe(r) : "") || "";
+      const mat = materialDe ? materialDe(r) : undefined;
+      const ssNaObra = ssNaObraDe ? ssNaObraDe(r) : 1;
+      const estado = estadoDe ? estadoDe(r) : "";
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
       const cor = meu === "QUEIMADO" ? "linha-queimada"
         : meu === "AVARIADO" ? "linha-avariada"
@@ -634,6 +646,20 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
+
+      {modo === "insight_material" && <>
+        <td><strong>{texto(r.obra) || "sem obra"}</strong>
+          <span>{mat ? `${mat.trafos} trafo${mat.trafos === 1 ? "" : "s"} · ${mat.itens} itens` : "fora do export de material"}</span>
+          <small>{ssNaObra > 1 ? `${ssNaObra} SS nesta obra` : "uma SS nesta obra"}</small></td>
+        <td>{mat && mat.linhas.length
+          ? <>{mat.linhas.map((l, k) => <span key={k}>{l.kva ? `${l.kva} kVA` : l.desc.slice(0, 26)} · prev {l.prev} · realiz {l.real}</span>)}</>
+          : <span>nenhuma linha de transformador</span>}</td>
+        <td><b className={`pill ${estado === "bate" ? "ok" : estado === "fora_export" ? "warn" : "bad"}`}>{
+          estado === "mais_ss" ? "mais SS que trafos" : estado === "mais_trafos" ? "mais trafos que SS"
+          : estado === "sem_trafo" ? "sem transformador" : estado === "fora_export" ? "fora do export"
+          : estado === "sem_obra" ? "sem obra" : "bate"}</b>
+          {mat?.troca_tipo ? <span>previsto ≠ realizado</span> : null}</td>
+      </>}
 
       {modo === "insight_garantia" && <>
         <td><strong>{ficha?.fabricacao || "sem data"}</strong>
@@ -760,6 +786,9 @@ export default function Page() {
      Sem ela não dá para perguntar há quanto tempo o transformador tinha sido fabricado quando
      queimou. gerar_coleta.py extrai e casa por ocorrência, obra ou código do ativo. */
   const [coleta, setColeta] = useState<Record<string, ColetaItem>>({});
+  /* Quantos transformadores cada obra pagou de fato. Vem do export do SIAGO, deduplicado e
+     contado por quantidade realizada — não por linha. gerar_material_obra.py explica por quê. */
+  const [material, setMaterial] = useState<Record<string, MaterialObra>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
@@ -866,6 +895,8 @@ export default function Page() {
     fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
     fetch(assetUrl("coleta-ativos.json")).then((r) => r.json())
       .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
+    fetch(assetUrl("material-obra.json")).then((r) => r.json())
+      .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
     const local: Record<string, { classe: string; quem: string; quando: string }> =
       salvo ? JSON.parse(salvo) : {};
@@ -1052,6 +1083,34 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
+  /* OBRA × TRANSFORMADOR. A chave do material é o número da obra sem os zeros da frente, e a
+     mesma obra pode atender mais de uma SS — é justamente o caso que se quer achar. */
+  const obraDe = (r: Registro) => texto(r.obra).replace(/^0+/, "");
+  const materialDa = (r: Registro): MaterialObra | undefined => material[obraDe(r)];
+  const ssPorObra = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of registros) {
+      if (arquivo(r) !== "SAÍDA") continue;
+      const o = obraDe(r);
+      if (o) m.set(o, (m.get(o) || 0) + 1);
+    }
+    return m;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registros, classificacao]);
+  /* Seis estados, e cada um é uma conversa diferente com quem executou. */
+  const estadoMaterial = (r: Registro): string | null => {
+    if (arquivo(r) !== "SAÍDA") return null;
+    const o = obraDe(r);
+    if (!o) return "sem_obra";
+    const m = materialDa(r);
+    if (!m) return "fora_export";
+    const n = ssPorObra.get(o) || 1;
+    if (m.trafos === 0) return "sem_trafo";
+    if (m.trafos > n) return "mais_trafos";
+    if (n > m.trafos) return "mais_ss";
+    return "bate";
+  };
+
   /* A MARGEM. Ordem dele: "a diferença tem que ser expressiva, pelo menos 1.500 reais".
      Passar da cerca por trinta reais é ruído de arredondamento de obra, não achado — e uma
      lista com 38 linhas dessas some no meio de si mesma. Com a margem sobram 11, e cada uma
@@ -1102,7 +1161,30 @@ export default function Page() {
       { id: "um_dois", rotulo: "Entre um e dois anos", nota: "Passaram de um ano e não chegaram a dois. Entram se o contrato de fornecimento tiver prazo de 24 meses, que é a outra praxe de mercado.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias >= 365 && c.dias < 730; } },
       { id: "com_data", rotulo: "Todos com data confiável", nota: "Todos os casos em que a data de fabricação do retirado resiste à conferência, qualquer que seja a idade. É sobre este conjunto que as porcentagens fazem sentido.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null; } },
       { id: "suja", rotulo: "Data de fabricação não confiável", nota: "A COLETA tem a data, mas ela não resiste: ou é posterior à abertura da SS — o equipamento teria nascido depois de queimar —, ou é idêntica à data da reforma, ou cai no mesmo ano do recorte a poucos dias da SS. Nesses o campo recebeu a data da coleta ou da reforma por cima da fabricação real. Ficam fora da conta de vida útil e à vista aqui: contá-los como “queimou em zero dia” multiplicaria o achado por mais de dois.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && Boolean(c?.suja); } },
+      /* O filtro por fabricante estava quebrado: o gráfico jogava o nome na busca, e a busca
+         varre os campos da SS — fabricante não é um deles, porque vem da COLETA. Agora cada
+         fabricante é recorte de verdade, montado dos que aparecem entre os que falharam cedo. */
+      ...[...new Set(registros.filter((r) => arquivo(r) === "SAÍDA" && (coleta[texto(r.ss)]?.dias ?? 1e9) < 365)
+        .map((r) => coleta[texto(r.ss)]?.fabricante || "sem fabricante"))].sort()
+        .map((f) => ({
+          id: `fab:${f}`,
+          rotulo: `Menos de um ano · ${f}`,
+          nota: `Os que falharam antes de completar um ano e saíram de ${f}. A marca vem da ficha da COLETA, preenchida por quem retirou o equipamento do poste.`,
+          teste: (r: Registro) => arquivo(r) === "SAÍDA" && (coleta[texto(r.ss)]?.dias ?? 1e9) < 365
+            && (coleta[texto(r.ss)]?.fabricante || "sem fabricante") === f,
+        })),
       { id: "sem_coleta", rotulo: "Sem ficha na COLETA", nota: "A aba COLETA não tem linha que case com esta SS — nem por ocorrência, nem por obra, nem por código do ativo. Sem ficha não há série, tombamento nem data de fabricação, e não há o que perguntar sobre garantia.", teste: (r) => arquivo(r) === "SAÍDA" && !coleta[texto(r.ss)] },
+    ],
+    /* Material × transformador: também só olha. A pergunta é se a obra pagou o número de
+       transformadores que as SS dela pedem. */
+    insight_material: [
+      { id: "mais_ss", rotulo: "Mais SS do que transformadores", nota: "A obra atende mais de uma solicitação e o material dela traz menos transformadores do que isso. Uma das SS está no indicador sem prova material própria — a mesma peça não pode comprovar duas trocas.", teste: (r) => estadoMaterial(r) === "mais_ss" },
+      { id: "mais_trafos", rotulo: "Mais transformadores do que SS", nota: "O material da obra traz mais transformadores do que as SS que ela atende. Não é erro por si: pode haver troca que não gerou SS neste recorte. Vale conferir para onde foi a peça a mais.", teste: (r) => estadoMaterial(r) === "mais_trafos" },
+      { id: "sem_trafo", rotulo: "Obra sem transformador realizado", nota: "A obra está no export de material e nenhum transformador saiu: ou a linha existe com quantidade realizada zero, ou não há linha de transformador nenhuma. Obra que não movimentou equipamento não comprova troca.", teste: (r) => estadoMaterial(r) === "sem_trafo" },
+      { id: "troca_tipo", rotulo: "Trocou o tipo do transformador", nota: "A obra previu um transformador e executou outro, da mesma potência: sai OMI, de óleo mineral, do plano, e entra OVI, de óleo vegetal, na execução. São duas linhas para uma troca só — contar linhas aqui dá dois transformadores onde há um, e foi assim que eu errei antes de conferir a quantidade realizada.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(materialDa(r)?.troca_tipo) },
+      { id: "fora_export", rotulo: "Obra fora do export de material", nota: "A obra existe na SS e não está no export que recebemos do SIAGO. Não é ausência de material — é ausência do nosso acesso a ele, e a diferença importa: estas são as que precisam de extração, não de investigação.", teste: (r) => estadoMaterial(r) === "fora_export" },
+      { id: "bate", rotulo: "Bate: uma SS, um transformador", nota: "O material da obra traz exatamente os transformadores que as SS dela pedem. É a maioria esmagadora, e está aqui para dar tamanho ao resto.", teste: (r) => estadoMaterial(r) === "bate" },
+      { id: "sem_obra_mat", rotulo: "Sem obra gerada", nota: "A SS não tem número de obra, então não há material para comparar.", teste: (r) => estadoMaterial(r) === "sem_obra" },
     ],
     visao: [
       { id: "sem_origem", rotulo: "Sem origem gravada", nota: "A base de SS não registra qual setor abriu a solicitação. São duas, e as duas já saíram do indicador por outro motivo: uma é aviso de anomalia aberto por técnico, a outra foi criada para substituir uma SS cancelada. O campo em branco não decidiu nada em nenhuma das duas — é lacuna de cadastro, não sinal.", teste: (r) => !texto(r.origem) },
@@ -1654,6 +1736,7 @@ export default function Page() {
       // abre já no recorte que lista os 1.305 — o mesmo conjunto que os cartões contam
       { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
       { id: "insight_valor", rotulo: "Valor × potência instalada", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
+      { id: "insight_material", rotulo: "Material × trafos", codigo: "04", marca: conta((r) => ["mais_ss", "mais_trafos", "sem_trafo"].includes(String(estadoMaterial(r)))), tom: "cinza", recorte: "mais_ss" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
     ]},
   ];
@@ -1678,6 +1761,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    insight_material: { olho: "Insight · não move ninguém", titulo: "Material × transformador, obra por obra", texto: "A obra pagou quantos transformadores, e isso bate com quantas SS ela atende? A conta vem do export do SIAGO, deduplicado entre os dois arquivos e contado por quantidade realizada — linha de transformador não é transformador." },
     insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
     insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência do transformador instalado", texto: "A potência vem do texto, não dos campos numéricos, que discordam entre si. Vale primeiro o trafo instalado escrito na OS — é ele que a obra pagou —, depois a potência única da OS, e só então a SS. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
   };
@@ -1698,6 +1782,7 @@ export default function Page() {
     profunda: "todos", exclusoes: "todos", preventivos: "todos",
     insight_valor: "fora",
     insight_garantia: "menos_ano",
+    insight_material: "mais_ss",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -2758,6 +2843,30 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · MATERIAL × TRANSFORMADOR. Também só olha. */
+      if (modulo === "insight_material") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const cnt = (e: string) => naConta.filter((r) => estadoMaterial(r) === e).length;
+        const trocaTipo = naConta.filter((r) => materialDa(r)?.troca_tipo).length;
+        const obrasComSS = [...ssPorObra.entries()];
+        const compartilhadas = obrasComSS.filter(([, n]) => n > 1).length;
+        return <>
+          <section className="kpi-grid">
+            <Kpi rotulo="Mais SS que transformadores" valor={br(cnt("mais_ss"))} nota="a mesma peça não comprova duas trocas" tom="red" aoClicar={() => abrirRecorte("mais_ss")} />
+            <Kpi rotulo="Mais transformadores que SS" valor={br(cnt("mais_trafos"))} nota="sobrou peça — para onde ela foi?" tom="amber" aoClicar={() => abrirRecorte("mais_trafos")} />
+            <Kpi rotulo="Obra sem transformador" valor={br(cnt("sem_trafo"))} nota="está no export e nada saiu" tom="red" aoClicar={() => abrirRecorte("sem_trafo")} />
+            <Kpi rotulo="Trocou o tipo" valor={br(trocaTipo)} nota="previu OMI e executou OVI, mesma potência" tom="ink" aoClicar={() => abrirRecorte("troca_tipo")} />
+            <Kpi rotulo="Fora do export" valor={br(cnt("fora_export"))} nota="falta a extração, não o material" tom="ink" aoClicar={() => abrirRecorte("fora_export")} />
+            <Kpi rotulo="Bate" valor={br(cnt("bate"))} nota="uma SS, um transformador" tom="green" aoClicar={() => abrirRecorte("bate")} />
+          </section>
+          <section className="panel editorial-note wide"><span>DUAS ARMADILHAS DESTA BASE, E EU CAÍ NAS DUAS</span>
+            <p><strong>O ZIP tem dois exports, não um.</strong> São complementares — 192 obras num, 1.257 no outro — e exatamente <strong>uma</strong> obra aparece nos dois, com as mesmas 16 linhas. Ler os dois em sequência sem deduplicar dobra o material dessa obra, e foi assim que eu vi “dois transformadores” onde há um.</p>
+            <p><strong>Linha de transformador não é transformador.</strong> Em {br(trocaTipo)} solicitações existem duas linhas para a mesma troca: a prevista, com realizado zero, e a que saiu. É substituição de tipo — sai OMI, de óleo mineral, do plano, e entra OVI, de óleo vegetal, na execução, mesma potência. Contar linhas dá dois; contar quantidade realizada dá um, que é o certo.</p>
+            <p>Hoje <strong>{br(compartilhadas)}</strong> obra atende mais de uma SS dentro dos queimados e avariados, e <strong>nenhuma</strong> obra do recorte pagou mais de um transformador.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · GARANTIA. Também só olha. A pergunta é uma: quanto tempo o transformador que
          queimou tinha de fabricado. A resposta vem da COLETA, e o cuidado todo está em não
          contar data suja como vida curta. */
@@ -2780,7 +2889,7 @@ export default function Page() {
             <Kpi rotulo="Sem ficha na COLETA" valor={br(semFicha.length)} nota="não há série, tombamento nem data para perguntar" tom="ink" aoClicar={() => abrirRecorte("sem_coleta")} />
           </section>
           {porFab.length ? <section className="panel"><div className="panel-title"><div><span>Quem fabricou</span><h2>Os que falharam com menos de um ano, por fabricante</h2></div><small>clique para filtrar</small></div>
-            <Barras dados={porFab} total={menos.length} aoSelecionar={(l) => { setBusca(l); }} /></section> : null}
+            <Barras dados={porFab} total={menos.length} aoSelecionar={(l) => { setBusca(""); abrirRecorte(`fab:${l}`); }} /></section> : null}
           <section className="panel warning-note wide"><strong>O que esta aba não responde</strong>
             <p>· O prazo de garantia não está em nenhuma das bases. Nenhuma coluna de contrato, fornecedor ou nota fiscal existe aqui — a NBR 5440 é especificação técnica e não fixa prazo; quem fixa é o contrato de fornecimento, e a praxe de mercado é de 12 a 24 meses.</p>
             <p>· O prazo quase nunca conta da fabricação: conta da <strong>entrega</strong> ou da <strong>energização</strong>. Nenhuma dessas duas datas existe nas nossas bases — a COLETA descreve a retirada, não a instalação. Um transformador fabricado em fevereiro pode ter sido energizado só em novembro.</p>
@@ -2882,7 +2991,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
