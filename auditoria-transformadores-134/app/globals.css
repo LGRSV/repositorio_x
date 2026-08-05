@@ -258,6 +258,15 @@ button { cursor: pointer; }
      grudado é só o cabeçalho, para o botão de fechar continuar ao alcance. */
   .drawer > nav { padding: 0 16px; }
   .drawer > nav button { padding: 13px 12px 11px; font-size: 9px; }
+  /* A ORDEM MUDA NO CELULAR. No desktop a tira de classificação fica no alto e não atrapalha
+     ninguém; no celular ela tem 31 botões de categoria e empurrava as abas do dossiê para
+     746px numa tela de 664 — existiam, com 36px de altura, e ainda assim ninguém as via.
+     Aqui as abas sobem para logo abaixo do cabeçalho e a classificação desce para o fim: no
+     celular a ordem natural é ler primeiro e classificar depois. Só a ordem visual muda; o
+     HTML continua o mesmo, e no desktop nada disso vale. */
+  .drawer > nav { order: 1; }
+  .drawer-body { order: 2; }
+  .classificar { order: 3; border-top: 1px solid var(--soft); border-bottom: 0; }
   /* o corpo deixa de ser o dono da rolagem: quem rola agora é a gaveta */
   .drawer-body { flex: none; overflow: visible; padding: 18px 16px 90px; }
   .classificar { padding: 10px 16px; }
