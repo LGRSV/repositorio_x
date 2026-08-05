@@ -804,3 +804,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .margem-escolha button:hover { border-color: var(--ink); }
 .margem-escolha button.ativo { border-color: var(--red); background: var(--red); color: #fff; }
 .margem-escolha button.ativo small { color: #f0d7d9; }
+
+/* Com quem a SS divide o evento: o vínculo é o achado, então ele vai grifado. */
+.divide-com { display: block; margin-top: 3px; color: var(--red); font-size: 8px; font-weight: 600; }

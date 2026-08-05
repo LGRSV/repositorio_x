@@ -25,7 +25,7 @@ type Modulo =
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
-  | "insight_valor" | "insight_garantia" | "insight_material";
+  | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -588,7 +588,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -599,6 +599,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   materialDe?: (r: Registro) => MaterialObra | undefined;
   ssNaObraDe?: (r: Registro) => number;
   estadoDe?: (r: Registro) => string | null;
+  parceirasOcDe?: (r: Registro) => string[];
+  parceirasAtDe?: (r: Registro) => string[];
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -618,6 +620,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_valor: ["Fato", "Leitura", "Motivo"],
     insight_garantia: ["Fabricação e vida", "Séries e tombamento", "Motivo"],
     insight_material: ["Obra e material", "O que saiu do almoxarifado", "Motivo"],
+    insight_divide: ["Ocorrência e com quem divide", "Atendimento e com quem divide", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -637,6 +640,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const mat = materialDe ? materialDe(r) : undefined;
       const ssNaObra = ssNaObraDe ? ssNaObraDe(r) : 1;
       const estado = estadoDe ? estadoDe(r) : "";
+      const pOc = parceirasOcDe ? parceirasOcDe(r) : [];
+      const pAt = parceirasAtDe ? parceirasAtDe(r) : [];
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
       const cor = meu === "QUEIMADO" ? "linha-queimada"
         : meu === "AVARIADO" ? "linha-avariada"
@@ -646,6 +651,16 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
+
+      {modo === "insight_divide" && <>
+        <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong>
+          {pOc.length ? <span className="divide-com">divide com {pOc.join(", ")}</span> : <span>só desta SS</span>}
+          <small>{dataBR(r.oc_ini)}</small></td>
+        <td><strong>{texto(r.at_num) || "sem atendimento"}</strong>
+          {pAt.length ? <span className="divide-com">divide com {pAt.join(", ")}</span> : <span>{texto(r.at_num) ? "só desta SS" : ""}</span>}
+          <small>{texto(r.at_fora_da_janela) === "SIM" ? "atendimento fora da janela desta SS" : ""}</small></td>
+        <td><p className="clip">{texto(r.motivo_decisao)}</p></td>
+      </>}
 
       {modo === "insight_material" && <>
         <td><strong>{texto(r.obra) || "sem obra"}</strong>
@@ -1083,6 +1098,25 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
+  /* QUEM DIVIDE O MESMO EVENTO. Dois índices, calculados só entre os que contam: quantas SS
+     apontam para a mesma ocorrência da Crítica, e quantas para o mesmo atendimento do TMAE.
+     Uma interrupção prova uma troca, não duas — quando duas SS carregam o mesmo número, uma
+     das duas está apoiada em evento que não é dela. */
+  const divideIndice = useMemo(() => {
+    const oc = new Map<string, string[]>();
+    const at = new Map<string, string[]>();
+    for (const r of registros) {
+      if (arquivo(r) !== "SAÍDA") continue;
+      const ss = texto(r.ss);
+      const o = texto(r.oc_num); if (o) oc.set(o, [...(oc.get(o) || []), ss]);
+      const a = texto(r.at_num); if (a) at.set(a, [...(at.get(a) || []), ss]);
+    }
+    return { oc, at };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registros, classificacao]);
+  const parceirasOc = (r: Registro) => (divideIndice.oc.get(texto(r.oc_num)) || []).filter((x) => x !== texto(r.ss));
+  const parceirasAt = (r: Registro) => (divideIndice.at.get(texto(r.at_num)) || []).filter((x) => x !== texto(r.ss));
+
   /* OBRA × TRANSFORMADOR. A chave do material é o número da obra sem os zeros da frente, e a
      mesma obra pode atender mais de uma SS — é justamente o caso que se quer achar. */
   const obraDe = (r: Registro) => texto(r.obra).replace(/^0+/, "");
@@ -1184,6 +1218,13 @@ export default function Page() {
             && (coleta[texto(r.ss)]?.fabricante || "sem fabricante") === f,
         })),
       { id: "sem_coleta", rotulo: "Sem ficha na COLETA", nota: "A aba COLETA não tem linha que case com esta SS — nem por ocorrência, nem por obra, nem por código do ativo. Sem ficha não há série, tombamento nem data de fabricação, e não há o que perguntar sobre garantia.", teste: (r) => arquivo(r) === "SAÍDA" && !coleta[texto(r.ss)] },
+    ],
+    /* Quem divide o mesmo evento: também só olha. */
+    insight_divide: [
+      { id: "divide_oc", rotulo: "Dividem a mesma ocorrência", nota: "Mais de uma SS dos queimados e avariados apoiada na MESMA ocorrência da Crítica. A interrupção prova uma troca, não duas — uma das SS do par está contando com evento que não é dela. É o mesmo teste da exclusão por SS duplicada, que na porta compara evento e transformador; aqui aparece quem passou porque o martelo trouxe de volta.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(texto(r.oc_num)) && parceirasOc(r).length > 0 },
+      { id: "divide_at", rotulo: "Dividem o mesmo atendimento do TMAE", nota: "Mais de uma SS com o MESMO atendimento de equipe no dossiê. O atendimento é marcador, não retém ninguém — mas o mesmo deslocamento aparecendo em duas SS quer dizer que pelo menos uma delas exibe uma ida ao poste que não é a sua. Em geral é herança: a chave do TMAE é o elemento do defeito, e o ativo reincidiu.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(texto(r.at_num)) && parceirasAt(r).length > 0 },
+      { id: "divide_qualquer", rotulo: "Dividem qualquer um dos dois", nota: "A união dos dois recortes: ocorrência dividida ou atendimento dividido. É a lista de conferência inteira desta aba.", teste: (r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0) },
+      { id: "exclusivas", rotulo: "Evento exclusivo", nota: "A ocorrência e o atendimento desta SS não aparecem em nenhuma outra dos queimados e avariados. É a regra, e está aqui para dar tamanho à exceção.", teste: (r) => arquivo(r) === "SAÍDA" && parceirasOc(r).length === 0 && parceirasAt(r).length === 0 },
     ],
     /* Material × transformador: também só olha. A pergunta é se a obra pagou o número de
        transformadores que as SS dela pedem. */
@@ -1747,6 +1788,7 @@ export default function Page() {
       { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
       { id: "insight_valor", rotulo: "Valor × potência instalada", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
       { id: "insight_material", rotulo: "Material × trafos", codigo: "04", marca: conta((r) => ["mais_ss", "mais_trafos", "sem_trafo"].includes(String(estadoMaterial(r)))), tom: "cinza", recorte: "mais_ss" },
+      { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
     ]},
   ];
@@ -1771,6 +1813,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    insight_divide: { olho: "Insight · não move ninguém", titulo: "Quem divide a mesma interrupção", texto: "Duas SS apoiadas no mesmo evento: a mesma ocorrência da Crítica, ou o mesmo atendimento do TMAE. Uma interrupção prova uma troca, não duas — esta aba lista os pares para leitura, sem mover ninguém." },
     insight_material: { olho: "Insight · não move ninguém", titulo: "Material × transformador, obra por obra", texto: "A obra pagou quantos transformadores, e isso bate com quantas SS ela atende? A conta vem do export do SIAGO, deduplicado entre os dois arquivos e contado por quantidade realizada — linha de transformador não é transformador." },
     insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
     insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência do transformador instalado", texto: "A potência vem do texto, não dos campos numéricos, que discordam entre si. Vale primeiro o trafo instalado escrito na OS — é ele que a obra pagou —, depois a potência única da OS, e só então a SS. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
@@ -1793,6 +1836,7 @@ export default function Page() {
     insight_valor: "fora",
     insight_garantia: "menos_ano",
     insight_material: "mais_ss",
+    insight_divide: "divide_oc",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -2853,6 +2897,28 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · QUEM DIVIDE A MESMA INTERRUPÇÃO. Também só olha. */
+      if (modulo === "insight_divide") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const comOc = naConta.filter((r) => parceirasOc(r).length > 0);
+        const comAt = naConta.filter((r) => parceirasAt(r).length > 0);
+        const gruposOc = [...divideIndice.oc.values()].filter((v) => v.length > 1);
+        const gruposAt = [...divideIndice.at.values()].filter((v) => v.length > 1);
+        return <>
+          <section className="kpi-grid">
+            <Kpi rotulo="Dividem a ocorrência" valor={br(comOc.length)} nota={`${br(gruposOc.length)} ocorrência(s) com mais de uma SS`} tom="red" aoClicar={() => abrirRecorte("divide_oc")} />
+            <Kpi rotulo="Dividem o atendimento" valor={br(comAt.length)} nota={`${br(gruposAt.length)} atendimento(s) do TMAE em mais de uma SS`} tom="amber" aoClicar={() => abrirRecorte("divide_at")} />
+            <Kpi rotulo="Qualquer um dos dois" valor={br(naConta.filter((r) => parceirasOc(r).length > 0 || parceirasAt(r).length > 0).length)} nota="a lista de conferência inteira" tom="ink" aoClicar={() => abrirRecorte("divide_qualquer")} />
+            <Kpi rotulo="Evento exclusivo" valor={br(naConta.filter((r) => parceirasOc(r).length === 0 && parceirasAt(r).length === 0).length)} nota="ocorrência e atendimento só desta SS" tom="green" aoClicar={() => abrirRecorte("exclusivas")} />
+          </section>
+          <section className="panel editorial-note wide"><span>COMO LER OS DOIS RECORTES</span>
+            <p><strong>Ocorrência dividida é a suspeita forte.</strong> A interrupção prova uma troca, não duas: se duas SS carregam o mesmo número de ocorrência, uma delas está apoiada em evento que não é dela. A porta já exclui isso quando o evento e o transformador coincidem — a SS duplicada —, então o que aparece aqui é o que entrou por outra via, inclusive pelo martelo.</p>
+            <p><strong>Atendimento dividido é herança, não fraude.</strong> O deslocamento é marcador e não retém ninguém. Mas o mesmo atendimento em duas SS significa que pelo menos uma exibe no dossiê uma ida ao poste que não é a sua — em geral porque o ativo reincidiu e o TMAE casou pelo elemento. Serve para não citar o atendimento errado numa reunião.</p>
+            <p>Cada linha mostra o número dividido e com quem. O par abre pelo dossiê, como sempre.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · MATERIAL × TRANSFORMADOR. Também só olha. */
       if (modulo === "insight_material") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3015,7 +3081,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
