@@ -1,0 +1,249 @@
+{
+ "carimbo": "2026-08-05",
+ "gerado_em": "05/08/2026 12:17",
+ "janela_horas": 24,
+ "total": 1510,
+ "fontes": [
+  "Crítica CHEIO 01 a 06/2026 — interrupção de cliente",
+  "TMAE consolidado jan–jun — deslocamento e atendimento",
+  "TRAFOS V4 — base de SS com horário de abertura",
+  "Cadastro de obras (data 28) — classe, natureza, SIGCO e responsável",
+  "universo-ss.json — SS, OS, material e decisão consolidados"
+ ],
+ "lacunas": [
+  "A chave do TMAE é o elemento onde o defeito foi aberto, não o transformador — por isso a ausência nele não é contraprova.",
+  "Material não cobre 61 SS: obra fora do export ou obra não gerada.",
+  "A categoria gravada na base diverge do texto em 121 SS; a decisão passou a usar o texto.",
+  "As SS abertas nos primeiros dias de janeiro podem ter ocorrência em dezembro de 2025, mês que não temos."
+ ],
+ "critica": {
+  "arquivos": 7,
+  "ocorrencias": 67291,
+  "codigos_com_defeito": 19753,
+  "codigos_interrompidos": 36896,
+  "codigos_manobrados": 39449
+ },
+ "porta": {
+  "total": 220,
+  "pela_critica": 108,
+  "por_causa": 112,
+  "categorias": [
+   {
+    "chave": "sem_interrupcao",
+    "rotulo": "Ausente da base de interrupções",
+    "n": 77
+   },
+   {
+    "chave": "fora_da_janela",
+    "rotulo": "Fora da janela da interrupção",
+    "n": 31
+   },
+   {
+    "chave": "furto",
+    "rotulo": "Furto, roubo ou vandalismo",
+    "n": 30
+   },
+   {
+    "chave": "sem_obra",
+    "rotulo": "Obra nunca gerada — prazo vencido",
+    "n": 16
+   },
+   {
+    "chave": "preventivo",
+    "rotulo": "Preventivo ou programado",
+    "n": 12
+   },
+   {
+    "chave": "remanejamento",
+    "rotulo": "Remanejamento de potência ou de poste",
+    "n": 11
+   },
+   {
+    "chave": "tap",
+    "rotulo": "Tape interno — regularização de tensão",
+    "n": 7
+   },
+   {
+    "chave": "sem_os",
+    "rotulo": "Sem OS e sem obra — investigar",
+    "n": 6
+   },
+   {
+    "chave": "abalroamento",
+    "rotulo": "Abalroamento",
+    "n": 6
+   },
+   {
+    "chave": "obra_sem_transformador",
+    "rotulo": "Obra encerrada sem transformador movimentado",
+    "n": 5
+   },
+   {
+    "chave": "erro_cadastro",
+    "rotulo": "O código do ativo não é de transformador",
+    "n": 2
+   },
+   {
+    "chave": "falta_fase",
+    "rotulo": "Falta de fase interna",
+    "n": 2
+   },
+   {
+    "chave": "auxiliar",
+    "rotulo": "Auxiliar de religador ou regulador",
+    "n": 2
+   },
+   {
+    "chave": "divisao",
+    "rotulo": "Divisão de circuito",
+    "n": 2
+   },
+   {
+    "chave": "cola_fita",
+    "rotulo": "Cola e fita — reparo, não troca",
+    "n": 2
+   },
+   {
+    "chave": "desativacao",
+    "rotulo": "Desativação do posto",
+    "n": 2
+   },
+   {
+    "chave": "obra_sem_execucao",
+    "rotulo": "Obra aberta que não executou nada",
+    "n": 1
+   },
+   {
+    "chave": "terceiros",
+    "rotulo": "Causada por terceiros",
+    "n": 1
+   },
+   {
+    "chave": "avaliar_matheus",
+    "rotulo": "Avaliar com o Matheus",
+    "n": 1
+   },
+   {
+    "chave": "particular",
+    "rotulo": "Transformador particular",
+    "n": 1
+   },
+   {
+    "chave": "construcao",
+    "rotulo": "Construção ou obra nova",
+    "n": 1
+   },
+   {
+    "chave": "obra_chave",
+    "rotulo": "A obra trocou chave fusível",
+    "n": 1
+   },
+   {
+    "chave": "duplicada",
+    "rotulo": "SS duplicada",
+    "n": 1
+   }
+  ],
+  "ausentes": 77,
+  "ausentes_papel_nenhum": 52,
+  "ausentes_so_manobra": 25,
+  "fora_da_janela": 31,
+  "fora_com_medida": 30,
+  "faixas": [
+   {
+    "faixa": "até 24 horas",
+    "n": 0
+   },
+   {
+    "faixa": "1 a 7 dias",
+    "n": 9
+   },
+   {
+    "faixa": "7 a 30 dias",
+    "n": 11
+   },
+   {
+    "faixa": "1 a 3 meses",
+    "n": 7
+   },
+   {
+    "faixa": "mais de 3 meses",
+    "n": 3
+   }
+  ],
+  "mais_perto_h": 24.9,
+  "mediana_d": 24.8,
+  "mais_longe_d": 182
+ },
+ "janela": {
+  "casam": 1337,
+  "contidas": 64
+ },
+ "censo": [
+  {
+   "estado": "DEFEITO NA JANELA",
+   "n": 1283
+  },
+  {
+   "estado": "DEFEITO EM OUTRA DATA",
+   "n": 123
+  },
+  {
+   "estado": "AUSENTE",
+   "n": 78
+  },
+  {
+   "estado": "SEM DEFEITO NELE",
+   "n": 26
+  }
+ ],
+ "esteira": {
+  "entram": 1510,
+  "pos_porta": 1290,
+  "sem_tmae": 132,
+  "corrobora": 1126,
+  "sem_marcador": 32,
+  "retidos": 21,
+  "siago": 19,
+  "saida": 1269,
+  "queimados": 1198,
+  "avariados": 71
+ },
+ "vereditos": 57,
+ "material_pendente": 61,
+ "etiquetas": [
+  {
+   "nome": "CRÍTICA APONTA QUEIMA DO ELO",
+   "n": 62
+  },
+  {
+   "nome": "MATERIAL NÃO CONFERIDO NO EXPORT",
+   "n": 61
+  },
+  {
+   "nome": "POSSÍVEL AVARIADO",
+   "n": 15
+  },
+  {
+   "nome": "SUBSTITUÍDO PELA META",
+   "n": 7
+  },
+  {
+   "nome": "PONTO QUENTE",
+   "n": 2
+  },
+  {
+   "nome": "MEDIDO EM LINHA MORTA",
+   "n": 1
+  }
+ ],
+ "correcoes": [
+  "O leitor da Crítica tratava a aspa do campo de observação como delimitador de texto e engolia as linhas seguintes. Eram 5.548 linhas invisíveis, quase todas de janeiro. Relido com a aspa como caractere comum, o índice foi de 20.967 para 22.950 ocorrências.",
+  "A base de interrupção começava em 01/01/2026 e não tinha dezembro de 2025. Ocorrências que atravessaram a virada do ano ficavam órfãs: oito solicitações abertas na manhã de 01/01 casam com apagões iniciados em 30 e 31 de dezembro.",
+  "O TMAE não tinha nenhum atendimento entre 26 e 31 de janeiro. O arquivo do mês inteiro tem 16.015 atendimentos contra os 12.057 do consolidado, e 82 solicitações passaram a ter equipe registrada em dias que antes não existiam. O defeito deixou de existir.",
+  "A janela da interrupção era medida a partir do início da ocorrência. Uma ocorrência abre quando a primeira chave atua, não quando o transformador queima, e ela pode ficar aberta por dias — então quem abria a SS depois do religamento caía fora. Passa a valer contra o intervalo inteiro DAQUELA ocorrência, do primeiro passo ao último, medido caso a caso: nenhuma média e nenhuma mediana entram na régua. A mediana só apareceu no diagnóstico, para mostrar que o problema era geral e não de um caso ou outro.",
+  "A primeira peneira perguntava pela causa declarada na Crítica. Passa a perguntar só pelo fato: houve interrupção no próprio transformador dentro da janela. Que causa foi declarada é assunto da leitura, na terceira peneira.",
+  "O atendimento do TMAE deixou de reter. Em 848 dos casos antigos o número do atendimento era idêntico ao da ocorrência — a mesma nota em duas bases, não duas provas — e dos 235 que ele barrava, nenhum era 'a equipe não saiu': todos eram 'não há nota no código'. Virou marcador, visível e filtrável.",
+  "A terceira peneira passou a julgar pela causa que a leitura apura, e não só pela marcação antiga. Furto, construção, divisão de circuito e auxiliar de religador saem do indicador mesmo com transformador movimentado na obra: o material prova que houve troca, não por que ela aconteceu."
+ ]
+}
