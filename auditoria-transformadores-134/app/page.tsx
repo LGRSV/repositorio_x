@@ -3383,7 +3383,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
