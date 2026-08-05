@@ -5,6 +5,14 @@ import MapaAtivos, { type PontoAtivo } from "./MapaAtivos";
 
 /* ------------------------------------------------------------------ tipos */
 
+type ColetaItem = {
+  via: string; fabricante: string; fabricacao: string; dias: number | null; suja: string;
+  ns_retirado: string; tombamento: string; ns_instalado: string;
+  pot_retirada: string; pot_instalada: string;
+  reformado: string; reformadora: string; reforma: string; situacao: string;
+  ocorrencias_12m: string; carregamento: string; gd: string;
+};
+
 type Modulo =
   | "visao" | "interrupcao" | "deslocamento" | "ssos" | "obra" | "decisao"
   | "profunda"
@@ -12,7 +20,7 @@ type Modulo =
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
-  | "insight_valor";
+  | "insight_valor" | "insight_garantia";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -554,10 +562,11 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {} }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
+  coleta?: Record<string, ColetaItem>;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -575,18 +584,20 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
     regras: ["Fato", "Leitura", "Motivo"],
     bases: ["Fato", "Leitura", "Motivo"],
     insight_valor: ["Fato", "Leitura", "Motivo"],
+    insight_garantia: ["Fabricação e vida", "Séries e tombamento", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
     <thead><tr>
       <th>Identificação</th><th>Data e local</th>
-      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th><th>{modo === "insight_valor" ? "Obra e potência" : "Minha classificação"}</th>
+      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th><th>{modo === "insight_valor" ? "Obra e potência" : modo === "insight_garantia" ? "Equipamento" : "Minha classificação"}</th>
     </tr></thead>
     <tbody>{linhas.map((r) => {
       /* A cor da linha diz de longe o que a coluna do motivo diz por escrito: este caso saiu do
          indicador. Mais forte quando a exclusão foi batida à mão — essa é a que precisa ser
          distinguida da exclusão por regra. */
       const meu = classificacoes[texto(r.ss)]?.classe;
+      const ficha = coleta[texto(r.ss)];
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
       const cor = meu === "QUEIMADO" ? "linha-queimada"
         : meu === "AVARIADO" ? "linha-avariada"
@@ -596,6 +607,16 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
       return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
       <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
+
+      {modo === "insight_garantia" && <>
+        <td><strong>{ficha?.fabricacao || "sem data"}</strong>
+          <span>{ficha?.dias != null ? `${br(ficha.dias)} dias de vida · ${Math.round(ficha.dias / 30.4)} meses` : ficha?.suja ? "data não confiável" : "—"}</span>
+          <small>{ficha?.suja || ficha?.fabricante || ""}</small></td>
+        <td><strong>{ficha?.ns_retirado ? `série ${ficha.ns_retirado}` : "sem série do retirado"}</strong>
+          <span>{ficha?.tombamento ? `tombamento ${ficha.tombamento}` : ""}</span>
+          <small>{ficha?.ns_instalado ? `instalado: série ${ficha.ns_instalado}` : ""}</small></td>
+        <td><p className="clip">{texto(r.desc_ss).slice(0, 180)}</p></td>
+      </>}
 
       {modo === "interrupcao" && <>
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
@@ -676,7 +697,13 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
           da obra e potência do trafo". E tem efeito de usabilidade: no celular a coluna de
           botões é a que fica debaixo do polegar depois de arrastar a tabela para o lado, e o
           toque que devia abrir o dossiê acabava classificando o caso. */}
-      {modo === "insight_valor"
+      {modo === "insight_garantia"
+        ? <td className="col-obra">
+            <strong>{ficha?.pot_retirada || texto(r.pot_ret) || "—"} → {ficha?.pot_instalada || texto(r.pot_inst) || "—"} kVA</strong>
+            <span>{ficha?.reformado && ficha.reformado !== "NÃO É REFORMADO" ? `reformado por ${ficha.reformado}` : "não é reformado"}</span>
+            <small>{ficha?.ocorrencias_12m ? `${ficha.ocorrencias_12m} ocorrência(s) em 12 meses` : ""}{ficha?.via ? ` · casou por ${ficha.via}` : ""}</small>
+          </td>
+        : modo === "insight_valor"
         ? <td className="col-obra">
             <strong>{r.obra_realizado ? `R$ ${Math.round(Number(r.obra_realizado)).toLocaleString("pt-BR")}` : "sem valor"}</strong>
             <span>{(() => { const k = kvaEscrito(texto(r.desc_ss)); return k ? `${String(k).replace(".", ",")} kVA escritos na SS` : "a SS não escreveu potência"; })()}</span>
@@ -700,6 +727,11 @@ export default function Page() {
   const [fluxo, setFluxo] = useState<Fluxo | null>(null);
   const [metodo, setMetodo] = useState<Metodo | null>(null);
   const [revisao, setRevisao] = useState<Revisao | null>(null);
+  /* A ficha do equipamento retirado — série, tombamento, fabricante e data de fabricação — não
+     está no fluxo: mora na aba COLETA do arquivo de SS, que é o registro de quem foi ao poste.
+     Sem ela não dá para perguntar há quanto tempo o transformador tinha sido fabricado quando
+     queimou. gerar_coleta.py extrai e casa por ocorrência, obra ou código do ativo. */
+  const [coleta, setColeta] = useState<Record<string, ColetaItem>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
@@ -773,6 +805,8 @@ export default function Page() {
     fetch(assetUrl("fluxo-1510.json")).then((r) => r.json()).then(setFluxo).catch(() => setFluxo(null));
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
     fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
+    fetch(assetUrl("coleta-ativos.json")).then((r) => r.json())
+      .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
     const local: Record<string, { classe: string; quem: string; quando: string }> =
       salvo ? JSON.parse(salvo) : {};
@@ -969,6 +1003,15 @@ export default function Page() {
       { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência escrita na SS. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
       { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência escrita na SS. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
       { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: a SS não escreveu a potência, escreveu duas potências diferentes, a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
+    ],
+    /* Garantia: também só olha. A régua é o tempo entre a fabricação do equipamento RETIRADO e
+       a abertura da SS — quanto o transformador viveu antes de falhar. */
+    insight_garantia: [
+      { id: "menos_ano", rotulo: "Falharam com menos de um ano", nota: "Entre a data de fabricação do transformador retirado e a abertura da SS passou menos de um ano. É o recorte que interessa a qualquer conversa de garantia — e o prazo, em contrato de fornecimento, costuma ser de 12 a 24 meses.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; } },
+      { id: "um_dois", rotulo: "Entre um e dois anos", nota: "Passaram de um ano e não chegaram a dois. Entram se o contrato de fornecimento tiver prazo de 24 meses, que é a outra praxe de mercado.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias >= 365 && c.dias < 730; } },
+      { id: "com_data", rotulo: "Todos com data confiável", nota: "Todos os casos em que a data de fabricação do retirado resiste à conferência, qualquer que seja a idade. É sobre este conjunto que as porcentagens fazem sentido.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null; } },
+      { id: "suja", rotulo: "Data de fabricação não confiável", nota: "A COLETA tem a data, mas ela não resiste: ou é posterior à abertura da SS — o equipamento teria nascido depois de queimar —, ou é idêntica à data da reforma, ou cai no mesmo ano do recorte a poucos dias da SS. Nesses o campo recebeu a data da coleta ou da reforma por cima da fabricação real. Ficam fora da conta de vida útil e à vista aqui: contá-los como “queimou em zero dia” multiplicaria o achado por mais de dois.", teste: (r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && Boolean(c?.suja); } },
+      { id: "sem_coleta", rotulo: "Sem ficha na COLETA", nota: "A aba COLETA não tem linha que case com esta SS — nem por ocorrência, nem por obra, nem por código do ativo. Sem ficha não há série, tombamento nem data de fabricação, e não há o que perguntar sobre garantia.", teste: (r) => arquivo(r) === "SAÍDA" && !coleta[texto(r.ss)] },
     ],
     visao: [
       { id: "sem_origem", rotulo: "Sem origem gravada", nota: "A base de SS não registra qual setor abriu a solicitação. São duas, e as duas já saíram do indicador por outro motivo: uma é aviso de anomalia aberto por técnico, a outra foi criada para substituir uma SS cancelada. O campo em branco não decidiu nada em nenhuma das duas — é lacuna de cadastro, não sinal.", teste: (r) => !texto(r.origem) },
@@ -1508,6 +1551,7 @@ export default function Page() {
       // abre já no recorte que lista os 1.305 — o mesmo conjunto que os cartões contam
       { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
       { id: "insight_valor", rotulo: "Valor × potência da SS", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
+      { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
     ]},
   ];
   const navAtual = oficina ? NAV_OFICINA : NAV;
@@ -1531,6 +1575,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
     insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência escrita na SS", texto: "A faixa do praticado sai das próprias solicitações que contam, agrupadas pela potência que o solicitante escreveu no texto — não pelos campos numéricos, que discordam entre si. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
   };
 
@@ -1549,6 +1594,7 @@ export default function Page() {
     obra: "todos", decisao: "saida", semfato: "parados", semdesloc: "todos", expurgos: "parados",
     profunda: "todos", exclusoes: "todos", preventivos: "todos",
     insight_valor: "fora",
+    insight_garantia: "menos_ano",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -2609,6 +2655,37 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · GARANTIA. Também só olha. A pergunta é uma: quanto tempo o transformador que
+         queimou tinha de fabricado. A resposta vem da COLETA, e o cuidado todo está em não
+         contar data suja como vida curta. */
+      if (modulo === "insight_garantia") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const ficha = (r: Registro) => coleta[texto(r.ss)];
+        const comData = naConta.filter((r) => ficha(r)?.dias != null);
+        const menos = comData.filter((r) => (ficha(r) as ColetaItem).dias! < 365);
+        const umDois = comData.filter((r) => { const d = (ficha(r) as ColetaItem).dias!; return d >= 365 && d < 730; });
+        const suja = naConta.filter((r) => Boolean(ficha(r)?.suja));
+        const semFicha = naConta.filter((r) => !ficha(r));
+        const porFab = contar(menos.map((r) => ({ ...r, _f: ficha(r)!.fabricante || "sem fabricante" })), "_f", 8);
+        const maisNovo = menos.length ? menos.reduce((a, b) => ((ficha(a) as ColetaItem).dias! <= (ficha(b) as ColetaItem).dias! ? a : b)) : null;
+        return <>
+          <section className="kpi-grid">
+            <Kpi rotulo="Menos de um ano" valor={br(menos.length)} nota={`de ${br(comData.length)} com data de fabricação confiável`} tom="red" aoClicar={() => abrirRecorte("menos_ano")} />
+            <Kpi rotulo="Entre um e dois anos" valor={br(umDois.length)} nota="entram se o prazo do contrato for de 24 meses" tom="amber" aoClicar={() => abrirRecorte("um_dois")} />
+            <Kpi rotulo="O mais novo" valor={maisNovo ? `${br((ficha(maisNovo) as ColetaItem).dias!)} d` : "—"} nota={maisNovo ? `${texto(maisNovo.ss)} · ${ficha(maisNovo)!.fabricante}` : "sem casos"} tom="ink" aoClicar={() => abrirRecorte("menos_ano")} />
+            <Kpi rotulo="Data não confiável" valor={br(suja.length)} nota="a fabricação foi sobrescrita pela coleta ou pela reforma" tom="ink" aoClicar={() => abrirRecorte("suja")} />
+            <Kpi rotulo="Sem ficha na COLETA" valor={br(semFicha.length)} nota="não há série, tombamento nem data para perguntar" tom="ink" aoClicar={() => abrirRecorte("sem_coleta")} />
+          </section>
+          {porFab.length ? <section className="panel"><div className="panel-title"><div><span>Quem fabricou</span><h2>Os que falharam com menos de um ano, por fabricante</h2></div><small>clique para filtrar</small></div>
+            <Barras dados={porFab} total={menos.length} aoSelecionar={(l) => { setBusca(l); }} /></section> : null}
+          <section className="panel warning-note wide"><strong>O que esta aba não responde</strong>
+            <p>· O prazo de garantia não está em nenhuma das bases. Nenhuma coluna de contrato, fornecedor ou nota fiscal existe aqui — a NBR 5440 é especificação técnica e não fixa prazo; quem fixa é o contrato de fornecimento, e a praxe de mercado é de 12 a 24 meses.</p>
+            <p>· O prazo quase nunca conta da fabricação: conta da <strong>entrega</strong> ou da <strong>energização</strong>. Nenhuma dessas duas datas existe nas nossas bases — a COLETA descreve a retirada, não a instalação. Um transformador fabricado em fevereiro pode ter sido energizado só em novembro.</p>
+            <p>· Para virar pleito, falta o dado de entrada do almoxarifado por número de série. A série do retirado está em cada linha desta lista, e é por ela que a nota fiscal é encontrada.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · VALOR × POTÊNCIA ESCRITA NA SS. Aba de olhar, não de mexer: nenhum caso muda
          de lugar, de categoria ou de conta por causa dela. Tudo aqui é contado na hora, do
          mesmo conjunto de queimados e avariados que a aba ao lado mostra. */
@@ -2690,7 +2767,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
