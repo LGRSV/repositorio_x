@@ -1,6 +1,6 @@
 {
  "carimbo": "2026-08-05",
- "gerado_em": "05/08/2026 12:17",
+ "gerado_em": "05/08/2026 21:56",
  "janela_horas": 24,
  "total": 1510,
  "fontes": [
@@ -24,19 +24,19 @@
   "codigos_manobrados": 39449
  },
  "porta": {
-  "total": 220,
-  "pela_critica": 108,
+  "total": 213,
+  "pela_critica": 101,
   "por_causa": 112,
   "categorias": [
    {
     "chave": "sem_interrupcao",
     "rotulo": "Ausente da base de interrupções",
-    "n": 77
+    "n": 71
    },
    {
     "chave": "fora_da_janela",
     "rotulo": "Fora da janela da interrupção",
-    "n": 31
+    "n": 30
    },
    {
     "chave": "furto",
@@ -144,11 +144,11 @@
     "n": 1
    }
   ],
-  "ausentes": 77,
+  "ausentes": 71,
   "ausentes_papel_nenhum": 52,
-  "ausentes_so_manobra": 25,
-  "fora_da_janela": 31,
-  "fora_com_medida": 30,
+  "ausentes_so_manobra": 19,
+  "fora_da_janela": 30,
+  "fora_com_medida": 29,
   "faixas": [
    {
     "faixa": "até 24 horas",
@@ -160,7 +160,7 @@
    },
    {
     "faixa": "7 a 30 dias",
-    "n": 11
+    "n": 10
    },
    {
     "faixa": "1 a 3 meses",
@@ -172,12 +172,12 @@
    }
   ],
   "mais_perto_h": 24.9,
-  "mediana_d": 24.8,
+  "mediana_d": 21.1,
   "mais_longe_d": 182
  },
  "janela": {
-  "casam": 1337,
-  "contidas": 64
+  "casam": 1347,
+  "contidas": 66
  },
  "censo": [
   {
@@ -199,15 +199,15 @@
  ],
  "esteira": {
   "entram": 1510,
-  "pos_porta": 1290,
-  "sem_tmae": 132,
-  "corrobora": 1126,
-  "sem_marcador": 32,
-  "retidos": 21,
-  "siago": 19,
-  "saida": 1269,
-  "queimados": 1198,
-  "avariados": 71
+  "pos_porta": 1297,
+  "sem_tmae": 138,
+  "corrobora": 1129,
+  "sem_marcador": 30,
+  "retidos": 25,
+  "siago": 21,
+  "saida": 1272,
+  "queimados": 1200,
+  "avariados": 72
  },
  "vereditos": 57,
  "material_pendente": 61,

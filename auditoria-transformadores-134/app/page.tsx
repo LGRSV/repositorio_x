@@ -814,6 +814,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
         <td><strong>{texto(r.oc_num) || "sem ocorrência"}</strong><span>{dataBR(r.oc_ini)}</span><small>{r.oc_dur_h ? `${r.oc_dur_h}h · ${texto(r.oc_cons)} clientes` : ""}</small></td>
         <td><strong>{texto(r.oc_causa) || "—"}</strong><span>{texto(r.oc_sub)}</span><small>{texto(r.oc_papel)}</small></td>
         <td><b className={`pill ${fatoClasse(texto(r.fato))}`}>{FATO_ROTULO[texto(r.fato)] || texto(r.fato)}</b>
+          {texto(r.oc_casou_por) === "interrompido" ? <span className="passo-marca">casou pelo elemento interrompido · defeito em {texto(r.def_elemento)} {texto(r.def_ele_cod)}</span> : null}
           {r.oc_ini ? <ReguaJanela r={r} /> : <span>{distanciaEmPalavras(r.oc_dist_h, r.aberta_antes)}</span>}
           <small>{texto(r.ressalvas)}</small></td>
       </>}
@@ -1458,6 +1459,7 @@ export default function Page() {
          sete meses da Crítica (dezembro de 2025 incluído). E são quatro estados que não são
          graus do mesmo: ausente é ausente; ter defeito noutra data é outra coisa; aparecer sem
          nunca ter defeito aberto no próprio código é uma terceira. */
+      { id: "casou_int", rotulo: "Casou pelo elemento interrompido", nota: "O casamento veio pela SEGUNDA coluna: este transformador aparece como elemento INTERROMPIDO numa ocorrência que cabe na janela, e o defeito dela foi aberto noutro elemento — chave, unidade consumidora ou outro transformador. Ordem dele: cruzar pelas duas colunas em que o ativo aparece, com esta bandeira dizendo quando foi pela segunda.", teste: (r) => texto(r.oc_casou_por) === "interrompido" },
       { id: "censo_ausente", rotulo: "Censo · ausente da Crítica", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — nos sete meses do acervo. Ausente aqui é ausente de verdade.", teste: (r) => texto(r.censo_critica) === "AUSENTE" },
       { id: "censo_semdef", rotulo: "Censo · aparece, nunca com defeito nele", nota: "O código aparece na Crítica, mas sempre como interrompido ou manobrado: nenhuma ocorrência foi aberta com o defeito neste transformador, em nenhuma data.", teste: (r) => texto(r.censo_critica) === "SEM DEFEITO NELE" },
       { id: "censo_outradata", rotulo: "Censo · defeito nele, mas em outra data", nota: "Existe ocorrência com o defeito aberto neste transformador, só que fora da janela desta SS. É diferente de não existir: a distância é que não fecha.", teste: (r) => texto(r.censo_critica) === "DEFEITO EM OUTRA DATA" },
@@ -3521,6 +3523,8 @@ export default function Page() {
               <div><span>Subcausa</span><strong>{texto(aberto.oc_sub)}</strong></div>
             </section>
             <article className="source-text"><span>OBSERVAÇÃO REGISTRADA EM CAMPO</span><p>{texto(aberto.oc_obs) || "Sem observação."}</p></article>
+            {texto(aberto.oc_casou_por) === "interrompido" ? <article className="work-alerts"><span>CASOU PELO CÓDIGO DO ELEMENTO INTERROMPIDO</span>
+              <ul><li>Este transformador aparece nesta ocorrência como elemento INTERROMPIDO — o defeito foi aberto em {ELEMENTO_ROTULO[texto(aberto.def_elemento)] || texto(aberto.def_elemento)} {texto(aberto.def_ele_cod)}. O casamento pela segunda coluna é ordem do dono, e esta bandeira existe para ele nunca passar por casamento pleno.</li></ul></article> : null}
             {aberto.oc_ini ? <article className="rationale"><span>A JANELA DESTE CASO</span>
               <ReguaJanela r={aberto} /></article> : null}
             {texto(aberto.vizinho) ? <article className="work-alerts"><span>TESTE DO VIZINHO</span><ul><li>{texto(aberto.vizinho)}</li></ul></article> : null}

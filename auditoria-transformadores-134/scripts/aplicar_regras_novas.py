@@ -301,6 +301,10 @@ def le_critica():
     arqs = sorted(glob.glob(f"{SCR}/crit_raw/Critica-CHEIO_*.txt")) + \
         [f"{UP}/0896088f-CriticaCHEIO_122025.txt"]
     oc, intr = {}, {}
+    # o vão da ocorrência INTEIRA — primeiro passo aberto, último fechado, qualquer elemento.
+    # É a régua que ele descreveu, e é o intervalo que vale quando o casamento vem pelo
+    # elemento interrompido: o evento é um só, não o pedaço em que este trafo aparece.
+    vao_oc = {}
     # Todo código de ativo que aparece na Crítica em QUALQUER papel — defeito, interrompido ou
     # manobrado. Serve para uma pergunta só, e é a que o dono fez: este transformador existe na
     # base de interrupção? Ausente daqui é ausente de verdade; o resto é questão de data ou de
@@ -318,32 +322,61 @@ def le_critica():
                     _v = r[k[_c]].strip()
                     if _v:
                         vistos.add(_v)
-                if r[k["COD_ELE_REDE_PROBLEMA"]].strip() != "TR":
-                    # defeito fora do transformador: só entra no índice de marcador, e só
-                    # quando o elemento que ficou sem energia é um transformador
-                    if r[k["COD_ELE_REDE_INTERROMPIDO"]].strip() != "TR":
-                        continue
+                _ni = r[k["NUM_SEQ_OPER_INIC_HDE"]].strip()
+                _ai, _af = parse(r[k["DTA_ABERT"]]), parse(r[k["DTA_FECH"]])
+                if _ni:
+                    v = vao_oc.setdefault(_ni, [None, None])
+                    if _ai and (v[0] is None or _ai < v[0]):
+                        v[0] = _ai
+                    if _af and (v[1] is None or _af > v[1]):
+                        v[1] = _af
+                # O ÍNDICE DO INTERROMPIDO, para toda linha em que um transformador ficou sem
+                # energia — o defeito pode estar numa chave, numa UC ou em OUTRO transformador.
+                # Ordem dele: "cruze pelas duas em que aparece o ativo". Antes este índice só
+                # era montado quando o defeito estava fora de transformador, e por isso um
+                # trafo interrompido por defeito de outro trafo não aparecia em lugar nenhum.
+                if r[k["COD_ELE_REDE_INTERROMPIDO"]].strip() == "TR":
                     ci = r[k["COD_ELE_INTERROMPIDO"]].strip()
-                    ni = r[k["NUM_SEQ_OPER_INIC_HDE"]].strip()
-                    if not ci or not ni:
-                        continue
-                    ai, af = parse(r[k["DTA_ABERT"]]), parse(r[k["DTA_FECH"]])
-                    b = intr.get((ni, ci))
-                    if b is None:
-                        intr[(ni, ci)] = {
-                            "oc": ni, "trafo": ci, "ini": ai, "fim": af,
-                            "def_ele": r[k["COD_ELE_REDE_PROBLEMA"]].strip(),
-                            "def_cod": r[k["COD_ELE_PROBLEMA"]].strip(),
-                            "causa": r[k["DES_CAUSA_INTER_CAU"]].strip(),
-                            "sub": r[k["DES_SUB_CAUSA_INTER_SCR"]].strip(),
-                            "cons": numero(r[k["QTD_CONS_INTER_FAT"]]),
-                        }
-                    else:
-                        b["cons"] += numero(r[k["QTD_CONS_INTER_FAT"]])
-                        if ai and (not b["ini"] or ai < b["ini"]):
-                            b["ini"] = ai
-                        if af and (not b["fim"] or af > b["fim"]):
-                            b["fim"] = af
+                    # a linha em que o interrompido é o próprio elemento com defeito já vive no
+                    # índice do defeito; duplicá-la aqui faria o mesmo passo contar duas vezes
+                    if ci and _ni and not (r[k["COD_ELE_REDE_PROBLEMA"]].strip() == "TR"
+                                           and r[k["COD_ELE_PROBLEMA"]].strip() == ci):
+                        b = intr.get((_ni, ci))
+                        if b is None:
+                            intr[(_ni, ci)] = {
+                                "oc": _ni, "trafo": ci, "ini": _ai, "fim": _af,
+                                "def_ele": r[k["COD_ELE_REDE_PROBLEMA"]].strip(),
+                                "def_cod": r[k["COD_ELE_PROBLEMA"]].strip(),
+                                "causa": r[k["DES_CAUSA_INTER_CAU"]].strip(),
+                                "sub": r[k["DES_SUB_CAUSA_INTER_SCR"]].strip(),
+                                "tipo": r[k["COD_SUB_TIPO_OS_COS"]].strip(),
+                                "loc": r[k["LOCALIDADE"]].strip(), "passos": 1,
+                                "cons": numero(r[k["QTD_CONS_INTER_FAT"]]),
+                                "detalhe": [{
+                                    "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
+                                    "def": r[k["COD_ELE_PROBLEMA"]].strip(),
+                                    "int": ci, "int_t": "TR",
+                                    "fec": r[k["COD_ELE_FECHADO"]].strip(),
+                                    "fec_t": r[k["COD_ELE_REDE_FECHADO"]].strip(),
+                                    "cons": r[k["QTD_CONS_INTER_FAT"]].strip(),
+                                }],
+                            }
+                        else:
+                            b["cons"] += numero(r[k["QTD_CONS_INTER_FAT"]])
+                            b["passos"] += 1
+                            b["detalhe"].append({
+                                "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
+                                "def": r[k["COD_ELE_PROBLEMA"]].strip(),
+                                "int": ci, "int_t": "TR",
+                                "fec": r[k["COD_ELE_FECHADO"]].strip(),
+                                "fec_t": r[k["COD_ELE_REDE_FECHADO"]].strip(),
+                                "cons": r[k["QTD_CONS_INTER_FAT"]].strip(),
+                            })
+                            if _ai and (not b["ini"] or _ai < b["ini"]):
+                                b["ini"] = _ai
+                            if _af and (not b["fim"] or _af > b["fim"]):
+                                b["fim"] = _af
+                if r[k["COD_ELE_REDE_PROBLEMA"]].strip() != "TR":
                     continue
                 cod = r[k["COD_ELE_PROBLEMA"]].strip()
                 n = r[k["NUM_SEQ_OPER_INIC_HDE"]].strip()
@@ -399,6 +432,12 @@ def le_critica():
     # aconteceu no mesmo evento com defeito noutro elemento — inclusive os outros transformadores
     # que ficaram sem energia junto. O dono viu e cobrou: "quando eu clico na ocorrência associada
     # ao ativo não está aparecendo todos os transformadores".
+    # o intervalo de quem casa pelo interrompido é o da ocorrência INTEIRA, do primeiro passo
+    # ao último — não o pedaço em que este trafo aparece. É a régua que ele descreveu.
+    for (n, _ci), b in intr.items():
+        v = vao_oc.get(n)
+        if v and v[0]:
+            b["ini"], b["fim"] = v[0], v[1] or v[0]
     passos_oc = {}
     for (n, _cod), a in oc.items():
         alvo = passos_oc.setdefault(n, [])
@@ -912,9 +951,21 @@ def main():
         cod = str(r.get("trafo") or "").strip()
         tm = parse(r.get("termino"))
         jan = [o for o in por.get(cod, []) if dentro(ab, o) or contida_na_ss(ab, tm, o)]
+        # Ordem dele: "cruze pelas duas em que aparece o ativo". O defeito continua vencendo —
+        # é a prova mais forte —, mas quando nenhuma ocorrência com defeito no trafo casa, vale
+        # a em que ele foi o INTERROMPIDO, com a bandeira dizendo isso e onde o defeito estava.
+        ocs_def = {o["oc"] for o in por.get(cod, [])}
+        jan_int = [o for o in por_int.get(cod, [])
+                   if o["oc"] not in ocs_def and (dentro(ab, o) or contida_na_ss(ab, tm, o))]
         r["oc_contida_na_ss"] = "SIM" if any(
-            contida_na_ss(ab, tm, o) and not dentro(ab, o) for o in por.get(cod, [])) else "NÃO"
+            contida_na_ss(ab, tm, o) and not dentro(ab, o)
+            for o in list(por.get(cod, [])) + list(por_int.get(cod, []))) else "NÃO"
         melhor = min(jan, key=lambda x: borda(ab, x)) if jan else None
+        casou_por = "defeito" if melhor else ""
+        if melhor is None and jan_int:
+            melhor = min(jan_int, key=lambda x: borda(ab, x))
+            casou_por = "interrompido"
+        r["oc_casou_por"] = casou_por
         # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
         cand_at = [a for a in por_at.get(cod, []) if dentro(ab, a)]
         melhor_at = min(cand_at, key=lambda x: borda(ab, x)) if cand_at else None
@@ -957,9 +1008,15 @@ def main():
         # com o defeito noutro elemento — unidade consumidora, chave, disjuntor.
         cand_int = [o for o in por_int.get(cod, []) if dentro(ab, o)]
         vizinho_int = min(cand_int, key=lambda x: borda(ab, x)) if cand_int else None
-        if melhor:
+        if melhor and casou_por == "defeito":
             r.update({"def_elemento": "TR", "def_ele_oc": None, "def_ele_causa": None,
                       "def_ele_sub": None, "def_ele_cod": None})
+        elif melhor and casou_por == "interrompido":
+            # a bandeira dele: o casamento veio pelo código do elemento interrompido, e o
+            # defeito desta ocorrência mora noutro elemento — fica escrito qual
+            r.update({"def_elemento": melhor.get("def_ele") or "", "def_ele_oc": melhor["oc"],
+                      "def_ele_causa": melhor.get("causa"), "def_ele_sub": melhor.get("sub"),
+                      "def_ele_cod": melhor.get("def_cod")})
         elif vizinho_int:
             r.update({"def_elemento": vizinho_int["def_ele"], "def_ele_oc": vizinho_int["oc"],
                       "def_ele_causa": vizinho_int["causa"], "def_ele_sub": vizinho_int["sub"],
@@ -977,12 +1034,14 @@ def main():
                 "oc_dur_h": round((melhor["fim"] - melhor["ini"]).total_seconds() / 3600, 2)
                 if melhor["ini"] and melhor["fim"] else None,
                 "oc_cons": int(melhor["cons"]), "oc_causa": melhor["causa"], "oc_sub": melhor["sub"],
-                "oc_tipo": melhor["tipo"], "oc_prob_ele": "TR", "oc_passos": melhor["passos"],
+                "oc_tipo": melhor.get("tipo"), "oc_prob_ele": ("TR" if casou_por == "defeito" else (melhor.get("def_ele") or "")), "oc_passos": melhor["passos"],
                 "oc_dist_h": round(b / 3600, 2), "e1_delta_h": round(b / 3600, 2),
                 "oc_detalhe": sorted(melhor.get("detalhe", []), key=lambda x: parse(x["ini"]) or datetime.datetime.min),
                 "e1_nivel": "A" if b == 0 else "B", "e1_status": "SEGUE", "e1_sinais": "",
                 "chega_e2": "SIM", "fato": "F1",
-                "fato_texto": "Fato pleno — a Crítica registra interrupção no próprio transformador dentro da janela",
+                "fato_texto": ("Fato pleno — a Crítica registra interrupção no próprio transformador dentro da janela"
+                               if casou_por == "defeito" else
+                               f"Fato pelo elemento interrompido — a Crítica registra ESTE transformador interrompido dentro da janela; o defeito foi aberto em {melhor.get('def_ele') or '?'} {melhor.get('def_cod') or ''}".rstrip()),
             })
         elif tem_at:
             # Passa pelo atendimento, e por isso NÃO carrega ocorrência. Deixar o oc_num velho
