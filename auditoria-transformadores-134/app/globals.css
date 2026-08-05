@@ -813,3 +813,24 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-at { position: absolute; top: 2px; height: 5px; background: var(--blue); box-shadow: 0 0 0 1px #fff; }
 .regua-tmae { margin-top: 7px; }
 .records-table .regua-tmae .regua-legenda { flex-wrap: wrap; gap: 2px 10px; }
+
+/* AS TRÊS RÉGUAS EMPILHADAS. Nome à esquerda, trilho no meio, data e duração à direita — as três
+   linhas alinhadas em grade para o olho comparar na vertical, que é o ponto de empilhar. */
+.tempos { margin: 4px 0 2px; }
+.tempos-faixa { display: grid; grid-template-columns: 54px 1fr 150px; align-items: center; gap: 10px; padding: 5px 0; }
+.tempos-faixa + .tempos-faixa { border-top: 1px dashed var(--soft); }
+.tempos-nome { color: #75787c; font: 600 7px "IBM Plex Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+.tempos-dado { color: #5b6577; font: 500 8px "IBM Plex Mono", monospace; text-align: right; }
+.tempos .regua-trilho { height: 11px; }
+.tempos .regua-antes, .tempos .regua-depois { height: 11px; }
+.tempos .regua-oc { top: -1px; height: 13px; }
+.tempos .regua-at { top: 2px; height: 7px; }
+.tempos .regua-servico { position: absolute; top: 2px; height: 7px; background: var(--ink); }
+.tempos .regua-servico.invertida { background: repeating-linear-gradient(45deg, var(--amber), var(--amber) 3px, #fff 3px, #fff 6px); }
+.tempos-aviso { margin: 8px 0 0; padding: 7px 9px; border-left: 3px solid var(--amber); background: #fbf6ec; color: #6b5a34; font-size: 8px; line-height: 1.5; }
+@media (max-width: 820px) { .tempos-faixa { grid-template-columns: 44px 1fr; } .tempos-dado { grid-column: 2; text-align: left; margin-top: -2px; } }
+
+.tempos-exemplo { padding: 0 20px 12px; }
+.records-table .tempos { min-width: 330px; }
+.records-table .tempos-faixa { grid-template-columns: 42px 1fr 116px; gap: 7px; padding: 3px 0; }
+.records-table .tempos-dado { font-size: 7px; }
