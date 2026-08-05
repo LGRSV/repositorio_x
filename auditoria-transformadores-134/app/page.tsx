@@ -437,10 +437,12 @@ function ReguaTempos({ r, tm }: { r: Registro; tm?: TmaeTempo }) {
        desce para uma segunda linha em vez de escrever por cima do outro. */
     const da = pa !== null ? anc(pa, true) : "";
     const db = pb !== null ? anc(pb, false) : "";
-    const colide = pa !== null && pb !== null && b !== a && da === db && Math.abs(pb - pa) < 22;
+    const colide = pa !== null && pb !== null && b !== a && da === db && Math.abs(pb - pa) < 16;
+    /* Quase esquecido dele: a HORA fica embaixo da DATA — duas linhas, as duas em negrito. */
+    const duas = (l: string) => { const [d, h] = l.split(" "); return <><span>{d}</span><span>{h || ""}</span></>; };
     return <div className={`tempos-datas${colide ? " duas" : ""}`}>
-      {pa !== null ? <b style={{ left: `${pa}%`, transform: da }}>{la}</b> : null}
-      {pb !== null && b !== a ? <b className={colide ? "linha2" : undefined} style={{ left: `${pb}%`, transform: db }}>{lb}</b> : null}
+      {pa !== null ? <b style={{ left: `${pa}%`, transform: da }}>{duas(la)}</b> : null}
+      {pb !== null && b !== a ? <b className={colide ? "linha2" : undefined} style={{ left: `${pb}%`, transform: db }}>{duas(lb)}</b> : null}
     </div>;
   };
   return <div className="tempos">
