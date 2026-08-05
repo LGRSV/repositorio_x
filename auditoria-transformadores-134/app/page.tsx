@@ -3590,8 +3590,9 @@ export default function Page() {
               <p className="fonte-detalhe">Base Crítica CHEIO · {(aberto.oc_passos_todos as unknown[]).length} passo{(aberto.oc_passos_todos as unknown[]).length > 1 ? "s" : ""} de manobra, do primeiro ao último
                 {texto(aberto.oc_outros_trafos) ? ` · outros transformadores no mesmo evento: ${texto(aberto.oc_outros_trafos)}` : ""}</p>
               <div className="table-scroll"><table className="records-table passos-oc">
-                <thead><tr><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
+                <thead><tr><th>Passo</th><th>Abertura</th><th>Fechamento</th><th>Elemento com defeito</th><th>Interrompido</th><th>Manobrado para restabelecer</th><th>Clientes</th></tr></thead>
                 <tbody>{(aberto.oc_passos_todos as Array<Record<string, string>>).map((p, i) => <tr key={i}>
+                  <td><strong>{texto(p.p) || "—"}{texto(p.pf) && p.pf !== p.p ? ` → ${texto(p.pf)}` : ""}</strong><span>abriu → fechou</span></td>
                   <td><strong>{dataBR(p.ini)}</strong></td>
                   <td><strong>{dataBR(p.fim)}</strong></td>
                   <td><code>{p.def || "—"}</code>{p.def === texto(aberto.trafo) ? <span>é este transformador</span> : null}</td>
@@ -3600,6 +3601,11 @@ export default function Page() {
                   <td><strong>{p.cons || "0"}</strong></td>
                 </tr>)}</tbody>
               </table></div>
+              {/* A base não escreve a manobra que não interrompeu ninguém. Quando o número do
+                  passo pula, a linha existiu no sistema operativo e não veio no arquivo — e é
+                  melhor dizer isso do que deixar a tabela parecer completa. */}
+              {texto(aberto.oc_passos_faltam) ? <article className="work-alerts"><span>A CRÍTICA NÃO TRAZ TODAS AS MANOBRAS DESTA OCORRÊNCIA</span>
+                <ul><li>Os passos <strong>{texto(aberto.oc_passos_faltam)}</strong> aconteceram no sistema operativo e não viraram linha neste arquivo. A Crítica CHEIO só registra o trecho que interrompeu cliente faturado: manobra que abriu e fechou sem tirar ninguém da luz não aparece. A tabela acima é tudo que a base tem desta ocorrência — não é tudo que a equipe fez no campo.</li></ul></article> : null}
             </> : null}
             <BlocoDetalhe titulo="A linha inteira da interrupção" fonte="Base Crítica CHEIO · interrupção de cliente" dados={aberto.det_interrupcao as Detalhe} />
           </>}
