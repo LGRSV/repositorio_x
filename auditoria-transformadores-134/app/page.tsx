@@ -774,6 +774,11 @@ export default function Page() {
   const [recorte, setRecorte] = useState<{ id: string; rotulo: string } | null>(null);
   const [aberto, setAberto] = useState<Registro | null>(null);
   const [abaDossie, setAbaDossie] = useState("consolidado");
+  /* As 31 categorias de exclusão viviam abertas dentro do dossiê. No computador passava; no
+     celular ocupavam mais que uma tela inteira e empurravam tudo o que interessa para baixo —
+     ele descreveu como "tá foda". Agora ficam atrás de um botão, e só aparecem quando ele diz
+     que quer tirar o caso do indicador. Fecham sozinhas ao escolher e ao trocar de SS. */
+  const [motivosAbertos, setMotivosAbertos] = useState(false);
   const [ativo, setAtivo] = useState("");
   // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
   // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
@@ -1994,7 +1999,7 @@ export default function Page() {
           <div className="panel-title"><div><span>Coordenada do ativo</span><h2>Onde cada transformador está</h2></div><small>clique num ponto para abrir o dossiê</small></div>
           <MapaAtivos pontos={pontos} aoEscolher={(ss) => {
             const achado = registros.find((r) => texto(r.ss) === ss);
-            if (achado) { setAberto(achado); setAbaDossie("consolidado"); }
+            if (achado) { setAberto(achado); setAbaDossie("consolidado"); setMotivosAbertos(false); }
           }} />
           <p className="fonte-detalhe">{texto(fluxo.meta.coordenada)}</p>
         </section>
@@ -2805,7 +2810,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
@@ -2884,12 +2889,23 @@ export default function Page() {
               outra pergunta: os de cima decidem SE o caso conta, estes dizem POR QUE ele não
               conta. Um clique aqui tira o caso do indicador e já o entrega na categoria certa —
               o mesmo chip e o mesmo gráfico que a exclusão por regra. */}
-          <span className="classificar-titulo">Fora do indicador — escolha a categoria</span>
-          <div className="classificar-categorias">{CATEGORIAS_EXC.map(([id, rotulo]) => <button key={id}
+          <button type="button" className={`classificar-abrir${motivosAbertos ? " aberto" : ""}`}
+            aria-expanded={motivosAbertos}
+            onClick={() => setMotivosAbertos(!motivosAbertos)}>
+            {/* A caixa avisa o que já foi escolhido. Nem toda categoria vira classe com
+                prefixo: furto e preventivo são classes próprias e caíam fora do teste, então a
+                caixa dizia "escolher o motivo" mesmo com motivo escolhido. */}
+            <span>{[ "EXCLUIDO", "FURTADO", "PREVENTIVO" ].includes(String(classificacao[texto(aberto.ss)]?.classe))
+              || ehExclusaoManual(classificacao[texto(aberto.ss)]?.classe)
+              ? `Fora do indicador · ${meuRotulo(classificacao[texto(aberto.ss)]?.classe)}`
+              : "Fora do indicador — escolher o motivo"}</span>
+            <i>{motivosAbertos ? "fechar" : `${CATEGORIAS_EXC.length} motivos`}</i>
+          </button>
+          {motivosAbertos ? <div className="classificar-categorias">{CATEGORIAS_EXC.map(([id, rotulo]) => <button key={id}
             type="button" title={GATILHO_NOTA[gatilhoDaClasse(id) || id.toLowerCase()] || rotulo}
             className={classificacao[texto(aberto.ss)]?.classe === id ? "marcado" : ""}
-            onClick={() => classificar(texto(aberto.ss), id)}>{rotulo}</button>)}
-          </div>
+            onClick={() => { classificar(texto(aberto.ss), id); setMotivosAbertos(false); }}>{rotulo}</button>)}
+          </div> : null}
           {classificacao[texto(aberto.ss)] ? <p className="classificar-aviso">Você já classificou esta solicitação como <strong>{meuRotulo(classificacao[texto(aberto.ss)].classe)}</strong>. Clicar noutro botão <strong>substitui</strong> — a SS continua contando uma vez só, e o histórico da mudança fica gravado no banco.</p> : null}
           <em>{classificacao[texto(aberto.ss)]
             ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
