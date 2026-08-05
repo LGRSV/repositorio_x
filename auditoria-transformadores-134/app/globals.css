@@ -778,3 +778,12 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fora-marca.acima { background: #f6e3e5; color: var(--red); }
 .fora-marca.abaixo { background: #e2ecf5; color: #2f5d86; }
 .fora-marca.borda { background: #eeece8; color: #75787c; }
+
+/* O seletor da margem: seis degraus, com quantos achados cada um deixa passar embaixo. */
+.margem-escolha { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px; }
+.margem-escolha button { flex: 1 1 90px; border: 1px solid var(--line); padding: 10px 8px; background: #fff;
+  color: #46494e; font: 600 10px "IBM Plex Mono", monospace; cursor: pointer; }
+.margem-escolha button small { display: block; margin-top: 5px; color: #85888c; font: 600 8px "IBM Plex Mono", monospace; }
+.margem-escolha button:hover { border-color: var(--ink); }
+.margem-escolha button.ativo { border-color: var(--red); background: var(--red); color: #fff; }
+.margem-escolha button.ativo small { color: #f0d7d9; }
