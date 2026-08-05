@@ -669,6 +669,15 @@ export default function Page() {
   const [revisao, setRevisao] = useState<Revisao | null>(null);
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
+  /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
+     mesma aplicação com outro menu. Por isso a primeira aba dela é o MESMO módulo da tela de
+     queimados e avariados, e não uma cópia do componente: mesmo dado, mesmas classificações,
+     mesmo dossiê. Sincronizada por construção, não por sincronização — o que se marca de um
+     lado já está marcado do outro porque é o mesmo estado.
+     Ela mora só na memória: não entra no endereço, não fica no localStorage, não aparece em
+     menu nenhum. Um F5 devolve o site normal. Escondida quer dizer isso; se um dia precisar
+     ser mandada por link, aí sim vira rota — e deixa de ser escondida. */
+  const [oficina, setOficina] = useState(false);
   // Este useState mora aqui e não junto da função que o usa, lá embaixo: entre um e outro há um
   // `return` antecipado para o estado de carregamento, e hook declarado depois de um return
   // condicional quebra a ordem dos hooks — React #310, tela em branco. Foi o que aconteceu.
@@ -1024,6 +1033,12 @@ export default function Page() {
       { id: "contida", rotulo: "Entrou pela contenção — a ocorrência coube dentro da SS", nota: "A SS abriu ANTES do apagão, e mesmo assim a ocorrência é dela: o corte começou e terminou com a SS já aberta. A ordem que a janela assume — evento, depois SS — não é a única do campo. Um transformador vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar para trocar: nesses, a SS nasce primeiro e o desligamento é o serviço. Contenção é prova mais forte que distância, e por isso ela entra sem depender da janela de 24 horas.", teste: (r) => r.oc_contida_na_ss === "SIM" },
       { id: "at_forajanela", rotulo: "Atendimento exibido é de fora da janela", nota: "O dossiê mostra um atendimento do TMAE que não cai na janela desta SS — em alguns casos meses depois. O campo vinha herdado de uma rodada antiga e entrava como prova sem que ninguém olhasse a data. Continua contando enquanto você não decidir: exigir a data dentro da janela tira 52 casos da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho.", teste: (r) => r.at_fora_da_janela === "SIM" },
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
+      /* O MESMO CONJUNTO QUE OS BIG NUMBERS DESTA ABA CONTAM. O chip acima lista o que o
+         ARQUIVO arquivou (1.269); os cartões no alto contam o que a TELA arquiva, que é o
+         arquivo mais o martelo dele (1.305). Os dois estão certos e respondem perguntas
+         diferentes, mas quem clica no cartão e cai numa lista menor que o cartão perde a
+         confiança na tela — com razão. Este chip é a lista do cartão. */
+      { id: "saida_tela", rotulo: "Queimados e avariados — com a sua classificação", nota: "O conjunto que os cartões desta aba contam: quem saiu pela ponta da esteira MAIS o que você bateu a martelo como queimado ou avariado, venha de onde vier. É maior que “Saíram pela cascata” exatamente pelo tamanho da sua leitura — a diferença são os casos que a régua reteve ou excluiu e você reclassificou.", teste: (r) => arquivo(r) === "SAÍDA" },
       /* Os três destinos da conta grande, para que cada número da cascata da Visão geral abra
          exatamente a lista dele. Sem isto o clique caía num chip parecido e a lista vinha com
          outro tamanho — que é o jeito mais rápido de perder a confiança de quem confere. */
@@ -1390,6 +1405,18 @@ export default function Page() {
     ]},
   ];
 
+  /* O MENU DA OFICINA. Mesma forma do NAV de cima — é a mesma barra, com outra lista dentro.
+     Hoje tem uma aba só, e ela aponta para o mesmo módulo e o mesmo recorte da tela de
+     queimados e avariados. Aba nova aqui é uma linha nova nesta lista; nada sai da tela de
+     origem para vir para cá. */
+  const NAV_OFICINA: typeof NAV = [
+    { grupo: "Proposta", itens: [
+      // abre já no recorte que lista os 1.305 — o mesmo conjunto que os cartões contam
+      { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
+    ]},
+  ];
+  const navAtual = oficina ? NAV_OFICINA : NAV;
+
   const TITULOS: Record<Modulo, { olho: string; titulo: string; texto: string }> = {
     visao: { olho: "1.510 SS · jan a jun/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão." },
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
@@ -1431,6 +1458,16 @@ export default function Page() {
     setBusca("");
     const alvo = (RECORTES[id] || []).find((x) => x.id === (recorteId || PADRAO[id]));
     setRecorte(alvo ? { id: alvo.id, rotulo: alvo.rotulo } : null);
+  };
+  /* Entrar na oficina cai direto na primeira aba dela; sair devolve a Visão geral. As duas
+     coisas passam pelo irPara para o recorte acompanhar — trocar o menu sem trocar o recorte
+     deixaria a tabela mostrando o filtro da aba anterior debaixo de um título novo. */
+  const alternarOficina = () => {
+    const entrando = !oficina;
+    setOficina(entrando);
+    const alvo = entrando ? NAV_OFICINA[0].itens[0] : { id: "visao" as Modulo, recorte: undefined };
+    irPara(alvo.id, alvo.recorte);
+    setAberto(null);
   };
 
   /* ---------------------------------------------------------------- cabeçalhos por módulo */
@@ -2513,18 +2550,18 @@ export default function Page() {
           casando com a Crítica?" não tem como ser respondida fora daqui. Um clique baixa o
           arquivo e copia o mesmo conteúdo para a área de transferência, para poder ser colado
           numa conversa sem precisar anexar nada. */}
-      <div className="brand" title="Clique no T para exportar suas classificações">
+      <div className={`brand${oficina ? " na-oficina" : ""}`} title={oficina ? "Clique no T para voltar" : ""}>
         <i role="button" tabIndex={0} className="exportador"
-          onClick={() => exportarLocal()}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") exportarLocal(); }}>T</i>
-        <div><strong>Transforma</strong><span>Auditoria · 1.510 SS</span>
+          onClick={() => alternarOficina()}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") alternarOficina(); }}>T</i>
+        <div><strong>Transforma</strong><span>{oficina ? "Proposta · clique no T para voltar" : "Auditoria · 1.510 SS"}</span>
           {exportado ? <small className="exportou">{exportado}</small> : null}
           {/* O sinal do espelho. Verde só aparece quando a fila zera de verdade; enquanto
               houver linha esperando, o número fica à vista em vez de sumir num catch. */}
           {pendentes ? <small className="exportou pendente"
             onClick={() => void drenar()}>{br(pendentes)} sem gravar no banco — clique para tentar de novo</small> : null}</div>
       </div>
-      <nav>{NAV.map((g) => <div className="nav-group" key={g.grupo}>
+      <nav>{navAtual.map((g) => <div className="nav-group" key={g.grupo}>
         <span>{g.grupo}</span>
         {g.itens.map((item) => <button key={item.codigo} className={modulo === item.id && (item.recorte ? recorte?.id === item.recorte : true) ? "active" : ""}
           onClick={() => irPara(item.id, item.recorte)}>
@@ -2534,6 +2571,13 @@ export default function Page() {
           {item.marca ? <small className={item.tom === "verde" ? "nav-verde" : "nav-cinza"}>{br(item.marca)}</small> : null}
         </button>)}
       </div>)}</nav>
+      {/* O export perdeu o T, que virou porta. Ele não podia sumir junto: é o único jeito de
+          tirar daqui a classificação manual, que vive no navegador e no banco e não sai em
+          planilha nenhuma. Ganhou botão com nome escrito, que é melhor do que era — ninguém
+          adivinhava que a letra da marca baixava arquivo. */}
+      <button type="button" className="side-export" onClick={() => exportarLocal()}>
+        Exportar minhas classificações
+      </button>
       <div className="side-user"><b>1.5k</b><div><strong>Janeiro a junho</strong><span>de 2026</span></div></div>
     </aside>
 
