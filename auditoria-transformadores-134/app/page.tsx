@@ -583,12 +583,14 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
   coleta?: Record<string, ColetaItem>;
   potenciaDe?: (r: Registro) => { kva: number | null; fonte: string };
+  distanciaDe?: (r: Registro) => number;
+  ladoDe?: (r: Registro) => string | null;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -621,6 +623,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const meu = classificacoes[texto(r.ss)]?.classe;
       const ficha = coleta[texto(r.ss)];
       const potencia = potenciaDe ? potenciaDe(r) : null;
+      const distancia = distanciaDe ? distanciaDe(r) : 0;
+      const foraMarca = (ladoDe ? ladoDe(r) : "") || "";
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
       const cor = meu === "QUEIMADO" ? "linha-queimada"
         : meu === "AVARIADO" ? "linha-avariada"
@@ -728,7 +732,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           </td>
         : modo === "insight_valor"
         ? <td className="col-obra">
-            <strong>{r.obra_realizado ? `R$ ${Math.round(Number(r.obra_realizado)).toLocaleString("pt-BR")}` : "sem valor"}</strong>
+            <strong>{r.obra_realizado ? `R$ ${Math.round(Number(r.obra_realizado)).toLocaleString("pt-BR")}` : "sem valor"}
+              {distancia > 0 ? <b className={`fora-marca ${foraMarca}`}>{foraMarca === "abaixo" ? "−" : "+"}R$ {Math.round(distancia).toLocaleString("pt-BR")}</b> : null}</strong>
             <span>{potencia?.kva ? `${String(potencia.kva).replace(".", ",")} kVA · ${potencia.fonte}` : "nem a OS nem a SS dizem a potência"}</span>
             <small>campo: {texto(r.pot_ret) || "—"} → {texto(r.pot_inst) || "—"} kVA{r.trafos_material ? ` · ${texto(r.trafos_material)} no material` : ""}</small>
           </td>
@@ -1043,17 +1048,33 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
-  /* Três respostas possíveis, e a diferença entre elas importa: "acima"/"abaixo" é achado,
-     "" é caso normal, e null é caso que esta régua não sabe julgar — a SS não escreveu a
-     potência, escreveu duas, a obra não tem valor, ou a potência não tem faixa. Não julgável
-     nunca é apresentado como suspeito. */
-  const foraDaFaixa = (r: Registro): "acima" | "abaixo" | "" | null => {
+  /* A MARGEM. Ordem dele: "a diferença tem que ser expressiva, pelo menos 1.500 reais".
+     Passar da cerca por trinta reais é ruído de arredondamento de obra, não achado — e uma
+     lista com 38 linhas dessas some no meio de si mesma. Com a margem sobram 11, e cada uma
+     tem uma diferença que se defende em voz alta. */
+  const MARGEM = 1500;
+  /* Cinco respostas, e a diferença entre elas importa: "acima"/"abaixo" é achado; "borda" passa
+     da cerca mas não chega à margem — não é achado e também não é normal, então tem lista
+     própria em vez de sumir; "" é caso normal; e null é caso que esta régua não sabe julgar.
+     Não julgável nunca é apresentado como suspeito. */
+  const foraDaFaixa = (r: Registro): "acima" | "abaixo" | "borda" | "" | null => {
     if (arquivo(r) !== "SAÍDA") return null;
     const k = potenciaDoCaso(r).kva;
     const v = Number(r.obra_realizado || 0);
     const f = k ? faixaValor.get(k) : undefined;
     if (!k || !(v > 0) || !f) return null;
-    return v > f.p90 ? "acima" : v < f.p10 ? "abaixo" : "";
+    if (v > f.p90) return v - f.p90 >= MARGEM ? "acima" : "borda";
+    if (v < f.p10) return f.p10 - v >= MARGEM ? "abaixo" : "borda";
+    return "";
+  };
+  /* Quanto o caso passa da cerca, em reais. É o número que ordena a lista e o que ele vai
+     citar quando alguém perguntar por que este caso e não o vizinho. */
+  const distanciaDaFaixa = (r: Registro): number => {
+    const k = potenciaDoCaso(r).kva;
+    const v = Number(r.obra_realizado || 0);
+    const f = k ? faixaValor.get(k) : undefined;
+    if (!k || !(v > 0) || !f) return 0;
+    return v > f.p90 ? v - f.p90 : v < f.p10 ? f.p10 - v : 0;
   };
 
   const RECORTES: Record<Modulo, Array<{ id: string; rotulo: string; nota: string; teste: (r: Registro) => boolean }>> = {
@@ -1066,6 +1087,7 @@ export default function Page() {
       { id: "fora", rotulo: "Fora da faixa", nota: "O valor realizado da obra cai fora da cerca de Tukey da potência instalada — longe o bastante do que se pratica para não ser variação normal. Achado para olhar, não veredito: obra que cobre duas trocas sobe o valor com razão, e obra que só apropriou parte do custo desce.", teste: (r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; } },
       { id: "acima", rotulo: "Custou acima do praticado", nota: "Acima da cerca superior da potência instalada. As três causas que a gente já viu: a obra pagou mais de um transformador, o material trouxe potência maior que a do texto, ou a obra levou serviço que não é a troca.", teste: (r) => foraDaFaixa(r) === "acima" },
       { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência instalada. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
+      { id: "borda", rotulo: "Na borda — passa da cerca, mas por pouco", nota: "Passam da faixa praticada e não chegam à margem de R$ 1.500. Não entram como achado porque diferença de algumas centenas é ruído de arredondamento de obra, e uma lista cheia delas esconde as que importam. Ficam aqui em vez de sumirem: quem quiser conferir tem onde.", teste: (r) => foraDaFaixa(r) === "borda" },
       { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência instalada. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
       { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: nem a OS nem a SS dizem a potência, ou dizem duas e ficam ambíguas, ou a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
     ],
@@ -2770,15 +2792,17 @@ export default function Page() {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
         const acima = naConta.filter((r) => foraDaFaixa(r) === "acima");
         const abaixo = naConta.filter((r) => foraDaFaixa(r) === "abaixo");
+        const borda = naConta.filter((r) => foraDaFaixa(r) === "borda");
         const dentro = naConta.filter((r) => foraDaFaixa(r) === "");
         const cego = naConta.filter((r) => foraDaFaixa(r) === null);
-        const julgados = acima.length + abaixo.length + dentro.length;
+        const julgados = acima.length + abaixo.length + borda.length + dentro.length;
         const dinheiro = (v: number) => `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
         return <>
           <section className="kpi-grid">
-            <Kpi rotulo="Fora da faixa" valor={br(acima.length + abaixo.length)} nota={`de ${br(julgados)} que a régua consegue julgar`} tom="amber" aoClicar={() => abrirRecorte("fora")} />
+            <Kpi rotulo="Fora da faixa" valor={br(acima.length + abaixo.length)} nota={`passam da cerca por R$ 1.500 ou mais, de ${br(julgados)} julgáveis`} tom="amber" aoClicar={() => abrirRecorte("fora")} />
             <Kpi rotulo="Acima do praticado" valor={br(acima.length)} nota="passam da cerca superior da potência instalada" tom="red" aoClicar={() => abrirRecorte("acima")} />
             <Kpi rotulo="Abaixo do praticado" valor={br(abaixo.length)} nota="ficam abaixo da cerca — a obra comprova menos do que a troca custaria" tom="blue" aoClicar={() => abrirRecorte("abaixo")} />
+            <Kpi rotulo="Na borda" valor={br(borda.length)} nota="passam da cerca sem chegar aos R$ 1.500 de margem" tom="ink" aoClicar={() => abrirRecorte("borda")} />
             <Kpi rotulo="Dentro da faixa" valor={br(dentro.length)} nota="o valor cabe no que se pratica para aquela potência" tom="green" aoClicar={() => abrirRecorte("dentro")} />
             <Kpi rotulo="A régua não julga" valor={br(cego.length)} nota="nem a OS nem a SS dizem a potência, ou falta valor na obra" tom="ink" aoClicar={() => abrirRecorte("nao_julgavel")} />
           </section>
@@ -2804,6 +2828,7 @@ export default function Page() {
             <p>A base traz três campos numéricos de potência para o mesmo transformador, e eles brigam: <strong>POTENCIA_RET</strong> e <strong>POT_RET</strong> discordam em 222 das que contam. Já o texto é escrito por quem esteve no poste.</p>
             <p>A ordem de leitura é esta, e ela importa: <strong>1.</strong> o trafo INSTALADO nomeado na OS — <em>“TRANSFORMADOR INSTALADO: 15 KVA”</em> —, que é o que a obra pagou; <strong>2.</strong> a potência única citada na OS; <strong>3.</strong> a SS, só quando a OS não disser nada. Cada linha mostra de qual das três veio.</p>
             <p>O instalado é o certo para comparar com dinheiro: numa troca com aumento de potência, o que saiu e o que entrou são diferentes, e a SS descreve o que a equipe encontrou — o retirado. Ler só a SS deixava 401 casos sem julgamento; lendo a OS primeiro, sobram menos de metade disso.</p>
+            <p>Passar da cerca por pouco não vira achado: a diferença precisa ser de <strong>R$ 1.500 ou mais</strong> para a linha entrar. Sem essa margem eram 38 casos, e a maioria passava por algumas centenas de reais — ruído de arredondamento de obra, que afoga as que importam. Os que ficam entre a cerca e a margem estão no recorte “na borda”, não sumiram.</p>
             <p>E o que sai daqui é <strong>achado, não veredito</strong>. Valor acima da faixa costuma ser obra que cobriu mais de uma troca ou que instalou potência maior que a do texto; valor abaixo costuma ser obra que não apropriou o custo inteiro. Nenhum dos dois, sozinho, prova erro — os dois merecem uma olhada.</p>
           </section>
         </>;
@@ -2845,7 +2870,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
