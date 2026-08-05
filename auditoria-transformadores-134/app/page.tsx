@@ -1152,6 +1152,16 @@ export default function Page() {
       { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência instalada. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
       { id: "borda", rotulo: "Na borda — passa da cerca, mas por pouco", nota: `Passam da faixa praticada e não chegam à margem de R$ ${br(margem)}. Não entram como achado porque diferença de algumas centenas é ruído de arredondamento de obra, e uma lista cheia delas esconde as que importam. Ficam aqui em vez de sumirem: quem quiser conferir tem onde.`, teste: (r) => foraDaFaixa(r) === "borda" },
       { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência instalada. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
+      /* Um recorte por potência, só entre os achados: é o que a barra do gráfico abre. Nasce da
+         própria lista, então quando a margem muda as potências que sumiram somem daqui também. */
+      ...[...new Set(registros.filter((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; })
+        .map((r) => potenciaDoCaso(r).kva))].filter((k): k is number => k !== null).sort((a, b) => a - b)
+        .map((k) => ({
+          id: `kva:${k}`,
+          rotulo: `Fora da faixa · ${String(k).replace(".", ",")} kVA`,
+          nota: `Os achados desta potência, com a margem que está na régua acima. Mudar a margem muda esta lista.`,
+          teste: (r: Registro) => { const f = foraDaFaixa(r); return (f === "acima" || f === "abaixo") && potenciaDoCaso(r).kva === k; },
+        })),
       { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: nem a OS nem a SS dizem a potência, ou dizem duas e ficam ambíguas, ou a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
     ],
     /* Garantia: também só olha. A régua é o tempo entre a fabricação do equipamento RETIRADO e
@@ -2910,6 +2920,7 @@ export default function Page() {
         const cego = naConta.filter((r) => foraDaFaixa(r) === null);
         const julgados = acima.length + abaixo.length + borda.length + dentro.length;
         const dinheiro = (v: number) => `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
+        const porKva = contar([...acima, ...abaixo].map((r) => ({ ...r, _k: `${String(potenciaDoCaso(r).kva).replace(".", ",")} kVA` })), "_k", 12);
         return <>
           <section className="kpi-grid">
             <Kpi rotulo="Fora da faixa" valor={br(acima.length + abaixo.length)} nota={`passam da cerca por R$ ${br(margem)} ou mais, de ${br(julgados)} julgáveis`} tom="amber" aoClicar={() => abrirRecorte("fora")} />
@@ -2919,14 +2930,27 @@ export default function Page() {
             <Kpi rotulo="Dentro da faixa" valor={br(dentro.length)} nota="o valor cabe no que se pratica para aquela potência" tom="green" aoClicar={() => abrirRecorte("dentro")} />
             <Kpi rotulo="A régua não julga" valor={br(cego.length)} nota="nem a OS nem a SS dizem a potência, ou falta valor na obra" tom="ink" aoClicar={() => abrirRecorte("nao_julgavel")} />
           </section>
-          <section className="panel"><div className="panel-title"><div><span>A margem</span><h2>Quanto a diferença precisa ser para virar achado</h2></div><small>de 250 em 250</small></div>
-            <div className="margem-escolha">{[250, 500, 750, 1000, 1250, 1500].map((m) => {
-              const n = naConta.filter((r) => distanciaDaFaixa(r) >= m && foraDaFaixa(r) !== null && distanciaDaFaixa(r) > 0).length;
-              return <button key={m} type="button" className={margem === m ? "ativo" : ""}
-                onClick={() => setMargem(m)}>R$ {br(m)}<small>{br(n)}</small></button>;
-            })}</div>
-            <p className="fonte-detalhe">A escolha muda a conta na hora e não muda o dado: quem sai da lista de achados vai para “na borda”, e a soma continua fechando 1.305. Mais apertado é mais defensável e enxerga menos; mais frouxo enxerga mais e traz ruído de arredondamento junto.</p>
+          <section className="panel"><div className="panel-title"><div><span>A margem</span><h2>Quanto a diferença precisa ser para virar achado</h2></div><small>arraste — de 250 em 250</small></div>
+            <div className="regua-margem">
+              <input type="range" min={0} max={1500} step={250} value={margem}
+                aria-label="margem em reais"
+                onChange={(e) => setMargem(Number(e.target.value))} />
+              <div className="regua-marcas">{[0, 250, 500, 750, 1000, 1250, 1500].map((m) => {
+                const n = naConta.filter((r) => distanciaDaFaixa(r) >= m && distanciaDaFaixa(r) > 0).length;
+                return <button key={m} type="button" className={margem === m ? "ativo" : ""} onClick={() => setMargem(m)}>
+                  <b>{m === 0 ? "sem margem" : br(m)}</b><small>{br(n)}</small></button>;
+              })}</div>
+              <p className="regua-leitura">
+                Margem de <strong>R$ {br(margem)}</strong> — <strong>{br(acima.length + abaixo.length)}</strong> achados:
+                {" "}<em className="para-cima">{br(acima.length)} para cima</em> e <em className="para-baixo">{br(abaixo.length)} para baixo</em>.
+                {" "}Outros <strong>{br(borda.length)}</strong> passam da cerca sem chegar à margem.
+              </p>
+            </div>
+            <p className="fonte-detalhe">Arrastar muda a conta na hora e não muda o dado: quem sai da lista de achados vai para “na borda”, e a soma continua fechando {br(naConta.length)}. Em zero a régua devolve tudo que passa da cerca; apertando, sobra só o que se defende em voz alta. O gráfico e a tabela abaixo acompanham.</p>
           </section>
+          {porKva.length ? <section className="panel"><div className="panel-title"><div><span>Onde estão os achados</span><h2>Por potência instalada</h2></div><small>clique numa barra para ver a lista</small></div>
+            <Barras dados={porKva} total={acima.length + abaixo.length} aoSelecionar={(l) => { setBusca(""); abrirRecorte(`kva:${l.replace(",", ".").replace(" kVA", "")}`); }} />
+          </section> : null}
           <section className="panel"><div className="panel-title"><div><span>A régua</span><h2>A faixa do praticado, potência por potência</h2></div><small>tirada destas mesmas solicitações</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Potência instalada</th><th>Solicitações</th><th>Faixa normal (cerca de Tukey)</th><th>Mediana</th><th>Fora da faixa</th></tr></thead>
