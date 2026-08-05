@@ -305,6 +305,11 @@ def le_critica():
     # É a régua que ele descreveu, e é o intervalo que vale quando o casamento vem pelo
     # elemento interrompido: o evento é um só, não o pedaço em que este trafo aparece.
     vao_oc = {}
+    # TODOS os passos de cada ocorrência, qualquer elemento com defeito. O índice `oc` lá
+    # embaixo só guarda linhas com defeito em TR — certo para CASAR, errado para CONTAR o
+    # evento: uma ocorrência com defeito numa UC ficava com o dossiê zerado de passos. Ordem
+    # dele: "quero todos os passos em todos os elementos, tipo CH aberta".
+    passos_todos = {}
     # Todo código de ativo que aparece na Crítica em QUALQUER papel — defeito, interrompido ou
     # manobrado. Serve para uma pergunta só, e é a que o dono fez: este transformador existe na
     # base de interrupção? Ausente daqui é ausente de verdade; o resto é questão de data ou de
@@ -330,6 +335,15 @@ def le_critica():
                         v[0] = _ai
                     if _af and (v[1] is None or _af > v[1]):
                         v[1] = _af
+                    passos_todos.setdefault(_ni, []).append({
+                        "ini": r[k["DTA_ABERT"]].strip(), "fim": r[k["DTA_FECH"]].strip(),
+                        "def": r[k["COD_ELE_PROBLEMA"]].strip(),
+                        "int": r[k["COD_ELE_INTERROMPIDO"]].strip(),
+                        "int_t": r[k["COD_ELE_REDE_INTERROMPIDO"]].strip(),
+                        "fec": r[k["COD_ELE_FECHADO"]].strip(),
+                        "fec_t": r[k["COD_ELE_REDE_FECHADO"]].strip(),
+                        "cons": r[k["QTD_CONS_INTER_FAT"]].strip(),
+                    })
                 # O ÍNDICE DO INTERROMPIDO, para toda linha em que um transformador ficou sem
                 # energia — o defeito pode estar numa chave, numa UC ou em OUTRO transformador.
                 # Ordem dele: "cruze pelas duas em que aparece o ativo". Antes este índice só
@@ -438,10 +452,8 @@ def le_critica():
         v = vao_oc.get(n)
         if v and v[0]:
             b["ini"], b["fim"] = v[0], v[1] or v[0]
-    passos_oc = {}
-    for (n, _cod), a in oc.items():
-        alvo = passos_oc.setdefault(n, [])
-        alvo.extend(a["detalhe"])
+    # o acervo de passos por ocorrência é o COMPLETO, não o recorte com defeito em TR
+    passos_oc = passos_todos
     for n, lst in passos_oc.items():
         lst.sort(key=lambda x: parse(x["ini"]) or datetime.datetime.min)
     return oc, intr, vistos, passos_oc
