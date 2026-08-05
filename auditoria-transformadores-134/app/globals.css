@@ -779,6 +779,23 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .fora-marca.abaixo { background: #e2ecf5; color: #2f5d86; }
 .fora-marca.borda { background: #eeece8; color: #75787c; }
 
+/* A RÉGUA DA MARGEM. Seis botões viraram uma régua de arrastar, com os degraus embaixo — cada
+   degrau diz quantos achados aquele corte deixa passar, para a escolha ser informada antes do
+   arrasto. Em zero ela devolve tudo que passa da cerca. */
+.regua-margem { padding: 0 20px 8px; }
+.regua-margem input[type=range] { width: 100%; height: 26px; margin: 0; accent-color: var(--red); cursor: pointer; }
+.regua-marcas { display: flex; gap: 4px; margin-top: 2px; }
+.regua-marcas button { flex: 1 1 0; border: 0; border-top: 2px solid var(--line); padding: 7px 2px 0;
+  background: transparent; color: #85888c; text-align: center; cursor: pointer; }
+.regua-marcas button b { display: block; font: 600 8px "IBM Plex Mono", monospace; }
+.regua-marcas button small { display: block; margin-top: 2px; font: 600 9px "IBM Plex Mono", monospace; color: #b3b6ba; }
+.regua-marcas button.ativo { border-top-color: var(--red); color: var(--ink); }
+.regua-marcas button.ativo small { color: var(--red); }
+.regua-marcas button:hover { color: var(--ink); }
+.regua-leitura { margin: 14px 0 0; color: #46494e; font-size: 9px; line-height: 1.6; }
+.regua-leitura em { font-style: normal; font-weight: 600; }
+.regua-leitura em.para-cima { color: var(--red); }
+.regua-leitura em.para-baixo { color: #2f5d86; }
 /* O seletor da margem: seis degraus, com quantos achados cada um deixa passar embaixo. */
 .margem-escolha { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px; }
 .margem-escolha button { flex: 1 1 90px; border: 1px solid var(--line); padding: 10px 8px; background: #fff;
