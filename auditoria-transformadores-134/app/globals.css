@@ -827,6 +827,13 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .tempos .regua-at { top: 2px; height: 7px; }
 .tempos .regua-servico { position: absolute; top: 2px; height: 7px; background: var(--ink); }
 .tempos .regua-servico.invertida { background: repeating-linear-gradient(45deg, var(--amber), var(--amber) 3px, #fff 3px, #fff 6px); }
+.tempos-eixo { position: relative; min-width: 0; }
+.tempos .t-risco { position: absolute; top: -3px; width: 2px; height: 17px; background: var(--ink); opacity: .6; transform: translateX(-1px); }
+.tempos-datas { position: relative; height: 11px; margin-top: 4px; }
+.tempos-datas.duas { height: 21px; }
+.tempos-datas b.linha2 { top: 10px; }
+.tempos-datas b { position: absolute; top: 0; white-space: nowrap; font: 700 7px "IBM Plex Mono", monospace; color: var(--ink); padding: 0 2px; }
+.records-table .tempos-datas b { font-size: 6.5px; }
 .tempos-aviso { margin: 8px 0 0; padding: 7px 9px; border-left: 3px solid var(--amber); background: #fbf6ec; color: #6b5a34; font-size: 8px; line-height: 1.5; }
 @media (max-width: 820px) { .tempos-faixa { grid-template-columns: 44px 1fr; } .tempos-dado { grid-column: 2; text-align: left; margin-top: -2px; } }
 
