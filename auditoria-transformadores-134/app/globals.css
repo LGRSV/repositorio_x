@@ -771,3 +771,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .loading-botao { margin-top: 16px; border: 1px solid var(--ink); padding: 10px 18px; background: var(--ink);
   color: #fff; font: 600 8px "IBM Plex Mono", monospace; letter-spacing: .09em; text-transform: uppercase; cursor: pointer; }
 .loading-botao:hover { background: var(--red); border-color: var(--red); }
+
+/* Quanto o caso passa da faixa, colado no valor da obra: é o número que ordena a conversa. */
+.col-obra strong { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.fora-marca { padding: 1px 5px; font: 600 7px "IBM Plex Mono", monospace; }
+.fora-marca.acima { background: #f6e3e5; color: var(--red); }
+.fora-marca.abaixo { background: #e2ecf5; color: #2f5d86; }
+.fora-marca.borda { background: #eeece8; color: #75787c; }
