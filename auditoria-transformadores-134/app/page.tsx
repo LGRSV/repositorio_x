@@ -18,6 +18,11 @@ type MaterialObra = {
   linhas: Array<{ desc: string; kva: string; prev: number; real: number; valor: number }>;
 };
 
+type TmaeTempo = {
+  origem: string; comunicado: string; saiu: string; chegou: string; executou: string; concluiu: string;
+  tmp: string; tmd: string; tme: string; tma: string; equipe: string; ele: string; ele_t: string;
+  mesmo_ativo: boolean;
+};
 type Passo = {
   p: string; pf: string; ini: string; fim: string;
   def: string; def_t: string; int: string; int_t: string; fec: string; fec_t: string;
@@ -396,10 +401,15 @@ function ReguaTmae({ r }: { r: Registro }) {
    ocorrência de duas horas ficaria do mesmo tamanho da SS de duas semanas.
    Cada faixa diz também quando ela NÃO existe, em vez de sumir — trilho vazio com a razão
    escrita ao lado. Ausência de atendimento é informação, e some do desenho se a gente deixar. */
-function ReguaTempos({ r }: { r: Registro }) {
+function ReguaTempos({ r, tm }: { r: Registro; tm?: TmaeTempo }) {
   const ab = emMs(r.abertura), te = emMs(r.termino);
   const oi = emMs(r.oc_ini), of = emMs(r.oc_fim) ?? emMs(r.oc_ini);
-  const ai = emMs(r.at_ini), af = emMs(r.at_fim) ?? emMs(r.at_ini);
+  /* A faixa do TMAE é a ida da equipe: saiu → concluiu. Só cai para at_ini/at_fim quando não há
+     tempos reais — e nesse caso o rótulo avisa, porque aqueles campos são a janela da
+     ocorrência e desenhá-los como atendimento seria repetir a barra de cima noutra cor. */
+  const ai = tm ? emMs(tm.saiu) ?? emMs(tm.comunicado) : emMs(r.at_ini);
+  const af = tm ? emMs(tm.concluiu) ?? emMs(tm.saiu) : (emMs(r.at_fim) ?? emMs(r.at_ini));
+  const chegou = tm ? emMs(tm.chegou) : null;
   const pontos = [ab, te, oi, of, ai, af].filter((x): x is number => typeof x === "number");
   if (!pontos.length) return null;
   const folga = Math.max((Math.max(...pontos) - Math.min(...pontos)) * 0.04, H_MS);
@@ -424,9 +434,12 @@ function ReguaTempos({ r }: { r: Registro }) {
     <div className="tempos-faixa">
       <span className="tempos-nome">TMAE</span>
       <div className="regua-trilho">
-        {ai && af ? <span className="regua-at" style={{ left: onde(ai), width: quanto(af - ai) }} title={`atendimento ${dataBR(r.at_ini)} → ${dataBR(r.at_fim)}`} /> : null}
+        {ai && af ? <span className="regua-at" style={{ left: onde(ai), width: quanto(af - ai) }} title={tm ? `equipe saiu ${tm.saiu} · concluiu ${tm.concluiu}` : "janela da ocorrência — não há tempos reais do TMAE"} /> : null}
+        {chegou ? <b className="regua-chegou" style={{ left: onde(chegou) }} title={`a equipe chegou em ${chegou ? tm?.chegou : ""}`} /> : null}
       </div>
-      <span className="tempos-dado">{ai ? `${dataBR(r.at_ini)} · ${horas(ai, af)}` : "sem atendimento registrado"}</span>
+      <span className="tempos-dado">{ai
+        ? `${tm ? tm.saiu : dataBR(r.at_ini)} · ${horas(ai, af)}${tm ? "" : " (janela da ocorrência)"}`
+        : "sem atendimento registrado"}</span>
     </div>
     <div className="tempos-faixa">
       <span className="tempos-nome">SS</span>
@@ -689,7 +702,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -702,6 +715,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   estadoDe?: (r: Registro) => string | null;
   parceirasOcDe?: (r: Registro) => string[];
   parceirasAtDe?: (r: Registro) => string[];
+  tmaeDe?: (r: Registro) => TmaeTempo | undefined;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -755,7 +769,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
 
       {modo === "insight_tempos" && <>
-        <td colSpan={1}><ReguaTempos r={r} /></td>
+        <td colSpan={1}><ReguaTempos r={r} tm={tmaeDe ? tmaeDe(r) : undefined} /></td>
         <td><strong>{r.oc_dur_h ? `${texto(r.oc_dur_h)} h de interrupção` : "sem ocorrência"}</strong>
           <span>{r.at_tma ? `TMA ${texto(r.at_tma)} min` : "sem atendimento"}</span>
           <small>SS {dataBR(r.abertura)} → {dataBR(r.termino)}</small></td>
@@ -919,6 +933,12 @@ export default function Page() {
      que faltava para entender uma interrupção: quem abriu, quem ficou sem energia, o que foi
      fechado para devolver e se voltou por onde caiu. gerar_passos.py explica os campos. */
   const [passos, setPassos] = useState<{ por_oc: Record<string, Passo[]>; por_ss: Record<string, PassosSS> }>({ por_oc: {}, por_ss: {} });
+  /* OS TEMPOS REAIS DO TMAE. Os campos at_ini e at_fim do fluxo NÃO são a hora da equipe: são a
+     janela da ocorrência copiada — em 1.039 das 1.160 com atendimento, at_ini é idêntico a
+     oc_ini. Enquanto a régua do TMAE foi desenhada com eles, ela mostrava a barra da Crítica
+     noutra cor, e dizer "o atendimento cabe dentro da ocorrência" era quase tautologia.
+     Estes vêm da base do TMAE: quando a equipe saiu, quando chegou e quando concluiu. */
+  const [tmae, setTmae] = useState<Record<string, TmaeTempo>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
@@ -1027,6 +1047,8 @@ export default function Page() {
       .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
     fetch(assetUrl("material-obra.json")).then((r) => r.json())
       .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
+    fetch(assetUrl("tmae-tempos.json")).then((r) => r.json())
+      .then((d) => setTmae(d?.por_ss || {})).catch(() => setTmae({}));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1370,6 +1392,9 @@ export default function Page() {
     ],
     /* Tempos: só olha. Cada recorte é uma pergunta de ordem entre as três bases. */
     insight_tempos: [
+      { id: "ordem", rotulo: "A ordem esperada: Crítica → equipe sai → SS", nota: "A teoria do campo, testada com os tempos REAIS do TMAE: a ocorrência abre, a equipe sai um pouco depois e a solicitação nasce um pouco depois disso. Nos que seguem, a mediana é de 7,7 h da Crítica até a equipe sair e 2,6 h daí até a SS nascer.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); } },
+      { id: "fora_ordem", rotulo: "Fora da ordem esperada", nota: "A equipe saiu antes de a ocorrência abrir, ou a SS nasceu antes de a equipe sair. Não é erro por si: pode ser atendimento de outro evento no mesmo ativo, SS aberta por outro canal, ou hora lançada depois. É a lista de conferência.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); } },
+      { id: "sem_tmae_real", rotulo: "Sem tempos reais do TMAE", nota: "A nota do atendimento não foi encontrada na base do TMAE, então não há hora de saída nem de conclusão da equipe. Para estes a faixa do meio é desenhada com a janela da ocorrência, e o rótulo avisa — não é o tempo da equipe.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(texto(r.at_num)) && !tmae[texto(r.ss)] },
       { id: "exato", rotulo: "Exatamente dentro da interrupção", nota: "As três bases existem E o serviço inteiro cabe dentro do intervalo da ocorrência — sem a hora de tolerância antes e sem as 24 horas depois. A SS abriu e encerrou, e a equipe entrou e saiu, com o cliente ainda sem energia. É a leitura mais dura desta base: não é encostar na janela, é ter acontecido dentro dela.", teste: (r) => arquivo(r) === "SAÍDA" && exatamenteDentro(r).ambos },
       { id: "exato_ss", rotulo: "Só a SS cabe dentro", nota: "A solicitação inteira acontece durante a interrupção, mas o atendimento do TMAE escapa do intervalo — começou antes de o cliente cair ou terminou depois de a energia voltar.", teste: (r) => { const e = exatamenteDentro(r); return arquivo(r) === "SAÍDA" && e.ss && !e.at; } },
       { id: "exato_at", rotulo: "Só o atendimento cabe dentro", nota: "A equipe entrou e saiu durante a interrupção, mas a SS não: ela nasceu antes ou foi encerrada depois de a energia voltar. É o caso comum — a solicitação é o documento, e documento fecha no seu tempo.", teste: (r) => { const e = exatamenteDentro(r); return arquivo(r) === "SAÍDA" && e.at && !e.ss; } },
@@ -3073,6 +3098,8 @@ export default function Page() {
         const p = (n: number) => (duracoes.length ? duracoes[Math.floor((duracoes.length - 1) * n)] : 0);
         return <>
           <section className="kpi-grid">
+            <Kpi rotulo="Segue a ordem esperada" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); }).length)} nota="Crítica abre · equipe sai · SS nasce — nessa ordem" tom="green" aoClicar={() => abrirRecorte("ordem")} />
+            <Kpi rotulo="Fora da ordem" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); }).length)} nota="a equipe saiu antes da Crítica, ou a SS nasceu antes da equipe" tom="amber" aoClicar={() => abrirRecorte("fora_ordem")} />
             <Kpi rotulo="Exatamente dentro" valor={br(naConta.filter((r) => exatamenteDentro(r).ambos).length)} nota="SS e atendimento inteiros dentro da interrupção" tom="green" aoClicar={() => abrirRecorte("exato")} />
             <Kpi rotulo="Tem as três bases" valor={br(naConta.filter((r) => tresBases(r)).length)} nota="ocorrência, atendimento e SS com término" tom="ink" aoClicar={() => abrirRecorte("tres_bases")} />
             <Kpi rotulo="Só como manobra" valor={br(naConta.filter((r) => passos.por_ss[texto(r.ss)]?.so_manobra).length)} nota="o ativo é caminho de volta, não vítima" tom="red" aoClicar={() => abrirRecorte("so_manobra_passos")} />
@@ -3087,9 +3114,13 @@ export default function Page() {
           <section className="panel"><div className="panel-title"><div><span>Como ler</span><h2>As três bases, uma embaixo da outra</h2></div><small>abra qualquer linha na aba Tempos do dossiê</small></div>
             <div className="tempos-exemplo">
               {(() => { const alvo = naConta.find((r) => tempos(r).invertida) || naConta[0];
-                return alvo ? <><p className="fonte-detalhe">{texto(alvo.ss)} · trafo {texto(alvo.trafo)}</p><ReguaTempos r={alvo} /></> : null; })()}
+                return alvo ? <><p className="fonte-detalhe">{texto(alvo.ss)} · trafo {texto(alvo.trafo)}</p><ReguaTempos r={alvo} tm={tmae[texto(alvo.ss)]} /></> : null; })()}
             </div>
             <p className="fonte-detalhe">As três dividem o mesmo começo e o mesmo fim. É isso que permite comparar: com escalas próprias, uma ocorrência de duas horas ficaria do mesmo tamanho de uma SS de duas semanas. Faixa vazia quer dizer que aquela base não tem registro para este caso — e isso está escrito ao lado, em vez de a faixa sumir.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>A TEORIA DO CAMPO, TESTADA</span>
+            <p>A ordem esperada é esta: a ocorrência da Crítica engloba tudo, a equipe do TMAE sai um pouco depois de ela abrir, e a SS nasce um pouco depois de a equipe sair. <strong>Ela se confirma em 896 casos.</strong> Da Crítica até a equipe sair, a mediana é de <strong>7,7 horas</strong>; daí até a SS nascer, <strong>2,6 horas</strong>.</p>
+            <p>Isto só pôde ser medido depois de uma correção: os campos <strong>at_ini</strong> e <strong>at_fim</strong> do fluxo <strong>não são a hora da equipe</strong> — são a janela da ocorrência copiada, idêntica a ela em 1.039 das 1.160 com atendimento. Enquanto a régua azul usou esses campos, ela desenhava a barra da Crítica noutra cor, e dizer que o atendimento cabia dentro da ocorrência era quase tautologia. Agora a faixa azul é <em>quando a equipe saiu → quando concluiu</em>, com um traço branco marcando <em>quando ela chegou</em>, direto da base do TMAE.</p>
           </section>
           <section className="panel editorial-note wide"><span>O QUE ESTA ABA NÃO DIZ</span>
             <p>Nenhum destes recortes fala sobre a <strong>causa</strong> da falha. SS aberta por muito tempo não é caso mal decidido; atendimento antes da SS é o comportamento normal do campo — o cliente liga, a equipe vai, a solicitação nasce depois para formalizar.</p>
@@ -3282,7 +3313,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
@@ -3390,7 +3421,7 @@ export default function Page() {
           {abaDossie === "tempos" && <>
             <h3>Os três tempos deste caso</h3>
             <p className="fonte-detalhe">As três bases no MESMO eixo: o que a Crítica registra, quando a equipe esteve lá e quanto tempo a solicitação ficou aberta. É o eixo compartilhado que faz a leitura — a ordem dos eventos e a distância entre eles se leem de relance.</p>
-            <ReguaTempos r={aberto} />
+            <ReguaTempos r={aberto} tm={tmae[texto(aberto.ss)]} />
             <section className="detail-grid">
               <div><span>Ocorrência</span><strong>{dataBR(aberto.oc_ini)} → {dataBR(aberto.oc_fim)}</strong>{aberto.oc_dur_h ? <em>{texto(aberto.oc_dur_h)} h de interrupção</em> : null}</div>
               <div><span>Atendimento</span><strong>{aberto.at_ini ? `${dataBR(aberto.at_ini)} → ${dataBR(aberto.at_fim)}` : "nenhum no código deste trafo"}</strong>{aberto.at_tma ? <em>TMA {texto(aberto.at_tma)} min</em> : null}</div>
