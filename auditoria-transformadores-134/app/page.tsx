@@ -1238,6 +1238,20 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
+  /* A SS DENTRO DA CRÍTICA — o filtro que ele diz ser o que importa, e ele tem razão: o
+     atendimento é marcador e pode faltar sem prejuízo, mas a SS ter nascido COM O CLIENTE SEM
+     ENERGIA é a prova de que o evento e o pedido são a mesma coisa. Aqui não entra tolerância
+     nenhuma: ou a abertura cai entre o primeiro passo aberto e o último fechado, ou não cai. */
+  const ssDentroDaCritica = (r: Registro) => {
+    const ab = emMs(r.abertura), oi = emMs(r.oc_ini), of = emMs(r.oc_fim);
+    return Boolean(ab && oi && of) && (oi as number) <= (ab as number) && (ab as number) <= (of as number);
+  };
+  const ssNaTolerancia = (r: Registro) => {
+    const ab = emMs(r.abertura), oi = emMs(r.oc_ini), of = emMs(r.oc_fim);
+    if (!(ab && oi && of) || ssDentroDaCritica(r)) return false;
+    return (ab as number) >= (oi as number) - H_MS && (ab as number) <= (of as number) + 24 * H_MS;
+  };
+
   /* EXATAMENTE DENTRO. Ordem dele: sem a faixa de uma hora antes e vinte e quatro depois — a SS
      e o atendimento têm de caber INTEIROS no intervalo da ocorrência, do primeiro passo aberto
      ao último fechado. É a leitura mais dura que existe aqui: não é a SS encostar na janela, é
@@ -1392,6 +1406,9 @@ export default function Page() {
     ],
     /* Tempos: só olha. Cada recorte é uma pergunta de ordem entre as três bases. */
     insight_tempos: [
+      { id: "ss_dentro", rotulo: "A SS nasceu com o cliente sem energia", nota: "A abertura da SS cai entre o primeiro passo aberto e o último fechado da ocorrência — sem tolerância nenhuma, nem a hora antes nem as 24 horas depois. É a prova mais direta de que o pedido e o apagão são o mesmo evento, e não depende de o TMAE existir.", teste: (r) => arquivo(r) === "SAÍDA" && ssDentroDaCritica(r) },
+      { id: "ss_tolerancia", rotulo: "Entrou pela tolerância da janela", nota: "A abertura da SS não cai dentro do intervalo da ocorrência, mas cai na tolerância — até uma hora antes do primeiro passo ou até 24 horas depois do último. Continua casando pela régua da esteira; só não é o casamento mais forte.", teste: (r) => arquivo(r) === "SAÍDA" && ssNaTolerancia(r) },
+      { id: "ss_fora_janela", rotulo: "A abertura não cai nem na tolerância", nota: "A SS nasceu fora do intervalo da ocorrência e fora da tolerância. Todos entraram por outro caminho: pela contenção (a ocorrência coube inteira dentro do serviço, que é a segunda régua) ou pelo veredito do dono. Nenhum entrou por distração da régua.", teste: (r) => arquivo(r) === "SAÍDA" && !ssDentroDaCritica(r) && !ssNaTolerancia(r) },
       { id: "ordem", rotulo: "A ordem esperada: Crítica → equipe sai → SS", nota: "A teoria do campo, testada com os tempos REAIS do TMAE: a ocorrência abre, a equipe sai um pouco depois e a solicitação nasce um pouco depois disso. Nos que seguem, a mediana é de 7,7 h da Crítica até a equipe sair e 2,6 h daí até a SS nascer.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); } },
       { id: "fora_ordem", rotulo: "Fora da ordem esperada", nota: "A equipe saiu antes de a ocorrência abrir, ou a SS nasceu antes de a equipe sair. Não é erro por si: pode ser atendimento de outro evento no mesmo ativo, SS aberta por outro canal, ou hora lançada depois. É a lista de conferência.", teste: (r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return arquivo(r) === "SAÍDA" && Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); } },
       { id: "sem_tmae_real", rotulo: "Sem tempos reais do TMAE", nota: "A nota do atendimento não foi encontrada na base do TMAE, então não há hora de saída nem de conclusão da equipe. Para estes a faixa do meio é desenhada com a janela da ocorrência, e o rótulo avisa — não é o tempo da equipe.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(texto(r.at_num)) && !tmae[texto(r.ss)] },
@@ -3098,6 +3115,9 @@ export default function Page() {
         const p = (n: number) => (duracoes.length ? duracoes[Math.floor((duracoes.length - 1) * n)] : 0);
         return <>
           <section className="kpi-grid">
+            <Kpi rotulo="SS dentro da Crítica" valor={br(naConta.filter(ssDentroDaCritica).length)} nota="a SS nasceu com o cliente ainda sem energia" tom="green" aoClicar={() => abrirRecorte("ss_dentro")} />
+            <Kpi rotulo="Pela tolerância da janela" valor={br(naConta.filter(ssNaTolerancia).length)} nota="1 h antes ou 24 h depois — casa, mas é o casamento fraco" tom="amber" aoClicar={() => abrirRecorte("ss_tolerancia")} />
+            <Kpi rotulo="Nem na tolerância" valor={br(naConta.filter((r) => !ssDentroDaCritica(r) && !ssNaTolerancia(r)).length)} nota="entraram por contenção ou por veredito seu" tom="ink" aoClicar={() => abrirRecorte("ss_fora_janela")} />
             <Kpi rotulo="Segue a ordem esperada" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && (oi as number) <= (sa as number) && (sa as number) <= (ab as number); }).length)} nota="Crítica abre · equipe sai · SS nasce — nessa ordem" tom="green" aoClicar={() => abrirRecorte("ordem")} />
             <Kpi rotulo="Fora da ordem" valor={br(naConta.filter((r) => { const a = tmae[texto(r.ss)]; const oi = emMs(r.oc_ini), sa = a ? emMs(a.saiu) : null, ab = emMs(r.abertura); return Boolean(oi && sa && ab) && !((oi as number) <= (sa as number) && (sa as number) <= (ab as number)); }).length)} nota="a equipe saiu antes da Crítica, ou a SS nasceu antes da equipe" tom="amber" aoClicar={() => abrirRecorte("fora_ordem")} />
             <Kpi rotulo="Exatamente dentro" valor={br(naConta.filter((r) => exatamenteDentro(r).ambos).length)} nota="SS e atendimento inteiros dentro da interrupção" tom="green" aoClicar={() => abrirRecorte("exato")} />
@@ -3119,6 +3139,7 @@ export default function Page() {
             <p className="fonte-detalhe">As três dividem o mesmo começo e o mesmo fim. É isso que permite comparar: com escalas próprias, uma ocorrência de duas horas ficaria do mesmo tamanho de uma SS de duas semanas. Faixa vazia quer dizer que aquela base não tem registro para este caso — e isso está escrito ao lado, em vez de a faixa sumir.</p>
           </section>
           <section className="panel editorial-note wide"><span>A TEORIA DO CAMPO, TESTADA</span>
+            <p><strong>O casamento que decide é o da SS com a Crítica, não o do atendimento.</strong> O TMAE é marcador: pode faltar sem prejuízo, e falta em 145 casos. Já a SS ter nascido com o cliente ainda sem energia é a prova de que o pedido e o apagão são o mesmo evento — e isso vale em <strong>{br(naConta.filter(ssDentroDaCritica).length)}</strong> das <strong>{br(naConta.length)}</strong>, sem tolerância nenhuma. Outras <strong>{br(naConta.filter(ssNaTolerancia).length)}</strong> entram pela tolerância da janela, e as <strong>{br(naConta.filter((r) => !ssDentroDaCritica(r) && !ssNaTolerancia(r)).length)}</strong> restantes entraram pela contenção ou pelo seu veredito — nenhuma por distração da régua.</p>
             <p>A ordem esperada é esta: a ocorrência da Crítica engloba tudo, a equipe do TMAE sai um pouco depois de ela abrir, e a SS nasce um pouco depois de a equipe sair. <strong>Ela se confirma em 896 casos.</strong> Da Crítica até a equipe sair, a mediana é de <strong>7,7 horas</strong>; daí até a SS nascer, <strong>2,6 horas</strong>.</p>
             <p>Isto só pôde ser medido depois de uma correção: os campos <strong>at_ini</strong> e <strong>at_fim</strong> do fluxo <strong>não são a hora da equipe</strong> — são a janela da ocorrência copiada, idêntica a ela em 1.039 das 1.160 com atendimento. Enquanto a régua azul usou esses campos, ela desenhava a barra da Crítica noutra cor, e dizer que o atendimento cabia dentro da ocorrência era quase tautologia. Agora a faixa azul é <em>quando a equipe saiu → quando concluiu</em>, com um traço branco marcando <em>quando ela chegou</em>, direto da base do TMAE.</p>
           </section>
