@@ -18,6 +18,16 @@ type MaterialObra = {
   linhas: Array<{ desc: string; kva: string; prev: number; real: number; valor: number }>;
 };
 
+type Passo = {
+  p: string; pf: string; ini: string; fim: string;
+  def: string; def_t: string; int: string; int_t: string; fec: string; fec_t: string;
+  dur: string; cons: string; fecho: string;
+};
+type PassosSS = {
+  oc: string; n: number; papeis: string[]; so_manobra: boolean;
+  ausente_nos_passos: boolean; nao_restabelecido: boolean; socorrido: boolean;
+};
+
 type Modulo =
   | "visao" | "interrupcao" | "deslocamento" | "ssos" | "obra" | "decisao"
   | "profunda"
@@ -905,6 +915,10 @@ export default function Page() {
   /* Quantos transformadores cada obra pagou de fato. Vem do export do SIAGO, deduplicado e
      contado por quantidade realizada — não por linha. gerar_material_obra.py explica por quê. */
   const [material, setMaterial] = useState<Record<string, MaterialObra>>({});
+  /* Os passos e as manobras de cada ocorrência, e o papel do ativo em cada passo. É a leitura
+     que faltava para entender uma interrupção: quem abriu, quem ficou sem energia, o que foi
+     fechado para devolver e se voltou por onde caiu. gerar_passos.py explica os campos. */
+  const [passos, setPassos] = useState<{ por_oc: Record<string, Passo[]>; por_ss: Record<string, PassosSS> }>({ por_oc: {}, por_ss: {} });
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
@@ -1013,6 +1027,9 @@ export default function Page() {
       .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
     fetch(assetUrl("material-obra.json")).then((r) => r.json())
       .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
+    fetch(assetUrl("passos-critica.json")).then((r) => r.json())
+      .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
+      .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
     const local: Record<string, { classe: string; quem: string; quando: string }> =
       salvo ? JSON.parse(salvo) : {};
@@ -1199,6 +1216,22 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registros, classificacao]);
 
+  /* EXATAMENTE DENTRO. Ordem dele: sem a faixa de uma hora antes e vinte e quatro depois — a SS
+     e o atendimento têm de caber INTEIROS no intervalo da ocorrência, do primeiro passo aberto
+     ao último fechado. É a leitura mais dura que existe aqui: não é a SS encostar na janela, é
+     o serviço inteiro ter acontecido enquanto o cliente estava sem energia. */
+  const tresBases = (r: Registro) =>
+    Boolean(emMs(r.oc_ini) && emMs(r.oc_fim) && emMs(r.at_ini) && emMs(r.at_fim)
+            && emMs(r.abertura) && emMs(r.termino));
+  const exatamenteDentro = (r: Registro) => {
+    if (!tresBases(r)) return { ss: false, at: false, ambos: false };
+    const oi = emMs(r.oc_ini) as number, of = emMs(r.oc_fim) as number;
+    const ab = emMs(r.abertura) as number, te = emMs(r.termino) as number;
+    const ai = emMs(r.at_ini) as number, af = emMs(r.at_fim) as number;
+    const ss = oi <= ab && te <= of, at = oi <= ai && af <= of;
+    return { ss, at, ambos: ss && at };
+  };
+
   /* OS TEMPOS DE UM CASO. Tudo em horas, do mesmo relógio, para as perguntas de ordem: o
      atendimento veio antes da SS? depois de ela fechar? a SS fechou antes de abrir? */
   const tempos = (r: Registro) => {
@@ -1337,6 +1370,13 @@ export default function Page() {
     ],
     /* Tempos: só olha. Cada recorte é uma pergunta de ordem entre as três bases. */
     insight_tempos: [
+      { id: "exato", rotulo: "Exatamente dentro da interrupção", nota: "As três bases existem E o serviço inteiro cabe dentro do intervalo da ocorrência — sem a hora de tolerância antes e sem as 24 horas depois. A SS abriu e encerrou, e a equipe entrou e saiu, com o cliente ainda sem energia. É a leitura mais dura desta base: não é encostar na janela, é ter acontecido dentro dela.", teste: (r) => arquivo(r) === "SAÍDA" && exatamenteDentro(r).ambos },
+      { id: "exato_ss", rotulo: "Só a SS cabe dentro", nota: "A solicitação inteira acontece durante a interrupção, mas o atendimento do TMAE escapa do intervalo — começou antes de o cliente cair ou terminou depois de a energia voltar.", teste: (r) => { const e = exatamenteDentro(r); return arquivo(r) === "SAÍDA" && e.ss && !e.at; } },
+      { id: "exato_at", rotulo: "Só o atendimento cabe dentro", nota: "A equipe entrou e saiu durante a interrupção, mas a SS não: ela nasceu antes ou foi encerrada depois de a energia voltar. É o caso comum — a solicitação é o documento, e documento fecha no seu tempo.", teste: (r) => { const e = exatamenteDentro(r); return arquivo(r) === "SAÍDA" && e.at && !e.ss; } },
+      { id: "tres_bases", rotulo: "Tem as três bases completas", nota: "Existe ocorrência na Crítica, atendimento no TMAE e a SS tem abertura e término. Só sobre estes é possível desenhar as três réguas e perguntar quem cabe dentro de quem.", teste: (r) => arquivo(r) === "SAÍDA" && tresBases(r) },
+      { id: "so_manobra_passos", rotulo: "O ativo aparece só como manobra", nota: "Dentro dos passos da ocorrência o transformador desta SS nunca aparece com defeito nem interrompido — só como elemento FECHADO, isto é, o caminho por onde OUTRO voltou. Não é vítima do evento. A bandeira que ele pediu.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(passos.por_ss[texto(r.ss)]?.so_manobra) },
+      { id: "nao_restab", rotulo: "Passo sem restabelecimento", nota: "Algum passo da ocorrência não tem data de fechamento nem elemento fechado: a energia não voltou naquele trecho, pelo menos não no registro.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(passos.por_ss[texto(r.ss)]?.nao_restabelecido) },
+      { id: "socorrido", rotulo: "Voltou por manobra de socorro", nota: "Em pelo menos um passo, quem devolveu a energia foi OUTRO elemento — fechou-se um vizinho para alimentar quem tinha caído, em vez de religar o próprio. É manobra de socorro, e ela aparece passo a passo no dossiê.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(passos.por_ss[texto(r.ss)]?.socorrido) },
       { id: "invertida", rotulo: "SS encerrada antes de ser aberta", nota: "O término está gravado antes da abertura. É erro de cadastro de data, não de execução — mas enquanto estiver assim, qualquer conta de duração desta SS sai negativa, e quem somar o tempo médio de atendimento leva o erro junto.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).invertida },
       { id: "at_depois", rotulo: "Atendimento começa depois do término da SS", nota: "A equipe aparece no TMAE depois de a solicitação já estar encerrada. Ou o atendimento exibido é de outro evento — herança do casamento por elemento —, ou o encerramento da SS foi lançado antes de o serviço acabar.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).atDepoisDoFim },
       { id: "at_antes", rotulo: "Atendimento começa antes da SS", nota: "A ordem normal do campo: o cliente liga, a equipe é acionada e a SS nasce depois, para formalizar a troca. É a maioria — está aqui para dar tamanho às outras leituras, não como suspeita.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).atAntes },
@@ -3033,6 +3073,10 @@ export default function Page() {
         const p = (n: number) => (duracoes.length ? duracoes[Math.floor((duracoes.length - 1) * n)] : 0);
         return <>
           <section className="kpi-grid">
+            <Kpi rotulo="Exatamente dentro" valor={br(naConta.filter((r) => exatamenteDentro(r).ambos).length)} nota="SS e atendimento inteiros dentro da interrupção" tom="green" aoClicar={() => abrirRecorte("exato")} />
+            <Kpi rotulo="Tem as três bases" valor={br(naConta.filter((r) => tresBases(r)).length)} nota="ocorrência, atendimento e SS com término" tom="ink" aoClicar={() => abrirRecorte("tres_bases")} />
+            <Kpi rotulo="Só como manobra" valor={br(naConta.filter((r) => passos.por_ss[texto(r.ss)]?.so_manobra).length)} nota="o ativo é caminho de volta, não vítima" tom="red" aoClicar={() => abrirRecorte("so_manobra_passos")} />
+            <Kpi rotulo="Voltou por socorro" valor={br(naConta.filter((r) => passos.por_ss[texto(r.ss)]?.socorrido).length)} nota="outro elemento foi fechado para devolver" tom="amber" aoClicar={() => abrirRecorte("socorrido")} />
             <Kpi rotulo="SS encerrada antes de aberta" valor={br(q((x) => x.invertida))} nota="erro de data — a faixa anda para trás" tom="red" aoClicar={() => abrirRecorte("invertida")} />
             <Kpi rotulo="Atendimento depois do término" valor={br(q((x) => x.atDepoisDoFim))} nota="a equipe aparece com a SS já fechada" tom="amber" aoClicar={() => abrirRecorte("at_depois")} />
             <Kpi rotulo="Atendimento antes da SS" valor={br(q((x) => x.atAntes))} nota="a ordem normal do campo" tom="green" aoClicar={() => abrirRecorte("at_antes")} />
@@ -3355,6 +3399,31 @@ export default function Page() {
             </section>
             {aberto.at_fora_da_janela === "SIM" ? <article className="work-alerts danger"><span>O ATENDIMENTO É DE FORA DA JANELA</span>
               <ul><li>A faixa azul não encosta na vermelha: a ida ao poste que este dossiê exibe não pertence ao evento desta SS.</li></ul></article> : null}
+            {(() => {
+              const lista = passos.por_oc[texto(aberto.oc_num)] || [];
+              const meu = passos.por_ss[texto(aberto.ss)];
+              const cod = texto(aberto.trafo);
+              if (!lista.length) return null;
+              return <>
+                <h3>Os passos e as manobras da ocorrência {texto(aberto.oc_num)}</h3>
+                <p className="fonte-detalhe">Cada linha da Crítica é um passo: um elemento que ficou sem energia, quando abriu, o que foi fechado para devolver e quando. O elemento com defeito é um só na ocorrência inteira; os interrompidos podem ser vários.</p>
+                {meu ? <p className="fonte-detalhe">Neste evento o transformador <strong>{cod}</strong> aparece como {meu.papeis.length ? meu.papeis.join(", ") : "nenhum papel"}.{meu.so_manobra ? " Só como manobra — foi o caminho por onde OUTRO voltou, não a vítima do evento." : ""}</p> : null}
+                <div className="table-scroll"><table className="records-table passos-tabela">
+                  <thead><tr><th>Passo</th><th>Interrompido</th><th>Abriu</th><th>Fechou</th><th>Como voltou</th><th>Clientes</th></tr></thead>
+                  <tbody>{lista.map((p, k) => <tr key={k} className={p.int === cod || p.def === cod ? "passo-meu" : undefined}>
+                    <td><strong>{p.p} → {p.pf || "—"}</strong><span>{p.def === cod ? "defeito neste ativo" : `defeito em ${p.def_t} ${p.def}`}</span></td>
+                    <td><strong>{p.int_t} {p.int}</strong>{p.int === cod ? <span className="passo-marca">é o ativo desta SS</span> : null}</td>
+                    <td><strong>{p.ini}</strong><span>{p.dur ? `${p.dur} min` : ""}</span></td>
+                    <td><strong>{p.fim || "não fechou"}</strong></td>
+                    <td><b className={`pill ${p.fecho === "restabelecido" ? "ok" : p.fecho === "socorrido" ? "warn" : "bad"}`}>{
+                      p.fecho === "restabelecido" ? "restabelecido" : p.fecho === "socorrido" ? "socorrido" : "não restabelecido"}</b>
+                      <span>{p.fec ? (p.fec === p.int ? "religou o próprio elemento" : `fechou ${p.fec_t} ${p.fec}`) : "sem elemento fechado"}</span>
+                      {p.fec === cod && p.int !== cod ? <span className="passo-marca">o ativo desta SS foi a manobra</span> : null}</td>
+                    <td><strong>{p.cons}</strong></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </>;
+            })()}
           </>}
           {abaDossie === "consolidado" && <>
             {texto(aberto.narrativa) ? <article className="narrativa">

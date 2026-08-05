@@ -834,3 +834,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .records-table .tempos { min-width: 330px; }
 .records-table .tempos-faixa { grid-template-columns: 42px 1fr 116px; gap: 7px; padding: 3px 0; }
 .records-table .tempos-dado { font-size: 7px; }
+
+/* A tabela de passos: a linha em que o ativo desta SS aparece fica marcada, porque é ela que
+   responde por que este caso está no indicador. */
+.passos-tabela tr.passo-meu { background: #fbf7f2; box-shadow: inset 3px 0 0 var(--red); }
+.passos-tabela .passo-marca { display: block; margin-top: 2px; color: var(--red); font-size: 7px; font-weight: 600; text-transform: uppercase; }
