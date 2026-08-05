@@ -451,14 +451,35 @@ const GATILHO_ROTULO: Record<string, string> = {
    telefone, número de cliente — não entra. Se a frase citar mais de uma potência, o caso não é
    julgado: duas potências no mesmo texto é ambiguidade, não achado. */
 const POTENCIAS = [5, 10, 15, 25, 30, 45, 75, 112.5, 150, 225, 300];
+const kvaValida = (v: string): number | null => {
+  const n = Number(v.replace(",", "."));
+  const c = n === 1125 ? 112.5 : n;
+  return POTENCIAS.includes(c) ? c : null;
+};
+/* Uma potência só, escrita em qualquer lugar do texto. Se a frase citar duas, devolve nulo:
+   duas potências na mesma frase é ambiguidade, e ambiguidade não é achado. */
 const kvaEscrito = (txt?: string): number | null => {
   const s = String(txt || "").toUpperCase().replace(/\./g, ",");
   const achadas = new Set<number>();
   for (const m of s.matchAll(/(\d{1,4}(?:,\d)?)\s*K?\s?VA/g)) {
-    const n = Number(m[1].replace(",", "."));
-    if (POTENCIAS.includes(n)) achadas.add(n);
+    const n = kvaValida(m[1]);
+    if (n !== null) achadas.add(n);
   }
   return achadas.size === 1 ? [...achadas][0] : null;
+};
+/* O TRANSFORMADOR INSTALADO, LIDO NA OS. Ordem dele: "usa a OS, mas algumas você vai ter que
+   ler o trafo instalado foi tanto; caso não encontre, usa a SS".
+   A OS escreve isso de dois jeitos e os dois estão cobertos por ancorar na palavra INSTALADO e
+   pegar o primeiro kVA depois dela:
+     TRANSFORMADOR INSTALADO: 15 KVA TRANSFORMADOR RETIRADO: 25 KVA
+     TRAFO INSTALADO POTÊNCIA : 15KVA TENSÃO : 13.8KV
+   É a leitura certa para comparar com dinheiro: a obra pagou o que ENTROU no poste, não o que
+   saiu. Numa troca com aumento de potência os dois são diferentes, e era o instalado que
+   faltava — a SS descreve o que a equipe encontrou, que é o retirado. */
+const kvaInstaladoNaOS = (txt?: string): number | null => {
+  const s = String(txt || "").toUpperCase().replace(/\./g, ",");
+  const m = s.match(/INSTALAD\w*[\s\S]{0,60}?(\d{1,4}(?:,\d)?)\s*K?\s?VA/);
+  return m ? kvaValida(m[1]) : null;
 };
 
 const PREFIXO_EXC = "X:";
@@ -562,11 +583,12 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {} }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
   coleta?: Record<string, ColetaItem>;
+  potenciaDe?: (r: Registro) => { kva: number | null; fonte: string };
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -598,6 +620,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
          distinguida da exclusão por regra. */
       const meu = classificacoes[texto(r.ss)]?.classe;
       const ficha = coleta[texto(r.ss)];
+      const potencia = potenciaDe ? potenciaDe(r) : null;
       const excluida = meu === "EXCLUIDO" || (!meu && texto(r.cascata) === "EXCLUÍDA");
       const cor = meu === "QUEIMADO" ? "linha-queimada"
         : meu === "AVARIADO" ? "linha-avariada"
@@ -706,7 +729,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
         : modo === "insight_valor"
         ? <td className="col-obra">
             <strong>{r.obra_realizado ? `R$ ${Math.round(Number(r.obra_realizado)).toLocaleString("pt-BR")}` : "sem valor"}</strong>
-            <span>{(() => { const k = kvaEscrito(texto(r.desc_ss)); return k ? `${String(k).replace(".", ",")} kVA escritos na SS` : "a SS não escreveu potência"; })()}</span>
+            <span>{potencia?.kva ? `${String(potencia.kva).replace(".", ",")} kVA · ${potencia.fonte}` : "nem a OS nem a SS dizem a potência"}</span>
             <small>campo: {texto(r.pot_ret) || "—"} → {texto(r.pot_inst) || "—"} kVA{r.trafos_material ? ` · ${texto(r.trafos_material)} no material` : ""}</small>
           </td>
         : <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
@@ -940,6 +963,20 @@ export default function Page() {
     return fatoBase !== (r.casa_na_janela === "SIM");
   }).length, [comJanela]);
 
+  /* A POTÊNCIA DE UM CASO, em cascata, na ordem que ele deu: primeiro o trafo instalado escrito
+     na OS; se a OS não nomear o instalado mas citar uma potência só, vale ela; e só quando a OS
+     não disser nada é que a SS entra. A fonte volta junto com o número porque quem confere
+     precisa saber de onde veio — e porque as três não valem o mesmo. */
+  const potenciaDoCaso = (r: Registro): { kva: number | null; fonte: string } => {
+    const inst = kvaInstaladoNaOS(texto(r.desc_os));
+    if (inst !== null) return { kva: inst, fonte: "OS · trafo instalado" };
+    const os = kvaEscrito(texto(r.desc_os));
+    if (os !== null) return { kva: os, fonte: "OS · potência única" };
+    const ss = kvaEscrito(texto(r.desc_ss));
+    if (ss !== null) return { kva: ss, fonte: "SS" };
+    return { kva: null, fonte: "" };
+  };
+
   /* A FAIXA DO PRATICADO, potência por potência. Nenhum valor aqui é digitado: a faixa de cada
      potência sai das próprias solicitações que contam, agrupadas pela potência que a SS
      escreveu.
@@ -956,7 +993,7 @@ export default function Page() {
     const porKva = new Map<number, number[]>();
     for (const r of registros) {
       if (arquivo(r) !== "SAÍDA") continue;
-      const k = kvaEscrito(texto(r.desc_ss));
+      const k = potenciaDoCaso(r).kva;
       const v = Number(r.obra_realizado || 0);
       if (!k || !(v > 0)) continue;
       if (!porKva.has(k)) porKva.set(k, []);
@@ -984,7 +1021,7 @@ export default function Page() {
      nunca é apresentado como suspeito. */
   const foraDaFaixa = (r: Registro): "acima" | "abaixo" | "" | null => {
     if (arquivo(r) !== "SAÍDA") return null;
-    const k = kvaEscrito(texto(r.desc_ss));
+    const k = potenciaDoCaso(r).kva;
     const v = Number(r.obra_realizado || 0);
     const f = k ? faixaValor.get(k) : undefined;
     if (!k || !(v > 0) || !f) return null;
@@ -998,11 +1035,11 @@ export default function Page() {
     /* A aba de insight não move ninguém: ela só olha. Os chips são leituras do mesmo conjunto
        de queimados e avariados, e nenhum deles muda decisão, categoria ou conta. */
     insight_valor: [
-      { id: "fora", rotulo: "Fora da faixa", nota: "O valor realizado da obra cai fora da cerca de Tukey da potência que a SS escreveu — longe o bastante do que se pratica para não ser variação normal. Achado para olhar, não veredito: obra que cobre duas trocas sobe o valor com razão, e obra que só apropriou parte do custo desce.", teste: (r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; } },
-      { id: "acima", rotulo: "Custou acima do praticado", nota: "Acima da cerca superior da potência escrita na SS. As três causas que a gente já viu: a obra pagou mais de um transformador, o material trouxe potência maior que a do texto, ou a obra levou serviço que não é a troca.", teste: (r) => foraDaFaixa(r) === "acima" },
-      { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência escrita na SS. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
-      { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência escrita na SS. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
-      { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: a SS não escreveu a potência, escreveu duas potências diferentes, a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
+      { id: "fora", rotulo: "Fora da faixa", nota: "O valor realizado da obra cai fora da cerca de Tukey da potência instalada — longe o bastante do que se pratica para não ser variação normal. Achado para olhar, não veredito: obra que cobre duas trocas sobe o valor com razão, e obra que só apropriou parte do custo desce.", teste: (r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; } },
+      { id: "acima", rotulo: "Custou acima do praticado", nota: "Acima da cerca superior da potência instalada. As três causas que a gente já viu: a obra pagou mais de um transformador, o material trouxe potência maior que a do texto, ou a obra levou serviço que não é a troca.", teste: (r) => foraDaFaixa(r) === "acima" },
+      { id: "abaixo", rotulo: "Custou abaixo do praticado", nota: "Abaixo da cerca inferior da potência instalada. Aqui mora o caso que interessa mais: obra que custou menos do que o transformador daquela potência custa sozinho não comprova a troca que a SS pediu.", teste: (r) => foraDaFaixa(r) === "abaixo" },
+      { id: "dentro", rotulo: "Dentro da faixa", nota: "O valor da obra cabe no que se pratica para a potência instalada. É a maioria, e está aqui para o contraste — uma lista de achados sem a lista do normal não deixa ninguém medir o tamanho do achado.", teste: (r) => foraDaFaixa(r) === "" },
+      { id: "nao_julgavel", rotulo: "A régua não julga", nota: "Casos que esta leitura não sabe julgar, e que por isso não entram como suspeita: nem a OS nem a SS dizem a potência, ou dizem duas e ficam ambíguas, ou a obra não tem valor realizado, ou a potência tem casos de menos para formar faixa. Estão à vista de propósito — régua que esconde o que não mede parece mais forte do que é.", teste: (r) => arquivo(r) === "SAÍDA" && foraDaFaixa(r) === null },
     ],
     /* Garantia: também só olha. A régua é o tempo entre a fabricação do equipamento RETIRADO e
        a abertura da SS — quanto o transformador viveu antes de falhar. */
@@ -1550,7 +1587,7 @@ export default function Page() {
     { grupo: "Proposta", itens: [
       // abre já no recorte que lista os 1.305 — o mesmo conjunto que os cartões contam
       { id: "decisao", rotulo: "Queimados e avariados", codigo: "01", marca: naSaida, tom: "verde", recorte: "saida_tela" },
-      { id: "insight_valor", rotulo: "Valor × potência da SS", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
+      { id: "insight_valor", rotulo: "Valor × potência instalada", codigo: "02", marca: conta((r) => { const f = foraDaFaixa(r); return f === "acima" || f === "abaixo"; }), tom: "cinza", recorte: "fora" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
     ]},
   ];
@@ -1576,7 +1613,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
-    insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência escrita na SS", texto: "A faixa do praticado sai das próprias solicitações que contam, agrupadas pela potência que o solicitante escreveu no texto — não pelos campos numéricos, que discordam entre si. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
+    insight_valor: { olho: "Insight · não move ninguém", titulo: "Valor da obra × potência do transformador instalado", texto: "A potência vem do texto, não dos campos numéricos, que discordam entre si. Vale primeiro o trafo instalado escrito na OS — é ele que a obra pagou —, depois a potência única da OS, e só então a SS. Quem cai fora da faixa é achado para olhar, não caso reclassificado." },
   };
 
   const titulo = TITULOS[modulo];
@@ -2700,17 +2737,17 @@ export default function Page() {
         return <>
           <section className="kpi-grid">
             <Kpi rotulo="Fora da faixa" valor={br(acima.length + abaixo.length)} nota={`de ${br(julgados)} que a régua consegue julgar`} tom="amber" aoClicar={() => abrirRecorte("fora")} />
-            <Kpi rotulo="Acima do praticado" valor={br(acima.length)} nota="passam da cerca superior da potência escrita na SS" tom="red" aoClicar={() => abrirRecorte("acima")} />
-            <Kpi rotulo="Abaixo do praticado" valor={br(abaixo.length)} nota="ficam abaixo da cerca — a obra comprova menos do que a SS pediu" tom="blue" aoClicar={() => abrirRecorte("abaixo")} />
+            <Kpi rotulo="Acima do praticado" valor={br(acima.length)} nota="passam da cerca superior da potência instalada" tom="red" aoClicar={() => abrirRecorte("acima")} />
+            <Kpi rotulo="Abaixo do praticado" valor={br(abaixo.length)} nota="ficam abaixo da cerca — a obra comprova menos do que a troca custaria" tom="blue" aoClicar={() => abrirRecorte("abaixo")} />
             <Kpi rotulo="Dentro da faixa" valor={br(dentro.length)} nota="o valor cabe no que se pratica para aquela potência" tom="green" aoClicar={() => abrirRecorte("dentro")} />
-            <Kpi rotulo="A régua não julga" valor={br(cego.length)} nota="a SS não escreveu potência, escreveu duas, ou falta valor" tom="ink" aoClicar={() => abrirRecorte("nao_julgavel")} />
+            <Kpi rotulo="A régua não julga" valor={br(cego.length)} nota="nem a OS nem a SS dizem a potência, ou falta valor na obra" tom="ink" aoClicar={() => abrirRecorte("nao_julgavel")} />
           </section>
           <section className="panel"><div className="panel-title"><div><span>A régua</span><h2>A faixa do praticado, potência por potência</h2></div><small>tirada destas mesmas solicitações</small></div>
             <div className="table-scroll"><table className="records-table">
-              <thead><tr><th>Potência escrita na SS</th><th>Solicitações</th><th>Faixa normal (cerca de Tukey)</th><th>Mediana</th><th>Fora da faixa</th></tr></thead>
+              <thead><tr><th>Potência instalada</th><th>Solicitações</th><th>Faixa normal (cerca de Tukey)</th><th>Mediana</th><th>Fora da faixa</th></tr></thead>
               <tbody>
                 {[...faixaValor.entries()].sort((a, b) => a[0] - b[0]).map(([k, f]) => {
-                  const fora = naConta.filter((r) => kvaEscrito(texto(r.desc_ss)) === k && (foraDaFaixa(r) === "acima" || foraDaFaixa(r) === "abaixo")).length;
+                  const fora = naConta.filter((r) => potenciaDoCaso(r).kva === k && (foraDaFaixa(r) === "acima" || foraDaFaixa(r) === "abaixo")).length;
                   return <tr key={k}>
                     <td><strong>{String(k).replace(".", ",")} kVA</strong></td>
                     <td>{br(f.n)}</td>
@@ -2724,8 +2761,9 @@ export default function Page() {
             <p className="fonte-detalhe">Nenhum número desta tabela é digitado. A faixa de cada potência sai das próprias solicitações que contam, e muda sozinha quando o conjunto muda. A faixa é a cerca de Tukey: quartis mais uma vez e meia a amplitude interquartil. Ela não tem cota — numa potência em que todo mundo custa parecido, ela não marca ninguém. Potência com menos de oito casos não forma faixa, e quem cai nelas vai para “a régua não julga”, não para a lista de achados.</p>
           </section>
           <section className="panel editorial-note wide"><span>POR QUE PELO TEXTO E NÃO PELO CAMPO</span>
-            <p>A base traz três campos numéricos de potência para o mesmo transformador, e eles brigam: <strong>POTENCIA_RET</strong> e <strong>POT_RET</strong> discordam em 222 das que contam. Já o texto é escrito por quem esteve no poste — quando a SS diz “trafo de 45 kva”, está descrevendo o equipamento que a equipe viu.</p>
-            <p>Por isso a leitura aqui é do texto, e só dele. Onde a SS cita <strong>duas</strong> potências diferentes, o caso não é julgado: duas potências na mesma frase é ambiguidade, não achado.</p>
+            <p>A base traz três campos numéricos de potência para o mesmo transformador, e eles brigam: <strong>POTENCIA_RET</strong> e <strong>POT_RET</strong> discordam em 222 das que contam. Já o texto é escrito por quem esteve no poste.</p>
+            <p>A ordem de leitura é esta, e ela importa: <strong>1.</strong> o trafo INSTALADO nomeado na OS — <em>“TRANSFORMADOR INSTALADO: 15 KVA”</em> —, que é o que a obra pagou; <strong>2.</strong> a potência única citada na OS; <strong>3.</strong> a SS, só quando a OS não disser nada. Cada linha mostra de qual das três veio.</p>
+            <p>O instalado é o certo para comparar com dinheiro: numa troca com aumento de potência, o que saiu e o que entrou são diferentes, e a SS descreve o que a equipe encontrou — o retirado. Ler só a SS deixava 401 casos sem julgamento; lendo a OS primeiro, sobram menos de metade disso.</p>
             <p>E o que sai daqui é <strong>achado, não veredito</strong>. Valor acima da faixa costuma ser obra que cobriu mais de uma troca ou que instalou potência maior que a do texto; valor abaixo costuma ser obra que não apropriou o custo inteiro. Nenhum dos dois, sozinho, prova erro — os dois merecem uma olhada.</p>
           </section>
         </>;
@@ -2767,7 +2805,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie("consolidado"); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
