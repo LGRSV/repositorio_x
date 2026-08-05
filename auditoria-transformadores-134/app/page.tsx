@@ -341,6 +341,43 @@ function ReguaContencao({ r }: { r: Registro }) {
   </div>;
 }
 
+/* A MESMA RÉGUA DA INTERRUPÇÃO, PARA O TMAE. Pedido dele. O desenho é o da janela — uma hora
+   antes, o intervalo da ocorrência, vinte e quatro depois, o pino da SS — e por cima entra a
+   barra azul do atendimento, do início ao fim. Um olhar responde o que a etiqueta "atendimento
+   fora da janela" dizia por escrito: a ida ao poste cai dentro do evento desta SS ou não.
+   Quando o caso não tem ocorrência, a régua ancora na SS e mostra só a distância até o
+   atendimento — menos informação, dita como menos, e não como nada. */
+function ReguaTmae({ r }: { r: Registro }) {
+  const ai = emMs(r.at_ini), af = emMs(r.at_fim) ?? emMs(r.at_ini);
+  const ab = emMs(r.abertura);
+  const oi = emMs(r.oc_ini), of = emMs(r.oc_fim) ?? emMs(r.oc_ini);
+  if (!ai || !af || !ab) return null;
+  const pontos = [ab, ai, af];
+  if (oi && of) pontos.push(oi - H_MS, of + 24 * H_MS);
+  const de = Math.min(...pontos) - H_MS;
+  const ate = Math.max(...pontos) + H_MS;
+  const larg = Math.max(1, ate - de);
+  const onde = (t: number) => `${((t - de) / larg) * 100}%`;
+  const quanto = (ms: number) => `${(ms / larg) * 100}%`;
+  const fora = texto(r.at_fora_da_janela) === "SIM";
+  return <div className="regua-janela regua-tmae">
+    <div className="regua-trilho">
+      {oi && of ? <>
+        <span className="regua-antes" style={{ left: onde(oi - H_MS), width: quanto(H_MS) }} title="uma hora antes do primeiro passo" />
+        <span className="regua-oc" style={{ left: onde(oi), width: quanto(Math.max(of - oi, larg / 200)) }} title="intervalo da ocorrência" />
+        <span className="regua-depois" style={{ left: onde(of), width: quanto(24 * H_MS) }} title="vinte e quatro horas depois do último passo" />
+      </> : null}
+      <span className="regua-at" style={{ left: onde(ai), width: quanto(Math.max(af - ai, larg / 200)) }} title={`atendimento ${dataBR(r.at_ini)} → ${dataBR(r.at_fim)}`} />
+      <b className={fora ? "regua-ss fora" : "regua-ss dentro"} style={{ left: onde(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} />
+    </div>
+    <div className="regua-legenda">
+      <span>atendimento {dataBR(r.at_ini)} → {dataBR(r.at_fim)}</span>
+      <span>SS aberta {dataBR(r.abertura)}</span>
+      <strong className={fora ? "fora" : "dentro"}>{fora ? "atendimento fora da janela desta SS" : "atendimento na janela desta SS"}</strong>
+    </div>
+  </div>;
+}
+
 function Barras({ dados, total, aoSelecionar }: {
   dados: Par[]; total?: number; aoSelecionar?: (label: string) => void;
 }) {
@@ -658,7 +695,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           <small>{dataBR(r.oc_ini)}</small></td>
         <td><strong>{texto(r.at_num) || "sem atendimento"}</strong>
           {pAt.length ? <span className="divide-com">divide com {pAt.join(", ")}</span> : <span>{texto(r.at_num) ? "só desta SS" : ""}</span>}
-          <small>{texto(r.at_fora_da_janela) === "SIM" ? "atendimento fora da janela desta SS" : ""}</small></td>
+          {r.at_ini ? <ReguaTmae r={r} /> : null}</td>
         <td><p className="clip">{texto(r.motivo_decisao)}</p></td>
       </>}
 
@@ -697,7 +734,8 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       {modo === "deslocamento" && <>
         <td><strong>{texto(r.at_num) || "sem atendimento"}</strong><span>{dataBR(r.at_ini)}</span><small>{texto(r.at_causa)}</small></td>
         <td><strong>{texto(r.at_equipe) || "—"}</strong><span>{r.at_tma ? `TMA ${r.at_tma} min` : ""}</span><small>{r.at_tmd ? `deslocamento ${r.at_tmd} · execução ${texto(r.at_tme)}` : ""}</small></td>
-        <td><strong>{texto(r.tmae_corrobora)}</strong><span>{texto(r.at_sub)}</span><small>{texto(r.at_obs).slice(0, 60)}</small></td>
+        <td><strong>{texto(r.tmae_corrobora)}</strong><span>{texto(r.at_sub)}</span>
+          {r.at_ini ? <ReguaTmae r={r} /> : <small>{texto(r.at_obs).slice(0, 60)}</small>}</td>
       </>}
 
       {modo === "ssos" && <>
@@ -3274,6 +3312,8 @@ export default function Page() {
               <div><span>Causa</span><strong>{texto(aberto.at_causa)}</strong></div>
               <div><span>Subcausa</span><strong>{texto(aberto.at_sub)}</strong></div>
             </section>
+            {aberto.at_ini ? <article className="rationale"><span>O ATENDIMENTO NO TEMPO — A MESMA RÉGUA DA INTERRUPÇÃO</span>
+              <ReguaTmae r={aberto} /></article> : null}
             {aberto.at_fora_da_janela === "SIM" ? <article className="work-alerts danger"><span>ESTE ATENDIMENTO É DE FORA DA JANELA</span>
               <ul><li>A data acima não cai na janela desta SS. O campo veio herdado de uma rodada
                 anterior e entrava como prova sem que ninguém conferisse a data — houve caso de

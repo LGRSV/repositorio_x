@@ -807,3 +807,9 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 
 /* Com quem a SS divide o evento: o vínculo é o achado, então ele vai grifado. */
 .divide-com { display: block; margin-top: 3px; color: var(--red); font-size: 8px; font-weight: 600; }
+
+/* A barra do atendimento na régua do TMAE: azul, mais fina que a da ocorrência, por cima da
+   janela — as duas juntas respondem se a ida ao poste cai dentro do evento desta SS. */
+.regua-at { position: absolute; top: 2px; height: 5px; background: var(--blue); box-shadow: 0 0 0 1px #fff; }
+.regua-tmae { margin-top: 7px; }
+.records-table .regua-tmae .regua-legenda { flex-wrap: wrap; gap: 2px 10px; }
