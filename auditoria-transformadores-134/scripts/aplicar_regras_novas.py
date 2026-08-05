@@ -962,10 +962,24 @@ def main():
             for o in list(por.get(cod, [])) + list(por_int.get(cod, []))) else "NÃO"
         melhor = min(jan, key=lambda x: borda(ab, x)) if jan else None
         casou_por = "defeito" if melhor else ""
-        if melhor is None and jan_int:
-            melhor = min(jan_int, key=lambda x: borda(ab, x))
-            casou_por = "interrompido"
+        # A REGRA NÃO MOVE NINGUÉM POR AQUI. Ele mandou cruzar pelas duas colunas e recuou no
+        # mesmo dia sobre o efeito: "Regras e método pode alterar, mas os 1305 não". Então a
+        # segunda coluna vira BANDEIRA DE LEITURA: fica gravado que existe ocorrência admissível
+        # em que este trafo é o interrompido — com o defeito de outro elemento identificado —
+        # mas a peneira continua exigindo defeito no próprio transformador. Quem quiser ver o
+        # que a regra plena mudaria abre o recorte da bandeira: são estes, um a um.
         r["oc_casou_por"] = casou_por
+        if melhor is None and jan_int:
+            perto_int = min(jan_int, key=lambda x: borda(ab, x))
+            r["int_na_janela"] = "SIM"
+            r["int_oc"] = perto_int["oc"]
+            r["int_def_ele"] = perto_int.get("def_ele") or ""
+            r["int_def_cod"] = perto_int.get("def_cod") or ""
+        else:
+            r["int_na_janela"] = "NÃO"
+            r["int_oc"] = None
+            r["int_def_ele"] = None
+            r["int_def_cod"] = None
         # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
         cand_at = [a for a in por_at.get(cod, []) if dentro(ab, a)]
         melhor_at = min(cand_at, key=lambda x: borda(ab, x)) if cand_at else None
@@ -1008,15 +1022,10 @@ def main():
         # com o defeito noutro elemento — unidade consumidora, chave, disjuntor.
         cand_int = [o for o in por_int.get(cod, []) if dentro(ab, o)]
         vizinho_int = min(cand_int, key=lambda x: borda(ab, x)) if cand_int else None
-        if melhor and casou_por == "defeito":
+        if melhor:
             r.update({"def_elemento": "TR", "def_ele_oc": None, "def_ele_causa": None,
                       "def_ele_sub": None, "def_ele_cod": None})
-        elif melhor and casou_por == "interrompido":
-            # a bandeira dele: o casamento veio pelo código do elemento interrompido, e o
-            # defeito desta ocorrência mora noutro elemento — fica escrito qual
-            r.update({"def_elemento": melhor.get("def_ele") or "", "def_ele_oc": melhor["oc"],
-                      "def_ele_causa": melhor.get("causa"), "def_ele_sub": melhor.get("sub"),
-                      "def_ele_cod": melhor.get("def_cod")})
+
         elif vizinho_int:
             r.update({"def_elemento": vizinho_int["def_ele"], "def_ele_oc": vizinho_int["oc"],
                       "def_ele_causa": vizinho_int["causa"], "def_ele_sub": vizinho_int["sub"],
@@ -1034,14 +1043,12 @@ def main():
                 "oc_dur_h": round((melhor["fim"] - melhor["ini"]).total_seconds() / 3600, 2)
                 if melhor["ini"] and melhor["fim"] else None,
                 "oc_cons": int(melhor["cons"]), "oc_causa": melhor["causa"], "oc_sub": melhor["sub"],
-                "oc_tipo": melhor.get("tipo"), "oc_prob_ele": ("TR" if casou_por == "defeito" else (melhor.get("def_ele") or "")), "oc_passos": melhor["passos"],
+                "oc_tipo": melhor.get("tipo"), "oc_prob_ele": "TR", "oc_passos": melhor["passos"],
                 "oc_dist_h": round(b / 3600, 2), "e1_delta_h": round(b / 3600, 2),
                 "oc_detalhe": sorted(melhor.get("detalhe", []), key=lambda x: parse(x["ini"]) or datetime.datetime.min),
                 "e1_nivel": "A" if b == 0 else "B", "e1_status": "SEGUE", "e1_sinais": "",
                 "chega_e2": "SIM", "fato": "F1",
-                "fato_texto": ("Fato pleno — a Crítica registra interrupção no próprio transformador dentro da janela"
-                               if casou_por == "defeito" else
-                               f"Fato pelo elemento interrompido — a Crítica registra ESTE transformador interrompido dentro da janela; o defeito foi aberto em {melhor.get('def_ele') or '?'} {melhor.get('def_cod') or ''}".rstrip()),
+                "fato_texto": "Fato pleno — a Crítica registra interrupção no próprio transformador dentro da janela",
             })
         elif tem_at:
             # Passa pelo atendimento, e por isso NÃO carrega ocorrência. Deixar o oc_num velho
