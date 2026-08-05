@@ -839,3 +839,6 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
    responde por que este caso está no indicador. */
 .passos-tabela tr.passo-meu { background: #fbf7f2; box-shadow: inset 3px 0 0 var(--red); }
 .passos-tabela .passo-marca { display: block; margin-top: 2px; color: var(--red); font-size: 7px; font-weight: 600; text-transform: uppercase; }
+
+/* O instante em que a equipe chegou, dentro da faixa do deslocamento. */
+.regua-chegou { position: absolute; top: 0; width: 2px; height: 11px; background: #fff; box-shadow: 0 0 0 1px var(--blue); }
