@@ -419,37 +419,73 @@ function ReguaTempos({ r, tm }: { r: Registro; tm?: TmaeTempo }) {
   const quanto = (ms: number) => `${(Math.max(ms, larg / 400) / larg) * 100}%`;
   const horas = (a?: number | null, b?: number | null) =>
     a && b ? `${Math.round(Math.abs(b - a) / H_MS)} h` : "";
+  /* Pedido dele: um traço no início e um tracinho no fim de cada barrinha, com a data e o
+     horário em negrito embaixo de cada um. O rótulo do início termina no traço e o do fim
+     começa nele — assim os dois nunca se atropelam, por mais curta que a barra seja; perto
+     das bordas do desenho a âncora inverte para o texto não vazar para fora. */
+  const pos = (t?: number | null) => (typeof t === "number" ? ((t - de) / larg) * 100 : null);
+  const riscos = (a?: number | null, b?: number | null) => <>
+    {typeof a === "number" ? <i className="t-risco" style={{ left: onde(a) }} /> : null}
+    {typeof b === "number" && b !== a ? <i className="t-risco" style={{ left: onde(b) }} /> : null}
+  </>;
+  const datas = (a: number | null | undefined, b: number | null | undefined, la: string, lb: string) => {
+    const pa = pos(a), pb = pos(b);
+    if (pa === null && pb === null) return null;
+    const anc = (p: number, ehIni: boolean) =>
+      p < 14 ? "translateX(0)" : p > 86 ? "translateX(-100%)" : ehIni ? "translateX(-100%)" : "translateX(0)";
+    /* Barra curta encostada numa borda joga os dois rótulos na mesma âncora — aí o do fim
+       desce para uma segunda linha em vez de escrever por cima do outro. */
+    const da = pa !== null ? anc(pa, true) : "";
+    const db = pb !== null ? anc(pb, false) : "";
+    const colide = pa !== null && pb !== null && b !== a && da === db && Math.abs(pb - pa) < 22;
+    return <div className={`tempos-datas${colide ? " duas" : ""}`}>
+      {pa !== null ? <b style={{ left: `${pa}%`, transform: da }}>{la}</b> : null}
+      {pb !== null && b !== a ? <b className={colide ? "linha2" : undefined} style={{ left: `${pb}%`, transform: db }}>{lb}</b> : null}
+    </div>;
+  };
   return <div className="tempos">
     <div className="tempos-faixa">
       <span className="tempos-nome">Crítica</span>
-      <div className="regua-trilho">
-        {oi && of ? <>
-          <span className="regua-antes" style={{ left: onde(oi - H_MS), width: quanto(H_MS) }} title="uma hora antes do primeiro passo" />
-          <span className="regua-oc" style={{ left: onde(oi), width: quanto(of - oi) }} title={`ocorrência ${dataBR(r.oc_ini)} → ${dataBR(r.oc_fim)}`} />
-          <span className="regua-depois" style={{ left: onde(of), width: quanto(24 * H_MS) }} title="vinte e quatro horas depois do último passo" />
-        </> : null}
+      <div className="tempos-eixo">
+        <div className="regua-trilho">
+          {oi && of ? <>
+            <span className="regua-antes" style={{ left: onde(oi - H_MS), width: quanto(H_MS) }} title="uma hora antes do primeiro passo" />
+            <span className="regua-oc" style={{ left: onde(oi), width: quanto(of - oi) }} title={`ocorrência ${dataBR(r.oc_ini)} → ${dataBR(r.oc_fim)}`} />
+            <span className="regua-depois" style={{ left: onde(of), width: quanto(24 * H_MS) }} title="vinte e quatro horas depois do último passo" />
+            {riscos(oi, of)}
+          </> : null}
+        </div>
+        {oi ? datas(oi, of, dataBR(r.oc_ini), dataBR(r.oc_fim)) : null}
       </div>
-      <span className="tempos-dado">{oi ? `${dataBR(r.oc_ini)} · ${horas(oi, of)}` : "sem ocorrência na Crítica"}</span>
+      <span className="tempos-dado">{oi ? horas(oi, of) : "sem ocorrência na Crítica"}</span>
     </div>
     <div className="tempos-faixa">
       <span className="tempos-nome">TMAE</span>
-      <div className="regua-trilho">
-        {ai && af ? <span className="regua-at" style={{ left: onde(ai), width: quanto(af - ai) }} title={tm ? `equipe saiu ${tm.saiu} · concluiu ${tm.concluiu}` : "janela da ocorrência — não há tempos reais do TMAE"} /> : null}
-        {chegou ? <b className="regua-chegou" style={{ left: onde(chegou) }} title={`a equipe chegou em ${chegou ? tm?.chegou : ""}`} /> : null}
+      <div className="tempos-eixo">
+        <div className="regua-trilho">
+          {ai && af ? <span className="regua-at" style={{ left: onde(ai), width: quanto(af - ai) }} title={tm ? `equipe saiu ${tm.saiu} · concluiu ${tm.concluiu}` : "janela da ocorrência — não há tempos reais do TMAE"} /> : null}
+          {ai && af ? riscos(ai, af) : null}
+          {chegou ? <b className="regua-chegou" style={{ left: onde(chegou) }} title={`a equipe chegou em ${chegou ? tm?.chegou : ""}`} /> : null}
+        </div>
+        {ai ? datas(ai, af, dataBR(tm ? tm.saiu : r.at_ini), dataBR(tm ? tm.concluiu : r.at_fim)) : null}
       </div>
       <span className="tempos-dado">{ai
-        ? `${tm ? tm.saiu : dataBR(r.at_ini)} · ${horas(ai, af)}${tm ? "" : " (janela da ocorrência)"}`
+        ? `${horas(ai, af)}${tm ? "" : " (janela da ocorrência)"}`
         : "sem atendimento registrado"}</span>
     </div>
     <div className="tempos-faixa">
       <span className="tempos-nome">SS</span>
-      <div className="regua-trilho">
-        {ab && te ? <span className={`regua-servico${te < ab ? " invertida" : ""}`}
-          style={{ left: onde(Math.min(ab, te)), width: quanto(Math.abs(te - ab)) }}
-          title={`SS ${dataBR(r.abertura)} → ${dataBR(r.termino)}`} /> : null}
-        {ab ? <b className="regua-ss dentro" style={{ left: onde(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} /> : null}
+      <div className="tempos-eixo">
+        <div className="regua-trilho">
+          {ab && te ? <span className={`regua-servico${te < ab ? " invertida" : ""}`}
+            style={{ left: onde(Math.min(ab, te)), width: quanto(Math.abs(te - ab)) }}
+            title={`SS ${dataBR(r.abertura)} → ${dataBR(r.termino)}`} /> : null}
+          {ab || te ? riscos(ab, te) : null}
+          {ab ? <b className="regua-ss dentro" style={{ left: onde(ab) }} title={`SS aberta em ${dataBR(r.abertura)}`} /> : null}
+        </div>
+        {ab ? datas(ab, te, dataBR(r.abertura), dataBR(r.termino)) : null}
       </div>
-      <span className="tempos-dado">{ab ? `${dataBR(r.abertura)} · ${horas(ab, te)}` : "sem abertura"}</span>
+      <span className="tempos-dado">{ab ? horas(ab, te) : "sem abertura"}</span>
     </div>
     {te && ab && te < ab ? <p className="tempos-aviso">O término está gravado ANTES da abertura — a faixa da SS anda para trás. É erro de cadastro de data, não de execução.</p> : null}
   </div>;
