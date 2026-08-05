@@ -1535,11 +1535,7 @@ export default function Page() {
          para o dono julgar um a um sem ter de caçá-los. */
       { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
       { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
-      /* Casos que a régua decidiu NÃO mexer e que merecem olho humano. Não são erro: são pontos
-         em que duas fontes de campo discordam e nenhuma está errada. Chegam aqui com etiqueta
-         para o dono julgar um a um, sem ter de caçá-los. */
-      { id: "claude_natureza", rotulo: "Marcados por mim · natureza divergente", nota: "Conta como queimado e a Crítica declara vazamento de óleo, falha de bucha ou tanque deteriorado — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima: a subcausa registra o defeito constatado, a obra registra o que foi trocado. A régua manteve o rótulo da obra e o total não muda; estes ficam aqui para você decidir caso a caso.", teste: (r) => texto(r.analise_claude) === "natureza divergente" },
-      { id: "claude_zero", rotulo: "Marcados por mim · zero que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência mais próxima no mesmo transformador interrompeu gente. O ativo atende cliente: o zero descreve o registro, não a rede.", teste: (r) => r.zero_e_registro === "SIM" },
+      { id: "claude_int", rotulo: "Marcados por mim · casariam pelo interrompido", nota: "Os três casos que a regra plena das duas colunas levaria ao indicador: não há ocorrência com defeito neste transformador, mas ele aparece como elemento INTERROMPIDO numa que cabe na janela, com prova de troca e sem ressalva. Ordem sua: ficam fora do indicador — os 1.305 não se movem — e vêm para cá, para o seu julgamento caso a caso.", teste: (r) => texto(r.analise_claude) === "casaria pelo interrompido" },
       { id: "sem_cliente", rotulo: "Marcados por você sem nenhum cliente interrompido", nota: "Você bateu o martelo e a ocorrência do caso não penalizou ninguém — nenhum cliente ficou sem energia em passo nenhum dela. Sua classificação manda no arquivamento, então estes entram no indicador; a lista existe para eles não entrarem calados.", teste: (r) => Boolean(classificacao[texto(r.ss)]) && r.sem_cliente_interrompido === "SIM" },
     ],
     ssos: [
@@ -1781,6 +1777,9 @@ export default function Page() {
 
   const filtraProfunda = (linha: Registro, recorte: string) => {
     const marca = classificacao[texto(linha.ss)];
+    /* Os recortes "marcados por mim" trazem casos que a régua etiquetou para o julgamento
+       dele — o caso chega aqui ANTES de ele classificar, senão a lista nasceria vazia. */
+    if (recorte === "claude_int") return texto(linha.analise_claude) === "casaria pelo interrompido";
     if (!marca) return false;
     if (recorte === "q") return marca.classe === "QUEIMADO";
     if (recorte === "a") return marca.classe === "AVARIADO";
@@ -3524,7 +3523,8 @@ export default function Page() {
             </section>
             <article className="source-text"><span>OBSERVAÇÃO REGISTRADA EM CAMPO</span><p>{texto(aberto.oc_obs) || "Sem observação."}</p></article>
             {texto(aberto.int_na_janela) === "SIM" ? <article className="work-alerts"><span>BANDEIRA — INTERROMPIDO NA JANELA, SÓ LEITURA</span>
-              <ul><li>Este transformador não casou pela coluna do defeito, mas aparece como elemento INTERROMPIDO na ocorrência {texto(aberto.int_oc)} — o defeito dela foi aberto em {ELEMENTO_ROTULO[texto(aberto.int_def_ele)] || texto(aberto.int_def_ele)} {texto(aberto.int_def_cod)}. A bandeira é para conferência e não move o caso: regras e método podem mudar, mas os 1.305 não.</li></ul></article> : null}
+              <ul><li>Este transformador não casou pela coluna do defeito, mas aparece como elemento INTERROMPIDO na ocorrência {texto(aberto.int_oc)} — o defeito dela foi aberto em {ELEMENTO_ROTULO[texto(aberto.int_def_ele)] || texto(aberto.int_def_ele)} {texto(aberto.int_def_cod)}. A bandeira é para conferência e não move o caso: regras e método podem mudar, mas os 1.305 não.</li>
+                {texto(aberto.analise_claude) === "casaria pelo interrompido" ? <li>Este é um dos três que a regra plena das duas colunas levaria ao indicador. Por ordem sua, fica fora da conta e vai para a sua análise profunda, no recorte "casariam pelo interrompido".</li> : null}</ul></article> : null}
             {aberto.oc_ini ? <article className="rationale"><span>A JANELA DESTE CASO</span>
               <ReguaJanela r={aberto} /></article> : null}
             {texto(aberto.vizinho) ? <article className="work-alerts"><span>TESTE DO VIZINHO</span><ul><li>{texto(aberto.vizinho)}</li></ul></article> : null}

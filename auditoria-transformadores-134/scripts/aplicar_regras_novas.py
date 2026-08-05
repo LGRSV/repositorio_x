@@ -980,6 +980,14 @@ def main():
             r["int_oc"] = None
             r["int_def_ele"] = None
             r["int_def_cod"] = None
+        # Ordem dele, dada depois de congelar o indicador: "leva esses 3 casos que entraram
+        # para análise profunda sem contar no indicador". São os três que a regra plena das
+        # duas colunas levava à saída — medidos contra a rodada do #60, e só eles: os outros
+        # sete da bandeira paravam em retenção ou já estavam retidos. Ficam onde a régua os
+        # deixou (fora do indicador) e chegam à análise profunda dele com etiqueta própria.
+        if r["int_na_janela"] == "SIM" and str(r.get("ss") or "").strip() in (
+                "DOLP-RD-PA 00125/2026", "ETO-RD-AR 00434/2026", "DG-RD-PO 00333/2026"):
+            r["analise_claude"] = "casaria pelo interrompido"
         # o atendimento é reprocurado no TMAE completo, não herdado do campo antigo
         cand_at = [a for a in por_at.get(cod, []) if dentro(ab, a)]
         melhor_at = min(cand_at, key=lambda x: borda(ab, x)) if cand_at else None
