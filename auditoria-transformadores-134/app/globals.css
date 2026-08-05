@@ -232,6 +232,25 @@ button { cursor: pointer; }
   .user-directory > div:last-child { grid-template-columns: 1fr 1fr; }.login-page { grid-template-columns: 1fr; }.login-intro { min-height: 46vh; }.login-panel { min-height: 54vh; }
   .origin-grid { grid-template-columns: 1fr; }
 }
+/* A GAVETA NO CELULAR. Ela abria e não dava para ler nada: cabeçalho, faixa de status, tira de
+   classificação e abas ocupavam mais que a tela inteira, e o corpo — o único bloco com rolagem —
+   começava a 826px numa tela de 664. Ficava fora da tela, e não havia o que arrastar.
+   A correção é deixar a GAVETA rolar como uma coluna só, em vez de rolar apenas o miolo dela: no
+   celular ninguém quer cabeçalho fixo comendo um terço da tela. O cabeçalho fica grudado no topo
+   para o botão de fechar continuar ao alcance, e o resto desce junto.
+   dvh e não vh: com vh o navegador do celular conta a área atrás da barra de endereço, e o pé da
+   gaveta fica embaixo dela. */
+@media (max-width: 820px) {
+  .drawer-layer { height: 100dvh; }
+  .drawer { width: 100vw; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .drawer > header { position: sticky; top: 0; z-index: 3; padding: 14px 16px; }
+  .drawer > header h2 { font-size: 18px; }
+  .drawer-status { flex-wrap: wrap; gap: 6px; padding: 8px 16px; }
+  .drawer > nav { position: sticky; top: 64px; z-index: 2; padding: 0 16px; }
+  /* o corpo deixa de ser o dono da rolagem: quem rola agora é a gaveta */
+  .drawer-body { flex: none; overflow: visible; padding: 18px 16px 90px; }
+  .classificar { padding: 10px 16px; }
+}
 @media (max-width: 540px) {
   .kpi-grid, .finance-kpis, .conference-panel .kpi-grid, .fluxo-kpis { grid-template-columns: 1fr; }.decision-sheet, .detail-grid { grid-template-columns: 1fr; }.decision-sheet > div:nth-child(odd), .detail-grid > div:nth-child(odd) { border-right: 0; }
   .manual-card { padding: 24px; }.check-list { grid-template-columns: 1fr; }.check-list > div + div { border-left: 0; border-top: 1px solid var(--line); }.finance-row { grid-template-columns: 1fr 90px 32px; }
@@ -492,6 +511,11 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .classificar-linha button.marcado.warn { border-color: var(--amber); background: var(--amber); color: #fff; }
 .classificar-linha button.marcado.bad { border-color: var(--red); background: var(--red); color: #fff; }
 .col-classificar > span { display: block; margin-top: 4px; color: #85888c; font-size: 7px; text-transform: uppercase; }
+/* Coluna das abas de insight: o número que a aba discute, no lugar dos botões de classificar. */
+.col-obra { min-width: 132px; }
+.col-obra strong { display: block; font: 600 11px "IBM Plex Mono", monospace; color: var(--ink); }
+.col-obra span { display: block; margin-top: 3px; color: #52565b; font-size: 8px; }
+.col-obra small { display: block; margin-top: 3px; color: #85888c; font-size: 7px; }
 
 /* O resultado da esteira: o número que a auditoria entrega, em destaque no topo. */
 

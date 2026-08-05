@@ -574,12 +574,13 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
     mapa: ["Fato", "Leitura", "Motivo"],
     regras: ["Fato", "Leitura", "Motivo"],
     bases: ["Fato", "Leitura", "Motivo"],
+    insight_valor: ["Fato", "Leitura", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
     <thead><tr>
       <th>Identificação</th><th>Data e local</th>
-      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th><th>Minha classificação</th>
+      <th>{colunas[0]}</th><th>{colunas[1]}</th><th>{colunas[2]}</th><th>Decisão</th><th>{modo === "insight_valor" ? "Obra e potência" : "Minha classificação"}</th>
     </tr></thead>
     <tbody>{linhas.map((r) => {
       /* A cor da linha diz de longe o que a coluna do motivo diz por escrito: este caso saiu do
@@ -670,13 +671,24 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar }: {
             "parou na 4" é a distância entre não ter prova nenhuma e ter prova com ressalva. */}
         <span className="etapa-flag" title={texto(r.etapa_rotulo)}>{r.etapa_num === 5 ? "✓ saiu pela ponta" : r.etapa_num === 0 ? "não entrou na esteira" : `parou na etapa ${texto(r.etapa_num)}`}</span>
       </td>
-      <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
-        <div className="classificar-linha">{CLASSES_CURTAS.map(([id, curto, tom]) => <button key={id} type="button"
-          title={id}
-          className={classificacoes[texto(r.ss)]?.classe === id ? `marcado ${tom}` : tom}
-          onClick={() => aoClassificar(texto(r.ss), id)}>{curto}</button>)}</div>
-        {classificacoes[texto(r.ss)] ? <span>{classificacoes[texto(r.ss)].classe.toLowerCase()}</span> : null}
-      </td>
+      {/* Nas abas de insight a última coluna não classifica: mostra o que a aba está discutindo.
+          Ordem dele — "ao invés de trazer classificações nessa parte da listagem traga o valor
+          da obra e potência do trafo". E tem efeito de usabilidade: no celular a coluna de
+          botões é a que fica debaixo do polegar depois de arrastar a tabela para o lado, e o
+          toque que devia abrir o dossiê acabava classificando o caso. */}
+      {modo === "insight_valor"
+        ? <td className="col-obra">
+            <strong>{r.obra_realizado ? `R$ ${Math.round(Number(r.obra_realizado)).toLocaleString("pt-BR")}` : "sem valor"}</strong>
+            <span>{(() => { const k = kvaEscrito(texto(r.desc_ss)); return k ? `${String(k).replace(".", ",")} kVA escritos na SS` : "a SS não escreveu potência"; })()}</span>
+            <small>campo: {texto(r.pot_ret) || "—"} → {texto(r.pot_inst) || "—"} kVA{r.trafos_material ? ` · ${texto(r.trafos_material)} no material` : ""}</small>
+          </td>
+        : <td className="col-classificar" onClick={(e) => e.stopPropagation()}>
+            <div className="classificar-linha">{CLASSES_CURTAS.map(([id, curto, tom]) => <button key={id} type="button"
+              title={id}
+              className={classificacoes[texto(r.ss)]?.classe === id ? `marcado ${tom}` : tom}
+              onClick={() => aoClassificar(texto(r.ss), id)}>{curto}</button>)}</div>
+            {classificacoes[texto(r.ss)] ? <span>{classificacoes[texto(r.ss)].classe.toLowerCase()}</span> : null}
+          </td>}
     </tr>;
     })}</tbody>
   </table></div>;
