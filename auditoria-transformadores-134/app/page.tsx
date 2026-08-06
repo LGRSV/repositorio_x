@@ -528,16 +528,19 @@ function BarrasCausa({ dados, aoSelecionar }: {
   const max = Math.max(...dados.map((d) => d.total), 1);
   return <div className="bar-list">
     {dados.map((d) => {
+      /* A barra de cima mede TAMANHO — cada faixa contra a maior delas. A de baixo mede
+         COMPOSIÇÃO e por isso ocupa a linha inteira: dividir 6 avariados pela escala global
+         dava uma fatia de dois pixels, e ele reclamou com razão de o azul não aparecer.
+         Aqui os 6 viram 5% de uma barra cheia, que se enxerga. */
+      const soma = d.q + d.a || 1;
       const corpo = <>
         <div><span>{d.label}</span><strong>{br(d.total)}</strong></div>
         <i><b style={{ width: `${(d.total / max) * 100}%` }} /></i>
         <i className="bar-causa">
-          {/* piso de 5px: com 6 avariados contra 119 queimados a fatia azul sumia, e sumir
-              é o contrário do que a barra existe para fazer */}
-          {d.q ? <b className="q" style={{ width: `${(d.q / max) * 100}%`, minWidth: 5 }} title={`${br(d.q)} queimados`} /> : null}
-          {d.a ? <b className="a" style={{ width: `${(d.a / max) * 100}%`, minWidth: 5 }} title={`${br(d.a)} avariados`} /> : null}
+          {d.q ? <b className="q" style={{ width: `${(d.q / soma) * 100}%` }} title={`${br(d.q)} queimados`} /> : null}
+          {d.a ? <b className="a" style={{ width: `${(d.a / soma) * 100}%`, minWidth: 14 }} title={`${br(d.a)} avariados`} /> : null}
         </i>
-        <small><em className="leg-q" /> {br(d.q)} queimado{d.q === 1 ? "" : "s"} · <em className="leg-a" /> {br(d.a)} avariado{d.a === 1 ? "" : "s"}</small>
+        <small><em className="leg-q" /> {br(d.q)} queimado{d.q === 1 ? "" : "s"} · <em className="leg-a" /> {br(d.a)} avariado{d.a === 1 ? "" : "s"} ({pct(d.a, soma)}%)</small>
       </>;
       return aoSelecionar
         ? <button type="button" className="bar-row" key={d.label} onClick={() => aoSelecionar(d.label)}>{corpo}</button>
@@ -1047,6 +1050,10 @@ export default function Page() {
   const [aterr, setAterr] = useState<Record<string, Aterramento>>({});
   const [terceiros, setTerceiros] = useState<Record<string, { n: number; fontes: { campo: string; valor: string }[] }>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
+  /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
+     serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
+     Ele manda no gráfico, nos chips e na tabela ao mesmo tempo. */
+  const [terraQuando, setTerraQuando] = useState<"antes" | "depois">("antes");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
      mesma aplicação com outro menu. Por isso a primeira aba dela é o MESMO módulo da tela de
@@ -1420,15 +1427,23 @@ export default function Page() {
      apresentar a correção como se fosse a condição que matou o equipamento. */
   const LIMITE_TERRA = 25, GRAVE_TERRA = 100;
   const terraDe = (r: Registro) => aterr[texto(r.ss)];
+  const piorTerra = (r: Registro) => {
+    const a = terraDe(r);
+    if (!a) return null;
+    return terraQuando === "antes" ? a.pior : a.pior_depois;
+  };
   const faixaTerra = (r: Registro): "sem" | "so_depois" | "bom" | "limite" | "acima" | "grave" => {
     const a = terraDe(r);
-    if (a?.so_depois) return "so_depois";
-    if (!a || !a.medido || a.pior == null) return "sem";
-    if (a.pior <= 10) return "bom";
-    if (a.pior <= LIMITE_TERRA) return "limite";
-    if (a.pior <= GRAVE_TERRA) return "acima";
+    if (!a) return "sem";
+    const v = piorTerra(r);
+    // tem o número do OUTRO momento, não deste: faixa própria, nunca contado como bom
+    if (v == null) return (terraQuando === "antes" ? a.depois.length : a.antes.length) ? "so_depois" : "sem";
+    if (v <= 10) return "bom";
+    if (v <= LIMITE_TERRA) return "limite";
+    if (v <= GRAVE_TERRA) return "acima";
     return "grave";
   };
+  const OUTRO_MOMENTO = terraQuando === "antes" ? "Só mediram DEPOIS do serviço" : "Só mediram ANTES do serviço";
   const fezMelhoria = (r: Registro) => texto(terraDe(r)?.melhoria).toUpperCase().startsWith("S");
   const paraRever = (r: Registro) => {
     const fila: { id: string; motivo: string; detalhe: string }[] = [];
@@ -1622,7 +1637,7 @@ export default function Page() {
     ],
     /* O aterramento medido pela própria equipe, na hora da troca. Só olha. */
     insight_aterramento: [
-      { id: "terra_so_depois", rotulo: "Só mediram depois do serviço", nota: "O formulário traz medição posterior ao serviço, mas nenhuma anterior. Não dá para dizer em que condição o transformador queimou: o número que existe descreve o ponto JÁ mexido. Ficam fora das faixas por isso — contar a correção como estado original seria inverter a história do caso.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "so_depois" },
+      { id: "terra_so_depois", rotulo: OUTRO_MOMENTO, nota: "Estes só têm o número do outro momento — o que você não está vendo agora. Ficam fora das faixas de propósito: dizer que o ponto estava bom antes usando a medição de depois da melhoria seria apresentar o conserto como se fosse a condição que matou o equipamento, e o contrário também vale.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "so_depois" },
       { id: "terra_grave", rotulo: "Aterramento grave — acima de 100 Ω", nota: "A pior das três hastes medidas ANTES do serviço passa de 100 Ω, quatro vezes o limite usual da norma. Nestes pontos o aterramento praticamente não existe: a corrente de descarga não tem para onde ir e sobra para o equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "grave" },
       { id: "terra_acima", rotulo: "Acima da norma — 25 a 100 Ω", nota: "A medição de antes do serviço passa do limite usual de 25 Ω sem chegar ao extremo. Merece melhoria programada no ponto.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "acima" },
       { id: "terra_ruim_sem_melhoria", rotulo: "Mediu ruim e NÃO fez melhoria", nota: "A equipe mediu acima de 25 Ω ANTES do serviço, escreveu o número no formulário da OS e respondeu NÃO à pergunta “fez melhoria de aterramento”. O ponto continua como estava, e o transformador novo foi instalado ali. É a lista que vira plano de ação.", teste: (r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r) },
@@ -3391,15 +3406,26 @@ export default function Page() {
           barra("Acima da norma — 25 a 100 Ω", "acima", "terra_acima"),
           barra("No limite — 10 a 25 Ω", "limite", "terra_limite"),
           barra("Bom — até 10 Ω", "bom", "terra_bom"),
-          barra("Só mediram depois do serviço", "so_depois", "terra_so_depois"),
+          barra(OUTRO_MOMENTO, "so_depois", "terra_so_depois"),
           barra("Não preenchido — vazio ou zero", "sem", "terra_sem"),
         ];
         return <>
           <section className="panel">
-            <div className="panel-title"><div><span>A pior das três hastes, medida ANTES do serviço</span><h2>{br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou</h2></div><small>de {br(ruins.length)} acima de 25 Ω · {br(medidos.length)} com medição anterior · {br(naConta.length)} no total</small></div>
+            <div className="panel-title"><div><span>A pior das três hastes · medição {terraQuando === "antes" ? "ANTES" : "DEPOIS"} do serviço</span><h2>{terraQuando === "antes"
+              ? `${br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou`
+              : `${br(ruins.length)} continuaram acima da norma DEPOIS do serviço`}</h2></div><small>de {br(ruins.length)} acima de 25 Ω · {br(medidos.length)} com medição anterior · {br(naConta.length)} no total</small></div>
+            <div className="terra-toggle" role="group" aria-label="momento da medição">
+              {(["antes", "depois"] as const).map((k) => <button key={k} type="button"
+                className={terraQuando === k ? "ativo" : ""} onClick={() => { setTerraQuando(k); setRecorte(null); }}
+                title={k === "antes" ? "A medição feita ANTES do serviço: o estado em que o transformador queimou." : "A medição feita DEPOIS do serviço: o ponto já mexido pela equipe."}>
+                {k === "antes" ? "medição ANTES do serviço" : "medição DEPOIS do serviço"}</button>)}
+              <span>{terraQuando === "antes"
+                ? "o estado em que o transformador queimou"
+                : "o ponto já mexido — serve para ver o que a melhoria mudou"}</span>
+            </div>
             <BarrasCausa dados={BARRAS}
               aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
-            <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS, antes e depois do serviço. Vale a <strong>pior</strong> das três e a <strong>de antes</strong>: a corrente de descarga procura o pior caminho, e a medição posterior já é o ponto consertado. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}.</p>
+            <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS, antes e depois do serviço. Vale a <strong>pior</strong> das três e a <strong>de antes</strong>: a corrente de descarga procura o pior caminho, e a medição posterior já é o ponto consertado. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}. {terraQuando === "depois" ? "Você está vendo o ponto DEPOIS do serviço: o que continua alto aqui é o que a equipe deixou como estava." : ""}</p>
           </section>
           <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
             <p><strong>Quase um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} com medição anterior ao serviço, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
