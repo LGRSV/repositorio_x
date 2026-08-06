@@ -987,6 +987,11 @@ export default function Page() {
      noutra cor, e dizer "o atendimento cabe dentro da ocorrência" era quase tautologia.
      Estes vêm da base do TMAE: quando a equipe saiu, quando chegou e quando concluiu. */
   const [tmae, setTmae] = useState<Record<string, TmaeTempo>>({});
+  /* FURTO, ABALROAMENTO E DANO DE TERCEIRO — o que cada base diz, campo a campo. A pergunta
+     dele: "além das descrições da obra tem mais algum outro campo que confirma isso?". Tem
+     seis, em quatro bases, e o mais forte deles é o PROVÁVEL MOTIVO DO DEFEITO, formulário que
+     a equipe preenche no poste. gerar_terceiros.py explica cada um. */
+  const [terceiros, setTerceiros] = useState<Record<string, { n: number; fontes: { campo: string; valor: string }[] }>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
@@ -1097,6 +1102,8 @@ export default function Page() {
       .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
     fetch(assetUrl("tmae-tempos.json")).then((r) => r.json())
       .then((d) => setTmae(d?.por_ss || {})).catch(() => setTmae({}));
+    fetch(assetUrl("terceiros.json")).then((r) => r.json())
+      .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1341,10 +1348,22 @@ export default function Page() {
      régua sabe marcar — natureza divergente, bandeira do interrompido, zero do registro, data
      impossível — continuam vivos nos seus lugares (aba de classificação, aba Tempos, aba
      Interrupção) e voltam para cá quando ele mandar. Aqui fica só o bloco que ele abriu. */
+  /* FURTO, ABALROAMENTO E DANO DE TERCEIRO. Ordem dele: "traga esses 5 casos". São os que têm
+     TRÊS OU MAIS campos independentes dizendo a mesma coisa — de 16 que aparecem em alguma
+     base dentro dos 1.305. Uma fonte sozinha não condena: o formulário pode ter sido preenchido
+     no chute e o carimbo da obra é escolha contábil. Três ou mais é outra conversa. */
+  const MIN_FONTES = 3;
+  const terceiroDe = (r: Registro) => terceiros[texto(r.ss)];
   const paraRever = (r: Registro) => {
     const fila: { id: string; motivo: string; detalhe: string }[] = [];
     const c = revisaoCarga(r);
     if (c && !c.jaBate) fila.push({ id: "carga", motivo: `Texto diz ${c.marcas.join(" · ")} — a Crítica gravou "${texto(r.oc_sub).toLowerCase() || "nada"}"`, detalhe: c.trecho });
+    const ter = terceiroDe(r);
+    if (ter && ter.n >= MIN_FONTES) fila.push({
+      id: "terceiro",
+      motivo: `Furto, abalroamento ou dano de terceiro — ${ter.n} campos confirmam`,
+      detalhe: ter.fontes.map((f) => `${f.campo}: ${f.valor}`).join(" · "),
+    });
     return fila;
   };
 
@@ -1528,6 +1547,7 @@ export default function Page() {
     /* A fila de revisão detalhada: só olha, e cada chip é um motivo de leitura. */
     insight_revisao: [
       { id: "rev_todos", rotulo: "Tudo que pedi para você reler", nota: "Toda solicitação dos 1.305 em que alguma fonte discorda de outra, ou em que o texto de campo descreve coisa que a Crítica não gravou. Nada aqui foi movido — é fila de leitura para o seu martelo.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0 },
+      { id: "rev_terceiro", rotulo: "Furto, abalroamento ou dano de terceiro", nota: "Casos em que TRÊS OU MAIS campos independentes — o formulário que a equipe preenche na OS, o defeito da SS, a origem, o carimbo contábil da obra, a descrição livre do cadastro, a causa da Crítica ou a do TMAE — dizem furto, abalroamento, vandalismo ou dano causado por terceiro. Dentro dos 1.305 há 16 com pelo menos um campo assim; estes são os que várias bases confirmam. Furto é motivo de exclusão do indicador, e dano de terceiro abre discussão de ressarcimento: os dois merecem o seu martelo caso a caso.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "terceiro") },
       { id: "rev_carga", rotulo: "Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", nota: "Quem esteve no poste escreveu tap submerso, defeito interno, sobrecarga ou tensão fora do normal, e a subcausa gravada na Crítica é outra — descarga atmosférica, vazamento, RD de AT. Ordem dele a partir da DG-RD-PO 00422: estes deveriam ser lidos como sobrecarga ou regulação, e não como o que a Crítica gravou. A palavra “tap” sozinha não conta: ela aparece como campo de formulário da OS em 588 casos; só entra quando vem com defeito — submerso, queimado, danificado.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "carga") },
     ],
     /* Quem divide o mesmo evento: também só olha. */
@@ -3260,6 +3280,9 @@ export default function Page() {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
         const fila = naConta.map((r) => ({ r, motivos: paraRever(r) })).filter((x) => x.motivos.length);
         const doCarga = fila.filter((x) => x.motivos.some((m) => m.id === "carga"));
+        const doTerceiro = fila.filter((x) => x.motivos.some((m) => m.id === "terceiro"))
+          .sort((a, b) => (terceiroDe(b.r)?.n || 0) - (terceiroDe(a.r)?.n || 0));
+        const comAlgumaFonte = naConta.filter((r) => terceiroDe(r)).length;
         /* Só o bloco do tap, por ordem dele. As barras são as MARCAS que cada caso trouxe —
            tap, defeito interno, sobrecarga, tensão —, e não os motivos da fila inteira. */
         const marca = (p: RegExp) => doCarga.filter(({ r }) => p.test(`${texto(r.desc_ss)} ${texto(r.desc_os)}`)).length;
@@ -3270,6 +3293,17 @@ export default function Page() {
           ["Tensão fora do normal", marca(TXT_TENSAO), "rev_carga"],
         ] as [string, number, string][]).filter(([, v]) => v > 0);
         return <>
+          <section className="panel"><div className="panel-title"><div><span>Furto, abalroamento e dano de terceiro</span><h2>{br(doTerceiro.length)} casos com três ou mais campos confirmando</h2></div><small>{br(comAlgumaFonte)} têm pelo menos um campo · ordenados por quantas fontes batem</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>Fontes que confirmam</th><th>Campo a campo</th></tr></thead>
+              <tbody>{doTerceiro.map(({ r }) => { const ter = terceiroDe(r); return <tr key={texto(r.ss)} onClick={() => { setAberto(r); setAbaDossie("tempos"); }} style={{ cursor: "pointer" }}>
+                <td><strong>{texto(r.ss)}</strong><span>trafo {texto(r.trafo)}</span><small>hoje conta como {texto(r.confirmado).toLowerCase() || "—"}</small></td>
+                <td><b className="pill bad">{ter?.n} campos</b><span>Crítica diz: {texto(r.oc_sub).toLowerCase() || "—"}</span></td>
+                <td>{(ter?.fontes || []).map((f, i) => <p key={i} className="rev-motivo"><b>{f.campo}:</b> {f.valor}</p>)}</td>
+              </tr>; })}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">Uma fonte sozinha não condena — o formulário da equipe pode ter sido preenchido no chute, e o carimbo da obra é escolha contábil feita depois da execução. Por isso a lista mostra só quem tem três ou mais campos independentes dizendo o mesmo; dentro dos 1.305 há {br(comAlgumaFonte)} com pelo menos um. <strong>Furto é motivo de exclusão</strong> do indicador e <strong>dano de terceiro abre discussão de ressarcimento</strong> — nenhum deles foi movido aqui: o martelo é seu. Abrindo o caso, os campos aparecem no topo do dossiê, antes das réguas de tempo.</p>
+          </section>
           <section className="panel">
             <div className="panel-title"><div><span>A fila que eu montei</span><h2>{br(doCarga.length)} solicitações pedem uma segunda leitura sua</h2></div><small>de {br(naConta.length)} · o que o campo escreveu e a Crítica não gravou</small></div>
             <Barras total={doCarga.length} dados={BARRAS.map(([label, value]) => ({ label, value }))} />
@@ -3579,6 +3613,13 @@ export default function Page() {
           className={`${abaDossie === id ? "active" : ""} no-caps`.trim()} onClick={() => setAbaDossie(id)}>{rotulo}</button>)}</nav>
         <div className="drawer-body">
           {abaDossie === "tempos" && <>
+            {/* Ordem dele: "no card traga esses campos que confirmam na frente dos tempos".
+                Vem ANTES das réguas porque é a leitura que muda a conversa sobre o caso — se
+                furto ou dano de terceiro se confirma, a discussão deixa de ser sobre a hora em
+                que a equipe chegou. Cada linha diz de qual base e de qual campo veio. */}
+            {terceiroDe(aberto) ? <article className="work-alerts danger"><span>FURTO, ABALROAMENTO OU DANO DE TERCEIRO — {terceiroDe(aberto)!.n} CAMPO{terceiroDe(aberto)!.n > 1 ? "S" : ""} CONFIRMA{terceiroDe(aberto)!.n > 1 ? "M" : ""}</span>
+              <ul>{terceiroDe(aberto)!.fontes.map((f, i) => <li key={i}><strong>{f.campo}:</strong> {f.valor}</li>)}
+                <li>A Crítica gravou <strong>{texto(aberto.oc_sub).toLowerCase() || "nada"}</strong> — ela classifica o desligamento, não o equipamento. Nada aqui move o caso: furto sai do indicador e dano de terceiro abre ressarcimento, mas quem decide é você, na aba de classificação.</li></ul></article> : null}
             <h3>Os três tempos deste caso</h3>
             <p className="fonte-detalhe">As três bases no MESMO eixo: o que a Crítica registra, quando a equipe esteve lá e quanto tempo a solicitação ficou aberta. É o eixo compartilhado que faz a leitura — a ordem dos eventos e a distância entre eles se leem de relance.</p>
             <ReguaTempos r={aberto} tm={tmae[texto(aberto.ss)]} />
