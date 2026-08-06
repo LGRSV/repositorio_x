@@ -859,3 +859,7 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .bar-row small em { display: inline-block; width: 8px; height: 8px; margin-right: 2px; vertical-align: baseline; }
 .bar-row small em.leg-q { background: #a9d6a0; }
 .bar-row small em.leg-a { background: #1f3a6e; }
+.terra-toggle { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+.terra-toggle button { padding: 6px 12px; border: 1px solid var(--soft); background: #fff; color: #5b6577; font: 600 8px "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.terra-toggle button.ativo { background: var(--ink); color: #fff; border-color: var(--ink); }
+.terra-toggle span { color: #7d8189; font-size: 8px; }
