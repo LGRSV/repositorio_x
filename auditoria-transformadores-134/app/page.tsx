@@ -778,7 +778,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe, reincDe2 }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe, reincDe2, terraQuando = "antes" }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -795,6 +795,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   revisaoDe?: (r: Registro) => { id: string; motivo: string; detalhe: string }[];
   terraDe?: (r: Registro) => Aterramento | undefined;
   reincDe2?: (r: Registro) => { dias: number; anterior: Registro; ordem: number; total: number } | undefined;
+  terraQuando?: "antes" | "depois";
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -905,11 +906,15 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       </>}
 
       {modo === "insight_aterramento" && <>
-        <td>{terra?.medido && terra.pior != null
-          ? <><strong>{terra.pior.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω</strong>
-              <span>pior das {(terra.antes.length || terra.depois.length)} haste{(terra.antes.length || terra.depois.length) > 1 ? "s" : ""} · {(terra.antes.length ? terra.antes : terra.depois).map((x) => `${x.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}`).join(" · ")} Ω</span>
-              <small>{terra.pior > 100 ? "grave — acima de 100 Ω" : terra.pior > 25 ? "acima da norma" : terra.pior > 10 ? "no limite" : "bom"}</small></>
-          : <><strong>não preenchido</strong><span>formulário em branco ou zerado</span><small>zero não é medição</small></>}</td>
+        {/* Ordem dele: "traga os campos de medição nessa aba, antes e depois, dos que tiverem".
+            As três leituras aparecem uma a uma — X1, X2 e X3 —, porque é o trio que conta a
+            história: 1.448 Ω numa haste e 1,2 Ω noutra não é o mesmo caso que três medições
+            de 20 Ω, e a média esconderia isso. */}
+        <td>{terra && (terra.antes.length || terra.depois.length) ? <>
+          {terra.antes.length ? <p className="terra-linha"><b>antes</b> {terra.antes.map((x, i) => <em key={i} className={x > 100 ? "grave" : x > 25 ? "alto" : ""}>X{i + 1} {x.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω</em>)}</p> : <p className="terra-linha"><b>antes</b> <em>não preenchido</em></p>}
+          {terra.depois.length ? <p className="terra-linha"><b>depois</b> {terra.depois.map((x, i) => <em key={i} className={x > 100 ? "grave" : x > 25 ? "alto" : ""}>X{i + 1} {x.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω</em>)}</p> : <p className="terra-linha"><b>depois</b> <em>não preenchido</em></p>}
+          <small>vale a pior: {(terraQuando === "antes" ? terra.pior : terra.pior_depois)?.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) || "—"} Ω</small>
+        </> : <><strong>não preenchido</strong><span>formulário em branco ou zerado nas três hastes</span><small>zero não é medição</small></>}</td>
         <td><b className={`pill ${texto(terra?.melhoria).toUpperCase().startsWith("S") ? "ok" : "bad"}`}>{texto(terra?.melhoria).toUpperCase().startsWith("S") ? "fez melhoria" : "sem melhoria"}</b>
           {terra?.pior_depois != null && terra?.pior != null && terra.pior_depois < terra.pior ? <span>caiu para {terra.pior_depois.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω depois</span> : null}
           <small>{texto(terra?.conectado).toUpperCase().startsWith("N") ? "NÃO conectado ao tanque" : texto(terra?.conectado) ? "conectado ao tanque" : ""}</small></td>
@@ -3523,6 +3528,8 @@ export default function Page() {
           <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
             <p><strong>Quase um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} com medição anterior ao serviço, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
             <p>O que <strong>não</strong> dá para dizer: que o aterramento ruim explica a queima por raio. Cruzei, e ele não separa — entre os queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 32%. Quem apresentar isso como causa provada vai ser desmentido na primeira pergunta. O achado é de <strong>manutenção</strong>, não de causalidade: existe um cadastro de pontos ruins, medido pela própria equipe, e ele não virou serviço.</p>
+            <p><strong>São três medições, e elas são de pontos diferentes.</strong> As colunas X1, X2 e X3 do formulário não são a mesma leitura repetida: em apenas 7% dos casos as três vêm iguais, e a razão entre a maior e a menor tem mediana de 1,3× — mas chega a 405× em casos como 1.448 Ω numa haste e 1,2 Ω noutra. Por isso a régua usa a <strong>pior</strong>: aterramento é caminho, e o pior caminho é o que define o que sobra para o equipamento. Se a régua usasse a média, os fora da norma cairiam de 228 para 185; se usasse a melhor das três, para 153. A escolha é conservadora de propósito, e está dita aqui para quem quiser refazer a conta.</p>
+            <p><strong>E o que aconteceu com os ruins depois do serviço.</strong> Dos {br(228)} que estavam acima de 25 Ω antes, {br(193)} têm medição posterior: <strong>165 continuaram acima</strong> — 159 deles queimados — e só <strong>28 caíram para dentro da norma</strong>. Os outros 35 não foram medidos de novo. É a mesma história por outro ângulo: a equipe volta ao poste, mede, e o ponto continua como estava.</p>
             <p><strong>A medição que vale é a de ANTES do serviço</strong>, e é dele a correção. A de depois descreve o ponto já mexido: usá-la seria apresentar o conserto como se fosse a condição que matou o equipamento. Por isso {br(q((r) => faixaTerra(r) === "so_depois"))} solicitações que só trazem o número posterior ficam em faixa própria, fora das cinco. Entre as que têm as duas medições, {br(naConta.filter((r) => { const a = terraDe(r); return Boolean(a?.antes.length && a?.depois.length && Math.max(...a.antes) === Math.max(...a.depois)); }).length)} repetem o mesmo número nos dois campos — a equipe copiou, o que é coerente com não ter feito melhoria.</p>
             <p><strong>Zero não é medição.</strong> {br(q((r) => faixaTerra(r) === "sem"))} solicitações vieram com as três hastes vazias ou zeradas, e elas contam aqui como <em>não preenchido</em> — nunca como bom. Resistência zero não existe num aterramento de distribuição: é campo em branco lançado como zero, e somá-lo ao grupo bom empurraria a mediana para baixo e diria que o parque está bem aterrado quando ninguém mediu.</p>
             <p>Onde a melhoria foi feita, ela aparece: em <strong>{br(q((r) => { const a = terraDe(r); return Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); }))}</strong> casos a medição de depois é menor que a de antes — há quedas de 6.105 Ω para 967 Ω. O formulário serve; o que falta é a ordem de serviço depois dele.</p>
@@ -3762,7 +3769,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} terraQuando={terraQuando} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
