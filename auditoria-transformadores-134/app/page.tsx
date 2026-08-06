@@ -23,6 +23,14 @@ type TmaeTempo = {
   tmp: string; tmd: string; tme: string; tma: string; equipe: string; ele: string; ele_t: string;
   mesmo_ativo: boolean;
 };
+type OrdemReforma = {
+  op: string; data: string; tipo: string; triagem: string; status: string;
+  serie: string; tombamento: string; fabricante: string; descricao: string;
+  reformadora: string; motivo: string; sucateamento: string; obs: string;
+  material: string; mao_obra: string; custo: string;
+  dias_producao: string; dias_total: string; elo: string; oleo: string; comutador: string;
+  via: string; codigo: string; nao_queimado: boolean;
+};
 type Aterramento = {
   antes: number[]; depois: number[]; pior: number | null; pior_depois: number | null;
   medido: boolean; so_depois: boolean; melhoria: string; conectado: string;
@@ -45,7 +53,7 @@ type Modulo =
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
-  | "insight_revisao" | "insight_aterramento" | "insight_reincidencia";
+  | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -778,7 +786,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe, reincDe2, terraQuando = "antes" }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe, reincDe2, terraQuando = "antes", reformaDe2 }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -796,6 +804,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   terraDe?: (r: Registro) => Aterramento | undefined;
   reincDe2?: (r: Registro) => { dias: number; anterior: Registro; ordem: number; total: number } | undefined;
   terraQuando?: "antes" | "depois";
+  reformaDe2?: (r: Registro) => OrdemReforma | undefined;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -820,6 +829,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_revisao: ["O que pede revisão", "O que a Crítica gravou", "Trecho que denunciou"],
     insight_aterramento: ["Aterramento medido", "Melhoria e conexão", "O que a Crítica gravou"],
     insight_reincidencia: ["Quanto tempo depois", "A troca anterior", "O que a Crítica gravou"],
+    insight_naoqueimado: ["A bancada da reformadora", "Ordem de produção e custo", "O que a Crítica gravou"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -839,6 +849,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const mat = materialDe ? materialDe(r) : undefined;
       const terra = terraDe ? terraDe(r) : undefined;
       const rec = reincDe2 ? reincDe2(r) : undefined;
+      const op = reformaDe2 ? reformaDe2(r) : undefined;
       const ssNaObra = ssNaObraDe ? ssNaObraDe(r) : 1;
       const estado = estadoDe ? estadoDe(r) : "";
       const pOc = parceirasOcDe ? parceirasOcDe(r) : [];
@@ -893,6 +904,14 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           <span>{ficha?.tombamento ? `tombamento ${ficha.tombamento}` : ""}</span>
           <small>{ficha?.ns_instalado ? `instalado: série ${ficha.ns_instalado}` : ""}</small></td>
         <td><p className="clip">{texto(r.desc_ss).slice(0, 180)}</p></td>
+      </>}
+
+      {modo === "insight_naoqueimado" && <>
+        <td>{op ? <><strong className={op.nao_queimado ? "nq-forte" : undefined}>{op.motivo || "motivo não declarado"}</strong>
+          <span>triagem {op.triagem.toLowerCase()} · {op.status.toLowerCase()}</span>
+          <small>{op.descricao.slice(0, 44)}</small></> : <><strong>sem ordem de produção</strong><span>não casou com a base da reformadora</span></>}</td>
+        <td>{op ? <><strong>OP {op.op}</strong><span>{op.custo ? `R$ ${op.custo}` : "sem custo"}{op.dias_total ? ` · ${op.dias_total} dias fora` : ""}</span><small>casou pelo {op.via}</small></> : <span>—</span>}</td>
+        <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
       </>}
 
       {modo === "insight_reincidencia" && <>
@@ -1066,6 +1085,10 @@ export default function Page() {
      aterramento conectado ao tanque. Zero é NÃO PREENCHIDO, ordem dele — resistência zero não
      existe em campo. gerar_aterramento.py explica por que vale a pior das três hastes. */
   const [aterr, setAterr] = useState<Record<string, Aterramento>>({});
+  /* AS ORDENS DE PRODUÇÃO DA REFORMADORA. 838 equipamentos que foram para a bancada, com o
+     motivo declarado por quem ABRIU o transformador — e um dos códigos é NQM, não queimado.
+     gerar_reformadora.py explica o casamento por série e por tombamento. */
+  const [reforma, setReforma] = useState<Record<string, OrdemReforma>>({});
   const [terceiros, setTerceiros] = useState<Record<string, { n: number; fontes: { campo: string; valor: string }[] }>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
@@ -1181,6 +1204,8 @@ export default function Page() {
       .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
     fetch(assetUrl("tmae-tempos.json")).then((r) => r.json())
       .then((d) => setTmae(d?.por_ss || {})).catch(() => setTmae({}));
+    fetch(assetUrl("reformadora.json")).then((r) => r.json())
+      .then((d) => setReforma(d?.por_ss || {})).catch(() => setReforma({}));
     fetch(assetUrl("aterramento.json")).then((r) => r.json())
       .then((d) => setAterr(d?.por_ss || {})).catch(() => setAterr({}));
     fetch(assetUrl("terceiros.json")).then((r) => r.json())
@@ -1470,6 +1495,11 @@ export default function Page() {
   }, [registros, classificacao]);
   const reincDe = (r: Registro) => reincidencia[texto(r.ss)];
 
+  /* O QUE A BANCADA DISSE. reformaDe traz a ordem de produção daquele ativo; naoQueimado é o
+     código NQM, escrito por quem abriu o equipamento na reformadora. */
+  const reformaDe = (r: Registro) => reforma[texto(r.ss)];
+  const naoQueimado = (r: Registro) => Boolean(reformaDe(r)?.nao_queimado);
+
   const LIMITE_TERRA = 25, GRAVE_TERRA = 100;
   const terraDe = (r: Registro) => aterr[texto(r.ss)];
   const piorTerra = (r: Registro) => {
@@ -1679,6 +1709,15 @@ export default function Page() {
       { id: "sem_at_tempo", rotulo: "Sem atendimento para comparar", nota: "Não há registro do TMAE no código deste transformador, então a faixa do meio fica vazia. Não é contraprova: a chave do TMAE é o elemento onde o defeito foi aberto, e a equipe costuma abrir na chave.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).semAt },
       { id: "ss_longa", rotulo: "SS aberta por mais de 7 dias", nota: "Da abertura ao término passaram mais de 168 horas. Não diz nada sobre a causa da falha — diz sobre o tempo que a solicitação ficou viva no sistema.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d > 168; } },
       { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
+    ],
+    /* O que a bancada da reformadora disse sobre o equipamento. Só olha. */
+    insight_naoqueimado: [
+      { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
+      { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
+      { id: "nq_sucata", rotulo: "Triados como sucata", nota: "A reformadora abriu e condenou: o equipamento não voltou para a rede. É o extremo oposto do NQM e reforça a queima.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.triagem).toUpperCase().startsWith("SUCATA") },
+      { id: "nq_garantia", rotulo: "Triados como garantia", nota: "A reformadora enquadrou o caso como garantia — o custo não é da distribuidora. Vale conferir se isso está refletido no valor da obra.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.triagem).toUpperCase().startsWith("GARANTIA") },
+      { id: "nq_cci", rotulo: "Curto-circuito interno na bancada", nota: "A reformadora identificou curto interno ao abrir. É causa de equipamento, não de rede — e não é o que a Crítica costuma registrar.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.codigo) === "CCI" },
+      { id: "nq_sem_motivo", rotulo: "Foram para reforma sem motivo declarado", nota: "Existe ordem de produção, mas o campo do motivo da retirada veio vazio. Não diz nada contra o caso; diz que a bancada não registrou a causa.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) && !texto(reformaDe(r)?.motivo) },
     ],
     /* A reincidência: o mesmo transformador queimando de novo, e quanto tempo depois. */
     insight_reincidencia: [
@@ -2278,6 +2317,7 @@ export default function Page() {
       { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
       { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
+      { id: "insight_naoqueimado", rotulo: "Não queimados", codigo: "10", marca: conta((r) => arquivo(r) === "SAÍDA" && naoQueimado(r)), tom: "cinza", recorte: "nq_nqm" },
       { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
@@ -2305,6 +2345,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
     insight_aterramento: { olho: "Insight · não move ninguém", titulo: "Aterramento: o que a equipe mediu no poste", texto: "Seis colunas do formulário da OS que nunca tinham sido abertas: três hastes medidas antes do serviço, três depois, mais melhoria feita e conexão ao tanque. Vale a PIOR das três — a corrente procura o pior caminho. Zero e vazio contam como NÃO PREENCHIDO, nunca como bom." },
     insight_revisao: { olho: "Insight · não move ninguém", titulo: "Revisão detalhada", texto: "A fila que eu montei para o seu martelo: casos em que uma fonte discorda da outra, ou em que quem esteve no poste escreveu coisa que a Crítica não gravou. Nasceu da sua leitura da DG-RD-PO 00422 — “defeito interno e tap submerso deveria ir para sobrecarga”. Nenhum caso daqui foi movido; a classificação continua sendo sua, na aba de classificação." },
@@ -2336,6 +2377,7 @@ export default function Page() {
     insight_revisao: "rev_carga",
     insight_aterramento: "terra_ruim_sem_melhoria",
     insight_reincidencia: "rec_todos",
+    insight_naoqueimado: "nq_nqm",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -3437,6 +3479,48 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · NÃO QUEIMADOS. O que a bancada da reformadora disse. Não move ninguém. */
+      if (modulo === "insight_naoqueimado") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const comOp = naConta.filter((r) => reformaDe(r));
+        const nqm = comOp.filter((r) => naoQueimado(r));
+        const causa = (r: Registro) => classificacao[texto(r.ss)]?.classe || texto(r.confirmado);
+        const porCodigo = (cod: string) => comOp.filter((r) => texto(reformaDe(r)?.codigo) === cod);
+        const grupo = (rotulo: string, lista: Registro[], recorte: string) => ({
+          label: rotulo, recorte, total: lista.length,
+          q: lista.filter((r) => causa(r) === "QUEIMADO").length,
+          a: lista.filter((r) => causa(r) === "AVARIADO").length,
+        });
+        const BARRAS = [
+          grupo("NQM — a reformadora diz que NÃO queimou", nqm, "nq_nqm"),
+          grupo("CCI — curto-circuito interno", porCodigo("CCI"), "nq_cci"),
+          grupo("NIR — não identificada a causa da retirada", porCodigo("NIR"), "nq_com_op"),
+          grupo("DAT — descarga atmosférica", porCodigo("DAT"), "nq_com_op"),
+          grupo("Motivo não declarado na bancada", comOp.filter((r) => !texto(reformaDe(r)?.motivo)), "nq_sem_motivo"),
+        ].filter((x) => x.total > 0);
+        const dinheiro = (v: string) => Number(texto(v).replace(/\./g, "").replace(",", ".")) || 0;
+        const custoNqm = nqm.reduce((s2, r) => s2 + dinheiro(reformaDe(r)?.custo || ""), 0);
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>A única fonte que abriu o equipamento</span><h2>{br(nqm.length)} foram para a bancada e voltaram como NÃO QUEIMADO</h2></div><small>de {br(comOp.length)} que casaram com uma ordem de produção · {br(naConta.length)} no indicador</small></div>
+            <BarrasCausa dados={BARRAS} aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
+            <p className="fonte-detalhe">A base da reformadora traz 838 ordens de produção do centro Tocantins. O casamento é pelo <strong>número de série</strong> do equipamento retirado e, quando ele não bate, pelo <strong>tombamento</strong> — a OP não tem número de SS. Os que não aparecem aqui ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>Os que a bancada diz que não queimaram</h2></div><small>{br(nqm.length)} casos · R$ {custoNqm.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} de reforma somados</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>O que a Crítica gravou</th><th>O que a bancada escreveu</th><th>Ordem de produção</th></tr></thead>
+              <tbody>{nqm.map((r) => { const o = reformaDe(r)!; return <tr key={texto(r.ss)} onClick={() => { setAberto(r); setAbaDossie("consolidado"); }} style={{ cursor: "pointer" }}>
+                <td><strong>{texto(r.ss)}</strong><span>trafo {texto(r.trafo)}</span><small>hoje conta como {causa(r).toLowerCase() || "—"}</small></td>
+                <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
+                <td><strong className="nq-forte">{o.motivo}</strong><span>triagem {o.triagem.toLowerCase()}</span><small>série {o.serie} · {o.fabricante}</small></td>
+                <td><strong>OP {o.op}</strong><span>{o.custo ? `R$ ${o.custo}` : "sem custo"}</span><small>{o.dias_total ? `${o.dias_total} dias fora da rede` : ""}</small></td>
+              </tr>; })}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">Nenhum destes foi movido. <strong>NQM não desmente a SS sozinho</strong>: avaria real convive com “não queimado” na bancada — tanto que a triagem de todos eles é <em>reforma total</em>, isto é, o equipamento foi recuperado e voltou. O que a lista faz é apontar onde duas fontes discordam sobre o mesmo equipamento, com o número de série ligando uma à outra, para o seu martelo caso a caso.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · REINCIDÊNCIA. O mesmo ativo queimando de novo. Não move ninguém. */
       if (modulo === "insight_reincidencia") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3798,7 +3882,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} terraQuando={terraQuando} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} terraQuando={terraQuando} reformaDe2={reformaDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;

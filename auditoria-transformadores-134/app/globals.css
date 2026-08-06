@@ -873,3 +873,4 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .leg-terra.alto { background: #8b6428; }
 .leg-terra.ok { background: #35634b; }
 .leg-terra.sem { background: #8d9199; }
+.nq-forte { color: var(--red); }
