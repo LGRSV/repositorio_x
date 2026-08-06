@@ -9,13 +9,14 @@ disso tinha sido aberto até aqui, e é o formulário que a equipe preenche no p
 ZERO NÃO É MEDIÇÃO. Ordem dele: "aqueles que não têm nada ou 0 preenchimento traga como não
 preenchidos". Resistência zero é fisicamente impossível num aterramento de distribuição — é o
 campo em branco lançado como zero. Contá-los como medição empurraria a mediana para baixo e
-diria que o parque está bem aterrado quando ninguém mediu. São 258 das 1.305 nessa situação, e
+diria que o parque está bem aterrado quando ninguém mediu. São 258 das 1.305 nessa situação (312
+no arquivo inteiro, que cobre as 1.510), e
 elas aparecem na tela como NÃO PREENCHIDO, não como bom.
 
 ANTES, NÃO DEPOIS. Ordem dele: "na verdade deveria ser com a de antes, né?" — e está certo. A
 medição de DEPOIS é o ponto já corrigido; a que descreve o mundo em que o transformador viveu e
 queimou é a de ANTES do serviço. A régua usa só ela. Os 330 casos que trazem apenas a medição
-posterior não viram "medidos": ganham categoria própria, porque dizer que o ponto estava bom
+posterior (330 dentro das 1.305) não viram "medidos": ganham categoria própria — dizer que o ponto estava bom
 usando o número de depois da melhoria seria contar a correção como se fosse o estado original.
 
 QUAL DAS TRÊS HASTES VALE. A pior. Aterramento é caminho: de nada adianta uma haste de 5 Ω se a
@@ -24,9 +25,15 @@ o que o transformador aguenta. Por isso a régua usa o máximo das três, não a
 
 O QUE ELE PERGUNTOU E A RESPOSTA HONESTA. Cruzar com a causa da Crítica NÃO separa: entre os
 queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 32%. Não há
-correlação a defender aqui, e dizer que há seria inventar. O achado é outro, e é maior: um em
-cada três transformadores que queimaram estava num ponto com aterramento acima do limite da
-norma, a distribuidora MEDIU isso na hora da troca, e em 253 deles não fez melhoria nenhuma.
+correlação a defender aqui, e dizer que há seria inventar. O achado é outro, e é maior: dentro
+das 1.305, 228 dos 717 com medição anterior estavam acima do limite da norma — a distribuidora
+MEDIU isso na hora da troca e em 177 deles não fez melhoria nenhuma. Dos 228, 193 foram medidos
+de novo depois do serviço: 165 continuaram acima e só 28 caíram para dentro da norma.
+
+AS TRÊS HASTES NÃO SÃO A MESMA LEITURA. Ele perguntou, e o dado responde: só 7% dos casos trazem
+as três iguais, e a razão entre a maior e a menor chega a 405× — 1.448 Ω numa haste e 1,2 Ω
+noutra. Usar a média baixaria os fora da norma de 228 para 185; a melhor das três, para 153. A
+escolha pela pior é conservadora e está declarada na tela, não escondida no código.
 
 Uso:  python3 scripts/gerar_aterramento.py
 """
