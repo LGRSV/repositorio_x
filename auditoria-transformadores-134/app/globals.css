@@ -863,3 +863,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .terra-toggle button { padding: 6px 12px; border: 1px solid var(--soft); background: #fff; color: #5b6577; font: 600 8px "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 .terra-toggle button.ativo { background: var(--ink); color: #fff; border-color: var(--ink); }
 .terra-toggle span { color: #7d8189; font-size: 8px; }
+.terra-linha { margin: 0 0 3px; font-size: 8px; line-height: 1.5; }
+.terra-linha b { display: inline-block; min-width: 34px; color: #7d8189; font: 600 7px "IBM Plex Mono", monospace; text-transform: uppercase; }
+.terra-linha em { display: inline-block; margin-right: 6px; font-style: normal; font: 600 8px "IBM Plex Mono", monospace; color: #3d444f; }
+.terra-linha em.alto { color: var(--amber); }
+.terra-linha em.grave { color: var(--red); }
