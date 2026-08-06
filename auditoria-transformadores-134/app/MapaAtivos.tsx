@@ -14,6 +14,11 @@ export type PontoAtivo = {
   cascata: string;
   categoria: string;
   abertura: string;
+  /* Cor e texto próprios, para o mapa servir a outras perguntas além da decisão da esteira.
+     Na aba do aterramento a cor é a faixa de resistência e o balão traz as três hastes —
+     pedido dele: "quando eu filtro pelo graficozinho aparece os trafos e as geolocalizações". */
+  cor?: string;
+  nota?: string;
 };
 
 // Um ponto por transformador, na coordenada do próprio ativo. A cor é a decisão da
@@ -28,7 +33,7 @@ const COR: Record<string, string> = {
 // Sem esta assinatura, abrir o dossiê de um ponto destruía e recriava as 1.509 camadas —
 // era o que fazia o mapa piscar e engasgar no clique.
 const assinatura = (pontos: PontoAtivo[]) =>
-  `${pontos.length}|${pontos.map((p) => `${p.ss}${p.decisao}`).join("")}`;
+  `${pontos.length}|${pontos.map((p) => `${p.ss}${p.cor || p.decisao}`).join("")}`;
 
 export default function MapaAtivos({ pontos, aoEscolher }: {
   pontos: PontoAtivo[];
@@ -108,21 +113,26 @@ export default function MapaAtivos({ pontos, aoEscolher }: {
         limites.push([p.lat, p.lon]);
         L.circleMarker([p.lat, p.lon], {
           radius: 3.4,
-          color: COR[p.decisao] || "#6c6f74",
+          color: p.cor || COR[p.decisao] || "#6c6f74",
           weight: 1,
-          fillColor: COR[p.decisao] || "#6c6f74",
+          fillColor: p.cor || COR[p.decisao] || "#6c6f74",
           fillOpacity: 0.75,
         })
           .bindTooltip(
-            `<b>${p.ss}</b><br/>trafo ${p.trafo} · ${p.localidade}<br/>${p.categoria || "sem categoria"} · ${p.decisao}<br/><i>${p.cascata}</i>`,
+            p.nota
+              ? `<b>${p.ss}</b><br/>trafo ${p.trafo} · ${p.localidade}<br/>${p.nota}`
+              : `<b>${p.ss}</b><br/>trafo ${p.trafo} · ${p.localidade}<br/>${p.categoria || "sem categoria"} · ${p.decisao}<br/><i>${p.cascata}</i>`,
             { direction: "top", opacity: 0.95 },
           )
           .on("click", () => escolher.current(p.ss))
           .addTo(grupo);
       });
-      // enquadra o estado inteiro na primeira vez; depois respeita onde o usuário parou
-      if (!desenhado.current && limites.length) {
-        mapa.current?.fitBounds(limites, { padding: [24, 24] });
+      /* Enquadra na primeira vez e SEMPRE que o conjunto muda de tamanho — que é o que
+         acontece quando ele clica numa barra do gráfico. Sem isto, filtrar para 125 pontos
+         deixava o mapa parado no enquadramento anterior e parecia que nada tinha mudado. */
+      const mudouConjunto = desenhado.current.split("|")[0] !== String(pontos.length);
+      if ((!desenhado.current || mudouConjunto) && limites.length) {
+        mapa.current?.fitBounds(limites, { padding: [24, 24], maxZoom: 11 });
       }
       desenhado.current = marca;
     });

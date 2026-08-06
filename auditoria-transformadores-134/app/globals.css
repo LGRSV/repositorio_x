@@ -868,3 +868,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .terra-linha em { display: inline-block; margin-right: 6px; font-style: normal; font: 600 8px "IBM Plex Mono", monospace; color: #3d444f; }
 .terra-linha em.alto { color: var(--amber); }
 .terra-linha em.grave { color: var(--red); }
+.leg-terra { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px; }
+.leg-terra.grave { background: #a52a34; }
+.leg-terra.alto { background: #8b6428; }
+.leg-terra.ok { background: #35634b; }
+.leg-terra.sem { background: #8d9199; }

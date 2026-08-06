@@ -3489,6 +3489,24 @@ export default function Page() {
         const vs = medidos.map((r) => terraDe(r)!.pior as number).sort((a, b) => a - b);
         const p = (n: number) => (vs.length ? vs[Math.floor((vs.length - 1) * n)] : 0);
         const ohm = (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω`;
+        const COR_TERRA: Record<string, string> = { grave: "#a52a34", acima: "#8b6428", limite: "#35634b", bom: "#35634b", sem: "#8d9199", so_depois: "#8d9199" };
+        const doMapa = listadas.filter((r) => arquivo(r) === "SAÍDA");
+        const pontosTerra: PontoAtivo[] = doMapa
+          .filter((r) => typeof r.lat === "number" && typeof r.lon === "number")
+          .map((r) => {
+            const a = terraDe(r); const v = piorTerra(r);
+            const leituras = (terraQuando === "antes" ? a?.antes : a?.depois) || [];
+            return {
+              ss: texto(r.ss), trafo: texto(r.trafo), lat: Number(r.lat), lon: Number(r.lon),
+              localidade: texto(r.localidade), decisao: texto(r.decisao), cascata: texto(r.cascata),
+              categoria: texto(r.categoria_texto), abertura: dataBR(r.abertura),
+              cor: COR_TERRA[faixaTerra(r)] || "#8d9199",
+              nota: `${v != null ? `<b>${ohm(v)}</b> — pior das hastes` : "sem medição neste momento"}`
+                + (leituras.length ? `<br/>${leituras.map((x, i) => `X${i + 1} ${ohm(x)}`).join(" · ")}` : "")
+                + `<br/><i>${fezMelhoria(r) ? "fez melhoria de aterramento" : "sem melhoria"}</i>`,
+            };
+          });
+        const semCoordTerra = doMapa.length - pontosTerra.length;
         /* Pedido dele: a barra grossa partida entre queimado e avariado. A causa é a que a
            tela mostra — o martelo dele vence o que a régua tinha escrito. */
         const causa = (r: Registro) => classificacao[texto(r.ss)]?.classe || texto(r.confirmado);
@@ -3524,6 +3542,17 @@ export default function Page() {
             <BarrasCausa dados={BARRAS}
               aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
             <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS, antes e depois do serviço. Vale a <strong>pior</strong> das três e a <strong>de antes</strong>: a corrente de descarga procura o pior caminho, e a medição posterior já é o ponto consertado. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}. {terraQuando === "depois" ? "Você está vendo o ponto DEPOIS do serviço: o que continua alto aqui é o que a equipe deixou como estava." : ""}</p>
+          </section>
+          {/* O MAPA, LOGO ABAIXO DO GRÁFICO. Ele segue o filtro: clicar numa barra recorta a
+              tabela E o mapa juntos, e a cor de cada ponto é a faixa de resistência daquele
+              caso, não a decisão da esteira. Pedido dele. */}
+          <section className="panel">
+            <div className="panel-title"><div><span>Onde estão</span><h2>{br(pontosTerra.length)} no mapa{recorteAtivo ? ` · ${recorteAtivo.rotulo.toLowerCase()}` : ""}</h2></div><small>clique numa barra do gráfico para recortar · clique num ponto para abrir o dossiê</small></div>
+            <MapaAtivos pontos={pontosTerra} aoEscolher={(ss) => {
+              const achado = registros.find((r) => texto(r.ss) === ss);
+              if (achado) { setAberto(achado); setAbaDossie("consolidado"); setMotivosAbertos(false); }
+            }} />
+            <p className="fonte-detalhe"><em className="leg-terra grave" /> acima de 100 Ω · <em className="leg-terra alto" /> 25 a 100 Ω · <em className="leg-terra ok" /> até 25 Ω · <em className="leg-terra sem" /> sem medição neste momento. A coordenada é a do próprio transformador, não a do centro do município. {br(semCoordTerra)} dos casos deste recorte não têm coordenada e por isso não aparecem.</p>
           </section>
           <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
             <p><strong>Quase um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} com medição anterior ao serviço, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
