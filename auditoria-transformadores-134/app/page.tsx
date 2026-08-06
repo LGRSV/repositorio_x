@@ -23,6 +23,10 @@ type TmaeTempo = {
   tmp: string; tmd: string; tme: string; tma: string; equipe: string; ele: string; ele_t: string;
   mesmo_ativo: boolean;
 };
+type Aterramento = {
+  antes: number[]; depois: number[]; pior: number | null; pior_depois: number | null;
+  medido: boolean; melhoria: string; conectado: string;
+};
 type Passo = {
   p: string; pf: string; ini: string; fim: string;
   def: string; def_t: string; int: string; int_t: string; fec: string; fec_t: string;
@@ -41,7 +45,7 @@ type Modulo =
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
-  | "insight_revisao";
+  | "insight_revisao" | "insight_aterramento";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -741,7 +745,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -756,6 +760,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   parceirasAtDe?: (r: Registro) => string[];
   tmaeDe?: (r: Registro) => TmaeTempo | undefined;
   revisaoDe?: (r: Registro) => { id: string; motivo: string; detalhe: string }[];
+  terraDe?: (r: Registro) => Aterramento | undefined;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -778,6 +783,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_divide: ["Ocorrência e com quem divide", "Atendimento e com quem divide", "Motivo"],
     insight_tempos: ["Os três tempos, no mesmo eixo", "Durações", "Motivo"],
     insight_revisao: ["O que pede revisão", "O que a Crítica gravou", "Trecho que denunciou"],
+    insight_aterramento: ["Aterramento medido", "Melhoria e conexão", "O que a Crítica gravou"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -795,6 +801,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const distancia = distanciaDe ? distanciaDe(r) : 0;
       const foraMarca = (ladoDe ? ladoDe(r) : "") || "";
       const mat = materialDe ? materialDe(r) : undefined;
+      const terra = terraDe ? terraDe(r) : undefined;
       const ssNaObra = ssNaObraDe ? ssNaObraDe(r) : 1;
       const estado = estadoDe ? estadoDe(r) : "";
       const pOc = parceirasOcDe ? parceirasOcDe(r) : [];
@@ -849,6 +856,18 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           <span>{ficha?.tombamento ? `tombamento ${ficha.tombamento}` : ""}</span>
           <small>{ficha?.ns_instalado ? `instalado: série ${ficha.ns_instalado}` : ""}</small></td>
         <td><p className="clip">{texto(r.desc_ss).slice(0, 180)}</p></td>
+      </>}
+
+      {modo === "insight_aterramento" && <>
+        <td>{terra?.medido && terra.pior != null
+          ? <><strong>{terra.pior.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω</strong>
+              <span>pior das {(terra.antes.length || terra.depois.length)} haste{(terra.antes.length || terra.depois.length) > 1 ? "s" : ""} · {(terra.antes.length ? terra.antes : terra.depois).map((x) => `${x.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}`).join(" · ")} Ω</span>
+              <small>{terra.pior > 100 ? "grave — acima de 100 Ω" : terra.pior > 25 ? "acima da norma" : terra.pior > 10 ? "no limite" : "bom"}</small></>
+          : <><strong>não preenchido</strong><span>formulário em branco ou zerado</span><small>zero não é medição</small></>}</td>
+        <td><b className={`pill ${texto(terra?.melhoria).toUpperCase().startsWith("S") ? "ok" : "bad"}`}>{texto(terra?.melhoria).toUpperCase().startsWith("S") ? "fez melhoria" : "sem melhoria"}</b>
+          {terra?.pior_depois != null && terra?.pior != null && terra.pior_depois < terra.pior ? <span>caiu para {terra.pior_depois.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω depois</span> : null}
+          <small>{texto(terra?.conectado).toUpperCase().startsWith("N") ? "NÃO conectado ao tanque" : texto(terra?.conectado) ? "conectado ao tanque" : ""}</small></td>
+        <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
       </>}
 
       {modo === "insight_revisao" && <>
@@ -991,6 +1010,11 @@ export default function Page() {
      dele: "além das descrições da obra tem mais algum outro campo que confirma isso?". Tem
      seis, em quatro bases, e o mais forte deles é o PROVÁVEL MOTIVO DO DEFEITO, formulário que
      a equipe preenche no poste. gerar_terceiros.py explica cada um. */
+  /* AS MEDIÇÕES DE ATERRAMENTO, do formulário que a equipe preenche no poste. Seis colunas
+     que ninguém tinha aberto: três hastes antes do serviço, três depois, mais melhoria feita e
+     aterramento conectado ao tanque. Zero é NÃO PREENCHIDO, ordem dele — resistência zero não
+     existe em campo. gerar_aterramento.py explica por que vale a pior das três hastes. */
+  const [aterr, setAterr] = useState<Record<string, Aterramento>>({});
   const [terceiros, setTerceiros] = useState<Record<string, { n: number; fontes: { campo: string; valor: string }[] }>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   const [modulo, setModulo] = useState<Modulo>("visao");
@@ -1102,6 +1126,8 @@ export default function Page() {
       .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
     fetch(assetUrl("tmae-tempos.json")).then((r) => r.json())
       .then((d) => setTmae(d?.por_ss || {})).catch(() => setTmae({}));
+    fetch(assetUrl("aterramento.json")).then((r) => r.json())
+      .then((d) => setAterr(d?.por_ss || {})).catch(() => setAterr({}));
     fetch(assetUrl("terceiros.json")).then((r) => r.json())
       .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
@@ -1354,6 +1380,21 @@ export default function Page() {
      no chute e o carimbo da obra é escolha contábil. Três ou mais é outra conversa. */
   const MIN_FONTES = 3;
   const terceiroDe = (r: Registro) => terceiros[texto(r.ss)];
+
+  /* A FAIXA DO ATERRAMENTO. Vale a PIOR das três hastes: a corrente de descarga procura o pior
+     caminho disponível, e é ele que define o que o transformador aguenta. Sem medição — vazio
+     ou zero — não vira "bom": vira NÃO PREENCHIDO, com nome próprio na tela. */
+  const LIMITE_TERRA = 25, GRAVE_TERRA = 100;
+  const terraDe = (r: Registro) => aterr[texto(r.ss)];
+  const faixaTerra = (r: Registro): "sem" | "bom" | "limite" | "acima" | "grave" => {
+    const a = terraDe(r);
+    if (!a || !a.medido || a.pior == null) return "sem";
+    if (a.pior <= 10) return "bom";
+    if (a.pior <= LIMITE_TERRA) return "limite";
+    if (a.pior <= GRAVE_TERRA) return "acima";
+    return "grave";
+  };
+  const fezMelhoria = (r: Registro) => texto(terraDe(r)?.melhoria).toUpperCase().startsWith("S");
   const paraRever = (r: Registro) => {
     const fila: { id: string; motivo: string; detalhe: string }[] = [];
     const c = revisaoCarga(r);
@@ -1543,6 +1584,17 @@ export default function Page() {
       { id: "sem_at_tempo", rotulo: "Sem atendimento para comparar", nota: "Não há registro do TMAE no código deste transformador, então a faixa do meio fica vazia. Não é contraprova: a chave do TMAE é o elemento onde o defeito foi aberto, e a equipe costuma abrir na chave.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).semAt },
       { id: "ss_longa", rotulo: "SS aberta por mais de 7 dias", nota: "Da abertura ao término passaram mais de 168 horas. Não diz nada sobre a causa da falha — diz sobre o tempo que a solicitação ficou viva no sistema.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d > 168; } },
       { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
+    ],
+    /* O aterramento medido pela própria equipe, na hora da troca. Só olha. */
+    insight_aterramento: [
+      { id: "terra_grave", rotulo: "Aterramento grave — acima de 100 Ω", nota: "A pior das três hastes passa de 100 Ω, quatro vezes o limite usual da norma. Nestes pontos o aterramento praticamente não existe: a corrente de descarga não tem para onde ir e sobra para o equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "grave" },
+      { id: "terra_acima", rotulo: "Acima da norma — 25 a 100 Ω", nota: "Passa do limite usual de 25 Ω sem chegar ao extremo. Merece melhoria programada no ponto.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "acima" },
+      { id: "terra_ruim_sem_melhoria", rotulo: "Mediu ruim e NÃO fez melhoria", nota: "A equipe mediu acima de 25 Ω, escreveu o número no formulário da OS e respondeu NÃO à pergunta “fez melhoria de aterramento”. O ponto continua como estava, e o transformador novo foi instalado ali. É a lista que vira plano de ação.", teste: (r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r) },
+      { id: "terra_melhorou", rotulo: "Fez melhoria — e a medição caiu", nota: "Há medição antes e depois, e a de depois é menor: a melhoria aparece no número. São os casos em que dá para provar que a intervenção funcionou.", teste: (r) => { const a = terraDe(r); return arquivo(r) === "SAÍDA" && Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); } },
+      { id: "terra_limite", rotulo: "No limite — 10 a 25 Ω", nota: "Dentro da norma, mas sem folga. Em solo seco a medição sobe.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "limite" },
+      { id: "terra_bom", rotulo: "Bom — até 10 Ω", nota: "Aterramento em ordem no momento da troca. A queima veio de outro caminho.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "bom" },
+      { id: "terra_sem", rotulo: "Sem medição — não preenchido", nota: "O formulário veio em branco ou com zero nas três hastes. Zero não é medição: resistência zero não existe num aterramento de distribuição, é o campo vazio lançado como zero. Ordem do dono: estes contam como NÃO PREENCHIDOS, nunca como bons.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "sem" },
+      { id: "terra_desconectado", rotulo: "Aterramento não conectado ao tanque", nota: "A equipe respondeu NÃO à pergunta se o aterramento está conectado ao tanque do transformador. Sem essa conexão, a malha não protege a carcaça do equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && texto(terraDe(r)?.conectado).toUpperCase().startsWith("N") },
     ],
     /* A fila de revisão detalhada: só olha, e cada chip é um motivo de leitura. */
     insight_revisao: [
@@ -2122,6 +2174,7 @@ export default function Page() {
       { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
       { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
+      { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
     ]},
   ];
@@ -2147,6 +2200,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    insight_aterramento: { olho: "Insight · não move ninguém", titulo: "Aterramento: o que a equipe mediu no poste", texto: "Seis colunas do formulário da OS que nunca tinham sido abertas: três hastes medidas antes do serviço, três depois, mais melhoria feita e conexão ao tanque. Vale a PIOR das três — a corrente procura o pior caminho. Zero e vazio contam como NÃO PREENCHIDO, nunca como bom." },
     insight_revisao: { olho: "Insight · não move ninguém", titulo: "Revisão detalhada", texto: "A fila que eu montei para o seu martelo: casos em que uma fonte discorda da outra, ou em que quem esteve no poste escreveu coisa que a Crítica não gravou. Nasceu da sua leitura da DG-RD-PO 00422 — “defeito interno e tap submerso deveria ir para sobrecarga”. Nenhum caso daqui foi movido; a classificação continua sendo sua, na aba de classificação." },
     insight_divide: { olho: "Insight · não move ninguém", titulo: "Quem divide a mesma interrupção", texto: "Duas SS apoiadas no mesmo evento: a mesma ocorrência da Crítica, ou o mesmo atendimento do TMAE. Uma interrupção prova uma troca, não duas — esta aba lista os pares para leitura, sem mover ninguém." },
     insight_material: { olho: "Insight · não move ninguém", titulo: "Material × transformador, obra por obra", texto: "A obra pagou quantos transformadores, e isso bate com quantas SS ela atende? A conta vem do export do SIAGO, deduplicado entre os dois arquivos e contado por quantidade realizada — linha de transformador não é transformador." },
@@ -2174,6 +2228,7 @@ export default function Page() {
     insight_divide: "divide_oc",
     insight_tempos: "invertida",
     insight_revisao: "rev_carga",
+    insight_aterramento: "terra_ruim_sem_melhoria",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -3275,6 +3330,39 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · ATERRAMENTO. O dado que estava parado no formulário da OS. Não move ninguém. */
+      if (modulo === "insight_aterramento") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const q = (f: (r: Registro) => boolean) => naConta.filter(f).length;
+        const ruins = naConta.filter((r) => ["acima", "grave"].includes(faixaTerra(r)));
+        const semMelhoria = ruins.filter((r) => !fezMelhoria(r));
+        const medidos = naConta.filter((r) => faixaTerra(r) !== "sem");
+        const vs = medidos.map((r) => terraDe(r)!.pior as number).sort((a, b) => a - b);
+        const p = (n: number) => (vs.length ? vs[Math.floor((vs.length - 1) * n)] : 0);
+        const ohm = (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω`;
+        const BARRAS: [string, number, string][] = [
+          ["Grave — acima de 100 Ω", q((r) => faixaTerra(r) === "grave"), "terra_grave"],
+          ["Acima da norma — 25 a 100 Ω", q((r) => faixaTerra(r) === "acima"), "terra_acima"],
+          ["No limite — 10 a 25 Ω", q((r) => faixaTerra(r) === "limite"), "terra_limite"],
+          ["Bom — até 10 Ω", q((r) => faixaTerra(r) === "bom"), "terra_bom"],
+          ["Não preenchido — vazio ou zero", q((r) => faixaTerra(r) === "sem"), "terra_sem"],
+        ];
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>A pior das três hastes</span><h2>{br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou</h2></div><small>de {br(ruins.length)} acima de 25 Ω · {br(naConta.length)} no total</small></div>
+            <Barras total={naConta.length} dados={BARRAS.map(([label, value]) => ({ label, value }))}
+              aoSelecionar={(label) => { const alvo = BARRAS.find(([l]) => l === label); if (alvo) abrirRecorte(alvo[2]); }} />
+            <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS. Vale a <strong>pior</strong> delas: a corrente de descarga procura o pior caminho disponível, e é ele que define o que o transformador aguenta. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
+            <p><strong>Um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} medidos, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
+            <p>O que <strong>não</strong> dá para dizer: que o aterramento ruim explica a queima por raio. Cruzei, e ele não separa — entre os queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 32%. Quem apresentar isso como causa provada vai ser desmentido na primeira pergunta. O achado é de <strong>manutenção</strong>, não de causalidade: existe um cadastro de pontos ruins, medido pela própria equipe, e ele não virou serviço.</p>
+            <p><strong>Zero não é medição.</strong> {br(q((r) => faixaTerra(r) === "sem"))} solicitações vieram com as três hastes vazias ou zeradas, e elas contam aqui como <em>não preenchido</em> — nunca como bom. Resistência zero não existe num aterramento de distribuição: é campo em branco lançado como zero, e somá-lo ao grupo bom empurraria a mediana para baixo e diria que o parque está bem aterrado quando ninguém mediu.</p>
+            <p>Onde a melhoria foi feita, ela aparece: em <strong>{br(q((r) => { const a = terraDe(r); return Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); }))}</strong> casos a medição de depois é menor que a de antes — há quedas de 6.105 Ω para 967 Ω. O formulário serve; o que falta é a ordem de serviço depois dele.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · REVISÃO DETALHADA. A fila de leitura dele. Não move ninguém. */
       if (modulo === "insight_revisao") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3507,7 +3595,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
