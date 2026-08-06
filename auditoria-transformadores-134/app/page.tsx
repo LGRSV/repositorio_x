@@ -1337,14 +1337,14 @@ export default function Page() {
     const jaBate = /SOBRECARGA/i.test(texto(r.oc_sub));
     return { marcas, jaBate, trecho: (s.match(new RegExp(`.{0,60}(${[TXT_TAP, TXT_INTERNO, TXT_CARGA, TXT_TENSAO].map((x) => x.source).join("|")}).{0,80}`, "i")) || [""])[0].trim() };
   };
+  /* Ordem dele: "na aba detalhada eu só quero as do TAP por enquanto". Os outros motivos que a
+     régua sabe marcar — natureza divergente, bandeira do interrompido, zero do registro, data
+     impossível — continuam vivos nos seus lugares (aba de classificação, aba Tempos, aba
+     Interrupção) e voltam para cá quando ele mandar. Aqui fica só o bloco que ele abriu. */
   const paraRever = (r: Registro) => {
     const fila: { id: string; motivo: string; detalhe: string }[] = [];
     const c = revisaoCarga(r);
     if (c && !c.jaBate) fila.push({ id: "carga", motivo: `Texto diz ${c.marcas.join(" · ")} — a Crítica gravou "${texto(r.oc_sub).toLowerCase() || "nada"}"`, detalhe: c.trecho });
-    if (texto(r.campo_discorda_natureza) === "SIM") fila.push({ id: "natureza", motivo: `Conta como ${texto(r.confirmado).toLowerCase()} e a Crítica declara "${texto(r.oc_sub).toLowerCase()}"`, detalhe: texto(r.obra_descricao) });
-    if (texto(r.int_na_janela) === "SIM") fila.push({ id: "interrompido", motivo: `Casaria pelo elemento interrompido — defeito em ${texto(r.int_def_ele)} ${texto(r.int_def_cod)}`, detalhe: `ocorrência ${texto(r.int_oc)}` });
-    if (texto(r.zero_e_registro) === "SIM") fila.push({ id: "zero", motivo: "Zero cliente que é do registro, não da rede", detalhe: "a ocorrência vizinha no mesmo ativo interrompeu gente" });
-    if (tempos(r).invertida) fila.push({ id: "data", motivo: "SS encerrada antes de ser aberta — erro de data", detalhe: `${dataBR(r.abertura)} → ${dataBR(r.termino)}` });
     return fila;
   };
 
@@ -1529,10 +1529,6 @@ export default function Page() {
     insight_revisao: [
       { id: "rev_todos", rotulo: "Tudo que pedi para você reler", nota: "Toda solicitação dos 1.305 em que alguma fonte discorda de outra, ou em que o texto de campo descreve coisa que a Crítica não gravou. Nada aqui foi movido — é fila de leitura para o seu martelo.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0 },
       { id: "rev_carga", rotulo: "Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", nota: "Quem esteve no poste escreveu tap submerso, defeito interno, sobrecarga ou tensão fora do normal, e a subcausa gravada na Crítica é outra — descarga atmosférica, vazamento, RD de AT. Ordem dele a partir da DG-RD-PO 00422: estes deveriam ser lidos como sobrecarga ou regulação, e não como o que a Crítica gravou. A palavra “tap” sozinha não conta: ela aparece como campo de formulário da OS em 588 casos; só entra quando vem com defeito — submerso, queimado, danificado.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "carga") },
-      { id: "rev_natureza", rotulo: "Natureza divergente: queima × avaria", nota: "Conta como queimado e a Crítica declara vazamento de óleo, tanque deteriorado ou falha de bucha — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima; a régua manteve o rótulo da obra e o total não muda.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "natureza") },
-      { id: "rev_interrompido", rotulo: "Casaria pelo elemento interrompido", nota: "Não casou pela coluna do defeito, mas o ativo aparece como INTERROMPIDO numa ocorrência que caberia na janela. Bandeira de leitura: os 1.305 não se movem.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "interrompido") },
-      { id: "rev_zero", rotulo: "Zero cliente que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência vizinha no mesmo transformador interrompeu gente. O zero descreve o registro, não a rede.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "zero") },
-      { id: "rev_data", rotulo: "Data impossível na SS", nota: "O término está gravado antes da abertura. Erro de cadastro, não de execução — mas qualquer conta de duração desta SS sai negativa.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "data") },
     ],
     /* Quem divide o mesmo evento: também só olha. */
     insight_divide: [
@@ -3263,21 +3259,21 @@ export default function Page() {
       if (modulo === "insight_revisao") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
         const fila = naConta.map((r) => ({ r, motivos: paraRever(r) })).filter((x) => x.motivos.length);
-        const conta1 = (id: string) => fila.filter((x) => x.motivos.some((m) => m.id === id)).length;
-        const BARRAS: [string, number, string][] = [
-          ["Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", conta1("carga"), "rev_carga"],
-          ["Natureza divergente: conta queima, a Crítica declara avaria", conta1("natureza"), "rev_natureza"],
-          ["Casaria pelo elemento interrompido — bandeira", conta1("interrompido"), "rev_interrompido"],
-          ["Zero cliente que é do registro, não da rede", conta1("zero"), "rev_zero"],
-          ["Data impossível: SS encerrada antes de aberta", conta1("data"), "rev_data"],
-        ].filter(([, v]) => v > 0) as [string, number, string][];
         const doCarga = fila.filter((x) => x.motivos.some((m) => m.id === "carga"));
+        /* Só o bloco do tap, por ordem dele. As barras são as MARCAS que cada caso trouxe —
+           tap, defeito interno, sobrecarga, tensão —, e não os motivos da fila inteira. */
+        const marca = (p: RegExp) => doCarga.filter(({ r }) => p.test(`${texto(r.desc_ss)} ${texto(r.desc_os)}`)).length;
+        const BARRAS: [string, number, string][] = ([
+          ["Tap com defeito ou comutador", marca(TXT_TAP), "rev_carga"],
+          ["Defeito interno declarado pela equipe", marca(TXT_INTERNO), "rev_carga"],
+          ["Sobrecarga escrita no texto", marca(TXT_CARGA), "rev_carga"],
+          ["Tensão fora do normal", marca(TXT_TENSAO), "rev_carga"],
+        ] as [string, number, string][]).filter(([, v]) => v > 0);
         return <>
           <section className="panel">
-            <div className="panel-title"><div><span>A fila que eu montei</span><h2>{br(fila.length)} solicitações pedem uma segunda leitura sua</h2></div><small>de {br(naConta.length)} · clique numa barra para filtrar a tabela</small></div>
-            <Barras total={fila.length} dados={BARRAS.map(([label, value]) => ({ label, value }))}
-              aoSelecionar={(label) => { const alvo = BARRAS.find(([l]) => l === label); if (alvo) abrirRecorte(alvo[2]); }} />
-            <p className="fonte-detalhe">Nenhum destes casos foi movido. O indicador continua em {br(naConta.length)} — esta aba só junta, com o motivo escrito, o que merece o seu martelo caso a caso na aba de classificação.</p>
+            <div className="panel-title"><div><span>A fila que eu montei</span><h2>{br(doCarga.length)} solicitações pedem uma segunda leitura sua</h2></div><small>de {br(naConta.length)} · o que o campo escreveu e a Crítica não gravou</small></div>
+            <Barras total={doCarga.length} dados={BARRAS.map(([label, value]) => ({ label, value }))} />
+            <p className="fonte-detalhe">Um caso pode trazer mais de uma marca — a DG-RD-PO 00422 traz três. Nenhum deles foi movido: o indicador continua em {br(naConta.length)}, e o martelo é seu, na aba de classificação.</p>
           </section>
           <section className="panel"><div className="panel-title"><div><span>O que abriu esta aba</span><h2>Texto de campo × subcausa da Crítica</h2></div><small>{br(doCarga.length)} caso{doCarga.length > 1 ? "s" : ""}</small></div>
             <div className="table-scroll"><table className="records-table">
