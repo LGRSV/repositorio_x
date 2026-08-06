@@ -45,7 +45,7 @@ type Modulo =
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
-  | "insight_revisao" | "insight_aterramento";
+  | "insight_revisao" | "insight_aterramento" | "insight_reincidencia";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -778,7 +778,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe, terraDe, reincDe2 }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -794,6 +794,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   tmaeDe?: (r: Registro) => TmaeTempo | undefined;
   revisaoDe?: (r: Registro) => { id: string; motivo: string; detalhe: string }[];
   terraDe?: (r: Registro) => Aterramento | undefined;
+  reincDe2?: (r: Registro) => { dias: number; anterior: Registro; ordem: number; total: number } | undefined;
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -817,6 +818,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_tempos: ["Os três tempos, no mesmo eixo", "Durações", "Motivo"],
     insight_revisao: ["O que pede revisão", "O que a Crítica gravou", "Trecho que denunciou"],
     insight_aterramento: ["Aterramento medido", "Melhoria e conexão", "O que a Crítica gravou"],
+    insight_reincidencia: ["Quanto tempo depois", "A troca anterior", "O que a Crítica gravou"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -835,6 +837,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       const foraMarca = (ladoDe ? ladoDe(r) : "") || "";
       const mat = materialDe ? materialDe(r) : undefined;
       const terra = terraDe ? terraDe(r) : undefined;
+      const rec = reincDe2 ? reincDe2(r) : undefined;
       const ssNaObra = ssNaObraDe ? ssNaObraDe(r) : 1;
       const estado = estadoDe ? estadoDe(r) : "";
       const pOc = parceirasOcDe ? parceirasOcDe(r) : [];
@@ -889,6 +892,16 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           <span>{ficha?.tombamento ? `tombamento ${ficha.tombamento}` : ""}</span>
           <small>{ficha?.ns_instalado ? `instalado: série ${ficha.ns_instalado}` : ""}</small></td>
         <td><p className="clip">{texto(r.desc_ss).slice(0, 180)}</p></td>
+      </>}
+
+      {modo === "insight_reincidencia" && <>
+        <td>{rec
+          ? <><strong>{rec.dias === 0 ? "no mesmo dia" : `${br(rec.dias)} dia${rec.dias === 1 ? "" : "s"} depois`}</strong>
+              <span>{rec.dias <= 7 ? "menos de uma semana" : rec.dias <= 30 ? "dentro do mês" : rec.dias <= 90 ? "dentro do trimestre" : "mais de 90 dias"}</span>
+              <small>{rec.ordem}ª troca deste ativo no recorte, de {rec.total}</small></>
+          : <strong>primeira troca</strong>}</td>
+        <td>{rec ? <><strong>{texto(rec.anterior.ss)}</strong><span>{dataBR(rec.anterior.abertura)}</span><small>{texto(rec.anterior.oc_sub) || "sem subcausa"}</small></> : <span>—</span>}</td>
+        <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
       </>}
 
       {modo === "insight_aterramento" && <>
@@ -1425,6 +1438,33 @@ export default function Page() {
      depois é o ponto já consertado; a de antes é o mundo em que o transformador queimou. Quem
      só tem a posterior fica numa faixa própria, porque contá-la como estado original seria
      apresentar a correção como se fosse a condição que matou o equipamento. */
+  /* REINCIDÊNCIA. Pedido dele: os casos em que o MESMO transformador voltou a queimar, e
+     quanto tempo depois. A conta é simples e por isso mora aqui, sem arquivo novo: agrupa as
+     1.305 pelo código do ativo, ordena pela abertura e mede o intervalo entre uma troca e a
+     seguinte. Cada par vira uma linha — a segunda SS carrega quantos dias se passaram desde a
+     anterior, porque é ela que denuncia. Um trafo trocado três vezes gera dois pares. */
+  const reincidencia = useMemo(() => {
+    const porTrafo = new Map<string, Registro[]>();
+    for (const r of registros) {
+      if (arquivo(r) !== "SAÍDA") continue;
+      const cod = texto(r.trafo);
+      if (!cod) continue;
+      (porTrafo.get(cod) || porTrafo.set(cod, []).get(cod)!).push(r);
+    }
+    const mapa: Record<string, { dias: number; anterior: Registro; ordem: number; total: number }> = {};
+    porTrafo.forEach((lista) => {
+      if (lista.length < 2) return;
+      const ord = [...lista].sort((a, b) => (emMs(a.abertura) || 0) - (emMs(b.abertura) || 0));
+      ord.forEach((r, i) => {
+        if (!i) return;
+        const a = emMs(ord[i - 1].abertura), b = emMs(r.abertura);
+        if (a && b) mapa[texto(r.ss)] = { dias: Math.round((b - a) / (24 * H_MS)), anterior: ord[i - 1], ordem: i + 1, total: ord.length };
+      });
+    });
+    return mapa;
+  }, [registros, classificacao]);
+  const reincDe = (r: Registro) => reincidencia[texto(r.ss)];
+
   const LIMITE_TERRA = 25, GRAVE_TERRA = 100;
   const terraDe = (r: Registro) => aterr[texto(r.ss)];
   const piorTerra = (r: Registro) => {
@@ -1634,6 +1674,14 @@ export default function Page() {
       { id: "sem_at_tempo", rotulo: "Sem atendimento para comparar", nota: "Não há registro do TMAE no código deste transformador, então a faixa do meio fica vazia. Não é contraprova: a chave do TMAE é o elemento onde o defeito foi aberto, e a equipe costuma abrir na chave.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).semAt },
       { id: "ss_longa", rotulo: "SS aberta por mais de 7 dias", nota: "Da abertura ao término passaram mais de 168 horas. Não diz nada sobre a causa da falha — diz sobre o tempo que a solicitação ficou viva no sistema.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d > 168; } },
       { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
+    ],
+    /* A reincidência: o mesmo transformador queimando de novo, e quanto tempo depois. */
+    insight_reincidencia: [
+      { id: "rec_7", rotulo: "Voltou a queimar em até 7 dias", nota: "O transformador foi trocado e queimou de novo dentro de uma semana. Nesse prazo a rede não mudou: o que sobra é instalação, dimensionamento, proteção ou o ponto — e cada caso destes é uma obra paga duas vezes no mesmo poste.", teste: (r) => { const x = reincDe(r); return Boolean(x && x.dias <= 7); } },
+      { id: "rec_30", rotulo: "De 8 a 30 dias", nota: "Reincidência dentro do mês. Ainda cedo demais para desgaste: vale abrir o par e comparar potência instalada, elo e aterramento entre as duas trocas.", teste: (r) => { const x = reincDe(r); return Boolean(x && x.dias > 7 && x.dias <= 30); } },
+      { id: "rec_90", rotulo: "De 31 a 90 dias", nota: "Reincidência no trimestre. Já cabe evento de rede no meio, mas o ponto continua sendo o mesmo — e é o ponto que se repete.", teste: (r) => { const x = reincDe(r); return Boolean(x && x.dias > 30 && x.dias <= 90); } },
+      { id: "rec_mais", rotulo: "Mais de 90 dias", nota: "O mesmo ativo queimou duas vezes no semestre, com folga entre as duas. Continua sendo reincidência, com menos urgência.", teste: (r) => { const x = reincDe(r); return Boolean(x && x.dias > 90); } },
+      { id: "rec_todos", rotulo: "Todas as reincidências", nota: "Toda SS que não é a primeira daquele transformador dentro do recorte. O ativo aparece uma vez por reincidência: quem queimou três vezes gera duas linhas.", teste: (r) => Boolean(reincDe(r)) },
     ],
     /* O aterramento medido pela própria equipe, na hora da troca. Só olha. */
     insight_aterramento: [
@@ -2225,6 +2273,7 @@ export default function Page() {
       { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
       { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
+      { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
     ]},
@@ -2251,6 +2300,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
     insight_aterramento: { olho: "Insight · não move ninguém", titulo: "Aterramento: o que a equipe mediu no poste", texto: "Seis colunas do formulário da OS que nunca tinham sido abertas: três hastes medidas antes do serviço, três depois, mais melhoria feita e conexão ao tanque. Vale a PIOR das três — a corrente procura o pior caminho. Zero e vazio contam como NÃO PREENCHIDO, nunca como bom." },
     insight_revisao: { olho: "Insight · não move ninguém", titulo: "Revisão detalhada", texto: "A fila que eu montei para o seu martelo: casos em que uma fonte discorda da outra, ou em que quem esteve no poste escreveu coisa que a Crítica não gravou. Nasceu da sua leitura da DG-RD-PO 00422 — “defeito interno e tap submerso deveria ir para sobrecarga”. Nenhum caso daqui foi movido; a classificação continua sendo sua, na aba de classificação." },
     insight_divide: { olho: "Insight · não move ninguém", titulo: "Quem divide a mesma interrupção", texto: "Duas SS apoiadas no mesmo evento: a mesma ocorrência da Crítica, ou o mesmo atendimento do TMAE. Uma interrupção prova uma troca, não duas — esta aba lista os pares para leitura, sem mover ninguém." },
@@ -2280,6 +2330,7 @@ export default function Page() {
     insight_tempos: "invertida",
     insight_revisao: "rev_carga",
     insight_aterramento: "terra_ruim_sem_melhoria",
+    insight_reincidencia: "rec_todos",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -3381,6 +3432,48 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · REINCIDÊNCIA. O mesmo ativo queimando de novo. Não move ninguém. */
+      if (modulo === "insight_reincidencia") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const pares = naConta.filter((r) => reincDe(r)).map((r) => ({ r, x: reincDe(r)! }));
+        const ativos = new Set(pares.map((p) => texto(p.r.trafo))).size;
+        const dias = pares.map((p) => p.x.dias).sort((a, b) => a - b);
+        const med = dias.length ? dias[Math.floor(dias.length / 2)] : 0;
+        const causa = (r: Registro) => classificacao[texto(r.ss)]?.classe || texto(r.confirmado);
+        const faixa = (a: number, b: number) => pares.filter((p) => p.x.dias >= a && p.x.dias <= b);
+        const barra = (rotulo: string, a: number, b: number, recorte: string) => {
+          const g = faixa(a, b);
+          return { label: rotulo, recorte, total: g.length,
+                   q: g.filter((p) => causa(p.r) === "QUEIMADO").length,
+                   a: g.filter((p) => causa(p.r) === "AVARIADO").length };
+        };
+        const BARRAS = [
+          barra("Até 7 dias — a rede não mudou nesse prazo", 0, 7, "rec_7"),
+          barra("De 8 a 30 dias", 8, 30, "rec_30"),
+          barra("De 31 a 90 dias", 31, 90, "rec_90"),
+          barra("Mais de 90 dias", 91, 99999, "rec_mais"),
+        ];
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>O mesmo transformador, de novo</span><h2>{br(pares.length)} reincidências em {br(ativos)} transformadores</h2></div><small>mediana de {br(med)} dias entre uma troca e a seguinte</small></div>
+            <BarrasCausa dados={BARRAS} aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
+            <p className="fonte-detalhe">Cada linha é um par: a SS que reincidiu carrega quantos dias se passaram desde a troca anterior no mesmo código de ativo. Quem queimou três vezes gera dois pares — por isso {br(pares.length)} reincidências em {br(ativos)} ativos.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>As mais rápidas</span><h2>Trocou e queimou de novo em poucos dias</h2></div><small>{br(faixa(0, 7).length)} em até uma semana</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Intervalo</th><th>Troca anterior</th><th>Reincidência</th><th>O que a Crítica gravou nas duas</th></tr></thead>
+              <tbody>{pares.filter((p) => p.x.dias <= 30).sort((a, b) => a.x.dias - b.x.dias).map(({ r, x }) => <tr key={texto(r.ss)} onClick={() => { setAberto(r); setAbaDossie("consolidado"); }} style={{ cursor: "pointer" }}>
+                <td><strong>{x.dias === 0 ? "mesmo dia" : `${br(x.dias)} dia${x.dias === 1 ? "" : "s"}`}</strong><span>trafo {texto(r.trafo)}</span><small>{x.ordem}ª de {x.total} trocas</small></td>
+                <td><strong>{texto(x.anterior.ss)}</strong><span>{dataBR(x.anterior.abertura)}</span><small>{texto(x.anterior.obra) ? `obra ${texto(x.anterior.obra)}` : ""}</small></td>
+                <td><strong>{texto(r.ss)}</strong><span>{dataBR(r.abertura)}</span><small>{texto(r.obra) ? `obra ${texto(r.obra)}` : ""}</small></td>
+                <td><p className="clip">{texto(x.anterior.oc_sub) || "sem subcausa"} → {texto(r.oc_sub) || "sem subcausa"}</p></td>
+              </tr>)}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">Prazo curto tira a rede da conversa: em uma semana o clima não mudou, a carga não mudou e o vizinho não mudou. O que muda é o que foi instalado, como foi protegido e onde — e cada uma destas linhas é uma obra paga duas vezes no mesmo poste. Abra o caso para comparar potência, elo e aterramento entre as duas trocas.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · ATERRAMENTO. O dado que estava parado no formulário da OS. Não move ninguém. */
       if (modulo === "insight_aterramento") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3669,7 +3762,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
