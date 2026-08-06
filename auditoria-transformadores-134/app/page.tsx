@@ -40,7 +40,8 @@ type Modulo =
   | "semdesloc"
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
-  | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos";
+  | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
+  | "insight_revisao";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -740,7 +741,7 @@ function BlocoDetalhe({ titulo, fonte, dados }: { titulo: string; fonte: string;
   </>;
 }
 
-function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe }: {
+function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta = {}, potenciaDe, distanciaDe, ladoDe, materialDe, ssNaObraDe, estadoDe, parceirasOcDe, parceirasAtDe, tmaeDe, revisaoDe }: {
   linhas: Registro[]; modo: Modulo; aoAbrir: (r: Registro) => void;
   classificacoes: Record<string, { classe: string; quem: string; quando: string }>;
   aoClassificar: (ss: string, classe: string) => void;
@@ -754,6 +755,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   parceirasOcDe?: (r: Registro) => string[];
   parceirasAtDe?: (r: Registro) => string[];
   tmaeDe?: (r: Registro) => TmaeTempo | undefined;
+  revisaoDe?: (r: Registro) => { id: string; motivo: string; detalhe: string }[];
 }) {
   const cabecalho: Record<string, string[]> = {
     interrupcao: ["Ocorrência", "O que o campo registrou", "Casamento"],
@@ -775,6 +777,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_material: ["Obra e material", "O que saiu do almoxarifado", "Motivo"],
     insight_divide: ["Ocorrência e com quem divide", "Atendimento e com quem divide", "Motivo"],
     insight_tempos: ["Os três tempos, no mesmo eixo", "Durações", "Motivo"],
+    insight_revisao: ["O que pede revisão", "O que a Crítica gravou", "Trecho que denunciou"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -846,6 +849,12 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
           <span>{ficha?.tombamento ? `tombamento ${ficha.tombamento}` : ""}</span>
           <small>{ficha?.ns_instalado ? `instalado: série ${ficha.ns_instalado}` : ""}</small></td>
         <td><p className="clip">{texto(r.desc_ss).slice(0, 180)}</p></td>
+      </>}
+
+      {modo === "insight_revisao" && <>
+        <td>{(revisaoDe ? revisaoDe(r) : []).map((x, i) => <p key={i} className="rev-motivo"><b>{x.motivo}</b></p>)}</td>
+        <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span><small>{texto(r.confirmado) ? `hoje conta como ${texto(r.confirmado).toLowerCase()}` : ""}</small></td>
+        <td><p className="clip">{(revisaoDe ? revisaoDe(r) : []).map((x) => x.detalhe).filter(Boolean).join(" · ").slice(0, 200) || texto(r.desc_ss).slice(0, 160)}</p></td>
       </>}
 
       {modo === "interrupcao" && <>
@@ -1300,6 +1309,45 @@ export default function Page() {
     return "dentro";
   };
 
+  /* A FILA DE REVISÃO DETALHADA. Ordem dele, depois de ler uma SS na mão: "defeito interno e tap
+     submerso deveria ir para sobrecarga; tem mais alguma assim?". Tem — e o jeito de achá-las é
+     ler o TEXTO de quem esteve no poste e comparar com a subcausa que a Crítica gravou.
+
+     Nada aqui move ninguém. É fila de leitura: cada caso chega com o motivo e o trecho que o
+     denunciou, para ele bater o martelo caso a caso na aba de classificação.
+
+     O TAP EXIGE CUIDADO. A OS traz "POS. DO TAP; 3º" como campo de formulário em 588 das 1.305 —
+     procurar a palavra solta traria quase todo mundo. Só conta quando o tap aparece com defeito:
+     submerso, queimado, danificado, errado. */
+  const TXT_TAP = /TAP\s+(SUBMERS|QUEIMAD|DANIFICAD|COM DEFEITO|SOLTO|ERRAD)|(SUBMERS\w*)\s*(O\s*)?TAP|COMUTADOR/i;
+  const TXT_INTERNO = /DEFEITO INTERNO|PROBLEMA INTERNO|CURTO INTERNO/i;
+  const TXT_CARGA = /SOBRECARG|SOBRE CARGA|SOBRECARREG|CARREGAMENTO (ALTO|ELEVADO)|AUMENTO DE CARGA/i;
+  const TXT_TENSAO = /TENS[AÃ]O (MUITO )?(ALTA|BAIXA)|SUBTENS|SOBRETENS|N[AÃ]O MANDA\w* TENS[AÃ]O/i;
+  const textoDoCaso = (r: Registro) => `${texto(r.desc_ss)} ${texto(r.desc_os)}`;
+  const revisaoCarga = (r: Registro) => {
+    if (arquivo(r) !== "SAÍDA") return null;
+    const s = textoDoCaso(r);
+    const marcas: string[] = [];
+    if (TXT_TAP.test(s)) marcas.push("tap com defeito");
+    if (TXT_INTERNO.test(s)) marcas.push("defeito interno");
+    if (TXT_CARGA.test(s)) marcas.push("sobrecarga escrita no texto");
+    if (TXT_TENSAO.test(s)) marcas.push("tensão fora do normal");
+    if (!marcas.length) return null;
+    // quando a própria Crítica já disse sobrecarga, não há o que rever: as duas vozes concordam
+    const jaBate = /SOBRECARGA/i.test(texto(r.oc_sub));
+    return { marcas, jaBate, trecho: (s.match(new RegExp(`.{0,60}(${[TXT_TAP, TXT_INTERNO, TXT_CARGA, TXT_TENSAO].map((x) => x.source).join("|")}).{0,80}`, "i")) || [""])[0].trim() };
+  };
+  const paraRever = (r: Registro) => {
+    const fila: { id: string; motivo: string; detalhe: string }[] = [];
+    const c = revisaoCarga(r);
+    if (c && !c.jaBate) fila.push({ id: "carga", motivo: `Texto diz ${c.marcas.join(" · ")} — a Crítica gravou "${texto(r.oc_sub).toLowerCase() || "nada"}"`, detalhe: c.trecho });
+    if (texto(r.campo_discorda_natureza) === "SIM") fila.push({ id: "natureza", motivo: `Conta como ${texto(r.confirmado).toLowerCase()} e a Crítica declara "${texto(r.oc_sub).toLowerCase()}"`, detalhe: texto(r.obra_descricao) });
+    if (texto(r.int_na_janela) === "SIM") fila.push({ id: "interrompido", motivo: `Casaria pelo elemento interrompido — defeito em ${texto(r.int_def_ele)} ${texto(r.int_def_cod)}`, detalhe: `ocorrência ${texto(r.int_oc)}` });
+    if (texto(r.zero_e_registro) === "SIM") fila.push({ id: "zero", motivo: "Zero cliente que é do registro, não da rede", detalhe: "a ocorrência vizinha no mesmo ativo interrompeu gente" });
+    if (tempos(r).invertida) fila.push({ id: "data", motivo: "SS encerrada antes de ser aberta — erro de data", detalhe: `${dataBR(r.abertura)} → ${dataBR(r.termino)}` });
+    return fila;
+  };
+
   /* EXATAMENTE DENTRO. Ordem dele: sem a faixa de uma hora antes e vinte e quatro depois — a SS
      e o atendimento têm de caber INTEIROS no intervalo da ocorrência, do primeiro passo aberto
      ao último fechado. É a leitura mais dura que existe aqui: não é a SS encostar na janela, é
@@ -1476,6 +1524,15 @@ export default function Page() {
       { id: "sem_at_tempo", rotulo: "Sem atendimento para comparar", nota: "Não há registro do TMAE no código deste transformador, então a faixa do meio fica vazia. Não é contraprova: a chave do TMAE é o elemento onde o defeito foi aberto, e a equipe costuma abrir na chave.", teste: (r) => arquivo(r) === "SAÍDA" && tempos(r).semAt },
       { id: "ss_longa", rotulo: "SS aberta por mais de 7 dias", nota: "Da abertura ao término passaram mais de 168 horas. Não diz nada sobre a causa da falha — diz sobre o tempo que a solicitação ficou viva no sistema.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d > 168; } },
       { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
+    ],
+    /* A fila de revisão detalhada: só olha, e cada chip é um motivo de leitura. */
+    insight_revisao: [
+      { id: "rev_todos", rotulo: "Tudo que pedi para você reler", nota: "Toda solicitação dos 1.305 em que alguma fonte discorda de outra, ou em que o texto de campo descreve coisa que a Crítica não gravou. Nada aqui foi movido — é fila de leitura para o seu martelo.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0 },
+      { id: "rev_carga", rotulo: "Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", nota: "Quem esteve no poste escreveu tap submerso, defeito interno, sobrecarga ou tensão fora do normal, e a subcausa gravada na Crítica é outra — descarga atmosférica, vazamento, RD de AT. Ordem dele a partir da DG-RD-PO 00422: estes deveriam ser lidos como sobrecarga ou regulação, e não como o que a Crítica gravou. A palavra “tap” sozinha não conta: ela aparece como campo de formulário da OS em 588 casos; só entra quando vem com defeito — submerso, queimado, danificado.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "carga") },
+      { id: "rev_natureza", rotulo: "Natureza divergente: queima × avaria", nota: "Conta como queimado e a Crítica declara vazamento de óleo, tanque deteriorado ou falha de bucha — ou o contrário. Um transformador que vaza óleo perde isolamento e depois queima; a régua manteve o rótulo da obra e o total não muda.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "natureza") },
+      { id: "rev_interrompido", rotulo: "Casaria pelo elemento interrompido", nota: "Não casou pela coluna do defeito, mas o ativo aparece como INTERROMPIDO numa ocorrência que caberia na janela. Bandeira de leitura: os 1.305 não se movem.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "interrompido") },
+      { id: "rev_zero", rotulo: "Zero cliente que é do registro", nota: "A ocorrência veio com zero cliente, mas a ocorrência vizinha no mesmo transformador interrompeu gente. O zero descreve o registro, não a rede.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "zero") },
+      { id: "rev_data", rotulo: "Data impossível na SS", nota: "O término está gravado antes da abertura. Erro de cadastro, não de execução — mas qualquer conta de duração desta SS sai negativa.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "data") },
     ],
     /* Quem divide o mesmo evento: também só olha. */
     insight_divide: [
@@ -2049,6 +2106,7 @@ export default function Page() {
       { id: "insight_divide", rotulo: "Mesma interrupção", codigo: "05", marca: conta((r) => arquivo(r) === "SAÍDA" && (parceirasOc(r).length > 0 || parceirasAt(r).length > 0)), tom: "cinza", recorte: "divide_oc" },
       { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
+      { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
     ]},
   ];
   const navAtual = oficina ? NAV_OFICINA : NAV;
@@ -2073,6 +2131,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    insight_revisao: { olho: "Insight · não move ninguém", titulo: "Revisão detalhada", texto: "A fila que eu montei para o seu martelo: casos em que uma fonte discorda da outra, ou em que quem esteve no poste escreveu coisa que a Crítica não gravou. Nasceu da sua leitura da DG-RD-PO 00422 — “defeito interno e tap submerso deveria ir para sobrecarga”. Nenhum caso daqui foi movido; a classificação continua sendo sua, na aba de classificação." },
     insight_divide: { olho: "Insight · não move ninguém", titulo: "Quem divide a mesma interrupção", texto: "Duas SS apoiadas no mesmo evento: a mesma ocorrência da Crítica, ou o mesmo atendimento do TMAE. Uma interrupção prova uma troca, não duas — esta aba lista os pares para leitura, sem mover ninguém." },
     insight_material: { olho: "Insight · não move ninguém", titulo: "Material × transformador, obra por obra", texto: "A obra pagou quantos transformadores, e isso bate com quantas SS ela atende? A conta vem do export do SIAGO, deduplicado entre os dois arquivos e contado por quantidade realizada — linha de transformador não é transformador." },
     insight_garantia: { olho: "Insight · não move ninguém", titulo: "Garantia: quanto o transformador viveu", texto: "O tempo entre a fabricação do equipamento retirado e a abertura da SS, caso a caso. A ficha vem da aba COLETA — a que a equipe preenche no poste —, e traz série, tombamento, fabricante e potência do que saiu e do que entrou." },
@@ -2098,6 +2157,7 @@ export default function Page() {
     insight_material: "mais_ss",
     insight_divide: "divide_oc",
     insight_tempos: "invertida",
+    insight_revisao: "rev_carga",
   };
   const irPara = (id: Modulo, recorteId?: string) => {
     setModulo(id);
@@ -3199,6 +3259,40 @@ export default function Page() {
         </>;
       }
 
+      /* INSIGHT · REVISÃO DETALHADA. A fila de leitura dele. Não move ninguém. */
+      if (modulo === "insight_revisao") {
+        const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
+        const fila = naConta.map((r) => ({ r, motivos: paraRever(r) })).filter((x) => x.motivos.length);
+        const conta1 = (id: string) => fila.filter((x) => x.motivos.some((m) => m.id === id)).length;
+        const BARRAS: [string, number, string][] = [
+          ["Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", conta1("carga"), "rev_carga"],
+          ["Natureza divergente: conta queima, a Crítica declara avaria", conta1("natureza"), "rev_natureza"],
+          ["Casaria pelo elemento interrompido — bandeira", conta1("interrompido"), "rev_interrompido"],
+          ["Zero cliente que é do registro, não da rede", conta1("zero"), "rev_zero"],
+          ["Data impossível: SS encerrada antes de aberta", conta1("data"), "rev_data"],
+        ].filter(([, v]) => v > 0) as [string, number, string][];
+        const doCarga = fila.filter((x) => x.motivos.some((m) => m.id === "carga"));
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>A fila que eu montei</span><h2>{br(fila.length)} solicitações pedem uma segunda leitura sua</h2></div><small>de {br(naConta.length)} · clique numa barra para filtrar a tabela</small></div>
+            <Barras total={fila.length} dados={BARRAS.map(([label, value]) => ({ label, value }))}
+              aoSelecionar={(label) => { const alvo = BARRAS.find(([l]) => l === label); if (alvo) abrirRecorte(alvo[2]); }} />
+            <p className="fonte-detalhe">Nenhum destes casos foi movido. O indicador continua em {br(naConta.length)} — esta aba só junta, com o motivo escrito, o que merece o seu martelo caso a caso na aba de classificação.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>O que abriu esta aba</span><h2>Texto de campo × subcausa da Crítica</h2></div><small>{br(doCarga.length)} caso{doCarga.length > 1 ? "s" : ""}</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>A Crítica gravou</th><th>O que quem esteve no poste escreveu</th></tr></thead>
+              <tbody>{doCarga.map(({ r, motivos }) => <tr key={texto(r.ss)} onClick={() => { setAberto(r); setAbaDossie("consolidado"); }} style={{ cursor: "pointer" }}>
+                <td><strong>{texto(r.ss)}</strong><span>trafo {texto(r.trafo)}</span><small>hoje conta como {texto(r.confirmado).toLowerCase() || "—"}</small></td>
+                <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
+                <td><p className="clip">{motivos.find((m) => m.id === "carga")?.detalhe || texto(r.desc_ss).slice(0, 160)}</p></td>
+              </tr>)}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">A leitura que ele fez na DG-RD-PO 00422/2026 — <em>“defeito interno e tap submerso deveria ir para sobrecarga”</em> — vale para todo este bloco: a Crítica gravou a causa do desligamento, e o texto descreve o defeito que a equipe encontrou. A palavra “tap” sozinha não entra: ela aparece como campo de formulário da OS (<em>POS. DO TAP; 3º</em>) em 588 das 1.305, e só conta quando vem com defeito — submerso, queimado, danificado.</p>
+          </section>
+        </>;
+      }
+
       /* INSIGHT · QUEM DIVIDE A MESMA INTERRUPÇÃO. Também só olha. */
       if (modulo === "insight_divide") {
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
@@ -3383,7 +3477,7 @@ export default function Page() {
         {recorteAtivo ? <p className="fluxo-nota">{recorteAtivo.nota}</p>
           : recorte?.id.startsWith("matriz-") ? <p className="fluxo-nota">Célula da matriz: {recorte.rotulo}.</p> : null}
         {listadas.length
-          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
+          ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
       </section>
     </>;
