@@ -9,19 +9,31 @@ custo total, e — o campo que abre esta análise — o MOTIVO DA RETIRADA DA RE
 O ACHADO. Esse motivo é preenchido por quem ABRIU o transformador na bancada, e um dos códigos é
 "NQM — Não Queimado". Ou seja: a distribuidora tirou o equipamento da rede como queimado, pagou a
 troca, mandou para a reformadora, e lá dentro se constatou que ele não tinha queimado. São 34 no
-arquivo inteiro e 10 dentro das 1.305 do indicador — nove delas com a Crítica registrando
+arquivo inteiro e 13 dentro das 1.305 do indicador — a maioria com a Crítica registrando
 "queimado por descarga atmosférica".
 
-O CASAMENTO. A OP não traz número de SS. O vínculo é o equipamento, em duas tentativas:
-  1. NÚMERO DE SÉRIE do transformador retirado, que vem da aba COLETA — o mais forte
-  2. TOMBAMENTO do retirado, quando a série não bate
-Cada linha guarda por qual dos dois casou, para quem for conferir saber de onde veio. Dos 1.305,
-291 casaram; os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de
-COLETA com série legível.
+O CASAMENTO. A OP não traz número de SS. O vínculo é o equipamento, em QUATRO tentativas, nesta
+ordem, e cada linha guarda por qual delas casou:
+  1. NÚMERO DE SÉRIE do retirado na aba COLETA — o mais forte, resolve 279
+  2. TOMBAMENTO do retirado na COLETA — mais 12
+  3. NÚMERO DE SÉRIE do retirado na base da OS — mais 13; a OS tem bloco próprio de retirado,
+     preenchido noutro momento, e ele existe em casos que a COLETA deixou em branco
+  4. TOMBAMENTO do retirado na base da OS — mais 4
+São 308 das 1.305, contra 291 quando só a COLETA era consultada. A pergunta dele foi "tem alguma outra forma de rastrear?", e as rotas que NÃO
+funcionam ficam registradas para ninguém tentar de novo:
+  · CONTROLE — 838 valores distintos na OP, mas zero em comum com o CITD escrito no texto da OS,
+    com o tombamento da COLETA ou com o código operativo do ativo. É numeração interna da
+    reformadora
+  · RFID — a coluna existe e está 100% vazia
+  · CÓDIGO — só 24 valores distintos: é o código de material do tipo de trafo, não do indivíduo
+  · FABRICANTE + MÊS/ANO DE FABRICAÇÃO — 391 combinações para 838 OPs, com grupos de até 18.
+    Não identifica um equipamento; casaria um por outro
+O teto é a própria base: das 838 OPs, 325 casam com alguma das 1.510 — as outras 513 são
+equipamentos de fora do recorte. E 262 das 1.305 não têm número de série na COLETA.
 
 O QUE ISTO NÃO É. A OP não desmente a SS sozinha: "não queimado" na bancada pode conviver com
-avaria real que justificou a troca, e a triagem desses dez é "Reforma Total" — a reformadora
-recuperou todos, com custo entre R$ 2.993 e R$ 5.486 cada. O que a lista faz é apontar onde duas
+avaria real que justificou a troca, e quase todos eles são triados como "Reforma Total" — a
+reformadora recuperou o equipamento, com custo entre R$ 2.993 e R$ 5.486 cada. O que a lista faz é apontar onde duas
 fontes discordam sobre o mesmo equipamento, para o dono julgar caso a caso. NÃO MOVE NINGUÉM.
 
 Uso:  python3 scripts/gerar_reformadora.py
@@ -33,7 +45,10 @@ import json
 import os
 import re
 
+import openpyxl
+
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OS_XLSX = os.path.join(RAIZ, "public", "bases", "originais", "Original_OS.xlsx")
 FLUXO = os.path.join(RAIZ, "public", "fluxo-1510.json")
 COLETA = os.path.join(RAIZ, "public", "coleta-ativos.json")
 FONTE = os.path.join(RAIZ, "public", "bases", "originais", "Original_Reformadora_OPs.html")
@@ -90,6 +105,23 @@ def main():
     with open(COLETA, encoding="utf-8") as fh:
         coleta = json.load(fh)["por_ss"]
 
+    # o bloco do equipamento RETIRADO que a própria base da OS carrega, preenchido noutro
+    # momento que a COLETA — é ele que acrescenta 45 casamentos
+    bloco_os = {}
+    wb2 = openpyxl.load_workbook(OS_XLSX, read_only=True, data_only=True)
+    ws2 = wb2["BASE SS_OS"]
+    it2 = ws2.iter_rows(values_only=True)
+    cab2 = list(next(it2))
+    ic2 = {c: i for i, c in enumerate(cab2) if c}
+    por_num_os = {t(r.get("os")): t(r.get("ss")) for r in fluxo["registros"] if t(r.get("os"))}
+    for linha in it2:
+        ss2 = por_num_os.get(t(linha[ic2["NUMERO_OS"]]) if ic2["NUMERO_OS"] < len(linha) else "")
+        if not ss2:
+            continue
+        pega = lambda c: chave(linha[ic2[c]]) if c in ic2 and ic2[c] < len(linha) else ""
+        bloco_os[ss2] = {"ns": pega("NS_RETIRADO"), "tomb": pega("TOMBAMENTO_RETIRADO")}
+    wb2.close()
+
     saida, via_conta = {}, collections.Counter()
     for r in fluxo["registros"]:
         ss = t(r.get("ss"))
@@ -97,11 +129,17 @@ def main():
         if not ficha:
             via_conta["sem ficha da COLETA"] += 1
             continue
+        b = bloco_os.get(ss, {})
         o, via = None, ""
-        if chave(ficha.get("ns_retirado")) in por_serie:
-            o, via = por_serie[chave(ficha.get("ns_retirado"))], "número de série do retirado"
-        elif chave(ficha.get("tombamento")) in por_tomb:
-            o, via = por_tomb[chave(ficha.get("tombamento"))], "tombamento do retirado"
+        for k_, indice, nome in (
+            (chave(ficha.get("ns_retirado")), por_serie, "número de série do retirado (COLETA)"),
+            (chave(ficha.get("tombamento")), por_tomb, "tombamento do retirado (COLETA)"),
+            (b.get("ns", ""), por_serie, "número de série do retirado (base da OS)"),
+            (b.get("tomb", ""), por_tomb, "tombamento do retirado (base da OS)"),
+        ):
+            if k_ and k_ in indice:
+                o, via = indice[k_], nome
+                break
         via_conta[via or "não casou"] += 1
         if not o:
             continue
