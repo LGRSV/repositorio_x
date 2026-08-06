@@ -12,6 +12,12 @@ campo em branco lançado como zero. Contá-los como medição empurraria a media
 diria que o parque está bem aterrado quando ninguém mediu. São 258 das 1.305 nessa situação, e
 elas aparecem na tela como NÃO PREENCHIDO, não como bom.
 
+ANTES, NÃO DEPOIS. Ordem dele: "na verdade deveria ser com a de antes, né?" — e está certo. A
+medição de DEPOIS é o ponto já corrigido; a que descreve o mundo em que o transformador viveu e
+queimou é a de ANTES do serviço. A régua usa só ela. Os 330 casos que trazem apenas a medição
+posterior não viram "medidos": ganham categoria própria, porque dizer que o ponto estava bom
+usando o número de depois da melhoria seria contar a correção como se fosse o estado original.
+
 QUAL DAS TRÊS HASTES VALE. A pior. Aterramento é caminho: de nada adianta uma haste de 5 Ω se a
 do lado tem 800 — a corrente de descarga procura o pior caminho disponível, e é ele que define
 o que o transformador aguenta. Por isso a régua usa o máximo das três, não a média.
@@ -75,13 +81,13 @@ def main():
             continue
         antes = [x for x in (num(row[i]) if i < len(row) else None for i in COL_ANTES) if x]
         depois = [x for x in (num(row[i]) if i < len(row) else None for i in COL_DEPOIS) if x]
-        base = antes or depois
         saida[ss] = {
             "antes": antes, "depois": depois,
-            # a PIOR haste manda: a corrente procura o pior caminho
-            "pior": max(base) if base else None,
+            # a PIOR haste manda, e só a de ANTES: é o estado em que o trafo queimou
+            "pior": max(antes) if antes else None,
+            "so_depois": bool(depois and not antes),
             "pior_depois": max(depois) if depois else None,
-            "medido": bool(base),
+            "medido": bool(antes),
             "melhoria": t(row[COL_MELHORIA]) if COL_MELHORIA < len(row) else "",
             "conectado": t(row[COL_CONECT]) if COL_CONECT < len(row) else "",
         }
@@ -97,7 +103,9 @@ def main():
     sem_mel = [v for v in ruins if not t(v["melhoria"]).upper().startswith("S")]
     vs = sorted(v["pior"] for v in med)
     print(SAIDA)
-    print(f"  {len(saida)} solicitações · medidas {len(med)} · NÃO PREENCHIDAS (vazio ou zero) {len(saida)-len(med)}")
+    so_dep = sum(1 for v in saida.values() if v["so_depois"])
+    print(f"  {len(saida)} solicitações · com medição ANTES do serviço {len(med)}"
+          f" · só depois {so_dep} · NÃO PREENCHIDAS (vazio ou zero) {len(saida)-len(med)-so_dep}")
     print(f"  pior haste: mediana {vs[len(vs)//2]:.1f} Ω · p90 {vs[int(len(vs)*.9)]:.0f} Ω · máx {vs[-1]:.0f} Ω")
     print(f"  acima de {LIMITE:.0f} Ω: {len(ruins)} · destes, SEM melhoria de aterramento: {len(sem_mel)}")
     print(f"  acima de {GRAVE:.0f} Ω: {sum(1 for v in med if v['pior'] > GRAVE)}")

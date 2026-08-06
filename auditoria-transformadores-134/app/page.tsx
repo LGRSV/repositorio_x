@@ -25,7 +25,7 @@ type TmaeTempo = {
 };
 type Aterramento = {
   antes: number[]; depois: number[]; pior: number | null; pior_depois: number | null;
-  medido: boolean; melhoria: string; conectado: string;
+  medido: boolean; so_depois: boolean; melhoria: string; conectado: string;
 };
 type Passo = {
   p: string; pf: string; ini: string; fim: string;
@@ -508,6 +508,36 @@ function Barras({ dados, total, aoSelecionar }: {
         <div><span>{d.label}</span><strong>{br(d.value)}</strong></div>
         <i><b style={{ width: `${(d.value / max) * 100}%` }} /></i>
         {total ? <small>{pct(d.value, total)}% do recorte</small> : null}
+      </>;
+      return aoSelecionar
+        ? <button type="button" className="bar-row" key={d.label} onClick={() => aoSelecionar(d.label)}>{corpo}</button>
+        : <div className="bar-row" key={d.label}>{corpo}</div>;
+    })}
+  </div>;
+}
+
+/* A MESMA BARRA, PARTIDA POR CAUSA. Pedido dele na aba do aterramento: além da barra da faixa,
+   uma barra mais grossa dividida entre queimado e avariado — verde claro e azul escuro. A
+   pergunta que ela responde é direta: dos que estavam sobre aterramento grave, quantos
+   queimaram e quantos avariaram. As duas barras dividem a MESMA escala (o maior total manda),
+   senão a faixa pequena pareceria do tamanho da grande. */
+function BarrasCausa({ dados, aoSelecionar }: {
+  dados: { label: string; total: number; q: number; a: number }[];
+  aoSelecionar?: (label: string) => void;
+}) {
+  const max = Math.max(...dados.map((d) => d.total), 1);
+  return <div className="bar-list">
+    {dados.map((d) => {
+      const corpo = <>
+        <div><span>{d.label}</span><strong>{br(d.total)}</strong></div>
+        <i><b style={{ width: `${(d.total / max) * 100}%` }} /></i>
+        <i className="bar-causa">
+          {/* piso de 5px: com 6 avariados contra 119 queimados a fatia azul sumia, e sumir
+              é o contrário do que a barra existe para fazer */}
+          {d.q ? <b className="q" style={{ width: `${(d.q / max) * 100}%`, minWidth: 5 }} title={`${br(d.q)} queimados`} /> : null}
+          {d.a ? <b className="a" style={{ width: `${(d.a / max) * 100}%`, minWidth: 5 }} title={`${br(d.a)} avariados`} /> : null}
+        </i>
+        <small><em className="leg-q" /> {br(d.q)} queimado{d.q === 1 ? "" : "s"} · <em className="leg-a" /> {br(d.a)} avariado{d.a === 1 ? "" : "s"}</small>
       </>;
       return aoSelecionar
         ? <button type="button" className="bar-row" key={d.label} onClick={() => aoSelecionar(d.label)}>{corpo}</button>
@@ -1383,11 +1413,16 @@ export default function Page() {
 
   /* A FAIXA DO ATERRAMENTO. Vale a PIOR das três hastes: a corrente de descarga procura o pior
      caminho disponível, e é ele que define o que o transformador aguenta. Sem medição — vazio
-     ou zero — não vira "bom": vira NÃO PREENCHIDO, com nome próprio na tela. */
+     ou zero — não vira "bom": vira NÃO PREENCHIDO, com nome próprio na tela.
+     E vale a medição de ANTES do serviço, não a de depois: ele corrigiu na hora certa. A de
+     depois é o ponto já consertado; a de antes é o mundo em que o transformador queimou. Quem
+     só tem a posterior fica numa faixa própria, porque contá-la como estado original seria
+     apresentar a correção como se fosse a condição que matou o equipamento. */
   const LIMITE_TERRA = 25, GRAVE_TERRA = 100;
   const terraDe = (r: Registro) => aterr[texto(r.ss)];
-  const faixaTerra = (r: Registro): "sem" | "bom" | "limite" | "acima" | "grave" => {
+  const faixaTerra = (r: Registro): "sem" | "so_depois" | "bom" | "limite" | "acima" | "grave" => {
     const a = terraDe(r);
+    if (a?.so_depois) return "so_depois";
     if (!a || !a.medido || a.pior == null) return "sem";
     if (a.pior <= 10) return "bom";
     if (a.pior <= LIMITE_TERRA) return "limite";
@@ -1587,13 +1622,14 @@ export default function Page() {
     ],
     /* O aterramento medido pela própria equipe, na hora da troca. Só olha. */
     insight_aterramento: [
-      { id: "terra_grave", rotulo: "Aterramento grave — acima de 100 Ω", nota: "A pior das três hastes passa de 100 Ω, quatro vezes o limite usual da norma. Nestes pontos o aterramento praticamente não existe: a corrente de descarga não tem para onde ir e sobra para o equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "grave" },
-      { id: "terra_acima", rotulo: "Acima da norma — 25 a 100 Ω", nota: "Passa do limite usual de 25 Ω sem chegar ao extremo. Merece melhoria programada no ponto.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "acima" },
-      { id: "terra_ruim_sem_melhoria", rotulo: "Mediu ruim e NÃO fez melhoria", nota: "A equipe mediu acima de 25 Ω, escreveu o número no formulário da OS e respondeu NÃO à pergunta “fez melhoria de aterramento”. O ponto continua como estava, e o transformador novo foi instalado ali. É a lista que vira plano de ação.", teste: (r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r) },
+      { id: "terra_so_depois", rotulo: "Só mediram depois do serviço", nota: "O formulário traz medição posterior ao serviço, mas nenhuma anterior. Não dá para dizer em que condição o transformador queimou: o número que existe descreve o ponto JÁ mexido. Ficam fora das faixas por isso — contar a correção como estado original seria inverter a história do caso.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "so_depois" },
+      { id: "terra_grave", rotulo: "Aterramento grave — acima de 100 Ω", nota: "A pior das três hastes medidas ANTES do serviço passa de 100 Ω, quatro vezes o limite usual da norma. Nestes pontos o aterramento praticamente não existe: a corrente de descarga não tem para onde ir e sobra para o equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "grave" },
+      { id: "terra_acima", rotulo: "Acima da norma — 25 a 100 Ω", nota: "A medição de antes do serviço passa do limite usual de 25 Ω sem chegar ao extremo. Merece melhoria programada no ponto.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "acima" },
+      { id: "terra_ruim_sem_melhoria", rotulo: "Mediu ruim e NÃO fez melhoria", nota: "A equipe mediu acima de 25 Ω ANTES do serviço, escreveu o número no formulário da OS e respondeu NÃO à pergunta “fez melhoria de aterramento”. O ponto continua como estava, e o transformador novo foi instalado ali. É a lista que vira plano de ação.", teste: (r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r) },
       { id: "terra_melhorou", rotulo: "Fez melhoria — e a medição caiu", nota: "Há medição antes e depois, e a de depois é menor: a melhoria aparece no número. São os casos em que dá para provar que a intervenção funcionou.", teste: (r) => { const a = terraDe(r); return arquivo(r) === "SAÍDA" && Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); } },
       { id: "terra_limite", rotulo: "No limite — 10 a 25 Ω", nota: "Dentro da norma, mas sem folga. Em solo seco a medição sobe.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "limite" },
       { id: "terra_bom", rotulo: "Bom — até 10 Ω", nota: "Aterramento em ordem no momento da troca. A queima veio de outro caminho.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "bom" },
-      { id: "terra_sem", rotulo: "Sem medição — não preenchido", nota: "O formulário veio em branco ou com zero nas três hastes. Zero não é medição: resistência zero não existe num aterramento de distribuição, é o campo vazio lançado como zero. Ordem do dono: estes contam como NÃO PREENCHIDOS, nunca como bons.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "sem" },
+      { id: "terra_sem", rotulo: "Sem medição — não preenchido", nota: "O formulário veio em branco ou com zero nas três hastes, antes e depois. Zero não é medição: resistência zero não existe num aterramento de distribuição, é o campo vazio lançado como zero. Ordem do dono: estes contam como NÃO PREENCHIDOS, nunca como bons.", teste: (r) => arquivo(r) === "SAÍDA" && faixaTerra(r) === "sem" },
       { id: "terra_desconectado", rotulo: "Aterramento não conectado ao tanque", nota: "A equipe respondeu NÃO à pergunta se o aterramento está conectado ao tanque do transformador. Sem essa conexão, a malha não protege a carcaça do equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && texto(terraDe(r)?.conectado).toUpperCase().startsWith("N") },
     ],
     /* A fila de revisão detalhada: só olha, e cada chip é um motivo de leitura. */
@@ -3336,27 +3372,39 @@ export default function Page() {
         const q = (f: (r: Registro) => boolean) => naConta.filter(f).length;
         const ruins = naConta.filter((r) => ["acima", "grave"].includes(faixaTerra(r)));
         const semMelhoria = ruins.filter((r) => !fezMelhoria(r));
-        const medidos = naConta.filter((r) => faixaTerra(r) !== "sem");
+        const medidos = naConta.filter((r) => !["sem", "so_depois"].includes(faixaTerra(r)));
         const vs = medidos.map((r) => terraDe(r)!.pior as number).sort((a, b) => a - b);
         const p = (n: number) => (vs.length ? vs[Math.floor((vs.length - 1) * n)] : 0);
         const ohm = (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω`;
-        const BARRAS: [string, number, string][] = [
-          ["Grave — acima de 100 Ω", q((r) => faixaTerra(r) === "grave"), "terra_grave"],
-          ["Acima da norma — 25 a 100 Ω", q((r) => faixaTerra(r) === "acima"), "terra_acima"],
-          ["No limite — 10 a 25 Ω", q((r) => faixaTerra(r) === "limite"), "terra_limite"],
-          ["Bom — até 10 Ω", q((r) => faixaTerra(r) === "bom"), "terra_bom"],
-          ["Não preenchido — vazio ou zero", q((r) => faixaTerra(r) === "sem"), "terra_sem"],
+        /* Pedido dele: a barra grossa partida entre queimado e avariado. A causa é a que a
+           tela mostra — o martelo dele vence o que a régua tinha escrito. */
+        const causa = (r: Registro) => classificacao[texto(r.ss)]?.classe || texto(r.confirmado);
+        const faixa = (id: string) => naConta.filter((r) => faixaTerra(r) === id);
+        const barra = (rotulo: string, id: string, recorte: string) => {
+          const g = faixa(id);
+          return { label: rotulo, recorte, total: g.length,
+                   q: g.filter((r) => causa(r) === "QUEIMADO").length,
+                   a: g.filter((r) => causa(r) === "AVARIADO").length };
+        };
+        const BARRAS = [
+          barra("Grave — acima de 100 Ω", "grave", "terra_grave"),
+          barra("Acima da norma — 25 a 100 Ω", "acima", "terra_acima"),
+          barra("No limite — 10 a 25 Ω", "limite", "terra_limite"),
+          barra("Bom — até 10 Ω", "bom", "terra_bom"),
+          barra("Só mediram depois do serviço", "so_depois", "terra_so_depois"),
+          barra("Não preenchido — vazio ou zero", "sem", "terra_sem"),
         ];
         return <>
           <section className="panel">
-            <div className="panel-title"><div><span>A pior das três hastes</span><h2>{br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou</h2></div><small>de {br(ruins.length)} acima de 25 Ω · {br(naConta.length)} no total</small></div>
-            <Barras total={naConta.length} dados={BARRAS.map(([label, value]) => ({ label, value }))}
-              aoSelecionar={(label) => { const alvo = BARRAS.find(([l]) => l === label); if (alvo) abrirRecorte(alvo[2]); }} />
-            <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS. Vale a <strong>pior</strong> delas: a corrente de descarga procura o pior caminho disponível, e é ele que define o que o transformador aguenta. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}.</p>
+            <div className="panel-title"><div><span>A pior das três hastes, medida ANTES do serviço</span><h2>{br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou</h2></div><small>de {br(ruins.length)} acima de 25 Ω · {br(medidos.length)} com medição anterior · {br(naConta.length)} no total</small></div>
+            <BarrasCausa dados={BARRAS}
+              aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
+            <p className="fonte-detalhe">A equipe mede três hastes no poste e escreve no formulário da OS, antes e depois do serviço. Vale a <strong>pior</strong> das três e a <strong>de antes</strong>: a corrente de descarga procura o pior caminho, e a medição posterior já é o ponto consertado. Mediana {ohm(p(0.5))} · p90 {ohm(p(0.9))} · máxima {ohm(p(1))}.</p>
           </section>
           <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
-            <p><strong>Um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} medidos, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
+            <p><strong>Quase um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} com medição anterior ao serviço, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
             <p>O que <strong>não</strong> dá para dizer: que o aterramento ruim explica a queima por raio. Cruzei, e ele não separa — entre os queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 32%. Quem apresentar isso como causa provada vai ser desmentido na primeira pergunta. O achado é de <strong>manutenção</strong>, não de causalidade: existe um cadastro de pontos ruins, medido pela própria equipe, e ele não virou serviço.</p>
+            <p><strong>A medição que vale é a de ANTES do serviço</strong>, e é dele a correção. A de depois descreve o ponto já mexido: usá-la seria apresentar o conserto como se fosse a condição que matou o equipamento. Por isso {br(q((r) => faixaTerra(r) === "so_depois"))} solicitações que só trazem o número posterior ficam em faixa própria, fora das cinco. Entre as que têm as duas medições, {br(naConta.filter((r) => { const a = terraDe(r); return Boolean(a?.antes.length && a?.depois.length && Math.max(...a.antes) === Math.max(...a.depois)); }).length)} repetem o mesmo número nos dois campos — a equipe copiou, o que é coerente com não ter feito melhoria.</p>
             <p><strong>Zero não é medição.</strong> {br(q((r) => faixaTerra(r) === "sem"))} solicitações vieram com as três hastes vazias ou zeradas, e elas contam aqui como <em>não preenchido</em> — nunca como bom. Resistência zero não existe num aterramento de distribuição: é campo em branco lançado como zero, e somá-lo ao grupo bom empurraria a mediana para baixo e diria que o parque está bem aterrado quando ninguém mediu.</p>
             <p>Onde a melhoria foi feita, ela aparece: em <strong>{br(q((r) => { const a = terraDe(r); return Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); }))}</strong> casos a medição de depois é menor que a de antes — há quedas de 6.105 Ω para 967 Ω. O formulário serve; o que falta é a ordem de serviço depois dele.</p>
           </section>

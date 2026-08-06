@@ -852,3 +852,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-chegou { position: absolute; top: 0; width: 2px; height: 11px; background: #fff; box-shadow: 0 0 0 1px var(--blue); }
 .rev-motivo { margin: 0 0 4px; font-size: 8px; line-height: 1.45; }
 .rev-motivo b { font-weight: 600; color: var(--ink); }
+.bar-causa { margin-top: 4px; height: 14px; display: flex; background: #efece7; }
+.bar-causa b { height: 100%; display: block; }
+.bar-causa b.q { background: #a9d6a0; }
+.bar-causa b.a { background: #1f3a6e; }
+.bar-row small em { display: inline-block; width: 8px; height: 8px; margin-right: 2px; vertical-align: baseline; }
+.bar-row small em.leg-q { background: #a9d6a0; }
+.bar-row small em.leg-a { background: #1f3a6e; }
