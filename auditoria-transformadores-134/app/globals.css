@@ -850,3 +850,5 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 
 /* O instante em que a equipe chegou, dentro da faixa do deslocamento. */
 .regua-chegou { position: absolute; top: 0; width: 2px; height: 11px; background: #fff; box-shadow: 0 0 0 1px var(--blue); }
+.rev-motivo { margin: 0 0 4px; font-size: 8px; line-height: 1.45; }
+.rev-motivo b { font-weight: 600; color: var(--ink); }
