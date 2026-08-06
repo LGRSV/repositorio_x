@@ -29,6 +29,8 @@ type OrdemReforma = {
   reformadora: string; motivo: string; sucateamento: string; obs: string;
   material: string; mao_obra: string; custo: string;
   dias_producao: string; dias_total: string; elo: string; oleo: string; comutador: string;
+  dt_recebimento: string; dt_producao: string; dt_encerramento: string; dt_devolucao: string;
+  dias_fora: number | null; dias_bancada: number | null;
   via: string; codigo: string; nao_queimado: boolean;
 };
 type Aterramento = {
@@ -910,7 +912,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
         <td>{op ? <><strong className={op.nao_queimado ? "nq-forte" : undefined}>{op.motivo || "motivo não declarado"}</strong>
           <span>triagem {op.triagem.toLowerCase()} · {op.status.toLowerCase()}</span>
           <small>{op.descricao.slice(0, 44)}</small></> : <><strong>sem ordem de produção</strong><span>não casou com a base da reformadora</span></>}</td>
-        <td>{op ? <><strong>OP {op.op}</strong><span>{op.custo ? `R$ ${op.custo}` : "sem custo"}{op.dias_total ? ` · ${op.dias_total} dias fora` : ""}</span><small>casou pelo {op.via}</small></> : <span>—</span>}</td>
+        <td>{op ? <><strong>OP {op.op}</strong><span>{op.custo ? `R$ ${op.custo}` : "sem custo"}{op.dias_bancada != null ? ` · ${op.dias_bancada} dias na bancada` : ""}</span><small>casou pelo {op.via}</small></> : <span>—</span>}</td>
         <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
       </>}
 
@@ -3505,7 +3507,7 @@ export default function Page() {
           <section className="panel">
             <div className="panel-title"><div><span>A única fonte que abriu o equipamento</span><h2>{br(nqm.length)} foram para a bancada e voltaram como NÃO QUEIMADO</h2></div><small>de {br(comOp.length)} que casaram com uma ordem de produção · {br(naConta.length)} no indicador</small></div>
             <BarrasCausa dados={BARRAS} aoSelecionar={(label) => { const alvo = BARRAS.find((x) => x.label === label); if (alvo) abrirRecorte(alvo.recorte); }} />
-            <p className="fonte-detalhe"><strong>E o que mais salta no cruzamento:</strong> dos {br(comOp.length)} que foram para a reformadora, <strong>{br(comOp.filter((r) => texto(reformaDe(r)?.status).toUpperCase().startsWith("AGUARDANDO")).length)} continuam com status “aguardando”</strong> — nem entraram em produção. A mediana de tempo fora da rede é de 55 dias, com casos de até 143. É ativo parado, fora da rede e fora da bancada, enquanto a distribuidora comprou outro para o poste.</p>
+            <p className="fonte-detalhe"><strong>E o que mais salta no cruzamento:</strong> dos {br(comOp.length)} que foram para a reformadora, <strong>{br(comOp.filter((r) => texto(reformaDe(r)?.status).toUpperCase().startsWith("AGUARDANDO")).length)} continuam com status “aguardando”</strong> — nem entraram em produção. Entre os que já voltaram, a mediana na bancada é de 61 dias — e essa conta sai das <strong>datas</strong>, não do campo de dias da base, que traz 82 valores negativos em 838 linhas e não fecha com as próprias datas da linha. É ativo parado, fora da rede e fora da bancada, enquanto a distribuidora comprou outro para o poste.</p>
             <p className="fonte-detalhe">A base da reformadora traz 838 ordens de produção do centro Tocantins. O casamento é pelo <strong>número de série</strong> do equipamento retirado e, quando ele não bate, pelo <strong>tombamento</strong> — a OP não tem número de SS. Os que não aparecem aqui ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.</p>
           </section>
           <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>Os que a bancada diz que não queimaram</h2></div><small>{br(nqm.length)} casos · R$ {custoNqm.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} de reforma somados</small></div>
@@ -3515,7 +3517,7 @@ export default function Page() {
                 <td><strong>{texto(r.ss)}</strong><span>trafo {texto(r.trafo)}</span><small>hoje conta como {causa(r).toLowerCase() || "—"}</small></td>
                 <td><strong>{texto(r.oc_sub) || "sem subcausa"}</strong><span>{texto(r.oc_causa)}</span></td>
                 <td><strong className="nq-forte">{o.motivo}</strong><span>triagem {o.triagem.toLowerCase()}</span><small>série {o.serie} · {o.fabricante}</small></td>
-                <td><strong>OP {o.op}</strong><span>{o.custo ? `R$ ${o.custo}` : "sem custo"}</span><small>{o.dias_total ? `${o.dias_total} dias fora da rede` : ""}</small></td>
+                <td><strong>OP {o.op}</strong><span>{o.custo ? `R$ ${o.custo}` : "sem custo"}</span><small>{o.dias_bancada != null ? `${o.dias_bancada} dias na bancada` : o.dt_recebimento ? `recebida em ${o.dt_recebimento.slice(0, 10)}` : "sem data de recebimento"}</small></td>
               </tr>; })}</tbody>
             </table></div>
             <p className="fonte-detalhe">Nenhum destes foi movido. <strong>NQM não desmente a SS sozinho</strong>: avaria real convive com “não queimado” na bancada — tanto que a triagem de todos eles é <em>reforma total</em>, isto é, o equipamento foi recuperado e voltou. O que a lista faz é apontar onde duas fontes discordam sobre o mesmo equipamento, com o número de série ligando uma à outra, para o seu martelo caso a caso.</p>

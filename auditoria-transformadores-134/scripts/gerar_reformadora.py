@@ -31,6 +31,12 @@ funcionam ficam registradas para ninguém tentar de novo:
 O teto é a própria base: das 838 OPs, 325 casam com alguma das 1.510 — as outras 513 são
 equipamentos de fora do recorte. E 262 das 1.305 não têm número de série na COLETA.
 
+O CAMPO DE DIAS QUE NÃO SERVE. "Tempo total Envio para Reforma até Devolução (dias)" traz 82
+valores NEGATIVOS em 838 linhas, de -77 a 1.477, e não fecha com as datas da própria linha — há
+OP com -2 cuja devolução é oito dias depois da previsão. Não dá para chamar isso de tempo fora da
+rede. O que a tela mostra é calculado aqui, das datas: do recebimento na reformadora até a nota
+de devolução; quando falta uma das duas, o campo fica vazio em vez de mentir.
+
 O QUE ISTO NÃO É. A OP não desmente a SS sozinha: "não queimado" na bancada pode conviver com
 avaria real que justificou a troca, e quase todos eles são triados como "Reforma Total" — a
 reformadora recuperou o equipamento, com custo entre R$ 2.993 e R$ 5.486 cada. O que a lista faz é apontar onde duas
@@ -65,6 +71,10 @@ CAMPOS = [
     ("material", "Material R$"), ("mao_obra", "Mão de Obra R$"), ("custo", "Custo Total R$"),
     ("dias_producao", "Tempo de Produção (dias)"),
     ("dias_total", "Tempo total Envio para Reforma até Devolução (dias)"),
+    ("dt_recebimento", "Confirmado Recebimento - Data"),
+    ("dt_producao", "Entrada em Produção - Data"),
+    ("dt_encerramento", "Encerramento da Produção - Data"),
+    ("dt_devolucao", "NFe de Devolução - Data"),
     ("elo", "Elo fusível"), ("oleo", "Tipo do Óleo"), ("comutador", "Comutador"),
 ]
 
@@ -75,6 +85,19 @@ def t(v):
 
 def limpa(celula):
     return html.unescape(re.sub(r"<[^>]+>", "", celula)).replace("\xa0", " ").strip()
+
+
+def data(v):
+    """A base escreve 13/05/2026 08:18."""
+    try:
+        return datetime.datetime.strptime(t(v)[:10], "%d/%m/%Y")
+    except ValueError:
+        return None
+
+
+def dias_entre(a, b):
+    da, db = data(a), data(b)
+    return (db - da).days if (da and db and db >= da) else None
 
 
 def chave(v):
@@ -145,6 +168,9 @@ def main():
             continue
         item = {nome: t(o.get(coluna)) for nome, coluna in CAMPOS}
         item["via"] = via
+        # os dias que a tela mostra saem das DATAS, não do campo de dias da base
+        item["dias_fora"] = dias_entre(item["dt_recebimento"], item["dt_devolucao"])
+        item["dias_bancada"] = dias_entre(item["dt_recebimento"], item["dt_encerramento"])
         # o código do motivo, isolado: "NQM - Não Queimado" vira NQM
         item["codigo"] = (item["motivo"].split("-")[0].strip().upper() if item["motivo"] else "")
         item["nao_queimado"] = item["codigo"] == "NQM"
