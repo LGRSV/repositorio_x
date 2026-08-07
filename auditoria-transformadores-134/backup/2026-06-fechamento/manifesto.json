@@ -1,0 +1,110 @@
+{
+ "gerado_em": "07/08/2026 13:21",
+ "o_que_e": "Estado congelado do fechamento de janeiro a junho de 2026, tirado ANTES de qualquer arquivo de julho entrar. É o ponto de retorno: se julho der errado, Jan-Jun volta daqui intacto.",
+ "regra": "As 1.305 deste fechamento não se movem. Julho é indicador separado.",
+ "universo": {
+  "registros_no_fluxo": 1510,
+  "no_indicador_1305": 1305
+ },
+ "por_classe": {
+  "QUEIMADO": 1225,
+  "AVARIADO": 80
+ },
+ "por_arquivo": {
+  "SAÍDA": 1305,
+  "EXCLUÍDA": 205
+ },
+ "arquivos": {
+  "aterramento.json": {
+   "bytes": 277829,
+   "sha256": "8fe43eb1940f88f2"
+  },
+  "auditorias.json": {
+   "bytes": 708705,
+   "sha256": "26f773a30b2eebed"
+  },
+  "classificacao.json": {
+   "bytes": 5879,
+   "sha256": "30388861d9414906"
+  },
+  "coleta-ativos.json": {
+   "bytes": 506931,
+   "sha256": "b859b9af52bd3ded"
+  },
+  "equipamentos-kml.json": {
+   "bytes": 1382,
+   "sha256": "4e94f5bbd267ad6e"
+  },
+  "fluxo-1510.json": {
+   "bytes": 20858422,
+   "sha256": "3b247b1dd809e5ed"
+  },
+  "material-obra.json": {
+   "bytes": 329061,
+   "sha256": "c2066b199eeb6cf0"
+  },
+  "metodo.json": {
+   "bytes": 18428,
+   "sha256": "3e6df3ad1bde33db"
+  },
+  "municipios-to.json": {
+   "bytes": 18912,
+   "sha256": "62171dad06701862"
+  },
+  "passos-critica.json": {
+   "bytes": 896699,
+   "sha256": "cfcf7b0ab6c71b82"
+  },
+  "reformadora.json": {
+   "bytes": 271491,
+   "sha256": "595e4c4f116f447d"
+  },
+  "revisao.json": {
+   "bytes": 179476,
+   "sha256": "b49dbb3f539ea5d1"
+  },
+  "terceiros.json": {
+   "bytes": 18052,
+   "sha256": "ee32efa46ba866f6"
+  },
+  "tmae-tempos.json": {
+   "bytes": 393492,
+   "sha256": "4b6a9d8e721ff856"
+  },
+  "universo-ss.json": {
+   "bytes": 4532068,
+   "sha256": "291443d52d1d064c"
+  }
+ },
+ "bases_originais": {
+  "Original_Cadastro_Obras.xlsx": {
+   "bytes": 3721731,
+   "sha256": "d19a46974fbd9337"
+  },
+  "Original_Critica_Interrupcoes.zip": {
+   "bytes": 19592010,
+   "sha256": "6821c588d5b2bc63"
+  },
+  "Original_Material_SIAGO.zip": {
+   "bytes": 113702,
+   "sha256": "c4cdd2f27ea30b7f"
+  },
+  "Original_OS.xlsx": {
+   "bytes": 30189760,
+   "sha256": "13687703d7a8f57a"
+  },
+  "Original_Reformadora_OPs.html": {
+   "bytes": 3208013,
+   "sha256": "461fdd8cc8726a6e"
+  },
+  "Original_SS_TRAFOS_V4.xlsx": {
+   "bytes": 2419376,
+   "sha256": "f9285c083a5b7702"
+  },
+  "Original_TMAE_Atendimentos.zip": {
+   "bytes": 5106599,
+   "sha256": "5f33aa192c68e0d8"
+  }
+ },
+ "commit": "2439911c4923666e05a0e77ff6ce5e19998cde26"
+}
