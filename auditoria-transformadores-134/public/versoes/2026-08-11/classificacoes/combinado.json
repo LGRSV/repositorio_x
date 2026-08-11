@@ -1,0 +1,184 @@
+{
+ "exportado_em": "2026-08-04 04:59",
+ "total_classificado": 34,
+ "por_classe": {
+  "QUEIMADO": 27,
+  "AVARIADO": 4,
+  "PREVENTIVO": 2,
+  "FURTADO": 1
+ },
+ "dados": {
+  "fluxo-1510-classificacao": {
+   "DG-RD-PO 00018/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 01:29"
+   },
+   "DG-RD-PO 00001/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 01:35"
+   },
+   "ETO-RD-GU 00005/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:01"
+   },
+   "ETO-RD-DP 00018/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:01"
+   },
+   "ETO-RD-GR 00025/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:11"
+   },
+   "ENC-RD-PS 00501/2026": {
+    "classe": "AVARIADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:12"
+   },
+   "ENC-RD-PS 00603/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:24"
+   },
+   "ETO-RD-AG 00093/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:25"
+   },
+   "DG-RD-PO 00002/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:37"
+   },
+   "DG-RD-PO 00003/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:41"
+   },
+   "DG-RD-PO 00004/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 02:41"
+   },
+   "DOLP-RD-PA 00103/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:00"
+   },
+   "ENC-RD-PS 00349/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:06"
+   },
+   "ETO-RD-GR 00530/2026": {
+    "classe": "AVARIADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:09"
+   },
+   "ETO-RD-DP 00019/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:13"
+   },
+   "ETO-RD-AG 00160/2026": {
+    "classe": "PREVENTIVO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:19"
+   },
+   "ETO-RD-AG 00215/2026": {
+    "classe": "AVARIADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:20"
+   },
+   "ETO-RD-AR 00709/2026": {
+    "classe": "AVARIADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:43"
+   },
+   "DG-RD-PO 00005/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:48"
+   },
+   "DG-RD-PO 00006/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:48"
+   },
+   "DOLP-RD-PA 00001/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:49"
+   },
+   "DG-RD-PO 00009/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:49"
+   },
+   "DG-RD-PO 00010/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 03:49"
+   },
+   "ENC-RD-PS 00003/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:06"
+   },
+   "ETO-RD-DP 00001/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:06"
+   },
+   "ETO-RD-DP 00002/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:07"
+   },
+   "ETO-RD-DP 00004/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:07"
+   },
+   "DG-RD-PO 00019/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:18"
+   },
+   "ETO-RD-AR 00011/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:21"
+   },
+   "DOLP-RD-PA 00006/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:24"
+   },
+   "ETO-RD-GR 00001/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:25"
+   },
+   "ETO-RD-AG 00343/2026": {
+    "classe": "PREVENTIVO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:42"
+   },
+   "ETO-RD-DP 00182/2026": {
+    "classe": "FURTADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:48"
+   },
+   "ETO-RD-PA 00187/2026": {
+    "classe": "QUEIMADO",
+    "quem": "análise local",
+    "quando": "2026-08-04 04:53"
+   }
+  }
+ }
+}

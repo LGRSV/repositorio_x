@@ -1,0 +1,109 @@
+{
+ "gerado_em": "11/08/2026 14:29",
+ "o_que_e": "Fotografia do site como ele está hoje, 11/08/2026, servível pelo próprio site. Abre pela URL ?versao=2026-08-11 — a tela lê os JSON desta pasta em vez dos atuais.",
+ "commit": "390d05b",
+ "jan_jun": {
+  "universo": 1510,
+  "indicador_pela_cascata": 1269,
+  "por_classe_pela_cascata": {
+   "QUEIMADO": 1198,
+   "AVARIADO": 71
+  },
+  "indicador_na_tela": 1305,
+  "por_classe_na_tela": {
+   "QUEIMADO": 1225,
+   "AVARIADO": 80
+  },
+  "nota": "A diferença de 36 é o martelo do dono. As classificações manuais NÃO moram no repositório: a tela lê a view trafo_classificacao_atual do Supabase ao vivo, a cada abertura. Por isso esta fotografia congela os dados, mas NÃO congela as classificações — se o dono reclassificar algo, esta versão acompanha. É uma limitação real, e está escrita aqui para não ser descoberta depois."
+ },
+ "agosto": {
+  "no_recorte": 27,
+  "entram": 18,
+  "pendentes": 5,
+  "previa": true
+ },
+ "classificacoes_do_dono": 34,
+ "arquivos": {
+  "agosto-2026.json": {
+   "sha256": "b674c91bcf6d83cb12a277585d04027bd67e439c299fb600acb8618f483cbf1b",
+   "bytes": 146337
+  },
+  "aterramento.json": {
+   "sha256": "8fe43eb1940f88f250e221ef8e10773b0b5561cf5895b7355ee0bc890bc6715e",
+   "bytes": 277829
+  },
+  "auditorias.json": {
+   "sha256": "26f773a30b2eebede5a980838b0f2e1731212452f98b1a1e2ef26346a6daa19a",
+   "bytes": 708705
+  },
+  "coleta-ativos.json": {
+   "sha256": "b859b9af52bd3dede8ae663826b679efdf1bb3bafb0962000421594b55864727",
+   "bytes": 506931
+  },
+  "equipamentos-kml.json": {
+   "sha256": "4e94f5bbd267ad6e65a25370286540abc5b4f020570cf4baea4c8d3c4a4f72b3",
+   "bytes": 1382
+  },
+  "fluxo-1510.json": {
+   "sha256": "3b247b1dd809e5ed1b09c2befa601ae7f91d6ff26150739082ff776821a388cf",
+   "bytes": 20858422
+  },
+  "garantia-almoxarifado.json": {
+   "sha256": "88808a3861428491961c0650ee1df033a4215c2a808e3c8e5f0a6f60c0a6f12e",
+   "bytes": 43760
+  },
+  "material-obra.json": {
+   "sha256": "c2066b199eeb6cf05836d199f39cde83619f7f0e260dcc4b08d3892add4f93d5",
+   "bytes": 329061
+  },
+  "metodo.json": {
+   "sha256": "45d8de39adcf33117de18fa3e782ccb58ec49b246a3be88eea49140e1b59c083",
+   "bytes": 21690
+  },
+  "municipios-to.json": {
+   "sha256": "62171dad06701862d0b8467aa5cb0a74c1fe230e9757bb588835a707e0f72462",
+   "bytes": 18912
+  },
+  "passos-critica.json": {
+   "sha256": "cfcf7b0ab6c71b8280ef8ed18c05ce7174c452bd0a4a59226f528b867221a827",
+   "bytes": 896699
+  },
+  "reformadora.json": {
+   "sha256": "595e4c4f116f447de5a951cea458080c46f96a907701d6388400e5023e64b8dd",
+   "bytes": 271491
+  },
+  "revisao.json": {
+   "sha256": "b49dbb3f539ea5d1745c3a640aaf2881338d4273123b1c6590184bc9b7b0ac83",
+   "bytes": 179476
+  },
+  "terceiros.json": {
+   "sha256": "ee32efa46ba866f67897dd263c1b536be08c647b4c4564734100b8268f38e977",
+   "bytes": 18052
+  },
+  "tmae-tempos.json": {
+   "sha256": "4b6a9d8e721ff856f2a21885c840f0a1b7ce077789110bbd773b31a79e25bb3e",
+   "bytes": 393492
+  },
+  "universo-ss.json": {
+   "sha256": "291443d52d1d064c802975827b1390f5d92f547d1a78e1b4d81f9b0a50ee3e51",
+   "bytes": 4532068
+  },
+  "classificacoes/2026-08-04-0417.json": {
+   "sha256": "f8cfcd0558a9300a9f11d21544c9a446af10a8f6e9b5009a2d89eecdbc738ec6",
+   "bytes": 3619
+  },
+  "classificacoes/combinado.json": {
+   "sha256": "5ee8583635b019d3334270e05ab2194d5c7d20965e5963d1eddf7198f51825a3",
+   "bytes": 4419
+  }
+ },
+ "o_que_congela": [
+  "os JSON que a tela lê",
+  "o veredito da cascata",
+  "a prévia de agosto",
+  "o texto do método"
+ ],
+ "o_que_NAO_congela": [
+  "as classificações manuais do dono, que vêm do Supabase ao vivo"
+ ]
+}

@@ -207,7 +207,23 @@ const soData = (valor: unknown) => dataBR(valor).slice(0, 10);
 const br = (v: number) => v.toLocaleString("pt-BR");
 const pct = (v: number, total: number) => (total ? Math.round((v / total) * 100) : 0);
 const normalize = (v: string) => v.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
-const assetUrl = (p: string) => `${import.meta.env.BASE_URL || "/"}${p.replace(/^\/+/, "")}`;
+/* A VERSÃO CONGELADA. ?versao=2026-08-11 faz a tela ler os JSON de
+   public/versoes/<data>/ em vez dos atuais — é o site como ele estava naquele dia.
+   O que NÃO congela: as classificações manuais do dono, que vêm do Supabase ao
+   vivo a cada abertura. Está dito na faixa do topo e no manifesto da pasta. */
+const VERSAO = typeof window !== "undefined"
+  ? new URLSearchParams(window.location.search).get("versao") || ""
+  : "";
+const SO_DATA = /\.json$/i;
+const assetUrl = (p: string) => {
+  const base = `${import.meta.env.BASE_URL || "/"}`;
+  const limpo = p.replace(/^\/+/, "");
+  // só os dados viajam no tempo; ícone, fonte e mapa continuam vindo da raiz
+  if (VERSAO && SO_DATA.test(limpo) && !limpo.startsWith("versoes/")) {
+    return `${base}versoes/${VERSAO}/${limpo}`;
+  }
+  return `${base}${limpo}`;
+};
 const texto = (v: unknown) => (v === null || v === undefined || v === "" ? "" : String(v));
 const decisaoClasse = (v: string) => (v === "INCLUIR" ? "good" : v === "EXCLUIR" ? "bad" : "warn");
 const fatoClasse = (v: string) => (v === "F1" ? "good" : v === "F3" ? "bad" : "pend");
@@ -4065,6 +4081,13 @@ export default function Page() {
   };
 
   return <div className="app-shell">
+    {/* Avisa, no alto e o tempo todo, que a tela está mostrando uma fotografia. */}
+    {VERSAO ? <div className="faixa-versao">
+      <b>Fotografia de {VERSAO.split("-").reverse().join("/")}</b>
+      <span>Os dados desta tela são os daquele dia, não os de agora.</span>
+      <small>As classificações manuais continuam vindo ao vivo — elas não são congeladas por esta versão.</small>
+      <a href="?">voltar para o atual →</a>
+    </div> : null}
     <aside className="sidebar">
       {/* O T exporta. A classificação manual vive só no localStorage deste navegador — quem
           analisa do outro lado não a enxerga, e sem isso a pergunta "as que eu aprovei estão
@@ -4099,7 +4122,14 @@ export default function Page() {
       <button type="button" className="side-export" onClick={() => exportarLocal()}>
         Exportar minhas classificações
       </button>
-      <div className="side-user"><b>1.5k</b><div><strong>Janeiro a junho</strong><span>de 2026</span></div></div>
+      {/* O selo abre a fotografia do dia. Em cima dela, ele volta para a versão viva. */}
+      <a className="side-user side-user-link"
+         href={VERSAO ? `?` : `?versao=2026-08-11`}
+         title={VERSAO ? "Voltar para a versão de hoje, que muda quando o dado muda"
+                       : "Abrir o site como ele estava em 11/08/2026"}>
+        <b>1.5k</b>
+        <div><strong>Janeiro a junho</strong><span>{VERSAO ? "voltar ao atual" : "ver versão de 11/08"}</span></div>
+      </a>
     </aside>
 
     <main className="workspace">
