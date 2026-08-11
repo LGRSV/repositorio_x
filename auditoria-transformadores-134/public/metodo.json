@@ -285,6 +285,45 @@
      "texto": "Só 134 solicitações passaram por leitura caso a caso com parecer escrito. O resto é triagem apoiada por campo, não veredito assinado."
     }
    ]
+  },
+  {
+   "id": "mensal",
+   "titulo": "8. Como rodar o mês seguinte",
+   "paragrafos": [
+    "Esta análise deixou de ser artesanal. O que está descrito acima virou código em scripts/analise-mensal/, e roda com um comando sobre quatro arquivos. Existe para que ninguém precise reconstruir o contexto do zero a cada mês — nem lembrar de cabeça as armadilhas que já custaram retrabalho.",
+    "O que mandar: as duas partes da base de SS e OS, a Crítica do mês e, opcionalmente, a planilha do infotrafo. Nada mais. TMAE, AIC de obras e KML entram só quando a pergunta pedir, e o script avisa na tela quando a ausência deles limitou alguma conclusão.",
+    "O que sai: uma planilha com três abas — o Leia-me com o método, os casos com a coluna ENTRA e o motivo de cada pendência, e todas as ocorrências da Crítica com a janela já calculada. Mais um JSON, para reprocessar quando chegar extração nova."
+   ],
+   "itens": [
+    {
+     "rotulo": "O script não fecha o indicador sozinho",
+     "texto": "Ele marca ENTRA = SIM só quando o caso casa na Crítica dentro da janela, não tem suspeita de auxiliar e não tem pendência. O resto sai como PENDENTE com o motivo escrito. Cola e fita, reparo que dispensou a troca, auxiliar sem confirmação geométrica e SS aberta antes da ocorrência dependem de informação de campo que a base não tem — e por isso continuam sendo martelo do dono."
+    },
+    {
+     "rotulo": "A codificação da base muda entre extrações",
+     "texto": "A base de 10/08/2026 veio em utf-8 e a de 11/08/2026 veio em latin-1, com o mesmo nome de arquivo. O carregador detecta em vez de assumir."
+    },
+    {
+     "rotulo": "O texto tem quebra de linha no meio",
+     "texto": "Ler linha a linha perde cerca de 60% dos registros, e não dá erro: você simplesmente conclui que a SS não existe. O carregador junta linhas até fechar as 64 colunas e confere o total contra o número de separadores do arquivo. Se não fechar, ele estoura em vez de entregar análise furada."
+    },
+    {
+     "rotulo": "As colunas de data da Crítica variam",
+     "texto": "DTA_INIC_ELE e DTA_FIM_ELE vieram vazias na extração de agosto de 2026. Quem usa elas conclui sem ocorrência para todo mundo. As datas boas são DTA_ABERT e DTA_FECH, e o carregador recusa a extração se estiverem vazias."
+    },
+    {
+     "rotulo": "Ausente da Crítica não é contraprova",
+     "texto": "A ocorrência só entra na Crítica quando finaliza. Três casos de agosto de 2026 apareciam como ausentes na extração de 10/08 e passaram a casar na de 11/08, com até 109 clientes interrompidos. Por isso o mês deve ser reprocessado a cada extração nova, até fechar."
+    },
+    {
+     "rotulo": "Prefixo 57 é transformador normal, 51 é auxiliar",
+     "texto": "O prefixo 57 responde por 97,6% das 1.305 de janeiro a junho, o 53 por 2,1% e o 52 por 0,2%. O serviço auxiliar é o 51, e ele costuma espelhar o código do religador trocando 79 por 51. Confundir os dois transforma o mês inteiro em falso positivo."
+    },
+    {
+     "rotulo": "As 1.305 continuam congeladas",
+     "texto": "Nenhum script da análise mensal escreve em fluxo-1510.json nem em qualquer JSON publicado. Cada mês produz arquivo novo."
+    }
+   ]
   }
  ]
 }
