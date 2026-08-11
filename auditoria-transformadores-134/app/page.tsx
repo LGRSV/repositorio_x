@@ -48,6 +48,34 @@ type Almoxarifado = {
   itens: AlmoxItem[];
 };
 
+/* A ANÁLISE DE UM MÊS FORA DO FECHAMENTO. Indicador SEPARADO por decisão do dono:
+   não soma com as 1.305 de jan–jun, que estão congeladas. Gerado por
+   scripts/analise-mensal/gerar_site.py a partir das bases do mês. */
+type MesOcorrencia = {
+  inicio: string; fim: string; papeis: string; na_janela: boolean;
+  delta_inicio_h: number | null; delta_fim_h: number | null;
+  causa: string; subcausa: string; clientes: string; duracao_min: string; observacao: string;
+};
+type MesCaso = {
+  ss: string; trafo: string; abertura: string; situacao: string; os: string;
+  origem: string; defeito: string; tipo_ss: string; criticidade: string; obra: string;
+  alimentador: string; localidade: string; clientes: string; pot_ret: string; pot_inst: string;
+  critica: string; ocorrencias: MesOcorrencia[];
+  auxiliar: string; auxiliar_evidencias: string[];
+  gemeas: Array<{ ss: string; situacao: string; os: string; duplicata_de_repasse: boolean }>;
+  capturado_por: string[]; texto_ss: string; texto_os: string; no_recorte: boolean;
+  categoria: string; entra: string; justificativa: string; decidido_por: string; decidido_em: string;
+  flag_tmae: string; flag_sem_os: boolean; flag_ausente_critica: boolean; flag_gemea: boolean;
+};
+type Mes = {
+  gerado_em: string; mes: string; titulo: string; previa: boolean; regra: string;
+  fontes: string[];
+  resumo: { no_recorte: number; entram: number; pendentes: number; fora: number;
+    casaram_na_critica: number; ausentes_da_critica: number; sem_os: number;
+    suspeita_auxiliar: number; universo_ampliado: number };
+  registros: MesCaso[]; ampliado: MesCaso[]; avisos: string[];
+};
+
 type OrdemReforma = {
   op: string; data: string; tipo: string; triagem: string; status: string;
   serie: string; tombamento: string; fabricante: string; descricao: string;
@@ -81,7 +109,7 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado";
+  | "insight_almoxarifado" | "mes_agosto";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -859,6 +887,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_reincidencia: ["Quanto tempo depois", "A troca anterior", "O que a Crítica gravou"],
     insight_naoqueimado: ["A bancada da reformadora", "Ordem de produção e custo", "O que a Crítica gravou"],
     insight_almoxarifado: ["Fato", "Leitura", "Motivo"],
+    mes_agosto: ["Fato", "Leitura", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -1124,6 +1153,8 @@ export default function Page() {
      Não é base de SS — é base de PEÇA. O elo com a auditoria é o número de série e o
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
+  /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
+  const [mes, setMes] = useState<Mes | null>(null);
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
      serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
@@ -1246,6 +1277,8 @@ export default function Page() {
       .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
     fetch(assetUrl("garantia-almoxarifado.json")).then((r) => r.json())
       .then(setAlmox).catch(() => setAlmox(null));
+    fetch(assetUrl("agosto-2026.json")).then((r) => r.json())
+      .then(setMes).catch(() => setMes(null));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1749,6 +1782,8 @@ export default function Page() {
     /* O que a bancada da reformadora disse sobre o equipamento. Só olha. */
     /* A aba do almoxarifado não recorta: ela lista peça, não SS. */
     insight_almoxarifado: [],
+    /* A aba do mês tem lista própria, não recorta o conjunto das 1.510. */
+    mes_agosto: [],
     insight_naoqueimado: [
       { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
       { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
@@ -2358,6 +2393,7 @@ export default function Page() {
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
       { id: "insight_naoqueimado", rotulo: "Não queimados", codigo: "10", marca: conta((r) => arquivo(r) === "SAÍDA" && naoQueimado(r)), tom: "cinza", recorte: "nq_nqm" },
       { id: "insight_almoxarifado", rotulo: "Garantia · almoxarifado", codigo: "14", marca: almox?.resumo.no1305, tom: "cinza" },
+      { id: "mes_agosto", rotulo: "Agosto 2026 · prévia", codigo: "15", marca: mes?.resumo.entram, tom: "verde" },
       { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
@@ -2385,6 +2421,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
     insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
@@ -3563,6 +3600,53 @@ export default function Page() {
         </>;
       }
 
+      /* O MÊS CORRENTE, FORA DO FECHAMENTO. Indicador separado: não soma com as
+         1.305 de jan–jun. É prévia — o que depende de campo fica pendente. */
+      if (modulo === "mes_agosto") {
+        if (!mes) return <section className="panel"><p className="fonte-detalhe">Carregando a análise do mês…</p></section>;
+        const R = mes.resumo;
+        const ordem = (x: MesCaso) => x.entra === "SIM" ? 0 : (x.entra === "PENDENTE" ? 1 : 2);
+        const lista = [...mes.registros].sort((a, b) => ordem(a) - ordem(b) || a.abertura.localeCompare(b.abertura));
+        const tomJan = (v: string) => v === "SIM" ? "nq-forte" : "";
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>{mes.titulo} · prévia · indicador separado</span><h2>{br(R.entram)} confirmadas de {br(R.no_recorte)} no recorte do mês</h2></div><small>{br(R.pendentes)} aguardando decisão · {br(R.fora)} fora do indicador</small></div>
+            <p className="fonte-detalhe"><strong>Este número não soma com as 1.305.</strong> {mes.regra} Gerado em {mes.gerado_em} a partir de {mes.fontes.join(", ")}.</p>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>O que a régua achou</th><th>Quantos</th><th>O que isso quer dizer</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Casaram na Crítica</strong></td><td><strong>{br(R.casaram_na_critica)}</strong></td><td>A abertura da SS cai na janela de uma ocorrência do mesmo ativo — prova elétrica própria.</td></tr>
+                <tr><td><strong>Ausentes da Crítica</strong></td><td><strong>{br(R.ausentes_da_critica)}</strong></td><td>Não é contraprova: a ocorrência só entra na Crítica quando <em>finaliza</em>. Três casos deste mês eram ausentes em 10/08 e passaram a casar em 11/08.</td></tr>
+                <tr><td><strong>Sem OS apontada</strong></td><td><strong>{br(R.sem_os)}</strong></td><td>Apontamento pendente, não ausência de serviço.</td></tr>
+                <tr><td><strong>Suspeita de auxiliar</strong></td><td><strong>{br(R.suspeita_auxiliar)}</strong></td><td>Transformador de serviço auxiliar não é carga de cliente e fica fora do indicador. Confirmação pela distância no KML.</td></tr>
+                <tr><td><strong>Universo ampliado</strong></td><td><strong>{br(R.universo_ampliado)}</strong></td><td>SS que citam transformador e ficam <em>fora</em> do recorte oficial do mês. Não entram na conta — estão listadas no fim, à vista.</td></tr>
+              </tbody>
+            </table></div>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>As {br(R.no_recorte)} do recorte</h2></div><small>ordenadas por situação e data</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>Situação e decisão</th><th>O que a Crítica gravou</th><th>Bandeiras</th></tr></thead>
+              <tbody>{lista.map((x) => <tr key={x.ss}>
+                <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span><small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small></td>
+                <td><strong className={tomJan(x.entra)}>{x.entra === "SIM" ? "entra" : x.entra === "PENDENTE" ? "aguarda decisão" : "fora"}</strong><span>{x.categoria || "sem decisão registrada"}</span><small>{x.decidido_por ? `${x.decidido_por} · ${x.decidido_em}` : "—"}</small></td>
+                <td><strong>{x.critica === "SIM" ? "casou na janela" : x.critica === "AUSENTE" ? "ausente" : "fora da janela"}</strong>
+                  {x.ocorrencias.slice(0, 3).map((o, i) => <span key={i}>{o.inicio.slice(0, 16)} → {o.fim.slice(0, 16)} · {o.papeis} · {o.clientes} cli</span>)}
+                  <small>{x.ocorrencias[0]?.causa || "—"}{x.ocorrencias[0]?.subcausa ? ` / ${x.ocorrencias[0].subcausa}` : ""}</small></td>
+                <td>{x.auxiliar !== "NAO" ? <strong className="nq-forte">auxiliar? {x.auxiliar}</strong> : null}
+                  {x.flag_sem_os ? <span>sem OS</span> : null}
+                  {x.flag_ausente_critica ? <span>ausente da Crítica</span> : null}
+                  {x.flag_gemea ? <span>tem SS gêmea de repasse</span> : null}
+                  <small>TMAE: {x.flag_tmae}</small></td>
+              </tr>)}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">A coluna da decisão mostra o martelo do dono quando existe, com quem bateu e quando. Onde está vazia, a régua apurou mas ninguém decidiu ainda — e a régua sozinha não fecha caso que depende de informação de campo.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>O QUE ESTA PRÉVIA NÃO É</span>
+            {mes.avisos.map((a, i) => <p key={i}>{a}</p>)}
+          </section>
+        </>;
+      }
+
       /* INSIGHT · GARANTIA NO ALMOXARIFADO. Base de PEÇA, não de SS: o relatório do
          fornecedor lista 51 equipamentos que voltaram para o fabricante. Não move ninguém —
          o que ela faz é dizer onde cada peça esteve na rede, e por qual chave foi achada. */
@@ -4024,7 +4108,10 @@ export default function Page() {
         {/* O cabeçalho dizia "Recorte 1.510" em qualquer aba, inclusive nas que abrem com 209
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
-        <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>
+        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
+        {modulo === "mes_agosto"
+          ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
+          : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
     </main>
