@@ -23,6 +23,31 @@ type TmaeTempo = {
   tmp: string; tmd: string; tme: string; tma: string; equipe: string; ele: string; ele_t: string;
   mesmo_ativo: boolean;
 };
+/* O CONTROLE DO ALMOXARIFADO — relatório de garantia do fornecedor. Uma linha por PEÇA,
+   não por SS: por isso ele não entra na cascata nem move o indicador. Traz a nota de
+   retorno, o romaneio e a remessa, que são o rastro fiscal da devolução ao fabricante. */
+type AlmoxEvento = {
+  data: string; ord: string; papel: string; chave: string; ss: string; trafo: string;
+  local: string; alim: string; origem: string; defeito: string; obra: string;
+  no1305: boolean; classe: string; marca_base: string; base: string;
+};
+type AlmoxItem = {
+  controle: string; tombamento: string; serie: string; codigo: string; descricao: string;
+  marca: string; vazamento: boolean; falha: boolean; dma: string; status: string;
+  nf_retorno: string; remessa: string; romaneio: string; fornecedor: string;
+  eventos: AlmoxEvento[];
+  op: { op: string; data: string; triagem: string; status: string; motivo_triagem: string;
+        garantia_confirmada: string; reformadora: string; fabricante: string; controle: string } | null;
+  achou_serie: boolean; achou_tomb: boolean; no1305: string[]; codigos: string[];
+};
+type Almoxarifado = {
+  gerado_em: string; fonte: string; colunas_originais: string[];
+  resumo: { total: number; localizados: number; so_serie: string[]; so_tombamento: string[];
+    ambas: string[]; nenhuma: string[]; por_serie_ssos: number; por_serie_coleta: number;
+    por_tomb_ssos: number; por_tomb_coleta: number; no1305: number };
+  itens: AlmoxItem[];
+};
+
 type OrdemReforma = {
   op: string; data: string; tipo: string; triagem: string; status: string;
   serie: string; tombamento: string; fabricante: string; descricao: string;
@@ -55,7 +80,8 @@ type Modulo =
   | "semfato" | "expurgos" | "exclusoes" | "preventivos"
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
-  | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado";
+  | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
+  | "insight_almoxarifado";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -832,6 +858,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_aterramento: ["Aterramento medido", "Melhoria e conexão", "O que a Crítica gravou"],
     insight_reincidencia: ["Quanto tempo depois", "A troca anterior", "O que a Crítica gravou"],
     insight_naoqueimado: ["A bancada da reformadora", "Ordem de produção e custo", "O que a Crítica gravou"],
+    insight_almoxarifado: ["Fato", "Leitura", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -1092,6 +1119,11 @@ export default function Page() {
      gerar_reformadora.py explica o casamento por série e por tombamento. */
   const [reforma, setReforma] = useState<Record<string, OrdemReforma>>({});
   const [terceiros, setTerceiros] = useState<Record<string, { n: number; fontes: { campo: string; valor: string }[] }>>({});
+  /* O CONTROLE DO ALMOXARIFADO. O relatório de garantia do fornecedor: 51 equipamentos que
+     saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa.
+     Não é base de SS — é base de PEÇA. O elo com a auditoria é o número de série e o
+     tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
+  const [almox, setAlmox] = useState<Almoxarifado | null>(null);
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
      serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
@@ -1212,6 +1244,8 @@ export default function Page() {
       .then((d) => setAterr(d?.por_ss || {})).catch(() => setAterr({}));
     fetch(assetUrl("terceiros.json")).then((r) => r.json())
       .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
+    fetch(assetUrl("garantia-almoxarifado.json")).then((r) => r.json())
+      .then(setAlmox).catch(() => setAlmox(null));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1713,6 +1747,8 @@ export default function Page() {
       { id: "ss_curta", rotulo: "SS encerrada em menos de 6 horas", nota: "Abertura e término no mesmo turno. Costuma ser a troca feita pela equipe que já estava no local.", teste: (r) => { const d = tempos(r).duracaoSS; return arquivo(r) === "SAÍDA" && d !== null && d >= 0 && d < 6; } },
     ],
     /* O que a bancada da reformadora disse sobre o equipamento. Só olha. */
+    /* A aba do almoxarifado não recorta: ela lista peça, não SS. */
+    insight_almoxarifado: [],
     insight_naoqueimado: [
       { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
       { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
@@ -2321,6 +2357,7 @@ export default function Page() {
       { id: "insight_tempos", rotulo: "Tempos", codigo: "06", marca: conta((r) => arquivo(r) === "SAÍDA" && (tempos(r).invertida || tempos(r).atDepoisDoFim)), tom: "cinza", recorte: "invertida" },
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
       { id: "insight_naoqueimado", rotulo: "Não queimados", codigo: "10", marca: conta((r) => arquivo(r) === "SAÍDA" && naoQueimado(r)), tom: "cinza", recorte: "nq_nqm" },
+      { id: "insight_almoxarifado", rotulo: "Garantia · almoxarifado", codigo: "14", marca: almox?.resumo.no1305, tom: "cinza" },
       { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
@@ -2348,6 +2385,7 @@ export default function Page() {
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
+    insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
     insight_aterramento: { olho: "Insight · não move ninguém", titulo: "Aterramento: o que a equipe mediu no poste", texto: "Seis colunas do formulário da OS que nunca tinham sido abertas: três hastes medidas antes do serviço, três depois, mais melhoria feita e conexão ao tanque. Vale a PIOR das três — a corrente procura o pior caminho. Zero e vazio contam como NÃO PREENCHIDO, nunca como bom." },
@@ -3521,6 +3559,56 @@ export default function Page() {
               </tr>; })}</tbody>
             </table></div>
             <p className="fonte-detalhe">Nenhum destes foi movido. <strong>NQM não desmente a SS sozinho</strong>: avaria real convive com “não queimado” na bancada — tanto que a triagem de todos eles é <em>reforma total</em>, isto é, o equipamento foi recuperado e voltou. O que a lista faz é apontar onde duas fontes discordam sobre o mesmo equipamento, com o número de série ligando uma à outra, para o seu martelo caso a caso.</p>
+          </section>
+        </>;
+      }
+
+      /* INSIGHT · GARANTIA NO ALMOXARIFADO. Base de PEÇA, não de SS: o relatório do
+         fornecedor lista 51 equipamentos que voltaram para o fabricante. Não move ninguém —
+         o que ela faz é dizer onde cada peça esteve na rede, e por qual chave foi achada. */
+      if (modulo === "insight_almoxarifado") {
+        if (!almox) return <section className="panel"><p className="fonte-detalhe">Carregando o controle do almoxarifado…</p></section>;
+        const R = almox.resumo;
+        const ordem = (x: AlmoxItem) => x.no1305.length ? 0 : (x.eventos.length ? 1 : 2);
+        const lista = [...almox.itens].sort((a, b) => ordem(a) - ordem(b) || a.controle.localeCompare(b.controle));
+        const sim = (v: boolean) => v ? "sim" : "não";
+        return <>
+          <section className="panel">
+            <div className="panel-title"><div><span>Controle do almoxarifado · {R.total} equipamentos</span><h2>{R.localizados} têm passagem registrada pela rede, {R.no1305} caem nas 1.305</h2></div><small>{R.nenhuma.length} não aparecem em base nenhuma</small></div>
+            <p className="fonte-detalhe">Este relatório é o <strong>rastro fiscal da devolução ao fabricante</strong>: nota de retorno, romaneio SGE, controle de remessa SIENF e o fornecedor que recebeu. Ele identifica a <strong>peça</strong>, não o poste — não tem número de SS nem código operativo. Por isso ele não entra na cascata e não move o indicador: o que ele faz é permitir perguntar, para cada peça devolvida, onde ela esteve instalada e quando saiu.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>As três chaves do almoxarifado</span><h2>Série e tombamento se complementam — controle não existe nas bases da auditoria</h2></div><small>união de série e tombamento: {R.so_serie.length + R.so_tombamento.length + R.ambas.length} de {R.total}</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Chave</th><th>Base SS/OS</th><th>Base COLETA</th><th>O que ela alcança</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Número de série</strong></td><td><strong>{R.por_serie_ssos} de {R.total}</strong></td><td><strong>{R.por_serie_coleta} de {R.total}</strong></td><td>Retirado e instalado nas duas bases. É a chave mais completa.</td></tr>
+                <tr><td><strong>Tombamento</strong></td><td><strong>{R.por_tomb_ssos} de {R.total}</strong></td><td><strong>{R.por_tomb_coleta} de {R.total}</strong></td><td>Na COLETA só existe para o retirado — por isso ela acha quase nada, já que a maioria destas peças aparece como <em>instalada</em>.</td></tr>
+                <tr><td><strong>Controle</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td>Nenhuma das duas guarda esse campo. Só a base da reformadora tem, e lá ele funciona.</td></tr>
+              </tbody>
+            </table></div>
+            <p className="fonte-detalhe"><strong>As duas chaves úteis se complementam, e é por isso que vale rodar as duas.</strong> Só a série acha {R.so_serie.length} equipamentos — controles {R.so_serie.join(", ")}. Só o tombamento acha {R.so_tombamento.length} — controles {R.so_tombamento.join(", ")}. As duas juntas acham {R.ambas.length}. Buscar por uma só perderia entre {Math.min(R.so_serie.length, R.so_tombamento.length)} e {Math.max(R.so_serie.length, R.so_tombamento.length)} peças.</p>
+            <p className="fonte-detalhe">Cada chave foi comparada só contra campo do mesmo tipo, nunca cruzada. Cruzar controle com tombamento produz casamento falso: são numerações independentes que colidem por acaso — aconteceu com dois controles nesta base, e os dois foram descartados.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>Os {R.total} do controle do almoxarifado</h2></div><small>nota de retorno, romaneio, remessa e onde a peça esteve</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Equipamento</th><th>Documentos da devolução</th><th>Estado declarado</th><th>Onde esteve na rede</th></tr></thead>
+              <tbody>{lista.map((x) => <tr key={x.controle}>
+                <td><strong>controle {x.controle}</strong><span>série {x.serie} · tomb {x.tombamento}</span><small>{x.marca} · {x.descricao}</small></td>
+                <td><strong>NF retorno {x.nf_retorno || "—"}</strong><span>romaneio {x.romaneio || "—"} · remessa {x.remessa || "—"}</span><small>DMA {x.dma || "—"} · fornecedor {x.fornecedor || "—"}</small></td>
+                <td><strong>{x.status || "—"}</strong><span>vazamento {sim(x.vazamento)} · falha {sim(x.falha)}</span><small>{x.op ? `OP ${x.op.op} · ${x.op.triagem} · ${x.op.status}` : "sem ordem de produção"}</small></td>
+                <td>{x.eventos.length === 0
+                  ? <><strong className="nq-forte">sem passagem registrada</strong><span>nenhuma SS cita esta série nem este tombamento</span><small>provável devolução antes de ir para a rede</small></>
+                  : <><strong>{x.codigos.join(", ") || "—"}</strong>
+                      {x.eventos.filter((e) => e.base === "SS/OS").map((e, i) => <span key={i}>{e.data} · {e.papel} · {e.ss}{e.no1305 ? " · nas 1.305" : ""}</span>)}
+                      <small>achado por {x.achou_serie && x.achou_tomb ? "série e tombamento" : x.achou_serie ? "série" : "tombamento"}</small></>}
+                </td>
+              </tr>)}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">Ordem da lista: primeiro os que tocam as 1.305, depois os que aparecem na rede fora do recorte, por último os {R.nenhuma.length} sem passagem nenhuma. Destes últimos, sete são ITAIPU e cinco ROMAGNOLE com <strong>séries em sequência</strong>, e duas TAMURA cuja série é o próprio código de material — perfil de lote devolvido antes de ser instalado. Confirmar isso exige a data de entrada em estoque, que este relatório não traz.</p>
+          </section>
+          <section className="panel editorial-note wide"><span>O QUE ESTA ABA NÃO FAZ</span>
+            <p>Não altera as 1.305 e não reclassifica ninguém. Das {R.total} peças, {R.no1305} tocam o indicador — e a maioria delas como <strong>peça instalada</strong>, isto é, a reposição que entrou no poste depois da queima, não o transformador que queimou. Confundir os dois papéis inverteria a leitura.</p>
+            <p>O relatório também não traz código operativo nem data de retirada. O código que aparece aqui foi <strong>deduzido</strong>: veio da SS em que a série ou o tombamento da peça foi registrado como retirado ou instalado. Onde a SS não registrou a série, a peça fica invisível para esta busca — e isso vale para {R.nenhuma.length} das {R.total}.</p>
           </section>
         </>;
       }
