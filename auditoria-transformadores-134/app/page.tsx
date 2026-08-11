@@ -1376,6 +1376,13 @@ export default function Page() {
     if (ehExclusaoManual(c)) return "EXCLUÍDA";
     return texto(r.cascata);
   };
+  /* A classe de quem está na saída. O martelo do dono vence quando ele diz a causa
+     (QUEIMADO ou AVARIADO); quando ele marca PROFUNDA ou REGRA, ele está pedindo uma
+     segunda olhada, não trocando a causa — então vale o que a cascata concluiu. */
+  const classeNaSaida = (r: Registro): string => {
+    const c = classificacao[texto(r.ss)]?.classe;
+    return c === "QUEIMADO" || c === "AVARIADO" ? c : texto(r.confirmado);
+  };
   const rearquivado = (r: Registro) => arquivo(r) !== texto(r.cascata);
 
   /* A categoria de uma exclusão vem da regra ou do seu martelo — quem marca FURTADO está
@@ -3191,8 +3198,13 @@ export default function Page() {
               que é a que a barra lateral e o funil também usam. */}
           <section className="kpi-grid">
             <Kpi rotulo="Queimados e avariados" valor={br(naSaidaLista.length)} nota="saíram pela ponta da esteira e contam no indicador" tom="green" aoClicar={() => abrirRecorte("saida")} />
-            <Kpi rotulo="Queimados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "QUEIMADO").length)} nota="causa confirmada: queima" tom="red" />
-            <Kpi rotulo="Avariados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "AVARIADO").length)} nota="vazamento, bucha, tensão, fase" tom="blue" />
+            {/* A classe mostrada tem de ser a mesma que colocou o caso na saída. Marcas que
+                NÃO são classe — PROFUNDA, REGRA — não substituem o veredito da cascata: elas
+                dizem "quero olhar isto de novo", não "isto não é queima". Enquanto a expressão
+                era `classificacao || confirmado`, esses casos entravam no total e sumiam dos
+                dois cartões, e a soma não fechava: 1.224 + 79 = 1.303 contra 1.305 no total. */}
+            <Kpi rotulo="Queimados" valor={br(naSaidaLista.filter((r) => classeNaSaida(r) === "QUEIMADO").length)} nota="causa confirmada: queima" tom="red" />
+            <Kpi rotulo="Avariados" valor={br(naSaidaLista.filter((r) => classeNaSaida(r) === "AVARIADO").length)} nota="vazamento, bucha, tensão, fase" tom="blue" />
             <Kpi rotulo="Em revisão" valor={br(conta((r) => String(arquivo(r)).startsWith("RETIDO")))} nota="esperam prova de material" tom="amber" aoClicar={() => irPara("expurgos", "parados")} />
             <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa, ou sem interrupção que sustente" tom="ink" aoClicar={() => irPara("exclusoes", "todos")} />
             <Kpi rotulo="Mudaram na revisão" valor={br(conta((r) => r.mudou_na_revisao === "SIM"))} nota="decisão diferente do funil anterior" tom="blue" aoClicar={() => abrirRecorte("mudou")} />
