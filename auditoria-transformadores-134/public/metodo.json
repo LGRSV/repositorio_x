@@ -292,6 +292,7 @@
    "paragrafos": [
     "Esta análise deixou de ser artesanal. O que está descrito acima virou código em scripts/analise-mensal/, e roda com um comando sobre quatro arquivos. Existe para que ninguém precise reconstruir o contexto do zero a cada mês — nem lembrar de cabeça as armadilhas que já custaram retrabalho.",
     "O que mandar: as duas partes da base de SS e OS, a Crítica do mês e, opcionalmente, a planilha do infotrafo. Nada mais. TMAE, AIC de obras e KML entram só quando a pergunta pedir, e o script avisa na tela quando a ausência deles limitou alguma conclusão.",
+    "O comando é um só: python3 scripts/analise-mensal/rodar_mes.py 08/2026 --pasta <a pasta com os quatro arquivos>. Acrescentar --ate 10 corta no dia 10, que serve para reconferir o que já foi analisado sem esperar o mês fechar. Saem dois arquivos: a planilha para ler e decidir, e um JSON para reprocessar quando chegar extração nova.",
     "O que sai: uma planilha com três abas — o Leia-me com o método, os casos com a coluna ENTRA e o motivo de cada pendência, e todas as ocorrências da Crítica com a janela já calculada. Mais um JSON, para reprocessar quando chegar extração nova."
    ],
    "itens": [
@@ -312,6 +313,10 @@
      "texto": "DTA_INIC_ELE e DTA_FIM_ELE vieram vazias na extração de agosto de 2026. Quem usa elas conclui sem ocorrência para todo mundo. As datas boas são DTA_ABERT e DTA_FECH, e o carregador recusa a extração se estiverem vazias."
     },
     {
+     "rotulo": "O ativo aparece em três papéis",
+     "texto": "O mesmo transformador pode estar na ocorrência como COD_ELE_PROBLEMA, COD_ELE_INTERROMPIDO ou COD_ELE_FECHADO. O casamento vale em qualquer um dos três. Procurar só no primeiro deixa caso verdadeiro de fora, e o que sobra parece ausência de ocorrência quando é apenas busca no campo errado."
+    },
+    {
      "rotulo": "Ausente da Crítica não é contraprova",
      "texto": "A ocorrência só entra na Crítica quando finaliza. Três casos de agosto de 2026 apareciam como ausentes na extração de 10/08 e passaram a casar na de 11/08, com até 109 clientes interrompidos. Por isso o mês deve ser reprocessado a cada extração nova, até fechar."
     },
@@ -320,10 +325,51 @@
      "texto": "O prefixo 57 responde por 97,6% das 1.305 de janeiro a junho, o 53 por 2,1% e o 52 por 0,2%. O serviço auxiliar é o 51, e ele costuma espelhar o código do religador trocando 79 por 51. Confundir os dois transforma o mês inteiro em falso positivo."
     },
     {
+     "rotulo": "Quem confirma o auxiliar é a distância, não o prefixo",
+     "texto": "O prefixo levanta a suspeita; ele não fecha. 14% dos auxiliares não têm o código espelhado, então a ausência de espelho não descarta nada. O que fecha é a geometria: os 712 auxiliares medidos no KML estavam todos a menos de 20 metros do religador ou regulador que alimentam, e o caso das 1.305 mais próximo de um equipamento desses estava a 89 metros. Entre 20 e 89 não há ninguém, e é essa distância vazia que separa as duas populações."
+    },
+    {
+     "rotulo": "SS gêmea de repasse conta o mesmo evento duas vezes",
+     "texto": "Duas SS com o mesmo horário ao segundo e o mesmo texto, uma REPASSADA sem OS e outra ATENDIDA com OS, são o mesmo acontecimento registrado duas vezes. Contar as duas infla o indicador sem que nada na linha denuncie o problema."
+    },
+    {
+     "rotulo": "A letra da plaqueta faz um equipamento virar dois",
+     "texto": "A ITAM grava C233582 na plaqueta e a equipe digita 233582 na SS. Sem normalizar, o mesmo transformador vira dois. Mas a letra às vezes distingue de verdade — C249930 e Z249930 são unidades diferentes — então juntar duas chaves iguais exige que marca ou potência também batam. Normalizar sem essa checagem troca um erro de contagem por outro."
+    },
+    {
      "rotulo": "As 1.305 continuam congeladas",
      "texto": "Nenhum script da análise mensal escreve em fluxo-1510.json nem em qualquer JSON publicado. Cada mês produz arquivo novo."
     }
-   ]
+   ],
+   "tabela": {
+    "cabecalho": [
+     "arquivo",
+     "o que é",
+     "formato"
+    ],
+    "linhas": [
+     [
+      "BASE_SS_OS_parte1.txt",
+      "a base de SS e OS, parte 1",
+      "separador @, 64 colunas"
+     ],
+     [
+      "BASE_SS_OS_parte2.txt",
+      "a base de SS e OS, parte 2",
+      "idem"
+     ],
+     [
+      "Critica_MMAAAA.txt",
+      "a Crítica do mês",
+      "separador ;, 64 colunas"
+     ],
+     [
+      "infotrafo.xlsx",
+      "opcional — a lista de SS de transformador do mês, que define o recorte oficial",
+      "aba Export"
+     ]
+    ]
+   }
   }
  ]
 }
