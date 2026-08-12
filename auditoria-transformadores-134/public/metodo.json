@@ -292,6 +292,7 @@
    "paragrafos": [
     "Esta análise deixou de ser artesanal. O que está descrito acima virou código em scripts/analise-mensal/, e roda com um comando sobre quatro arquivos. Existe para que ninguém precise reconstruir o contexto do zero a cada mês — nem lembrar de cabeça as armadilhas que já custaram retrabalho.",
     "O que mandar: as duas partes da base de SS e OS, a Crítica do mês e, opcionalmente, a planilha do infotrafo. Nada mais. TMAE, AIC de obras e KML entram só quando a pergunta pedir, e o script avisa na tela quando a ausência deles limitou alguma conclusão.",
+    "O comando é um só: python3 scripts/analise-mensal/rodar_mes.py 08/2026 --pasta <a pasta com os quatro arquivos>. Acrescentar --ate 10 corta no dia 10, que serve para reconferir o que já foi analisado sem esperar o mês fechar. Saem dois arquivos: a planilha para ler e decidir, e um JSON para reprocessar quando chegar extração nova.",
     "O que sai: uma planilha com três abas — o Leia-me com o método, os casos com a coluna ENTRA e o motivo de cada pendência, e todas as ocorrências da Crítica com a janela já calculada. Mais um JSON, para reprocessar quando chegar extração nova."
    ],
    "itens": [
@@ -312,6 +313,10 @@
      "texto": "DTA_INIC_ELE e DTA_FIM_ELE vieram vazias na extração de agosto de 2026. Quem usa elas conclui sem ocorrência para todo mundo. As datas boas são DTA_ABERT e DTA_FECH, e o carregador recusa a extração se estiverem vazias."
     },
     {
+     "rotulo": "O ativo aparece em três papéis",
+     "texto": "O mesmo transformador pode estar na ocorrência como COD_ELE_PROBLEMA, COD_ELE_INTERROMPIDO ou COD_ELE_FECHADO. O casamento vale em qualquer um dos três. Procurar só no primeiro deixa caso verdadeiro de fora, e o que sobra parece ausência de ocorrência quando é apenas busca no campo errado."
+    },
+    {
      "rotulo": "Ausente da Crítica não é contraprova",
      "texto": "A ocorrência só entra na Crítica quando finaliza. Três casos de agosto de 2026 apareciam como ausentes na extração de 10/08 e passaram a casar na de 11/08, com até 109 clientes interrompidos. Por isso o mês deve ser reprocessado a cada extração nova, até fechar."
     },
@@ -320,8 +325,118 @@
      "texto": "O prefixo 57 responde por 97,6% das 1.305 de janeiro a junho, o 53 por 2,1% e o 52 por 0,2%. O serviço auxiliar é o 51, e ele costuma espelhar o código do religador trocando 79 por 51. Confundir os dois transforma o mês inteiro em falso positivo."
     },
     {
+     "rotulo": "Quem confirma o auxiliar é a distância, não o prefixo",
+     "texto": "O prefixo levanta a suspeita; ele não fecha. 14% dos auxiliares não têm o código espelhado, então a ausência de espelho não descarta nada. O que fecha é a geometria: os 712 auxiliares medidos no KML estavam todos a menos de 20 metros do religador ou regulador que alimentam, e o caso das 1.305 mais próximo de um equipamento desses estava a 89 metros. Entre 20 e 89 não há ninguém, e é essa distância vazia que separa as duas populações."
+    },
+    {
+     "rotulo": "SS gêmea de repasse conta o mesmo evento duas vezes",
+     "texto": "Duas SS com o mesmo horário ao segundo e o mesmo texto, uma REPASSADA sem OS e outra ATENDIDA com OS, são o mesmo acontecimento registrado duas vezes. Contar as duas infla o indicador sem que nada na linha denuncie o problema."
+    },
+    {
+     "rotulo": "A letra da plaqueta faz um equipamento virar dois",
+     "texto": "A ITAM grava C233582 na plaqueta e a equipe digita 233582 na SS. Sem normalizar, o mesmo transformador vira dois. Mas a letra às vezes distingue de verdade — C249930 e Z249930 são unidades diferentes — então juntar duas chaves iguais exige que marca ou potência também batam. Normalizar sem essa checagem troca um erro de contagem por outro."
+    },
+    {
      "rotulo": "As 1.305 continuam congeladas",
      "texto": "Nenhum script da análise mensal escreve em fluxo-1510.json nem em qualquer JSON publicado. Cada mês produz arquivo novo."
+    }
+   ],
+   "tabela": {
+    "cabecalho": [
+     "arquivo",
+     "o que é",
+     "formato"
+    ],
+    "linhas": [
+     [
+      "BASE_SS_OS_parte1.txt",
+      "a base de SS e OS, parte 1",
+      "separador @, 64 colunas"
+     ],
+     [
+      "BASE_SS_OS_parte2.txt",
+      "a base de SS e OS, parte 2",
+      "idem"
+     ],
+     [
+      "Critica_MMAAAA.txt",
+      "a Crítica do mês",
+      "separador ;, 64 colunas"
+     ],
+     [
+      "infotrafo.xlsx",
+      "opcional — a lista de SS de transformador do mês, que define o recorte oficial",
+      "aba Export"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "garantia",
+   "titulo": "9. Possível garantia — a cadeia da peça",
+   "paragrafos": [
+    "Esta regra nasceu de julho de 2026. O transformador do posto 5700231148 teve duas solicitações em onze dias, e a peça instalada na primeira é exatamente a retirada na segunda. No mesmo mês, o posto 5702232094 repetiu o padrão, também em onze dias, também no polo de Gurupi. Nenhum dos dois aparece olhando o código operativo: o código é do POSTE e não muda quando o transformador muda. Só o número de série mostra.",
+    "A regra é simples de dizer: se a peça retirada numa solicitação é a mesma que foi instalada numa solicitação anterior, existe uma cadeia, e o intervalo entre as duas datas é o tempo que aquela peça durou em campo. Peça que dura pouco é candidata a garantia. Na base de 11/08/2026 existem 597 cadeias assim, sendo 178 com retirada em 2026.",
+    "O que ela NÃO faz: retirar ou acrescentar caso ao indicador. Os graus dizem o que merece ser olhado, e nada além disso. Enquanto o prazo contratual da reformadora e do fabricante não entrar na régua, nenhuma cadeia vira garantia por conta própria."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "grau",
+     "critério",
+     "cadeias com retirada em 2026"
+    ],
+    "linhas": [
+     [
+      "FORTE",
+      "até 90 dias no mesmo posto — a peça mal entrou e já saiu",
+      "36"
+     ],
+     [
+      "SUSPEITA",
+      "de 91 a 365 dias no mesmo posto",
+      "45"
+     ],
+     [
+      "OLHAR",
+      "de 366 a 730 dias no mesmo posto",
+      "50"
+     ],
+     [
+      "REMANEJO",
+      "a peça saiu de um posto e foi retirada em outro",
+      "33"
+     ],
+     [
+      "FORA",
+      "mais de 730 dias — vida normal",
+      "14"
+     ]
+    ]
+   },
+   "itens": [
+    {
+     "rotulo": "A regra não está validada, e isso precisa ser dito",
+     "texto": "A tentativa de validar contra as solicitações que a base já marca como GARANTIA DE TRAFO não fechou. São 106 declaradas; 95 delas não têm número de série na peça retirada, então a regra não tem como enxergá-las. Das 11 que sobram, a regra reencontrou 3. Com três casos não se calibra prazo nenhum."
+    },
+    {
+     "rotulo": "As garantias reconhecidas passaram de um ano em campo",
+     "texto": "As três que a regra reencontrou duraram 441 dias de mediana. Um corte de doze meses deixaria as três de fora. Foi por isso que existe a faixa OLHAR, até 730 dias: a primeira versão desta regra cortava em um ano, e o dado desmentiu. O prazo de verdade tem de vir do contrato, não da planilha."
+    },
+    {
+     "rotulo": "A peça reformada NÃO falha mais rápido",
+     "texto": "Era a suspeita natural e ela não se confirma. Nas cadeias do mesmo posto, peça reformada teve mediana de 160 dias com 40% falhando em até 90; peça nova teve mediana de 182 dias com 41% em até 90. São praticamente iguais. Se houver problema com a reforma, não é este número que vai prová-lo."
+    },
+    {
+     "rotulo": "Série curta não identifica peça",
+     "texto": "Série com menos de quatro dígitos, ou de um dígito só repetido, casa com qualquer coisa. Sem esse filtro a regra monta cadeia em cima da série '1' e entrega parentesco inventado. Foram 111 registros descartados por isso, mais 3 cadeias de zero dia em postes diferentes — peça não sai de um poste e aparece em outro no mesmo dia."
+    },
+    {
+     "rotulo": "369 cadeias que ninguém olhou",
+     "texto": "Das 370 cadeias no mesmo posto dentro de um ano, UMA já estava declarada como garantia pela operação. Isso pode significar que a garantia está sendo muito subaproveitada, ou que a regra levanta demais. A base sozinha não separa as duas hipóteses."
+    },
+    {
+     "rotulo": "O que falta para virar número",
+     "texto": "O prazo contratual de garantia. O número de série na peça retirada, que falta em 95 das 106 garantias declaradas — sem série a regra é cega. E a data da reforma: a coluna DATA_REFORMA_INST existe na base e quase nunca vem preenchida; com ela o prazo contaria da reforma, que é como a garantia funciona de verdade."
     }
    ]
   }

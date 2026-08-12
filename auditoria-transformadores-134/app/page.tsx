@@ -109,7 +109,7 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado" | "mes_agosto";
+  | "insight_almoxarifado" | "mes_agosto" | "mes_julho";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -203,23 +203,76 @@ type Par = { label: string; value: number };
    contra ataque: senha curta de formato conhecido cai em minutos. É para o repositório
    não ter as senhas escritas dentro dele — ele é público, e o que entra em commit fica
    no histórico para sempre. Quem precisa das senhas recebe fora do código. */
+/* O ESTÁGIO substituiu o `aprova` booleano.
+   Booleano só sabia dizer "pode aprovar" ou "não pode", e o fluxo do dono tem ORDEM:
+   1 técnico abre, 2 Matheus Alves valida, 3 Mateus Gracia aprova. Sem ordem não dá para
+   saber se um pedido pulou etapa. Quem é estágio 1 abre pedido e não aprova nada; quem é
+   2 ou 3 só age quando o pedido chega na vez dele.
+   Decisão do dono em 12/08: o Danillo NÃO entra na cadeia — fica no estágio 1, como quem
+   abre. Ele tinha `aprova: true` no código antigo; a mudança é intencional. */
 type Usuario = {
   id: string; nome: string; papel: string; iniciais: string; usuario: string; hash: string;
-  descricao: string; aprova: boolean;
+  descricao: string; estagio: 1 | 2 | 3;
 };
 
 const SAL = "auditoria-134";
 
 const USUARIOS: Usuario[] = [
-  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Controle operacional, acompanhamento das equipes e aprovação.", aprova: true },
-  { id: "joao-antonio", nome: "João Antônio", papel: "Desenvolvedor", iniciais: "JA", usuario: "joao.antonio", hash: "64795ba3cfd3f4a64848338c380369ac414c115503f90da6501d1e75b37343fb", descricao: "Acesso técnico total e configuração do protótipo.", aprova: false },
-  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Análise de engenharia e aprovação oficial.", aprova: true },
-  { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação.", aprova: false },
-  { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", aprova: false },
-  { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", aprova: false },
-  { id: "danillo", nome: "Danillo", papel: "Coordenador", iniciais: "DA", usuario: "danillo", hash: "8e02a118d8e46fb520abc4f17872e787d5871ff3addcdac1ab502ca6d68a29e5", descricao: "Coordenação da operação, acompanhamento das filas e aprovação.", aprova: true },
-  { id: "carlos", nome: "Carlos", papel: "Desenvolvedor 2", iniciais: "CA", usuario: "carlos", hash: "927d34147fb540eddd32e9ef035f5a523563d35a0a5819a708b1040f9141c2aa", descricao: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", aprova: false },
+  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Segundo estágio: valida o pedido do técnico antes de ir para a engenharia.", estagio: 2 },
+  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Terceiro estágio: aprovação oficial de engenharia, que fecha o expurgo.", estagio: 3 },
+  { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
+  { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
+  { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação. Abre pedido de expurgo.", estagio: 1 },
+  { id: "danillo", nome: "Danillo", papel: "Coordenador", iniciais: "DA", usuario: "danillo", hash: "8e02a118d8e46fb520abc4f17872e787d5871ff3addcdac1ab502ca6d68a29e5", descricao: "Coordenação da operação e acompanhamento das filas. Abre pedido de expurgo.", estagio: 1 },
+  { id: "joao-antonio", nome: "João Antônio", papel: "Desenvolvedor", iniciais: "JA", usuario: "joao.antonio", hash: "64795ba3cfd3f4a64848338c380369ac414c115503f90da6501d1e75b37343fb", descricao: "Acesso técnico total e configuração do protótipo.", estagio: 1 },
+  { id: "carlos", nome: "Carlos", papel: "Desenvolvedor 2", iniciais: "CA", usuario: "carlos", hash: "927d34147fb540eddd32e9ef035f5a523563d35a0a5819a708b1040f9141c2aa", descricao: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", estagio: 1 },
 ];
+
+/* Os motivos do expurgo, recuperados do fluxo que existiu até 01/08. Nove de regra
+   documental, oito de campo (R-CAMPO) e um escape. O motivo é obrigatório no pedido —
+   o banco recusa SOLICITADO sem ele. */
+const MOTIVOS_EXPURGO = [
+  "Furto, roubo ou vandalismo",
+  "Possível furto ou abalroamento",
+  "Transformador particular ou prefixo 56",
+  "Regulador 58, religador 79 ou auxiliar 51",
+  "Construção, nova ligação ou desativação",
+  "Sem movimentação de trafo e obra em etapa terminal",
+  "Fiscalização aprovada ou término físico",
+  "Obra não gerada há mais de 60 dias da abertura da SS",
+  "Obra lançada como ordem de despesa",
+  "R-CAMPO-01 — QUEIMADO sem interrupção no período",
+  "R-CAMPO-02 — Campo diverge da categoria da SS",
+  "R-CAMPO-03 — Falha no ramal ou em acessório",
+  "R-CAMPO-04 — Reincidência após a troca",
+  "R-CAMPO-05 — SS duplicada para o mesmo transformador",
+  "R-CAMPO-06 — Obra sem transformador no material",
+  "R-CAMPO-07 — Causa externa registrada em campo",
+  "R-CAMPO-08 — Queima por sobrecarga",
+  "Cola e fita — não houve troca",
+  "Não precisou substituir — houve melhoria",
+  "Outro motivo técnico",
+];
+
+/* O estado de um pedido de expurgo, montado a partir da última linha gravada. */
+type Expurgo = {
+  ss: string; estagio: number; acao: string; motivo: string; comentario: string;
+  quem_id: string; quem_nome: string; quem_papel: string; marcado_em: string;
+};
+
+const ESTAGIO_NOME: Record<number, string> = {
+  1: "técnico", 2: "Matheus Alves · supervisão", 3: "Mateus Gracia · engenharia",
+};
+
+/* De quem é a vez. Devolve o estágio que precisa agir, ou 0 quando o pedido acabou.
+   REJEITADO volta para o técnico: o caso não morre, ele refaz o pedido. */
+const vezDe = (e?: Expurgo | null): number => {
+  if (!e || e.acao === "REJEITADO") return 1;
+  if (e.acao === "OBSERVACAO") return e.estagio;
+  if (e.acao === "SOLICITADO") return 2;
+  if (e.acao === "APROVADO") return e.estagio >= 3 ? 0 : e.estagio + 1;
+  return 1;
+};
 
 /* SHA-256 do que foi digitado, para comparar com o hash gravado. crypto.subtle existe em
    contexto seguro — https e localhost — que é onde o site roda. */
@@ -409,11 +462,11 @@ function TelaLogin({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
     <section className="login-intro">
       <div className="login-brand"><i>T</i><span>Transforma</span></div>
       <div>
-        <span className="login-kicker">AUDITORIA TÉCNICA · BASE 134</span>
+        <span className="login-kicker">ANÁLISE DE ATIVOS · ENERGISA TOCANTINS</span>
         <h1>Decisões rastreáveis, do campo à aprovação.</h1>
         <p>Ambiente demonstrativo para análise de SS, OS, obras, materiais, expurgos e indicadores financeiros.</p>
       </div>
-      <small>Protótipo funcional · 1.305 de janeiro a junho de 2026, mais o mês corrente</small>
+      <small>1.305 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
     </section>
     <section className="login-panel">
       <form onSubmit={enviar}>
@@ -434,7 +487,7 @@ function TelaLogin({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
           onClick={() => { setUsuario(item.usuario); setSenha(""); setErro(""); }}>
           <b>{item.iniciais}</b>
           <span><strong>{item.nome}</strong><small>{item.usuario}</small></span>
-          <em>{item.aprova ? `${item.papel} · aprova` : item.papel}</em>
+          <em>{item.estagio > 1 ? `${item.papel} · estágio ${item.estagio}` : item.papel}</em>
         </button>)}
       </details>
       <p className="prototype-note">
@@ -1024,6 +1077,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_naoqueimado: ["A bancada da reformadora", "Ordem de produção e custo", "O que a Crítica gravou"],
     insight_almoxarifado: ["Fato", "Leitura", "Motivo"],
     mes_agosto: ["Fato", "Leitura", "Motivo"],
+    mes_julho: ["Fato", "Leitura", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -1293,13 +1347,20 @@ export default function Page() {
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
-  const [mes, setMes] = useState<Mes | null>(null);
+  /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
+     variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
+     linha no menu, pronto. */
+  const [meses, setMeses] = useState<Record<string, Mes | null>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
      serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
      Ele manda no gráfico, nos chips e na tabela ao mesmo tempo. */
   const [terraQuando, setTerraQuando] = useState<"antes" | "depois">("antes");
   const [modulo, setModulo] = useState<Modulo>("visao");
+  /* O mês da aba aberta. As duas abas de mês usam o mesmo componente de tela: o que muda
+     é qual JSON está por trás. */
+  const mesAberto = modulo === "mes_julho" ? "julho" : "agosto";
+  const mes = meses[mesAberto] ?? null;
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
      mesma aplicação com outro menu. Por isso a primeira aba dela é o MESMO módulo da tela de
      queimados e avariados, e não uma cópia do componente: mesmo dado, mesmas classificações,
@@ -1337,6 +1398,13 @@ export default function Page() {
   // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
   // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
   const [classificacao, setClassificacao] = useState<Record<string, { classe: string; quem: string; quando: string }>>({});
+  /* O fluxo de expurgo: o estado atual por SS e o histórico completo, os dois do banco. */
+  const [expurgos, setExpurgos] = useState<Record<string, Expurgo>>({});
+  const [historicoExp, setHistoricoExp] = useState<Expurgo[]>([]);
+  const [comentario, setComentario] = useState("");
+  const [motivoExp, setMotivoExp] = useState("");
+  const [erroExp, setErroExp] = useState("");
+  const [salvandoExp, setSalvandoExp] = useState(false);
   const [janela, setJanela] = useState(24);
   // Quantas marcações ainda não entraram no banco. Enquanto isso era zero por definição —
   // escrita cega, erro engolido — o número mentia dizendo nada.
@@ -1355,6 +1423,33 @@ export default function Page() {
   const SUPA_KEY = "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh";
   const FILA = "fluxo-1510-pendentes";
   type Marca = { ss: string; classe: string; marcado_em: string };
+
+  /* ── O FLUXO DE EXPURGO, EM TRÊS ESTÁGIOS ──────────────────────────────────
+     Tabela própria (trafo_expurgo), append-only como a das classificações: cada ação
+     é uma linha nova, o estado é a última linha da SS e o histórico é a tabela inteira.
+     Nada é sobrescrito, então "quem aprovou e quando" nunca se perde.
+
+     Diferente da classificação, aqui o nome de quem age VAI para o banco. A classificação
+     grava "análise local" fixo — as 201 linhas do banco têm um autor só, o que torna
+     impossível saber quem marcou o quê. Um fluxo de aprovação com autor anônimo não seria
+     fluxo de aprovação, então este começa certo. */
+  const gravarExpurgo = async (linha: Omit<Expurgo, "quem_nome" | "quem_papel">) => {
+    const u = USUARIOS.find((x) => x.id === linha.quem_id);
+    const corpo = { ...linha, quem_nome: u?.nome || linha.quem_id, quem_papel: u?.papel || "—" };
+    const r = await fetch(`${SUPA}/rest/v1/trafo_expurgo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPA_KEY,
+        "Authorization": `Bearer ${SUPA_KEY}`,
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify(corpo),
+    });
+    // O silêncio já enganou uma vez nesta base: a escrita antiga não conferia a resposta
+    // e passou semanas falhando em todas. Aqui a falha estoura.
+    if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  };
 
   const enviar = async (linha: Marca) => {
     const r = await fetch(`${SUPA}/rest/v1/trafo_classificacao`, {
@@ -1416,8 +1511,11 @@ export default function Page() {
       .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
     fetch(assetUrl("garantia-almoxarifado.json")).then((r) => r.json())
       .then(setAlmox).catch(() => setAlmox(null));
-    fetch(assetUrl("agosto-2026.json")).then((r) => r.json())
-      .then(setMes).catch(() => setMes(null));
+    for (const [nome, arq] of [["agosto", "agosto-2026.json"], ["julho", "julho-2026.json"]]) {
+      fetch(assetUrl(arq)).then((r) => r.json())
+        .then((d) => setMeses((m) => ({ ...m, [nome]: d })))
+        .catch(() => setMeses((m) => ({ ...m, [nome]: null })));
+    }
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1430,6 +1528,24 @@ export default function Page() {
        gravou. O mais recente vence dos dois lados — nem o banco apaga uma decisão local mais
        nova, nem o local ignora uma decisão feita noutra máquina. A view devolve só a última
        linha de cada SS, então o histórico fica no banco sem poluir a tela. */
+    /* O fluxo de expurgo vem do banco em duas leituras: a view com o estado de cada SS e a
+       tabela inteira com o histórico. O histórico é o que permite ver a linha do tempo de um
+       caso — quem pediu, quem validou, quem aprovou, e o que cada um escreveu. */
+    const cab = {
+      "apikey": "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+      "Authorization": "Bearer sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
+    };
+    fetch("https://uabpevnjfcwidbjscowq.supabase.co/rest/v1/trafo_expurgo_atual?select=*", { headers: cab })
+      .then((r) => r.json())
+      .then((linhas: Expurgo[]) => {
+        if (!Array.isArray(linhas)) return;
+        setExpurgos(Object.fromEntries(linhas.map((x) => [x.ss, x])));
+      })
+      .catch(() => setExpurgos({}));
+    fetch("https://uabpevnjfcwidbjscowq.supabase.co/rest/v1/trafo_expurgo?select=*&order=marcado_em.desc,id.desc", { headers: cab })
+      .then((r) => r.json())
+      .then((linhas: Expurgo[]) => setHistoricoExp(Array.isArray(linhas) ? linhas : []))
+      .catch(() => setHistoricoExp([]));
     fetch("https://uabpevnjfcwidbjscowq.supabase.co/rest/v1/trafo_classificacao_atual?select=ss,classe,quem,marcado_em", {
       headers: {
         "apikey": "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh",
@@ -1928,8 +2044,9 @@ export default function Page() {
     /* O que a bancada da reformadora disse sobre o equipamento. Só olha. */
     /* A aba do almoxarifado não recorta: ela lista peça, não SS. */
     insight_almoxarifado: [],
-    /* A aba do mês tem lista própria, não recorta o conjunto das 1.510. */
+    /* As abas de mês têm lista própria, não recortam o conjunto das 1.510. */
     mes_agosto: [],
+    mes_julho: [],
     insight_naoqueimado: [
       { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
       { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
@@ -2433,6 +2550,58 @@ export default function Page() {
 
      A tabela não aceita update nem delete. Cada decisão é uma linha nova; mudar de ideia depois
      de ler o dossiê inteiro é o que se espera de uma revisão, e apagar isso apagaria o caminho. */
+  /* A ÚNICA PORTA DO FLUXO. Pedido, validação, aprovação, rejeição e observação passam
+     todos por aqui, porque a regra de quem pode agir não pode viver espalhada em cinco
+     botões — em cinco lugares ela diverge, num lugar ela é uma coisa só.
+
+     O que ela recusa, e por quê:
+       sem comentário  — a ordem do dono é que o técnico escreva o porquê; sem texto o
+                         pedido não existe. Vale para todo estágio, não só o primeiro.
+       sem motivo      — só no pedido. O banco também recusa, mas recusar aqui dá mensagem
+                         em português em vez de erro 400.
+       fora da vez     — o estágio 3 não aprova o que o 2 ainda não validou. É o que
+                         transforma três botões numa cadeia. */
+  const agirNoExpurgo = async (ss: string, acao: Expurgo["acao"]) => {
+    setErroExp("");
+    if (!quem) return;
+    const texto = comentario.trim();
+    if (texto.length < 3) {
+      setErroExp("Escreva o motivo da decisão. O comentário é obrigatório em todo estágio.");
+      return;
+    }
+    if (acao === "SOLICITADO" && !motivoExp) {
+      setErroExp("Escolha o motivo do expurgo.");
+      return;
+    }
+    const vez = vezDe(expurgos[ss]);
+    if (acao !== "OBSERVACAO" && quem.estagio !== vez) {
+      setErroExp(vez === 0
+        ? "Este expurgo já foi aprovado pela engenharia. Não há mais estágio para agir."
+        : `Agora é a vez do ${ESTAGIO_NOME[vez]}. Você é ${ESTAGIO_NOME[quem.estagio]}.`);
+      return;
+    }
+    const linha = {
+      ss, estagio: quem.estagio, acao,
+      motivo: acao === "SOLICITADO" ? motivoExp : "",
+      comentario: texto, quem_id: quem.id, marcado_em: new Date().toISOString(),
+    };
+    setSalvandoExp(true);
+    try {
+      await gravarExpurgo(linha);
+      const u = { ...linha, quem_nome: quem.nome, quem_papel: quem.papel } as Expurgo;
+      setExpurgos((m) => ({ ...m, [ss]: u }));
+      setHistoricoExp((h) => [u, ...h]);
+      setComentario("");
+      setMotivoExp("");
+    } catch (e) {
+      // Sem fila silenciosa aqui. Aprovação que "talvez tenha gravado" é pior do que
+      // aprovação que falhou na cara: quem clicou precisa saber que precisa clicar de novo.
+      setErroExp(`Não consegui gravar: ${String(e).slice(0, 120)}. Nada foi registrado — tente de novo.`);
+    } finally {
+      setSalvandoExp(false);
+    }
+  };
+
   const classificar = (ss: string, classe: string) => {
     const atual = { ...classificacao };
     const agora = new Date();
@@ -2481,7 +2650,7 @@ export default function Page() {
   // vez só — em EXCLUÍDA — e esta linha diz quantas dessas são troca sem defeito.
   const preventivos = conta((r) => gatilhoDe(r) === "preventivo" || gatilhoDe(r) === "divisao");
   const porClasseNav = (c: string) => registros.filter((r) => classificacao[texto(r.ss)]?.classe === c).length;
-  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza"; recorte?: string }> }> = [
+  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza" | "amarelo"; recorte?: string }> }> = [
     /* Cada peneira é seguida imediatamente pela aba de quem ela reteve, e o número da aba é o
        mesmo que a peneira anuncia. Antes os retidos moravam num grupo separado no fim da barra,
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
@@ -2516,6 +2685,15 @@ export default function Page() {
       { id: "ativos", rotulo: "Por transformador", codigo: "09" },
       { id: "mapa", rotulo: "Mapa dos ativos", codigo: "10", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
     ]},
+    /* OS MESES, EM AMARELO E NO MENU PRINCIPAL.
+       Agosto estava atrás do T, no menu escondido da oficina — quem não sabia do clique
+       nunca viu. Prévia de mês não é insight de proposta: é o número do mês corrente, e
+       precisa estar onde se procura por ele. Amarelo porque nenhum dos dois fechou: agosto
+       tem caso esperando campo, julho não teve martelo nenhum. */
+    { grupo: "Meses · prévia", itens: [
+      { id: "mes_agosto", rotulo: "Agosto 2026", codigo: "14", marca: meses.agosto?.resumo.entram, tom: "amarelo" },
+      { id: "mes_julho", rotulo: "Julho 2026", codigo: "15", marca: meses.julho?.resumo.entram, tom: "amarelo" },
+    ]},
     /* O martelo do dono, separado por classe. Cada linha abre a mesma aba num recorte — é a
        sua leitura, contada à parte da decisão da regra, que continua gravada em cada caso. */
     { grupo: "Minha classificação", itens: [
@@ -2549,7 +2727,6 @@ export default function Page() {
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
       { id: "insight_naoqueimado", rotulo: "Não queimados", codigo: "10", marca: conta((r) => arquivo(r) === "SAÍDA" && naoQueimado(r)), tom: "cinza", recorte: "nq_nqm" },
       { id: "insight_almoxarifado", rotulo: "Garantia · almoxarifado", codigo: "14", marca: almox?.resumo.no1305, tom: "cinza" },
-      { id: "mes_agosto", rotulo: "Agosto 2026 · prévia", codigo: "15", marca: mes?.resumo.entram, tom: "verde" },
       { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
@@ -2578,6 +2755,7 @@ export default function Page() {
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
+    mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
     insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
@@ -3763,15 +3941,29 @@ export default function Page() {
 
       /* O MÊS CORRENTE, FORA DO FECHAMENTO. Indicador separado: não soma com as
          1.305 de jan–jun. É prévia — o que depende de campo fica pendente. */
-      if (modulo === "mes_agosto") {
+      if (modulo === "mes_agosto" || modulo === "mes_julho") {
         if (!mes) return <section className="panel"><p className="fonte-detalhe">Carregando a análise do mês…</p></section>;
         const R = mes.resumo;
+        /* Julho ainda não passou por ninguém: a régua apurou e parou aí. Agosto já tem
+           martelo caso a caso. A tarja diz qual dos dois o leitor está vendo, porque os
+           dois números têm o mesmo formato e peso muito diferente. */
+        const semMartelo = mes.registros.every((x) => !x.decidido_por
+          || x.decidido_por.startsWith("a régua"));
         const ordem = (x: MesCaso) => x.entra === "SIM" ? 0 : (x.entra === "PENDENTE" ? 1 : 2);
         const lista = [...mes.registros].sort((a, b) => ordem(a) - ordem(b) || a.abertura.localeCompare(b.abertura));
         const tomJan = (v: string) => v === "SIM" ? "nq-forte" : "";
         return <>
+          {/* A tarja amarela. Enquanto o mês não fechar, ela fica — é o aviso de que o
+              número da tela não é o número do conselho. */}
+          <div className="tarja-previa">
+            <b>Prévia</b>
+            <span>{semMartelo
+              ? `Nenhum destes ${br(R.no_recorte)} casos passou por decisão humana. O que está na tela é o que a régua apurou sozinha, e a régua não fecha caso que depende de informação de campo.`
+              : `Números provisórios. ${br(R.pendentes)} caso(s) ainda dependem de informação de campo.`}</span>
+            <small>Não soma com as 1.305 de janeiro a junho.</small>
+          </div>
           <section className="panel">
-            <div className="panel-title"><div><span>{mes.titulo} · prévia · indicador separado</span><h2>{br(R.entram)} confirmadas de {br(R.no_recorte)} no recorte do mês</h2></div><small>{br(R.pendentes)} aguardando decisão · {br(R.fora)} fora do indicador</small></div>
+            <div className="panel-title"><div><span>{mes.titulo} · prévia · indicador separado</span><h2>{br(R.entram)} {semMartelo ? "apuradas pela régua" : "confirmadas"} de {br(R.no_recorte)} no recorte do mês</h2></div><small>{br(R.pendentes)} aguardando decisão · {br(R.fora)} fora do indicador</small></div>
             <p className="fonte-detalhe"><strong>Este número não soma com as 1.305.</strong> {mes.regra} Gerado em {mes.gerado_em} a partir de {mes.fontes.join(", ")}.</p>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>O que a régua achou</th><th>Quantos</th><th>O que isso quer dizer</th></tr></thead>
@@ -4243,7 +4435,10 @@ export default function Page() {
         <i role="button" tabIndex={0} className="exportador"
           onClick={() => alternarOficina()}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") alternarOficina(); }}>T</i>
-        <div><strong>Transforma</strong><span>{oficina ? "Proposta · clique no T para voltar" : "Auditoria · 1.510 SS"}</span>
+        {/* A barra dizia "Auditoria · 1.510 SS" e a tela de login dizia "1.305": dois números
+            na mesma marca, sem nada explicando que um é o universo e o outro o indicador.
+            Agora ela diz o que o site É, e os números ficam onde são contados. */}
+        <div><strong>Transforma</strong><span>{oficina ? "Proposta · clique no T para voltar" : "Análise de Ativos"}</span>
           {exportado ? <small className="exportou">{exportado}</small> : null}
           {/* O sinal do espelho. Verde só aparece quando a fila zera de verdade; enquanto
               houver linha esperando, o número fica à vista em vez de sumir num catch. */}
@@ -4257,7 +4452,7 @@ export default function Page() {
           <b>{item.codigo}</b><em>{item.rotulo}</em>
           {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
           {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}
-          {item.marca ? <small className={item.tom === "verde" ? "nav-verde" : "nav-cinza"}>{br(item.marca)}</small> : null}
+          {item.marca ? <small className={`nav-${item.tom === "verde" ? "verde" : item.tom === "amarelo" ? "amarelo" : "cinza"}`}>{br(item.marca)}</small> : null}
         </button>)}
       </div>)}</nav>
       {/* O export perdeu o T, que virou porta. Ele não podia sumir junto: é o único jeito de
@@ -4271,7 +4466,7 @@ export default function Page() {
           tem de estar à vista de quem decide — não escondido numa tela de perfil. */}
       <div className="side-quem">
         <b>{quem.iniciais}</b>
-        <div><strong>{quem.nome}</strong><span>{quem.papel}{quem.aprova ? " · aprova" : ""}</span></div>
+        <div><strong>{quem.nome}</strong><span>{quem.papel} · estágio {quem.estagio}</span></div>
         <button type="button" onClick={sair} title="Sair e voltar para a tela de acesso">Sair</button>
       </div>
       {/* O selo abre a fotografia do dia. Em cima dela, ele volta para a versão viva. */}
@@ -4291,7 +4486,7 @@ export default function Page() {
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
         {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
-        {modulo === "mes_agosto"
+        {modulo === "mes_agosto" || modulo === "mes_julho"
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
@@ -4344,6 +4539,97 @@ export default function Page() {
             ? `${classificacao[texto(aberto.ss)].quem} · ${dataBR(classificacao[texto(aberto.ss)].quando)}`
             : "A decisão do fluxo continua registrada. Isto é a sua leitura ao lado dela."}</em>
         </div>
+
+        {/* O FLUXO DE EXPURGO EM TRÊS ESTÁGIOS.
+            Fica separado da classificação de propósito: classificar é leitura de uma pessoa
+            só e vale na hora; expurgar tira o caso do indicador e precisa de três assinaturas.
+            Misturar os dois na mesma caixa faria um clique parecer com o outro. */}
+        {(() => {
+          const ss = texto(aberto.ss);
+          const e = expurgos[ss];
+          const vez = vezDe(e);
+          const linha = historicoExp.filter((x) => x.ss === ss);
+          const minhaVez = Boolean(quem) && quem!.estagio === vez;
+          return <div className="expurgo">
+            <div className="expurgo-topo">
+              <span>Expurgo · três estágios</span>
+              <b className={`expurgo-selo e${vez}`}>
+                {vez === 0 ? "aprovado — fora do indicador"
+                  : e ? `aguarda ${ESTAGIO_NOME[vez]}`
+                  : "sem pedido aberto"}
+              </b>
+            </div>
+
+            {/* A trilha. Mostra os três passos sempre, mesmo os que ainda não aconteceram,
+                para quem abre saber quantas assinaturas ainda faltam. */}
+            <ol className="expurgo-trilha">
+              {[1, 2, 3].map((n) => {
+                const feito = linha.find((x) => x.estagio === n && x.acao === (n === 1 ? "SOLICITADO" : "APROVADO"));
+                const rejeitado = linha.find((x) => x.estagio === n && x.acao === "REJEITADO");
+                return <li key={n} className={rejeitado ? "rejeitado" : feito ? "feito" : vez === n ? "agora" : ""}>
+                  <i>{n}</i>
+                  <div>
+                    <strong>{ESTAGIO_NOME[n]}</strong>
+                    {feito ? <span>{feito.quem_nome} · {dataBR(feito.marcado_em)}</span>
+                      : rejeitado ? <span>rejeitou · {rejeitado.quem_nome}</span>
+                      : <span>{vez === n ? "é a vez deste estágio" : "ainda não"}</span>}
+                  </div>
+                </li>;
+              })}
+            </ol>
+
+            {e?.motivo ? <p className="expurgo-motivo"><b>Motivo:</b> {e.motivo}</p> : null}
+
+            {/* O histórico é a própria tabela: nada é sobrescrito, então cada comentário
+                de cada estágio continua legível para sempre. */}
+            {linha.length ? <div className="expurgo-historico">
+              {linha.map((x, i) => <div key={i}>
+                <b>{x.acao === "SOLICITADO" ? "pediu" : x.acao === "APROVADO" ? "aprovou"
+                  : x.acao === "REJEITADO" ? "rejeitou" : "observou"}</b>
+                <span>{x.quem_nome} · {x.quem_papel} · {dataBR(x.marcado_em)}</span>
+                <p>{x.comentario}</p>
+              </div>)}
+            </div> : null}
+
+            {quem ? <div className="expurgo-acao">
+              {vez === 1 ? <label>Motivo do expurgo
+                <select value={motivoExp} onChange={(ev) => setMotivoExp(ev.target.value)} disabled={!minhaVez}>
+                  <option value="">Escolha uma justificativa</option>
+                  {MOTIVOS_EXPURGO.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </label> : null}
+              <label>Comentário — obrigatório
+                <textarea value={comentario} onChange={(ev) => setComentario(ev.target.value)}
+                  placeholder={vez === 1 ? "Escreva a evidência e o porquê do expurgo…"
+                    : "Escreva o que sustenta a sua decisão…"} />
+              </label>
+              {erroExp ? <strong className="expurgo-erro">{erroExp}</strong> : null}
+              <div className="expurgo-botoes">
+                {minhaVez && vez === 1
+                  ? <button type="button" className="e-pedir" disabled={salvandoExp}
+                      onClick={() => void agirNoExpurgo(ss, "SOLICITADO")}>Pedir expurgo</button>
+                  : null}
+                {minhaVez && vez > 1 ? <>
+                  <button type="button" className="e-aprovar" disabled={salvandoExp}
+                    onClick={() => void agirNoExpurgo(ss, "APROVADO")}>
+                    {vez === 3 ? "Aprovar — decisão final" : "Validar e mandar para a engenharia"}
+                  </button>
+                  <button type="button" className="e-rejeitar" disabled={salvandoExp}
+                    onClick={() => void agirNoExpurgo(ss, "REJEITADO")}>Rejeitar</button>
+                </> : null}
+                <button type="button" className="e-observar" disabled={salvandoExp}
+                  onClick={() => void agirNoExpurgo(ss, "OBSERVACAO")}>Só registrar observação</button>
+              </div>
+              {!minhaVez && vez !== 0
+                ? <p className="expurgo-nota">Você é <b>{ESTAGIO_NOME[quem.estagio]}</b> e agora
+                  é a vez do <b>{ESTAGIO_NOME[vez]}</b>. Pode registrar observação, que fica no
+                  histórico sem mover o pedido.</p>
+                : null}
+              {vez === 0 ? <p className="expurgo-nota">Este expurgo passou pelos três estágios.
+                Uma observação nova continua sendo registrada.</p> : null}
+            </div> : null}
+          </div>;
+        })()}
         <nav>{([["tempos", "Tempos"], ["consolidado", "Consolidado"], ["interrupcao", "Interrupção"], ["deslocamento", "Deslocamento"],
                 ["ssos", "SS e OS"], ["obra", "Obra e SIGCO"], ["historico", "Histórico do ativo"]] as const).map(([id, rotulo]) => <button key={id}
           className={`${abaDossie === id ? "active" : ""} no-caps`.trim()} onClick={() => setAbaDossie(id)}>{rotulo}</button>)}</nav>
