@@ -891,3 +891,56 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .faixa-versao b { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 13px; }
 .faixa-versao small { color: #e8cfa4; }
 .faixa-versao a { color: #fff; text-underline-offset: 3px; }
+
+/* ------------------------------------------------------------------ a porta
+   A tela de acesso que existia até 01/08 e voltou a pedido do dono. O desenho é o
+   original; os tamanhos vieram multiplicados por 1,3 como o resto do site, senão a
+   primeira tela seria a única letra miúda que sobrou. */
+.login-page { min-height: 100vh; display: grid; grid-template-columns: minmax(390px, 1.1fr) minmax(420px, .9fr); background: #fff; }
+.login-intro { display: flex; flex-direction: column; justify-content: space-between; gap: 28px; min-height: 100vh; padding: clamp(34px, 6vw, 82px); background: var(--ink); color: #fff; }
+.login-brand { display: flex; align-items: center; gap: 13px; }
+.login-brand i { width: 43px; height: 49px; display: grid; place-items: center; background: var(--red); font: 500 36px "Newsreader", serif; font-style: normal; }
+.login-brand span { font: 500 31px "Newsreader", serif; }
+.login-kicker { color: #d66c74; font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .16em; }
+.login-intro h1 { max-width: 700px; margin: 17px 0; font: 500 clamp(46px, 6vw, 78px)/.98 "Newsreader", serif; letter-spacing: -.035em; }
+.login-intro p { max-width: 560px; margin: 0; color: #acb0b4; font-size: 16px; line-height: 1.7; }
+.login-intro > small { color: #8b8f95; font: 500 11px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
+.login-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 6vw, 86px); background: var(--paper); }
+.login-panel form { max-width: 480px; }
+.login-panel form > span { color: var(--red); font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .12em; }
+.login-panel h2 { margin: 10px 0 3px; font: 500 49px "Newsreader", serif; }
+.login-panel form > p { margin: 0 0 28px; color: #74777b; font-size: 13px; }
+.login-panel label { display: block; margin-top: 16px; color: #56595d; font: 600 11px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em; }
+.login-panel input { display: block; width: 100%; margin-top: 7px; border: 1px solid #aaa8a4; border-radius: 0; padding: 13px; background: #fff; outline: none; font-size: 14px; font-family: inherit; }
+.login-panel input:focus { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
+.login-panel form > button { width: 100%; margin-top: 19px; border: 1px solid var(--red); padding: 14px; background: var(--red); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: .04em; }
+.login-panel form > button:hover { background: #8d232c; border-color: #8d232c; }
+.login-error { display: block; margin-top: 10px; color: var(--red); font-size: 12px; }
+.demo-credentials { max-width: 480px; margin-top: 22px; border-top: 1px solid var(--line); }
+.demo-credentials summary { padding: 14px 0; color: #62656a; cursor: pointer; font-size: 13px; font-weight: 600; }
+.demo-credentials > button { width: 100%; display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 10px; border: 0; border-top: 1px solid var(--line); padding: 9px 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.demo-credentials > button:hover { background: #eae7e1; }
+.demo-credentials > button > b { width: 28px; height: 28px; display: grid; place-items: center; background: var(--ink); color: #fff; font: 600 10px "IBM Plex Mono", monospace; }
+.demo-credentials strong, .demo-credentials small { display: block; }
+.demo-credentials strong { font-size: 12px; }
+.demo-credentials small { margin-top: 2px; color: #85888c; font: 500 10px "IBM Plex Mono", monospace; }
+.demo-credentials em { color: var(--red); font: 600 10px "IBM Plex Mono", monospace; font-style: normal; }
+.prototype-note { max-width: 480px; margin: 17px 0 0; color: #8b8d91; font-size: 11px; line-height: 1.65; }
+
+/* O crachá de quem entrou, no pé da barra. */
+.side-quem { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 9px; margin-top: 14px; border-top: 1px solid #34383d; padding-top: 12px; }
+.side-quem > b { width: 30px; height: 30px; display: grid; place-items: center; background: var(--red); color: #fff; font: 600 11px "IBM Plex Mono", monospace; }
+.side-quem strong { display: block; font-size: 13px; }
+.side-quem span { display: block; color: #9aa0a6; font-size: 11px; }
+.side-quem button { border: 1px solid #4a4f55; padding: 4px 8px; background: transparent; color: #c9ced4; font-size: 11px; cursor: pointer; }
+.side-quem button:hover { border-color: #7e858c; background: #2b2e33; color: #fff; }
+
+@media (max-width: 980px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-intro { min-height: 46vh; }
+  .login-panel { min-height: 54vh; }
+}
+@media (max-width: 640px) {
+  .login-intro, .login-panel { padding: 28px 22px; }
+  .login-intro h1 { font-size: 46px; }
+}
