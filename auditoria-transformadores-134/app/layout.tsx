@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Transforma · Auditoria Base 134",
+  title: "Transforma · Análise de Ativos",
   description: "Auditoria de transformadores por SS, OS, obra, material, SIGCO e aprovação.",
   icons: { icon: "/favicon.svg" },
 };

@@ -961,3 +961,60 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .tarja-previa b { grid-row: auto; justify-self: start; }
   .tarja-previa small { grid-column: 1; }
 }
+
+/* ---------------------------------------------- expurgo em três estágios
+   Separado visualmente da classificação porque é outra coisa: classificar é
+   leitura de uma pessoa e vale na hora; expurgar tira o caso do indicador e
+   precisa de três assinaturas. */
+.expurgo { margin: 0 18px 18px; border: 1px solid var(--line); background: #fff; padding: 14px 16px; }
+.expurgo-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.expurgo-topo > span { color: var(--red); font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+.expurgo-selo { padding: 4px 9px; font: 600 11px "IBM Plex Mono", monospace; border-radius: 2px; }
+.expurgo-selo.e0 { background: #e6efdc; color: #375623; }
+.expurgo-selo.e1 { background: #eceff2; color: #4a525c; }
+.expurgo-selo.e2, .expurgo-selo.e3 { background: #fdf0d5; color: #7a5c12; }
+
+.expurgo-trilha { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.expurgo-trilha li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; align-items: start;
+  border-top: 3px solid #dcdfe3; padding-top: 8px; }
+.expurgo-trilha li.feito { border-top-color: #6a9a52; }
+.expurgo-trilha li.agora { border-top-color: #b8860b; }
+.expurgo-trilha li.rejeitado { border-top-color: var(--red); }
+.expurgo-trilha i { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  background: #dcdfe3; color: #52585f; font: 600 11px "IBM Plex Mono", monospace; font-style: normal; }
+.expurgo-trilha li.feito i { background: #6a9a52; color: #fff; }
+.expurgo-trilha li.agora i { background: #b8860b; color: #fff; }
+.expurgo-trilha li.rejeitado i { background: var(--red); color: #fff; }
+.expurgo-trilha strong { display: block; font-size: 12px; line-height: 1.35; }
+.expurgo-trilha span { display: block; margin-top: 2px; color: #7d8189; font-size: 11px; line-height: 1.4; }
+
+.expurgo-motivo { margin: 12px 0 0; font-size: 13px; }
+.expurgo-motivo b { color: #52585f; font: 600 11px "IBM Plex Mono", monospace; text-transform: uppercase; }
+
+.expurgo-historico { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.expurgo-historico > div { border-left: 2px solid var(--line); padding: 0 0 10px 10px; }
+.expurgo-historico b { display: inline-block; margin-right: 6px; color: var(--red); font: 600 11px "IBM Plex Mono", monospace; text-transform: uppercase; }
+.expurgo-historico span { color: #7d8189; font-size: 11px; }
+.expurgo-historico p { margin: 3px 0 0; font-size: 13px; line-height: 1.5; }
+
+.expurgo-acao { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.expurgo-acao label { display: block; margin-bottom: 10px; color: #52585f; font: 600 11px "IBM Plex Mono", monospace; text-transform: uppercase; }
+.expurgo-acao select, .expurgo-acao textarea { display: block; width: 100%; margin-top: 5px; border: 1px solid #b6b3ae;
+  padding: 9px; background: #fff; font: 400 13px/1.5 "DM Sans", sans-serif; text-transform: none; }
+.expurgo-acao textarea { min-height: 74px; resize: vertical; }
+.expurgo-acao select:focus, .expurgo-acao textarea:focus { border-color: var(--red); outline: none; box-shadow: 0 0 0 1px var(--red); }
+.expurgo-acao select:disabled { background: #f2f1ee; color: #8d9199; }
+.expurgo-erro { display: block; margin-bottom: 8px; color: var(--red); font-size: 12px; line-height: 1.45; }
+.expurgo-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.expurgo-botoes button { border: 1px solid; padding: 9px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.expurgo-botoes button:disabled { opacity: .5; cursor: progress; }
+.e-pedir { border-color: var(--red); background: var(--red); color: #fff; }
+.e-aprovar { border-color: #375623; background: #375623; color: #fff; }
+.e-rejeitar { border-color: var(--red); background: #fff; color: var(--red); }
+.e-observar { border-color: #b6b3ae; background: #fff; color: #52585f; }
+.expurgo-nota { margin: 10px 0 0; color: #6d727a; font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .expurgo-trilha { grid-template-columns: 1fr; }
+  .expurgo-botoes button { flex: 1 1 100%; }
+}
