@@ -87,9 +87,25 @@ corroboração de marca ou potência. É o que `mesma_peca()` faz.
 texto, uma `REPASSADA` sem OS e outra `ATENDIDA` com OS, são o mesmo evento.
 Contar as duas infla o indicador.
 
+**A peça retirada conta uma história que o código do posto esconde.** O código
+operativo é do POSTE e não muda quando o transformador muda. Se a peça retirada
+numa SS é a mesma que foi instalada numa SS anterior, existe uma cadeia — e o
+intervalo entre as duas datas é o tempo que aquela peça durou em campo. Foi assim
+que apareceram, em julho/2026, dois transformadores instalados e retirados
+queimados **onze dias depois**, os dois no polo de Gurupi. `cadeias_de_peca()`
+levanta isso; `grau_de_garantia()` classifica.
+
+Cuidado com o que essa regra promete: ela **não está validada**. Das 106 SS que a
+base marca `GARANTIA DE TRAFO`, 95 não têm série na peça retirada e a regra não
+tem como vê-las; das 11 restantes ela reencontrou 3, e essas 3 duraram **441 dias**
+de mediana. Um corte de doze meses deixaria as três de fora. O prazo real tem de
+vir do contrato. E a suspeita de que peça reformada falha mais rápido **não se
+confirma**: 160 dias de mediana contra 182 da peça nova.
+
 ## Os arquivos
 
-- `base.py` — carregador, janela, detector de auxiliar, gêmeas, chave de peça
+- `base.py` — carregador, janela, detector de auxiliar, gêmeas, chave de peça,
+  cadeia da peça e grau de possível garantia
 - `rodar_mes.py` — o comando do mês
 - `planilha.py` — gera o `.xlsx` com Leia-me, Casos e Ocorrências da Crítica
 

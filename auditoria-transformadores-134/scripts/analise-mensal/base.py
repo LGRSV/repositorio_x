@@ -370,3 +370,99 @@ def gemeas(campo, registros, numero_ss):
                 and "REPASSADA" in campo(r, "SITUACAO_SS").upper(),
             })
     return saida
+
+
+# ── possível garantia ───────────────────────────────────────────────────────
+# Regra nova, nascida de julho/2026: o ativo 5700231148 teve duas SS em onze
+# dias, e a peça instalada na primeira é exatamente a retirada na segunda. Isso
+# não aparece olhando o código operativo — o código é do POSTE e não muda quando
+# o transformador muda. Só a SÉRIE mostra.
+#
+# ATENÇÃO AO QUE ESTA REGRA NÃO É. Ela NÃO está validada. A tentativa de validar
+# contra as SS que a base marca ORIGEM_SS = GARANTIA DE TRAFO não fechou: das 106
+# declaradas, 95 não têm série na peça retirada e a regra não tem como enxergá-las;
+# das 11 restantes ela reencontrou 3, e essas 3 duraram 441 dias de mediana. Ou
+# seja: as garantias que a operação de fato reconheceu passaram de um ano em campo.
+# É por isso que existe a faixa OLHAR até 730 dias — um corte de 12 meses deixaria
+# as três de fora. Com três casos não se calibra prazo; o prazo real tem de vir do
+# CONTRATO com a reformadora e com o fabricante.
+#
+# E a suspeita natural NÃO se confirma: peça reformada teve mediana de 160 dias
+# contra 182 da peça nova, com 40% e 41% falhando em até 90 dias. Praticamente
+# iguais. Se houver problema com a reforma, não é este número que vai prová-lo.
+
+GARANTIA_FORTE = 90
+GARANTIA_SUSPEITA = 365
+GARANTIA_OLHAR = 730
+
+
+def serie_identifica(v):
+    """A série serve para casar peça?
+
+    Série com menos de quatro dígitos ou de um dígito só repetido não identifica
+    nada e casa com qualquer coisa. Sem este filtro a regra monta cadeia em cima
+    da série "1" e entrega parentesco inventado — o mesmo tipo de erro que o
+    cruzamento de controle com tombamento já produziu nesta auditoria.
+    """
+    k = chave(v)
+    return len(k) >= 4 and len(set(k)) > 1
+
+
+def cadeias_de_peca(campo, registros):
+    """Toda vez que a peça retirada numa SS foi instalada numa SS anterior.
+
+    Devolve lista de dicionários com a SS que instalou, a que retirou, quantos
+    dias a peça durou em campo e o grau. Cadeia de zero dia em posto diferente é
+    descartada: peça não sai de um poste e aparece em outro no mesmo dia, isso é
+    erro de digitação ou baixa de estoque, não histórico.
+    """
+    instalou = {}
+    for r in registros:
+        v = campo(r, "NS_INSTALADO")
+        if serie_identifica(v):
+            instalou.setdefault(chave(v), []).append(r)
+
+    saida = []
+    for b in registros:
+        v = campo(b, "NS_RETIRADO")
+        if not serie_identifica(v):
+            continue
+        dt_b = data(campo(b, "DATA_ABERTURA_SS"))
+        if not dt_b:
+            continue
+        for a in instalou.get(chave(v), []):
+            if a is b:
+                continue
+            dt_a = data(campo(a, "DATA_ABERTURA_SS"))
+            if not dt_a or dt_a >= dt_b:
+                continue
+            dias = (dt_b - dt_a).days
+            mesmo = campo(a, "NUM_TRAFO").strip() == campo(b, "NUM_TRAFO").strip()
+            if dias == 0 and not mesmo:
+                continue
+            saida.append({
+                "instalou": a, "retirou": b, "dias": dias, "mesmo_posto": mesmo,
+                "serie": campo(b, "NS_RETIRADO"),
+                "reformada": campo(a, "TRAFO_INSTALADO_É_REFORMADO").strip(),
+                "reformadora": campo(a, "REFORMADORA_INSTALADO").strip(),
+                "grau": grau_de_garantia(dias, mesmo),
+            })
+    return saida
+
+
+def grau_de_garantia(dias, mesmo_posto):
+    """FORTE / SUSPEITA / OLHAR / REMANEJO / FORA.
+
+    Os cortes são de leitura, não de contrato. Enquanto o prazo contratual não
+    entrar aqui, nenhum destes graus retira ou acrescenta caso ao indicador: eles
+    dizem o que merece ser olhado, e só.
+    """
+    if not mesmo_posto:
+        return "REMANEJO"
+    if dias <= GARANTIA_FORTE:
+        return "FORTE"
+    if dias <= GARANTIA_SUSPEITA:
+        return "SUSPEITA"
+    if dias <= GARANTIA_OLHAR:
+        return "OLHAR"
+    return "FORA"

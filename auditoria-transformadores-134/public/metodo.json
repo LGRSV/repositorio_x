@@ -370,6 +370,75 @@
      ]
     ]
    }
+  },
+  {
+   "id": "garantia",
+   "titulo": "9. Possível garantia — a cadeia da peça",
+   "paragrafos": [
+    "Esta regra nasceu de julho de 2026. O transformador do posto 5700231148 teve duas solicitações em onze dias, e a peça instalada na primeira é exatamente a retirada na segunda. No mesmo mês, o posto 5702232094 repetiu o padrão, também em onze dias, também no polo de Gurupi. Nenhum dos dois aparece olhando o código operativo: o código é do POSTE e não muda quando o transformador muda. Só o número de série mostra.",
+    "A regra é simples de dizer: se a peça retirada numa solicitação é a mesma que foi instalada numa solicitação anterior, existe uma cadeia, e o intervalo entre as duas datas é o tempo que aquela peça durou em campo. Peça que dura pouco é candidata a garantia. Na base de 11/08/2026 existem 597 cadeias assim, sendo 178 com retirada em 2026.",
+    "O que ela NÃO faz: retirar ou acrescentar caso ao indicador. Os graus dizem o que merece ser olhado, e nada além disso. Enquanto o prazo contratual da reformadora e do fabricante não entrar na régua, nenhuma cadeia vira garantia por conta própria."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "grau",
+     "critério",
+     "cadeias com retirada em 2026"
+    ],
+    "linhas": [
+     [
+      "FORTE",
+      "até 90 dias no mesmo posto — a peça mal entrou e já saiu",
+      "36"
+     ],
+     [
+      "SUSPEITA",
+      "de 91 a 365 dias no mesmo posto",
+      "45"
+     ],
+     [
+      "OLHAR",
+      "de 366 a 730 dias no mesmo posto",
+      "50"
+     ],
+     [
+      "REMANEJO",
+      "a peça saiu de um posto e foi retirada em outro",
+      "33"
+     ],
+     [
+      "FORA",
+      "mais de 730 dias — vida normal",
+      "14"
+     ]
+    ]
+   },
+   "itens": [
+    {
+     "rotulo": "A regra não está validada, e isso precisa ser dito",
+     "texto": "A tentativa de validar contra as solicitações que a base já marca como GARANTIA DE TRAFO não fechou. São 106 declaradas; 95 delas não têm número de série na peça retirada, então a regra não tem como enxergá-las. Das 11 que sobram, a regra reencontrou 3. Com três casos não se calibra prazo nenhum."
+    },
+    {
+     "rotulo": "As garantias reconhecidas passaram de um ano em campo",
+     "texto": "As três que a regra reencontrou duraram 441 dias de mediana. Um corte de doze meses deixaria as três de fora. Foi por isso que existe a faixa OLHAR, até 730 dias: a primeira versão desta regra cortava em um ano, e o dado desmentiu. O prazo de verdade tem de vir do contrato, não da planilha."
+    },
+    {
+     "rotulo": "A peça reformada NÃO falha mais rápido",
+     "texto": "Era a suspeita natural e ela não se confirma. Nas cadeias do mesmo posto, peça reformada teve mediana de 160 dias com 40% falhando em até 90; peça nova teve mediana de 182 dias com 41% em até 90. São praticamente iguais. Se houver problema com a reforma, não é este número que vai prová-lo."
+    },
+    {
+     "rotulo": "Série curta não identifica peça",
+     "texto": "Série com menos de quatro dígitos, ou de um dígito só repetido, casa com qualquer coisa. Sem esse filtro a regra monta cadeia em cima da série '1' e entrega parentesco inventado. Foram 111 registros descartados por isso, mais 3 cadeias de zero dia em postes diferentes — peça não sai de um poste e aparece em outro no mesmo dia."
+    },
+    {
+     "rotulo": "369 cadeias que ninguém olhou",
+     "texto": "Das 370 cadeias no mesmo posto dentro de um ano, UMA já estava declarada como garantia pela operação. Isso pode significar que a garantia está sendo muito subaproveitada, ou que a regra levanta demais. A base sozinha não separa as duas hipóteses."
+    },
+    {
+     "rotulo": "O que falta para virar número",
+     "texto": "O prazo contratual de garantia. O número de série na peça retirada, que falta em 95 das 106 garantias declaradas — sem série a regra é cega. E a data da reforma: a coluna DATA_REFORMA_INST existe na base e quase nunca vem preenchida; com ela o prazo contaria da reforma, que é como a garantia funciona de verdade."
+    }
+   ]
   }
  ]
 }
