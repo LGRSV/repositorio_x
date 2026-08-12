@@ -109,7 +109,7 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado" | "mes_agosto";
+  | "insight_almoxarifado" | "mes_agosto" | "mes_julho";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -1024,6 +1024,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
     insight_naoqueimado: ["A bancada da reformadora", "Ordem de produção e custo", "O que a Crítica gravou"],
     insight_almoxarifado: ["Fato", "Leitura", "Motivo"],
     mes_agosto: ["Fato", "Leitura", "Motivo"],
+    mes_julho: ["Fato", "Leitura", "Motivo"],
   };
   const colunas = cabecalho[modo] || cabecalho.decisao;
   return <div className="table-scroll"><table className="records-table">
@@ -1293,13 +1294,20 @@ export default function Page() {
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
-  const [mes, setMes] = useState<Mes | null>(null);
+  /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
+     variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
+     linha no menu, pronto. */
+  const [meses, setMeses] = useState<Record<string, Mes | null>>({});
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
      serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
      Ele manda no gráfico, nos chips e na tabela ao mesmo tempo. */
   const [terraQuando, setTerraQuando] = useState<"antes" | "depois">("antes");
   const [modulo, setModulo] = useState<Modulo>("visao");
+  /* O mês da aba aberta. As duas abas de mês usam o mesmo componente de tela: o que muda
+     é qual JSON está por trás. */
+  const mesAberto = modulo === "mes_julho" ? "julho" : "agosto";
+  const mes = meses[mesAberto] ?? null;
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
      mesma aplicação com outro menu. Por isso a primeira aba dela é o MESMO módulo da tela de
      queimados e avariados, e não uma cópia do componente: mesmo dado, mesmas classificações,
@@ -1416,8 +1424,11 @@ export default function Page() {
       .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
     fetch(assetUrl("garantia-almoxarifado.json")).then((r) => r.json())
       .then(setAlmox).catch(() => setAlmox(null));
-    fetch(assetUrl("agosto-2026.json")).then((r) => r.json())
-      .then(setMes).catch(() => setMes(null));
+    for (const [nome, arq] of [["agosto", "agosto-2026.json"], ["julho", "julho-2026.json"]]) {
+      fetch(assetUrl(arq)).then((r) => r.json())
+        .then((d) => setMeses((m) => ({ ...m, [nome]: d })))
+        .catch(() => setMeses((m) => ({ ...m, [nome]: null })));
+    }
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -1928,8 +1939,9 @@ export default function Page() {
     /* O que a bancada da reformadora disse sobre o equipamento. Só olha. */
     /* A aba do almoxarifado não recorta: ela lista peça, não SS. */
     insight_almoxarifado: [],
-    /* A aba do mês tem lista própria, não recorta o conjunto das 1.510. */
+    /* As abas de mês têm lista própria, não recortam o conjunto das 1.510. */
     mes_agosto: [],
+    mes_julho: [],
     insight_naoqueimado: [
       { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
       { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
@@ -2481,7 +2493,7 @@ export default function Page() {
   // vez só — em EXCLUÍDA — e esta linha diz quantas dessas são troca sem defeito.
   const preventivos = conta((r) => gatilhoDe(r) === "preventivo" || gatilhoDe(r) === "divisao");
   const porClasseNav = (c: string) => registros.filter((r) => classificacao[texto(r.ss)]?.classe === c).length;
-  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza"; recorte?: string }> }> = [
+  const NAV: Array<{ grupo: string; itens: Array<{ id: Modulo; rotulo: string; codigo: string; entram?: number; param?: number; marca?: number; tom?: "verde" | "cinza" | "amarelo"; recorte?: string }> }> = [
     /* Cada peneira é seguida imediatamente pela aba de quem ela reteve, e o número da aba é o
        mesmo que a peneira anuncia. Antes os retidos moravam num grupo separado no fim da barra,
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
@@ -2516,6 +2528,15 @@ export default function Page() {
       { id: "ativos", rotulo: "Por transformador", codigo: "09" },
       { id: "mapa", rotulo: "Mapa dos ativos", codigo: "10", marca: conta((r) => Boolean(r.lat)), tom: "cinza" },
     ]},
+    /* OS MESES, EM AMARELO E NO MENU PRINCIPAL.
+       Agosto estava atrás do T, no menu escondido da oficina — quem não sabia do clique
+       nunca viu. Prévia de mês não é insight de proposta: é o número do mês corrente, e
+       precisa estar onde se procura por ele. Amarelo porque nenhum dos dois fechou: agosto
+       tem caso esperando campo, julho não teve martelo nenhum. */
+    { grupo: "Meses · prévia", itens: [
+      { id: "mes_agosto", rotulo: "Agosto 2026", codigo: "14", marca: meses.agosto?.resumo.entram, tom: "amarelo" },
+      { id: "mes_julho", rotulo: "Julho 2026", codigo: "15", marca: meses.julho?.resumo.entram, tom: "amarelo" },
+    ]},
     /* O martelo do dono, separado por classe. Cada linha abre a mesma aba num recorte — é a
        sua leitura, contada à parte da decisão da regra, que continua gravada em cada caso. */
     { grupo: "Minha classificação", itens: [
@@ -2549,7 +2570,6 @@ export default function Page() {
       { id: "insight_garantia", rotulo: "Garantia · vida do trafo", codigo: "03", marca: conta((r) => { const c = coleta[texto(r.ss)]; return arquivo(r) === "SAÍDA" && c?.dias != null && c.dias < 365; }), tom: "cinza", recorte: "menos_ano" },
       { id: "insight_naoqueimado", rotulo: "Não queimados", codigo: "10", marca: conta((r) => arquivo(r) === "SAÍDA" && naoQueimado(r)), tom: "cinza", recorte: "nq_nqm" },
       { id: "insight_almoxarifado", rotulo: "Garantia · almoxarifado", codigo: "14", marca: almox?.resumo.no1305, tom: "cinza" },
-      { id: "mes_agosto", rotulo: "Agosto 2026 · prévia", codigo: "15", marca: mes?.resumo.entram, tom: "verde" },
       { id: "insight_reincidencia", rotulo: "Reincidência", codigo: "09", marca: conta((r) => Boolean(reincDe(r))), tom: "cinza", recorte: "rec_todos" },
       { id: "insight_aterramento", rotulo: "Aterramento medido", codigo: "08", marca: conta((r) => arquivo(r) === "SAÍDA" && ["acima", "grave"].includes(faixaTerra(r)) && !fezMelhoria(r)), tom: "cinza", recorte: "terra_ruim_sem_melhoria" },
       { id: "insight_revisao", rotulo: "Revisão detalhada", codigo: "07", marca: conta((r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0), tom: "cinza", recorte: "rev_carga" },
@@ -2578,6 +2598,7 @@ export default function Page() {
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
+    mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
     insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
@@ -3763,15 +3784,29 @@ export default function Page() {
 
       /* O MÊS CORRENTE, FORA DO FECHAMENTO. Indicador separado: não soma com as
          1.305 de jan–jun. É prévia — o que depende de campo fica pendente. */
-      if (modulo === "mes_agosto") {
+      if (modulo === "mes_agosto" || modulo === "mes_julho") {
         if (!mes) return <section className="panel"><p className="fonte-detalhe">Carregando a análise do mês…</p></section>;
         const R = mes.resumo;
+        /* Julho ainda não passou por ninguém: a régua apurou e parou aí. Agosto já tem
+           martelo caso a caso. A tarja diz qual dos dois o leitor está vendo, porque os
+           dois números têm o mesmo formato e peso muito diferente. */
+        const semMartelo = mes.registros.every((x) => !x.decidido_por
+          || x.decidido_por.startsWith("a régua"));
         const ordem = (x: MesCaso) => x.entra === "SIM" ? 0 : (x.entra === "PENDENTE" ? 1 : 2);
         const lista = [...mes.registros].sort((a, b) => ordem(a) - ordem(b) || a.abertura.localeCompare(b.abertura));
         const tomJan = (v: string) => v === "SIM" ? "nq-forte" : "";
         return <>
+          {/* A tarja amarela. Enquanto o mês não fechar, ela fica — é o aviso de que o
+              número da tela não é o número do conselho. */}
+          <div className="tarja-previa">
+            <b>Prévia</b>
+            <span>{semMartelo
+              ? `Nenhum destes ${br(R.no_recorte)} casos passou por decisão humana. O que está na tela é o que a régua apurou sozinha, e a régua não fecha caso que depende de informação de campo.`
+              : `Números provisórios. ${br(R.pendentes)} caso(s) ainda dependem de informação de campo.`}</span>
+            <small>Não soma com as 1.305 de janeiro a junho.</small>
+          </div>
           <section className="panel">
-            <div className="panel-title"><div><span>{mes.titulo} · prévia · indicador separado</span><h2>{br(R.entram)} confirmadas de {br(R.no_recorte)} no recorte do mês</h2></div><small>{br(R.pendentes)} aguardando decisão · {br(R.fora)} fora do indicador</small></div>
+            <div className="panel-title"><div><span>{mes.titulo} · prévia · indicador separado</span><h2>{br(R.entram)} {semMartelo ? "apuradas pela régua" : "confirmadas"} de {br(R.no_recorte)} no recorte do mês</h2></div><small>{br(R.pendentes)} aguardando decisão · {br(R.fora)} fora do indicador</small></div>
             <p className="fonte-detalhe"><strong>Este número não soma com as 1.305.</strong> {mes.regra} Gerado em {mes.gerado_em} a partir de {mes.fontes.join(", ")}.</p>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>O que a régua achou</th><th>Quantos</th><th>O que isso quer dizer</th></tr></thead>
@@ -4257,7 +4292,7 @@ export default function Page() {
           <b>{item.codigo}</b><em>{item.rotulo}</em>
           {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
           {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}
-          {item.marca ? <small className={item.tom === "verde" ? "nav-verde" : "nav-cinza"}>{br(item.marca)}</small> : null}
+          {item.marca ? <small className={`nav-${item.tom === "verde" ? "verde" : item.tom === "amarelo" ? "amarelo" : "cinza"}`}>{br(item.marca)}</small> : null}
         </button>)}
       </div>)}</nav>
       {/* O export perdeu o T, que virou porta. Ele não podia sumir junto: é o único jeito de
@@ -4291,7 +4326,7 @@ export default function Page() {
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
         {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
-        {modulo === "mes_agosto"
+        {modulo === "mes_agosto" || modulo === "mes_julho"
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>

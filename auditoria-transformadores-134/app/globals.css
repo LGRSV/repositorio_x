@@ -944,3 +944,20 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .login-intro, .login-panel { padding: 28px 22px; }
   .login-intro h1 { font-size: 46px; }
 }
+
+/* ------------------------------------------------------ prévia, em amarelo
+   As abas de mês não estão fechadas e não podem parecer fechadas. O selo do menu
+   sai amarelo em vez de verde, e a aba abre com uma tarja dizendo o que falta. */
+.nav-amarelo { padding: 2px 6px; background: #7a5c12; color: #ffe9b8; font: 600 11px "IBM Plex Mono", monospace; border-radius: 2px; }
+
+.tarja-previa { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline;
+  margin-bottom: 16px; border-left: 4px solid #b8860b; padding: 12px 16px; background: #fdf4dd;
+  color: #4a3a12; font-size: 14px; line-height: 1.55; }
+.tarja-previa b { grid-row: span 2; align-self: center; padding: 4px 10px; background: #b8860b; color: #fff;
+  font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.tarja-previa small { grid-column: 2; color: #6b5a2c; font-size: 12px; }
+@media (max-width: 640px) {
+  .tarja-previa { grid-template-columns: 1fr; }
+  .tarja-previa b { grid-row: auto; justify-self: start; }
+  .tarja-previa small { grid-column: 1; }
+}
