@@ -191,6 +191,55 @@ type Metodo = {
 
 type Par = { label: string; value: number };
 
+/* A PORTA DA APRESENTAÇÃO.
+   Existia até 01/08, saiu no commit do fluxo em quatro estágios e voltou a pedido do dono.
+
+   O que ela é: um jeito de dizer quem está olhando e de separar quem aprova de quem não
+   aprova. O que ela NÃO é: segurança. O site é estático — não existe servidor para
+   conferir nada, então tudo o que decide o acesso viaja dentro do JavaScript que o
+   navegador baixa. Quem abre o bundle vê a regra inteira.
+
+   Por isso o que está gravado aqui é o HASH da senha, não a senha. Não é para proteger
+   contra ataque: senha curta de formato conhecido cai em minutos. É para o repositório
+   não ter as senhas escritas dentro dele — ele é público, e o que entra em commit fica
+   no histórico para sempre. Quem precisa das senhas recebe fora do código. */
+type Usuario = {
+  id: string; nome: string; papel: string; iniciais: string; usuario: string; hash: string;
+  descricao: string; aprova: boolean;
+};
+
+const SAL = "auditoria-134";
+
+const USUARIOS: Usuario[] = [
+  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Controle operacional, acompanhamento das equipes e aprovação.", aprova: true },
+  { id: "joao-antonio", nome: "João Antônio", papel: "Desenvolvedor", iniciais: "JA", usuario: "joao.antonio", hash: "64795ba3cfd3f4a64848338c380369ac414c115503f90da6501d1e75b37343fb", descricao: "Acesso técnico total e configuração do protótipo.", aprova: false },
+  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Análise de engenharia e aprovação oficial.", aprova: true },
+  { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação.", aprova: false },
+  { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", aprova: false },
+  { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", aprova: false },
+  { id: "danillo", nome: "Danillo", papel: "Coordenador", iniciais: "DA", usuario: "danillo", hash: "8e02a118d8e46fb520abc4f17872e787d5871ff3addcdac1ab502ca6d68a29e5", descricao: "Coordenação da operação, acompanhamento das filas e aprovação.", aprova: true },
+  { id: "carlos", nome: "Carlos", papel: "Desenvolvedor 2", iniciais: "CA", usuario: "carlos", hash: "927d34147fb540eddd32e9ef035f5a523563d35a0a5819a708b1040f9141c2aa", descricao: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", aprova: false },
+];
+
+/* SHA-256 do que foi digitado, para comparar com o hash gravado. crypto.subtle existe em
+   contexto seguro — https e localhost — que é onde o site roda. */
+const hashDaSenha = async (senha: string) => {
+  const bytes = new TextEncoder().encode(`${SAL}:${senha}`);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+const CHAVE_USUARIO = "auditoria-134-demo-user";
+const usuarioGuardado = (): Usuario | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const id = window.localStorage.getItem(CHAVE_USUARIO);
+    return USUARIOS.find((u) => u.id === id) || null;
+  } catch {
+    return null;
+  }
+};
+
 /* ------------------------------------------------------------------ utilidades */
 
 
@@ -207,7 +256,23 @@ const soData = (valor: unknown) => dataBR(valor).slice(0, 10);
 const br = (v: number) => v.toLocaleString("pt-BR");
 const pct = (v: number, total: number) => (total ? Math.round((v / total) * 100) : 0);
 const normalize = (v: string) => v.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
-const assetUrl = (p: string) => `${import.meta.env.BASE_URL || "/"}${p.replace(/^\/+/, "")}`;
+/* A VERSÃO CONGELADA. ?versao=2026-08-11 faz a tela ler os JSON de
+   public/versoes/<data>/ em vez dos atuais — é o site como ele estava naquele dia.
+   O que NÃO congela: as classificações manuais do dono, que vêm do Supabase ao
+   vivo a cada abertura. Está dito na faixa do topo e no manifesto da pasta. */
+const VERSAO = typeof window !== "undefined"
+  ? new URLSearchParams(window.location.search).get("versao") || ""
+  : "";
+const SO_DATA = /\.json$/i;
+const assetUrl = (p: string) => {
+  const base = `${import.meta.env.BASE_URL || "/"}`;
+  const limpo = p.replace(/^\/+/, "");
+  // só os dados viajam no tempo; ícone, fonte e mapa continuam vindo da raiz
+  if (VERSAO && SO_DATA.test(limpo) && !limpo.startsWith("versoes/")) {
+    return `${base}versoes/${VERSAO}/${limpo}`;
+  }
+  return `${base}${limpo}`;
+};
 const texto = (v: unknown) => (v === null || v === undefined || v === "" ? "" : String(v));
 const decisaoClasse = (v: string) => (v === "INCLUIR" ? "good" : v === "EXCLUIR" ? "bad" : "warn");
 const fatoClasse = (v: string) => (v === "F1" ? "good" : v === "F3" ? "bad" : "pend");
@@ -310,6 +375,77 @@ function baixarCSV(linhas: Registro[], titulo: string, janela: number) {
 }
 
 /* ------------------------------------------------------------------ peças */
+
+/* A tela de entrada. Fica antes de qualquer fetch: quem não entrou não precisa esperar
+   os 2 MB da base carregarem para ver que precisa entrar. A lista embaixo mostra quem
+   tem acesso e qual é o papel de cada um — a senha não aparece, ela é combinada fora
+   do site. */
+function TelaLogin({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+
+  const enviar = async (evento: React.FormEvent) => {
+    evento.preventDefault();
+    const digitado = usuario.trim().toLowerCase();
+    const candidato = USUARIOS.find((item) => item.usuario.toLowerCase() === digitado);
+    // O erro é o mesmo para usuário errado e senha errada, de propósito: dizer qual dos
+    // dois falhou entrega metade da resposta a quem estiver tentando adivinhar.
+    const errado = () => setErro("Usuário ou senha de demonstração inválidos.");
+    if (!candidato) { errado(); return; }
+    let calculado: string;
+    try {
+      calculado = await hashDaSenha(senha);
+    } catch {
+      setErro("Este navegador não conseguiu conferir a senha. Abra o site por https.");
+      return;
+    }
+    if (calculado !== candidato.hash) { errado(); return; }
+    try { window.localStorage.setItem(CHAVE_USUARIO, candidato.id); } catch { /* navegador sem storage */ }
+    aoEntrar(candidato);
+  };
+
+  return <main className="login-page">
+    <section className="login-intro">
+      <div className="login-brand"><i>T</i><span>Transforma</span></div>
+      <div>
+        <span className="login-kicker">AUDITORIA TÉCNICA · BASE 134</span>
+        <h1>Decisões rastreáveis, do campo à aprovação.</h1>
+        <p>Ambiente demonstrativo para análise de SS, OS, obras, materiais, expurgos e indicadores financeiros.</p>
+      </div>
+      <small>Protótipo funcional · 1.305 de janeiro a junho de 2026, mais o mês corrente</small>
+    </section>
+    <section className="login-panel">
+      <form onSubmit={enviar}>
+        <span>ACESSO AO SISTEMA</span><h2>Entrar</h2>
+        <p>Use uma das credenciais temporárias da apresentação.</p>
+        <label>Usuário<input autoFocus value={usuario} autoComplete="username"
+          onChange={(e) => setUsuario(e.target.value)} placeholder="nome.sobrenome" /></label>
+        <label>Senha<input type="password" value={senha} autoComplete="current-password"
+          onChange={(e) => setSenha(e.target.value)} placeholder="••••••••••••" /></label>
+        {erro ? <strong className="login-error">{erro}</strong> : null}
+        <button type="submit">Acessar painel</button>
+      </form>
+      {/* Clicar preenche o usuário e põe o cursor na senha. Antes preenchia a senha
+          também; parou porque a senha não mora mais no código. */}
+      <details className="demo-credentials">
+        <summary>Quem tem acesso</summary>
+        {USUARIOS.map((item) => <button type="button" key={item.id}
+          onClick={() => { setUsuario(item.usuario); setSenha(""); setErro(""); }}>
+          <b>{item.iniciais}</b>
+          <span><strong>{item.nome}</strong><small>{item.usuario}</small></span>
+          <em>{item.aprova ? `${item.papel} · aprova` : item.papel}</em>
+        </button>)}
+      </details>
+      <p className="prototype-note">
+        Acesso de apresentação. O site é estático, então esta porta serve para registrar
+        quem está olhando e separar quem aprova — não para trancar dado. A senha é
+        combinada fora do site e não aparece aqui nem fica escrita no código. A versão
+        definitiva usará autenticação de verdade, com senha individual.
+      </p>
+    </section>
+  </main>;
+}
 
 function Kpi({ rotulo, valor, nota, tom = "neutral", aoClicar }: {
   rotulo: string; valor: string | number; nota: string; tom?: string; aoClicar?: () => void;
@@ -1113,6 +1249,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
 /* ------------------------------------------------------------------ tela */
 
 export default function Page() {
+  /* Lê o localStorage no primeiro render, não num efeito: quem já entrou não pode ver a
+     tela de login piscar antes de o efeito rodar. */
+  const [quem, setQuem] = useState<Usuario | null>(usuarioGuardado);
   const [fluxo, setFluxo] = useState<Fluxo | null>(null);
   const [metodo, setMetodo] = useState<Metodo | null>(null);
   const [revisao, setRevisao] = useState<Revisao | null>(null);
@@ -1359,6 +1498,13 @@ export default function Page() {
     // e qualquer categoria de exclusão marcada à mão faz o mesmo — é o que o botão promete
     if (ehExclusaoManual(c)) return "EXCLUÍDA";
     return texto(r.cascata);
+  };
+  /* A classe de quem está na saída. O martelo do dono vence quando ele diz a causa
+     (QUEIMADO ou AVARIADO); quando ele marca PROFUNDA ou REGRA, ele está pedindo uma
+     segunda olhada, não trocando a causa — então vale o que a cascata concluiu. */
+  const classeNaSaida = (r: Registro): string => {
+    const c = classificacao[texto(r.ss)]?.classe;
+    return c === "QUEIMADO" || c === "AVARIADO" ? c : texto(r.confirmado);
   };
   const rearquivado = (r: Registro) => arquivo(r) !== texto(r.cascata);
 
@@ -2209,6 +2355,16 @@ export default function Page() {
       r.obra_tipo, r.obra_descricao, r.sigco, r.autorizacao, r.expurgo_gatilho,
     ].join(" ")).includes(agulha));
   }, [comJanela, recorte, recorteAtivo, agulha, modulo, classificacao]);
+
+  /* A porta vem antes da tela de carregamento. A base continua sendo baixada por trás
+     — de propósito: quando a senha é digitada, os 2 MB já chegaram e o painel abre
+     direto, em vez de trocar uma espera por outra. */
+  if (!quem) return <TelaLogin aoEntrar={setQuem} />;
+
+  const sair = () => {
+    try { window.localStorage.removeItem(CHAVE_USUARIO); } catch { /* navegador sem storage */ }
+    setQuem(null);
+  };
 
   if (!fluxo) return <main className="loading">
     {erroCarga ? <>
@@ -3175,8 +3331,13 @@ export default function Page() {
               que é a que a barra lateral e o funil também usam. */}
           <section className="kpi-grid">
             <Kpi rotulo="Queimados e avariados" valor={br(naSaidaLista.length)} nota="saíram pela ponta da esteira e contam no indicador" tom="green" aoClicar={() => abrirRecorte("saida")} />
-            <Kpi rotulo="Queimados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "QUEIMADO").length)} nota="causa confirmada: queima" tom="red" />
-            <Kpi rotulo="Avariados" valor={br(naSaidaLista.filter((r) => (classificacao[texto(r.ss)]?.classe || texto(r.confirmado)) === "AVARIADO").length)} nota="vazamento, bucha, tensão, fase" tom="blue" />
+            {/* A classe mostrada tem de ser a mesma que colocou o caso na saída. Marcas que
+                NÃO são classe — PROFUNDA, REGRA — não substituem o veredito da cascata: elas
+                dizem "quero olhar isto de novo", não "isto não é queima". Enquanto a expressão
+                era `classificacao || confirmado`, esses casos entravam no total e sumiam dos
+                dois cartões, e a soma não fechava: 1.224 + 79 = 1.303 contra 1.305 no total. */}
+            <Kpi rotulo="Queimados" valor={br(naSaidaLista.filter((r) => classeNaSaida(r) === "QUEIMADO").length)} nota="causa confirmada: queima" tom="red" />
+            <Kpi rotulo="Avariados" valor={br(naSaidaLista.filter((r) => classeNaSaida(r) === "AVARIADO").length)} nota="vazamento, bucha, tensão, fase" tom="blue" />
             <Kpi rotulo="Em revisão" valor={br(conta((r) => String(arquivo(r)).startsWith("RETIDO")))} nota="esperam prova de material" tom="amber" aoClicar={() => irPara("expurgos", "parados")} />
             <Kpi rotulo="Fora do indicador" valor={br(excluidas)} nota="outra causa, ou sem interrupção que sustente" tom="ink" aoClicar={() => irPara("exclusoes", "todos")} />
             <Kpi rotulo="Mudaram na revisão" valor={br(conta((r) => r.mudou_na_revisao === "SIM"))} nota="decisão diferente do funil anterior" tom="blue" aoClicar={() => abrirRecorte("mudou")} />
@@ -4065,6 +4226,13 @@ export default function Page() {
   };
 
   return <div className="app-shell">
+    {/* Avisa, no alto e o tempo todo, que a tela está mostrando uma fotografia. */}
+    {VERSAO ? <div className="faixa-versao">
+      <b>Fotografia de {VERSAO.split("-").reverse().join("/")}</b>
+      <span>Os dados desta tela são os daquele dia, não os de agora.</span>
+      <small>As classificações manuais continuam vindo ao vivo — elas não são congeladas por esta versão.</small>
+      <a href="?">voltar para o atual →</a>
+    </div> : null}
     <aside className="sidebar">
       {/* O T exporta. A classificação manual vive só no localStorage deste navegador — quem
           analisa do outro lado não a enxerga, e sem isso a pergunta "as que eu aprovei estão
@@ -4099,7 +4267,21 @@ export default function Page() {
       <button type="button" className="side-export" onClick={() => exportarLocal()}>
         Exportar minhas classificações
       </button>
-      <div className="side-user"><b>1.5k</b><div><strong>Janeiro a junho</strong><span>de 2026</span></div></div>
+      {/* Quem está olhando. Fica na barra porque a decisão registrada leva nome, e o nome
+          tem de estar à vista de quem decide — não escondido numa tela de perfil. */}
+      <div className="side-quem">
+        <b>{quem.iniciais}</b>
+        <div><strong>{quem.nome}</strong><span>{quem.papel}{quem.aprova ? " · aprova" : ""}</span></div>
+        <button type="button" onClick={sair} title="Sair e voltar para a tela de acesso">Sair</button>
+      </div>
+      {/* O selo abre a fotografia do dia. Em cima dela, ele volta para a versão viva. */}
+      <a className="side-user side-user-link"
+         href={VERSAO ? `?` : `?versao=2026-08-11`}
+         title={VERSAO ? "Voltar para a versão de hoje, que muda quando o dado muda"
+                       : "Abrir o site como ele estava em 11/08/2026"}>
+        <b>1.5k</b>
+        <div><strong>Janeiro a junho</strong><span>{VERSAO ? "voltar ao atual" : "ver versão de 11/08"}</span></div>
+      </a>
     </aside>
 
     <main className="workspace">

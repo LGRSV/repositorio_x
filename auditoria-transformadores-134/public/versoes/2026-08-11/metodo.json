@@ -1,0 +1,329 @@
+{
+ "resumo": {
+  "titulo": "Como esta análise foi feita",
+  "paragrafos": [
+   "A pergunta é uma só: das 1.510 solicitações de troca de transformador abertas entre janeiro e junho de 2026, quais representam de fato uma queima ou avaria que deve contar no indicador.",
+   "A ordem da resposta é o que mudou. Antes o site decidia pelo texto da solicitação e depois olhava o campo. Agora o campo fala primeiro: o código do transformador precisa aparecer na base de interrupção de cliente ou na base de atendimento de emergência, com a ocorrência caindo dentro de 24 horas da abertura da solicitação. Texto é declaração; interrupção é fato consumado.",
+   "Estabelecido o fato, entra a leitura: o que a solicitação pediu, o que a ordem de serviço executou e o que o material da obra comprova. A leitura pode derrubar um fato — quando o texto mostra que era furto, abalroamento ou preventivo — mas nunca pode criar um fato que o campo não registrou.",
+   "O resultado se lê de duas maneiras, e elas não são o mesmo número. A matriz de decisão classifica cada solicitação numa célula e dá 1.262 para incluir, 184 para leitura humana e 64 fora do indicador. A esteira é a porta de exclusão mais a cascata de peneiras, e só chega ao fim quem sobreviveu às quatro: ela entrega 1.269 confirmados, 21 em revisão e 220 excluídos antes de entrar. Nas duas o motivo fica escrito ao lado do caso."
+  ]
+ },
+ "blocos": [
+  {
+   "id": "historia",
+   "titulo": "Como a coisa acontece de verdade",
+   "paragrafos": [
+    "Antes das regras, o caminho que o caso percorre no mundo real. É contra esta sequência que a auditoria confere se a história fecha."
+   ],
+   "quadrinhos": [
+    {
+     "n": "1",
+     "titulo": "O cliente fica sem energia",
+     "texto": "Alguém liga reclamando. O ativo é interrompido e o evento entra na base de interrupção, com hora de início, hora de religação e quantos clientes ficaram no escuro.",
+     "base": "Crítica · interrupção",
+     "pergunta": "O evento existiu?"
+    },
+    {
+     "n": "2",
+     "titulo": "O DEOP vai a campo",
+     "texto": "A equipe faz o primeiro ataque e vê o que aconteceu no poste: se o transformador queimou, se foi o elo, se caiu galho. Escreve a observação do executante.",
+     "base": "TMAE · atendimento",
+     "pergunta": "Alguém foi lá e o que viu?"
+    },
+    {
+     "n": "3",
+     "titulo": "O COI abre a SS",
+     "texto": "Com o relato na mão, o COI abre a solicitação dizendo que o transformador queimou e manda para o DCMD ou para a empreiteira. É aqui que nasce o texto que a auditoria lê.",
+     "base": "SS · solicitação",
+     "pergunta": "O que foi pedido?"
+    },
+    {
+     "n": "4",
+     "titulo": "A OS é gerada",
+     "texto": "Depois que o serviço foi executado, a ordem de serviço registra o que a equipe fez — e traz a placa do transformador retirado e do instalado.",
+     "base": "OS · execução",
+     "pergunta": "O que foi feito?"
+    },
+    {
+     "n": "5",
+     "titulo": "A obra é gerada",
+     "texto": "Por último vem a obra, que carrega o custo e a movimentação de material. É ela que prova, no almoxarifado, que um transformador de fato saiu.",
+     "base": "Obra · material e SIGCO",
+     "pergunta": "Onde o dinheiro entrou?"
+    }
+   ],
+   "itens": [
+    {
+     "rotulo": "A ordem importa",
+     "texto": "A SS nasce depois do atendimento. Então solicitação aberta antes de a interrupção começar é anomalia, não casamento normal — é o que a auditoria testa na janela."
+    },
+    {
+     "rotulo": "Quem viu foi o executante",
+     "texto": "A observação do TMAE é a evidência mais próxima do poste, e vem antes do texto da SS. Quando as duas discordam, a do campo pesa mais."
+    },
+    {
+     "rotulo": "O material fecha a conta",
+     "texto": "Texto é declaração. Transformador dado baixa no almoxarifado é fato caro e verificável."
+    }
+   ]
+  },
+  {
+   "id": "fato",
+   "titulo": "1. A regra do fato",
+   "paragrafos": [
+    "O casamento é pelo código do transformador contra a base de interrupção, considerando o intervalo inteiro de cada passo da ocorrência, não só o instante de abertura. Das solicitações que casam, 1.022 abrem com o cliente já desligado; ancorar só na abertura da ocorrência perderia 61 casos legítimos.",
+    "O limite de 24 horas foi testado. Entre 12 e 24 horas a densidade é de cerca de 2,4 solicitações por hora; entre 24 e 48 horas cai para 0,7. Alargar a janela para 48 horas traria só 16 casos, e todos duvidosos. Por isso o padrão é 24 horas, ajustável na tela para 12 ou 48."
+   ],
+   "itens": [
+    {
+     "rotulo": "Fato pleno",
+     "texto": "A interrupção foi aberta no próprio transformador, dentro da janela. É a prova mais forte que existe."
+    },
+    {
+     "rotulo": "Fato com ressalva",
+     "texto": "Houve interrupção, mas ela é programada, preventiva, de equipamento especial ou com o defeito aberto em outro equipamento. Conta, mas com alerta."
+    },
+    {
+     "rotulo": "Fato provável",
+     "texto": "A interrupção não casa, mas o atendimento de emergência registra equipe no transformador dentro da janela."
+    },
+    {
+     "rotulo": "Sem interrupção na janela",
+     "texto": "Nem a interrupção nem o atendimento registram nada na janela. Não é prova de que não aconteceu — é ausência de lastro."
+    }
+   ]
+  },
+  {
+   "id": "tmae",
+   "titulo": "2. Por que a ausência no atendimento não conta contra",
+   "paragrafos": [
+    "A chave da base de atendimento é o código do equipamento onde o defeito foi aberto, não o do transformador: quando a equipe abre na chave, o número que aparece é o da chave, e o transformador abaixo dela não figura em lugar nenhum da linha. É esse o motivo de a ausência no TMAE não valer como contraprova — e é um motivo de estrutura da base, não de arquivo faltando.",
+    "Por isso a interrupção é a prova primária e o atendimento apenas corrobora. Estar ausente do atendimento não retém ninguém — mas fica marcado na tela, porque continua sendo informação."
+   ]
+  },
+  {
+   "id": "leitura",
+   "titulo": "3. A regra da leitura",
+   "paragrafos": [
+    "A leitura usa o texto da solicitação e da ordem de serviço, na ordem de precedência do dicionário de regras, com o material da obra como prova de troca. A categoria gravada na base não decide nada: ela está errada em 118 solicitações, e em 96 delas o texto descreve queima com troca comprovada no material enquanto o rótulo gravado diz outra coisa — 60 dizem avariado, 21 dizem apenas outros."
+   ],
+   "itens": [
+    {
+     "rotulo": "Falha",
+     "texto": "O texto e o material descrevem queima ou avaria do transformador."
+    },
+    {
+     "rotulo": "Não é falha",
+     "texto": "O texto descreve furto, abalroamento, preventivo, auxiliar de equipamento especial, construção ou desativação."
+    },
+    {
+     "rotulo": "Indefinida",
+     "texto": "O texto não permite concluir. Nunca decide sozinha: vai para leitura humana."
+    }
+   ]
+  },
+  {
+   "id": "matriz",
+   "titulo": "4. A matriz de decisão",
+   "paragrafos": [
+    "Toda solicitação cai em uma célula. Não existe caso fora da matriz."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "Fato ↓ / Leitura →",
+     "Falha",
+     "Não é falha",
+     "Indefinida"
+    ],
+    "linhas": [
+     [
+      "Fato pleno",
+      "INCLUIR",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Fato com ressalva",
+      "INCLUIR se o material comprova; senão REVISÃO",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Fato provável (só atendimento)",
+      "INCLUIR",
+      "EXCLUIR",
+      "REVISÃO"
+     ],
+     [
+      "Sem interrupção na janela",
+      "REVISÃO",
+      "EXCLUIR",
+      "REVISÃO"
+     ]
+    ]
+   },
+   "itens": [
+    {
+     "rotulo": "INCLUIR",
+     "texto": "Conta no indicador de queima e avaria."
+    },
+    {
+     "rotulo": "REVISÃO",
+     "texto": "Espera leitura humana, com o motivo escrito ao lado. Não é expurgo."
+    },
+    {
+     "rotulo": "EXCLUIR",
+     "texto": "Sai do indicador porque a leitura mostrou outra causa. Continua na base, marcado."
+    }
+   ]
+  },
+  {
+   "id": "cascata",
+   "titulo": "5. A ordem das peneiras",
+   "paragrafos": [
+    "Antes da cascata existe uma porta, e ela não é peneira. Peneira pergunta se o caso se sustenta; a porta pergunta se o caso é deste indicador. Saem por ali 220 solicitações, e elas se dividem em duas famílias que convém não misturar. A primeira, com 137 casos, é de quem não tem interrupção que sustente o caso: 47 cujo código não aparece na Crítica em papel nenhum nos sete meses do acervo, 83 que aparecem com defeito no próprio código mas em outra data, e 7 que não deixaram rastro em base alguma, nem pelo teste do vizinho. A segunda, com 103 casos, é de quem tem causa ou documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes internos, e mais dezoito categorias menores, cada uma com o motivo escrito na linha.",
+    "A primeira peneira, hoje, não retém ninguém — e isso é consequência de uma decisão, não acidente: quem não tem interrupção na janela deixou de ficar parado esperando leitura e passou a sair pela porta, com o motivo escrito. Foi regra do dono, e ela mudou o lugar dos casos, não o julgamento deles: nenhum registro é apagado e o dossiê de cada um continua inteiro.",
+    "O que entra na esteira são as 1.290 restantes. Primeiro a interrupção prova que o evento existiu, e a janela não é simétrica: vale de uma hora antes do primeiro passo da ocorrência até vinte e quatro horas depois do último. Para frente ela é larga porque a troca costuma vir depois do apagão; para trás é estreita porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois. E há uma régua que dispensa a janela: quando a ocorrência do próprio transformador começa e termina dentro do intervalo da SS, ela é daquela SS — o corte aconteceu durante o atendimento.",
+    "A quarta peneira ficou vazia, e por decisão registrada. As duas ressalvas que ela usava para reter descrevem o CORTE, não o que falhou: \"nenhum cliente interrompido\" diz que ninguém estava sendo faturado naquele ramal no momento, e \"manobra sem programação prévia\" é a classificação do desligamento — o normal numa emergência. Nos casos que elas seguravam, a obra declara substituição de transformador e o material registra a troca. São 76 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável, porque quem for defender o número precisa saber quais são. Segurar o caso pelo rótulo do corte seria deixar a forma decidir contra o conteúdo.",
+    "Depois o deslocamento mostra que houve equipe no código do transformador — e não retém ninguém, é marcador. No terceiro estágio o material da obra responde a uma pergunta só: algum transformador foi de fato movimentado? Quem não responde fica retido, não excluído. A quarta peneira lê a ressalva da interrupção e também virou marcador: ela descreve o corte, não o que falhou.",
+    "Obra e SIGCO ficam fora da cascata. Dizem se o custo foi enquadrado certo, não se o transformador queimou. A única exceção é a obra não existir: sem obra não há consulta de material nem encerramento, e o caso vai para análise à parte."
+   ],
+   "tabela": {
+    "cabecalho": [
+     "Peneira",
+     "Recebe",
+     "Passa",
+     "Fica retido"
+    ],
+    "linhas": [
+     [
+      "0 · Exclusão (antes da esteira)",
+      "1.510",
+      "1.290",
+      "220 fora do indicador"
+     ],
+     [
+      "1 · Interrupção",
+      "1.290",
+      "1.290",
+      "0 — quem não tinha interrupção já saiu na etapa 0"
+     ],
+     [
+      "2 · Deslocamento (marcador)",
+      "1.290",
+      "1.290",
+      "0 — não retém: 1.134 corroboram, 135 sem registro"
+     ],
+     [
+      "3 · SS e OS com material",
+      "1.290",
+      "1.269",
+      "21 sem prova de troca — e 18 deles só esperam a extração do SIAGO"
+     ],
+     [
+      "4 · Ressalva da interrupção",
+      "1.269",
+      "1.269",
+      "0 — a ressalva virou marcador: 76 chegam à saída com ela escrita"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "correcoes",
+   "titulo": "6. O que foi corrigido no caminho",
+   "paragrafos": [
+    "Três auditorias independentes revisaram este trabalho: uma leu a conversa inteira e mapeou as bases, outra releu os 1.510 textos contra o dicionário de regras, e a terceira reprocessou o cruzamento a partir dos arquivos crus. O que elas acharam está aqui, porque quem for auditar isto depois vai perguntar."
+   ],
+   "itens": [
+    {
+     "rotulo": "Ocorrência longa não enfraquece",
+     "texto": "A primeira versão rebaixava a evidência quando a interrupção durava mais de 24 horas. Em 536 dos 540 casos rebaixados o defeito era no próprio transformador — ele fica desligado até a troca, então a duração longa é a assinatura do evento, não uma janela frouxa."
+    },
+    {
+     "rotulo": "Passos da ocorrência",
+     "texto": "Uma ocorrência tem várias janelas de abertura e fechamento. A deduplicação anterior descartava 6.628 delas, e em 14 casos a janela visível não continha a solicitação enquanto outra continha."
+    },
+    {
+     "rotulo": "Nível impossível",
+     "texto": "Havia um nível definido como “mesmo dia, fora das 24 horas” — conjunto vazio por construção, porque mesmo dia já implica menos de 24 horas."
+    },
+    {
+     "rotulo": "Teste do vizinho",
+     "texto": "Antes de dizer que uma solicitação não tem lastro, o sistema procura ocorrência em transformador vizinho do mesmo alimentador. A primeira versão apontava chave e religador como vizinho; agora só considera transformador."
+    },
+    {
+     "rotulo": "Peneira de entrada incompleta",
+     "texto": "A primeira versão só tirava furto, auxiliar, preventivo e particular. Abalroamento, construção, desativação, sobrecarga, TAP e outros passavam direto, e 34 casos que não são queima nem avaria contavam no indicador."
+    },
+    {
+     "rotulo": "Teste vazio",
+     "texto": "A verificação de “equipe não deslocou” dava sempre zero porque o campo de início de deslocamento está preenchido em todas as 62.616 linhas da base. Era tautologia, não constatação."
+    },
+    "A janela de 24 horas era medida a partir do instante em que a interrupção começou. Numa interrupção longa — que é justamente o perfil do transformador queimado, porque ele fica desligado até ser trocado — o começo fica horas ou dias atrás, e SS abertas logo depois do religamento apareciam como fora da janela. Passou a ser medida contra o intervalo inteiro. Corrigiu 37 casos, 26 deles abertos a menos de 6 horas do religamento; a ETO-RD-GR 00009/2026 foi aberta 1 hora e 12 minutos depois e estava marcada como fora.",
+    "Quando duas SS apontavam para a mesma interrupção, a prova ficava com a que tinha sido aberta primeiro na fila, não com a que casava com o evento. A ocorrência de 26 de março do transformador 5700002200 pertencia a uma SS de 16 de janeiro, 68 dias antes, que nem usava essa prova — e bloqueava as duas SS de março que casavam de verdade. Agora a interrupção pertence à SS mais próxima do evento, e uma SS que não casa na janela não reserva mais nada contra ninguém.",
+    "Quem perdia essa disputa recebia o carimbo de “sem interrupção na janela”, ou seja, o sistema afirmava que não houve apagão quando o próprio registro guardava a ocorrência, o horário, os clientes atingidos e a observação do eletricista. São três casos, e o que existe neles é outra coisa: duas SS abertas para o mesmo transformador e o mesmo evento. Passaram a ser tratados como SS duplicada, com a SS gêmea nomeada. A interrupção continua provando uma troca, não duas — mas o motivo agora está escrito certo.",
+    "O atendimento do TMAE era cruzado só pelo código do transformador. Como o TMAE grava o elemento em que o defeito foi aberto, e não o transformador, todo atendimento aberto na unidade consumidora ou na chave ficava invisível. Passou a ser cruzado também pelo número da ocorrência: 23 casos que constavam como sem atendimento têm equipe identificada que deslocou até o local.",
+    "Nenhuma dessas quatro correções mexeu em regra de negócio: são defeitos de cruzamento entre bases, e o resultado da esteira não se moveu com elas. Quem move número são as regras que o dono redefiniu ao longo da revisão — a janela contra o intervalo inteiro, a exclusão de quem não tem interrupção que sustente o caso, o atendimento herdado que só vale se a data couber na janela, e a contenção da ocorrência dentro da SS. A saída está hoje em 1.269 confirmados — 1.198 queimados e 71 avariados.",
+    "A exclusão por dano externo passou a exigir prova de dano externo. O dicionário classificava pela palavra: bastava 'poste' aparecer no texto da SS para o caso virar abalroamento e sair da esteira. Só que abalroamento é dano de terceiro e poste deteriorado é poste velho. Nos 13 casos que estavam assim, a Crítica e o TMAE declaram a mesma causa entre si, e em 11 deles essa causa é TRANSFORMADOR — nove queimados por descarga atmosférica e dois com vazamento de óleo e tanque deteriorado. Nenhum dos 13 textos menciona colisão, veículo ou acidente. Os 11 voltaram para a esteira com a categoria que o campo declarou; seguem excluídos apenas os 2 em que o campo diz poste de BT abalroado e vandalismo de terceiros. O material ter trocado poste junto não conta como prova: trocar o poste na mesma visita não diz que o poste derrubou o transformador."
+   ]
+  },
+  {
+   "id": "limites",
+   "titulo": "7. O que estas bases não permitem concluir",
+   "itens": [
+    {
+     "rotulo": "Dezembro de 2025",
+     "texto": "Solicitações abertas nos primeiros dias de janeiro podem corresponder a ocorrência iniciada em dezembro, mês que não temos."
+    },
+    {
+     "rotulo": "Material",
+     "texto": "61 solicitações não têm material conferido: a obra está fora do export ou não foi gerada."
+    },
+    {
+     "rotulo": "Leitura humana",
+     "texto": "Só 134 solicitações passaram por leitura caso a caso com parecer escrito. O resto é triagem apoiada por campo, não veredito assinado."
+    }
+   ]
+  },
+  {
+   "id": "mensal",
+   "titulo": "8. Como rodar o mês seguinte",
+   "paragrafos": [
+    "Esta análise deixou de ser artesanal. O que está descrito acima virou código em scripts/analise-mensal/, e roda com um comando sobre quatro arquivos. Existe para que ninguém precise reconstruir o contexto do zero a cada mês — nem lembrar de cabeça as armadilhas que já custaram retrabalho.",
+    "O que mandar: as duas partes da base de SS e OS, a Crítica do mês e, opcionalmente, a planilha do infotrafo. Nada mais. TMAE, AIC de obras e KML entram só quando a pergunta pedir, e o script avisa na tela quando a ausência deles limitou alguma conclusão.",
+    "O que sai: uma planilha com três abas — o Leia-me com o método, os casos com a coluna ENTRA e o motivo de cada pendência, e todas as ocorrências da Crítica com a janela já calculada. Mais um JSON, para reprocessar quando chegar extração nova."
+   ],
+   "itens": [
+    {
+     "rotulo": "O script não fecha o indicador sozinho",
+     "texto": "Ele marca ENTRA = SIM só quando o caso casa na Crítica dentro da janela, não tem suspeita de auxiliar e não tem pendência. O resto sai como PENDENTE com o motivo escrito. Cola e fita, reparo que dispensou a troca, auxiliar sem confirmação geométrica e SS aberta antes da ocorrência dependem de informação de campo que a base não tem — e por isso continuam sendo martelo do dono."
+    },
+    {
+     "rotulo": "A codificação da base muda entre extrações",
+     "texto": "A base de 10/08/2026 veio em utf-8 e a de 11/08/2026 veio em latin-1, com o mesmo nome de arquivo. O carregador detecta em vez de assumir."
+    },
+    {
+     "rotulo": "O texto tem quebra de linha no meio",
+     "texto": "Ler linha a linha perde cerca de 60% dos registros, e não dá erro: você simplesmente conclui que a SS não existe. O carregador junta linhas até fechar as 64 colunas e confere o total contra o número de separadores do arquivo. Se não fechar, ele estoura em vez de entregar análise furada."
+    },
+    {
+     "rotulo": "As colunas de data da Crítica variam",
+     "texto": "DTA_INIC_ELE e DTA_FIM_ELE vieram vazias na extração de agosto de 2026. Quem usa elas conclui sem ocorrência para todo mundo. As datas boas são DTA_ABERT e DTA_FECH, e o carregador recusa a extração se estiverem vazias."
+    },
+    {
+     "rotulo": "Ausente da Crítica não é contraprova",
+     "texto": "A ocorrência só entra na Crítica quando finaliza. Três casos de agosto de 2026 apareciam como ausentes na extração de 10/08 e passaram a casar na de 11/08, com até 109 clientes interrompidos. Por isso o mês deve ser reprocessado a cada extração nova, até fechar."
+    },
+    {
+     "rotulo": "Prefixo 57 é transformador normal, 51 é auxiliar",
+     "texto": "O prefixo 57 responde por 97,6% das 1.305 de janeiro a junho, o 53 por 2,1% e o 52 por 0,2%. O serviço auxiliar é o 51, e ele costuma espelhar o código do religador trocando 79 por 51. Confundir os dois transforma o mês inteiro em falso positivo."
+    },
+    {
+     "rotulo": "As 1.305 continuam congeladas",
+     "texto": "Nenhum script da análise mensal escreve em fluxo-1510.json nem em qualquer JSON publicado. Cada mês produz arquivo novo."
+    }
+   ]
+  }
+ ]
+}
