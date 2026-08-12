@@ -16,17 +16,37 @@
   },
   "nota": "A diferença de 36 é o martelo do dono. As classificações manuais NÃO moram no repositório: a tela lê a view trafo_classificacao_atual do Supabase ao vivo, a cada abertura. Por isso esta fotografia congela os dados, mas NÃO congela as classificações — se o dono reclassificar algo, esta versão acompanha. É uma limitação real, e está escrita aqui para não ser descoberta depois."
  },
+ "julho": {
+  "no_recorte": 72,
+  "entram": 55,
+  "pendentes": 17,
+  "previa": true,
+  "nota": "O arquivo julho-2026.json ficou de fora da fotografia original e a aba de julho abria vazia no modo ?versao=. Incluído em 12/08/2026, com o mesmo conteúdo de 11/08."
+ },
  "agosto": {
   "no_recorte": 27,
   "entram": 18,
   "pendentes": 5,
   "previa": true
  },
- "classificacoes_do_dono": 34,
+ "classificacoes_do_dono": {
+  "na_view_do_supabase": 164,
+  "por_classe": {
+   "QUEIMADO": 112,
+   "EXCLUIDO": 21,
+   "AVARIADO": 16,
+   "PREVENTIVO": 7,
+   "PROFUNDA": 4,
+   "FURTADO": 3,
+   "REGRA": 1
+  },
+  "mudam_o_total_das_1305": 36,
+  "nota": "A primeira versão deste manifesto dizia 34. Esse 34 era o total do arquivo classificacoes/combinado.json, um export parcial de 04/08 — não o estado da view. A view trafo_classificacao_atual tem 164 classificações; destas, 36 mudam o total publicado (21 vindas de RETIDO e 15 de EXCLUÍDA). As outras 128 confirmam o que a cascata já dizia. Corrigido em 12/08/2026."
+ },
  "arquivos": {
   "agosto-2026.json": {
-   "sha256": "b674c91bcf6d83cb12a277585d04027bd67e439c299fb600acb8618f483cbf1b",
-   "bytes": 146337
+   "sha256": "f6af2ff6659db80cd1a5b4b89abffadda947fe6faf9014701d076f12d10f5a94",
+   "bytes": 148903
   },
   "aterramento.json": {
    "sha256": "8fe43eb1940f88f250e221ef8e10773b0b5561cf5895b7355ee0bc890bc6715e",
@@ -35,6 +55,14 @@
   "auditorias.json": {
    "sha256": "26f773a30b2eebede5a980838b0f2e1731212452f98b1a1e2ef26346a6daa19a",
    "bytes": 708705
+  },
+  "classificacoes/2026-08-04-0417.json": {
+   "sha256": "f8cfcd0558a9300a9f11d21544c9a446af10a8f6e9b5009a2d89eecdbc738ec6",
+   "bytes": 3619
+  },
+  "classificacoes/combinado.json": {
+   "sha256": "5ee8583635b019d3334270e05ab2194d5c7d20965e5963d1eddf7198f51825a3",
+   "bytes": 4419
   },
   "coleta-ativos.json": {
    "sha256": "b859b9af52bd3dede8ae663826b679efdf1bb3bafb0962000421594b55864727",
@@ -51,6 +79,10 @@
   "garantia-almoxarifado.json": {
    "sha256": "88808a3861428491961c0650ee1df033a4215c2a808e3c8e5f0a6f60c0a6f12e",
    "bytes": 43760
+  },
+  "julho-2026.json": {
+   "sha256": "47fb8d2e9630c4407ea5cce53f4a783faa810f4b57e31072a6f95f65e3c4e666",
+   "bytes": 717226
   },
   "material-obra.json": {
    "sha256": "c2066b199eeb6cf05836d199f39cde83619f7f0e260dcc4b08d3892add4f93d5",
@@ -87,14 +119,6 @@
   "universo-ss.json": {
    "sha256": "291443d52d1d064c802975827b1390f5d92f547d1a78e1b4d81f9b0a50ee3e51",
    "bytes": 4532068
-  },
-  "classificacoes/2026-08-04-0417.json": {
-   "sha256": "f8cfcd0558a9300a9f11d21544c9a446af10a8f6e9b5009a2d89eecdbc738ec6",
-   "bytes": 3619
-  },
-  "classificacoes/combinado.json": {
-   "sha256": "5ee8583635b019d3334270e05ab2194d5c7d20965e5963d1eddf7198f51825a3",
-   "bytes": 4419
   }
  },
  "o_que_congela": [
@@ -105,5 +129,22 @@
  ],
  "o_que_NAO_congela": [
   "as classificações manuais do dono, que vêm do Supabase ao vivo"
+ ],
+ "correcoes": [
+  {
+   "em": "12/08/2026",
+   "o_que": "classificacoes_do_dono dizia 34 (o export parcial); o número real da view é 164.",
+   "achado_por": "conferência automática do indicador"
+  },
+  {
+   "em": "12/08/2026",
+   "o_que": "o sha256 de agosto-2026.json não batia — o arquivo foi regerado 25 min depois do manifesto. Recalculado.",
+   "achado_por": "conferência automática do indicador"
+  },
+  {
+   "em": "12/08/2026",
+   "o_que": "julho-2026.json não estava na pasta; a aba de julho abria vazia em ?versao=2026-08-11. Copiado.",
+   "achado_por": "conferência automática do indicador"
+  }
  ]
 }
