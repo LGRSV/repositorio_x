@@ -266,9 +266,17 @@ const ESTAGIO_NOME: Record<number, string> = {
 
 /* De quem é a vez. Devolve o estágio que precisa agir, ou 0 quando o pedido acabou.
    REJEITADO volta para o técnico: o caso não morre, ele refaz o pedido. */
-const vezDe = (e?: Expurgo | null): number => {
+/* De quem é a vez. Recebe o HISTÓRICO da SS, não a última linha.
+   A primeira versão recebia a última linha e tinha um buraco que o teste adversarial
+   encontrou: a observação carrega o estágio de QUEM A ESCREVEU, então bastava o
+   engenheiro comentar num pedido que estava com a supervisão para a vez pular direto
+   para ele. Duas assinaturas em vez de três, no fluxo que existe para exigir três.
+   Agora a observação é ignorada no cálculo — ela registra e não move, que é o que
+   sempre esteve escrito na tela. */
+const vezDe = (historico?: Expurgo[] | null): number => {
+  const move = (historico || []).filter((x) => x.acao !== "OBSERVACAO");
+  const e = move[0];                       // o histórico chega do mais novo para o mais velho
   if (!e || e.acao === "REJEITADO") return 1;
-  if (e.acao === "OBSERVACAO") return e.estagio;
   if (e.acao === "SOLICITADO") return 2;
   if (e.acao === "APROVADO") return e.estagio >= 3 ? 0 : e.estagio + 1;
   return 1;
@@ -2573,7 +2581,7 @@ export default function Page() {
       setErroExp("Escolha o motivo do expurgo.");
       return;
     }
-    const vez = vezDe(expurgos[ss]);
+    const vez = vezDe(historicoExp.filter((x) => x.ss === ss));
     if (acao !== "OBSERVACAO" && quem.estagio !== vez) {
       setErroExp(vez === 0
         ? "Este expurgo já foi aprovado pela engenharia. Não há mais estágio para agir."
@@ -4546,9 +4554,9 @@ export default function Page() {
             Misturar os dois na mesma caixa faria um clique parecer com o outro. */}
         {(() => {
           const ss = texto(aberto.ss);
-          const e = expurgos[ss];
-          const vez = vezDe(e);
           const linha = historicoExp.filter((x) => x.ss === ss);
+          const e = expurgos[ss];
+          const vez = vezDe(linha);
           const minhaVez = Boolean(quem) && quem!.estagio === vez;
           return <div className="expurgo">
             <div className="expurgo-topo">
