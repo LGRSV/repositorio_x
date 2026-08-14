@@ -311,6 +311,21 @@ const hashDaSenha = async (senha: string) => {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 };
 
+/* A CÓPIA ESTÁTICA — o site inteiro empacotado num arquivo só, sem servidor e sem banco.
+   Quem empacota marca window.__COPIA__ antes de a tela subir. Nesse modo:
+     · não há porta de entrada. A senha existiria para nada: a cópia não grava, e as
+       credenciais não viajam junto — o empacotador tira os hashes do pacote.
+     · não se classifica nem se assina. Deixar os botões vivos seria pior que tirá-los:
+       a marca ficaria só na tela de quem clicou, parecendo decisão registrada.
+   Quem lê é um visitante declarado, e a tarja do rodapé diz isso o tempo todo. */
+const COPIA = typeof window !== "undefined"
+  && Boolean((window as unknown as { __COPIA__?: boolean }).__COPIA__);
+const VISITANTE: Usuario = {
+  id: "visitante", nome: "Leitura", papel: "Cópia estática", iniciais: "··",
+  usuario: "", hash: "", estagio: 1,
+  descricao: "Cópia estática do site: lê tudo, não grava nada.",
+};
+
 const CHAVE_USUARIO = "auditoria-134-demo-user";
 /* As duas marcas da conferência de julho. Mesmo formato de hora do resto do site: local,
    legível, e no mesmo padrão que a volta do banco produz. */
@@ -319,6 +334,7 @@ const CHAVE_CONF_ACHADOS = "julho-conferencia-achados";
 const agoraLocal = () => new Date().toLocaleString("sv-SE").slice(0, 16);
 const usuarioGuardado = (): Usuario | null => {
   if (typeof window === "undefined") return null;
+  if (COPIA) return VISITANTE;
   try {
     const id = window.localStorage.getItem(CHAVE_USUARIO);
     return USUARIOS.find((u) => u.id === id) || null;
@@ -2631,6 +2647,11 @@ export default function Page() {
                          transforma três botões numa cadeia. */
   const agirNoExpurgo = async (ss: string, acao: Expurgo["acao"]) => {
     setErroExp("");
+    if (COPIA) {
+      setErroExp("Esta é uma cópia estática do site. Ela lê tudo, mas não grava nada — "
+        + "assinatura de expurgo só vale no site de verdade.");
+      return;
+    }
     if (!quem) return;
     const texto = comentario.trim();
     if (texto.length < 3) {
@@ -2671,6 +2692,7 @@ export default function Page() {
   };
 
   const classificar = (ss: string, classe: string) => {
+    if (COPIA) return;   // ver o comentário de COPIA: marca que não grava é pior que marca nenhuma
     const atual = { ...classificacao };
     const agora = new Date();
     if (classe === "LIMPAR") delete atual[ss];
@@ -4698,8 +4720,10 @@ export default function Page() {
           tem de estar à vista de quem decide — não escondido numa tela de perfil. */}
       <div className="side-quem">
         <b>{quem.iniciais}</b>
-        <div><strong>{quem.nome}</strong><span>{quem.papel} · estágio {quem.estagio}</span></div>
-        <button type="button" onClick={sair} title="Sair e voltar para a tela de acesso">Sair</button>
+        <div><strong>{quem.nome}</strong><span>{quem.papel}{COPIA ? "" : ` · estágio ${quem.estagio}`}</span></div>
+        {/* na cópia não há porta: sair levaria a uma tela de acesso que ninguém atravessa */}
+        {COPIA ? null
+          : <button type="button" onClick={sair} title="Sair e voltar para a tela de acesso">Sair</button>}
       </div>
       {/* O selo abre a fotografia do dia. Em cima dela, ele volta para a versão viva. */}
       <a className="side-user side-user-link"
