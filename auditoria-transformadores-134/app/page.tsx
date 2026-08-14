@@ -76,6 +76,27 @@ type Mes = {
   registros: MesCaso[]; ampliado: MesCaso[]; avisos: string[];
 };
 
+/* A CONFERÊNCIA DE JULHO. Julho é o único mês em que ninguém bateu martelo: a régua
+   apurou e parou. Esta aba existe para o dono conferir caso a caso e para colocar na
+   mesa o que a releitura adversarial achou — cada achado com o efeito exato no placar,
+   para a decisão ser sobre o número, não sobre a impressão. O arquivo vem de fora
+   (public/julho-conferencia.json) porque achado novo não pode exigir mexer no código. */
+type ConfCaso = { ss: string; trafo: string; abertura: string; origem: string;
+  veredito: string; nota: string };
+type ConfAchado = {
+  id: string; peso: string; titulo: string; ss?: string;
+  trafo_na_ss?: string; trafo_na_critica?: string;
+  o_que_a_regua_diz: string; o_que_a_conferencia_diz: string;
+  evidencia?: string[]; casos?: ConfCaso[]; porque_falhou: string; efeito_se_aceito: string;
+};
+type Conferencia = {
+  gerado_em: string; titulo: string; de_onde_vem: string;
+  o_que_bateu: string[]; achados: ConfAchado[]; duvidas: string[];
+};
+/* A marca do conferente. Mora no navegador, sai no export junto com as classificações,
+   e NÃO altera o indicador — julho segue sendo prévia até o martelo do dono. */
+type MarcaConf = { marca: "confere" | "nao_confere" | "duvida"; nota: string; em: string };
+
 type OrdemReforma = {
   op: string; data: string; tipo: string; triagem: string; status: string;
   serie: string; tombamento: string; fabricante: string; descricao: string;
@@ -109,7 +130,7 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado" | "mes_agosto" | "mes_julho";
+  | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -291,6 +312,11 @@ const hashDaSenha = async (senha: string) => {
 };
 
 const CHAVE_USUARIO = "auditoria-134-demo-user";
+/* As duas marcas da conferência de julho. Mesmo formato de hora do resto do site: local,
+   legível, e no mesmo padrão que a volta do banco produz. */
+const CHAVE_CONF_CASOS = "julho-conferencia-casos";
+const CHAVE_CONF_ACHADOS = "julho-conferencia-achados";
+const agoraLocal = () => new Date().toLocaleString("sv-SE").slice(0, 16);
 const usuarioGuardado = (): Usuario | null => {
   if (typeof window === "undefined") return null;
   try {
@@ -1359,6 +1385,38 @@ export default function Page() {
      variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
      linha no menu, pronto. */
   const [meses, setMeses] = useState<Record<string, Mes | null>>({});
+  /* A conferência de julho: o que a releitura achou, e o que o conferente já marcou.
+     As duas marcas vivem no navegador e saem no mesmo export das classificações. */
+  const [conf, setConf] = useState<Conferencia | null>(null);
+  const [marcasConf, setMarcasConf] = useState<Record<string, MarcaConf>>(() => {
+    if (typeof window === "undefined") return {};
+    try { return JSON.parse(localStorage.getItem(CHAVE_CONF_CASOS) || "{}"); } catch { return {}; }
+  });
+  const [achadosConf, setAchadosConf] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {};
+    try { return JSON.parse(localStorage.getItem(CHAVE_CONF_ACHADOS) || "{}"); } catch { return {}; }
+  });
+  const [filtroConf, setFiltroConf] = useState<"todos" | "entram" | "pendentes" | "faltam">("todos");
+  const marcarCaso = (ss: string, marca: MarcaConf["marca"], nota?: string) => {
+    setMarcasConf((m) => {
+      const antes = m[ss];
+      /* clicar de novo no mesmo botão desmarca — conferência tem de poder voltar atrás */
+      const novo = { ...m };
+      if (antes && antes.marca === marca && nota === undefined) delete novo[ss];
+      else novo[ss] = { marca, nota: nota !== undefined ? nota : (antes?.nota || ""),
+                        em: agoraLocal() };
+      localStorage.setItem(CHAVE_CONF_CASOS, JSON.stringify(novo));
+      return novo;
+    });
+  };
+  const marcarAchado = (id: string, v: string) => {
+    setAchadosConf((a) => {
+      const novo = { ...a };
+      if (novo[id] === v) delete novo[id]; else novo[id] = v;
+      localStorage.setItem(CHAVE_CONF_ACHADOS, JSON.stringify(novo));
+      return novo;
+    });
+  };
   const [recorteRev, setRecorteRev] = useState<string>("todos");
   /* O botão que ele pediu na aba do aterramento: ver as faixas pela medição de ANTES do
      serviço (o estado em que o transformador queimou) ou pela de DEPOIS (o ponto já mexido).
@@ -1367,7 +1425,7 @@ export default function Page() {
   const [modulo, setModulo] = useState<Modulo>("visao");
   /* O mês da aba aberta. As duas abas de mês usam o mesmo componente de tela: o que muda
      é qual JSON está por trás. */
-  const mesAberto = modulo === "mes_julho" ? "julho" : "agosto";
+  const mesAberto = modulo === "mes_julho" || modulo === "mes_julho_conf" ? "julho" : "agosto";
   const mes = meses[mesAberto] ?? null;
   /* A OFICINA — a área escondida atrás do T da marca. Não é outro site nem outra rota: é a
      mesma aplicação com outro menu. Por isso a primeira aba dela é o MESMO módulo da tela de
@@ -1524,6 +1582,8 @@ export default function Page() {
         .then((d) => setMeses((m) => ({ ...m, [nome]: d })))
         .catch(() => setMeses((m) => ({ ...m, [nome]: null })));
     }
+    fetch(assetUrl("julho-conferencia.json")).then((r) => r.json())
+      .then(setConf).catch(() => setConf(null));
     fetch(assetUrl("passos-critica.json")).then((r) => r.json())
       .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
       .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
@@ -2701,6 +2761,10 @@ export default function Page() {
     { grupo: "Meses · prévia", itens: [
       { id: "mes_agosto", rotulo: "Agosto 2026", codigo: "14", marca: meses.agosto?.resumo.entram, tom: "amarelo" },
       { id: "mes_julho", rotulo: "Julho 2026", codigo: "15", marca: meses.julho?.resumo.entram, tom: "amarelo" },
+      /* A conferência fica embaixo do mês porque é a segunda leitura dele, e o número
+         que ela mostra é quantos casos já foram olhados — não quantos entram. */
+      { id: "mes_julho_conf", rotulo: "Conferir julho", codigo: "15·1",
+        marca: Object.keys(marcasConf).length || undefined, tom: "amarelo" },
     ]},
     /* O martelo do dono, separado por classe. Cada linha abre a mesma aba num recorte — é a
        sua leitura, contada à parte da decisão da regra, que continua gravada em cada caso. */
@@ -2764,6 +2828,7 @@ export default function Page() {
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
     mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
+    mes_julho_conf: { olho: "Prévia · segunda leitura", titulo: "Conferir julho", texto: "Os 72 casos de julho para leitura caso a caso, com o texto de quem esteve no poste ao lado do que a Crítica gravou — e o que a releitura adversarial achou de errado, com o efeito exato de cada achado sobre o placar do mês. Nada aqui muda o indicador sozinho: a marca é sua, fica no seu navegador e sai no export." },
     insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
@@ -3943,6 +4008,165 @@ export default function Page() {
               </tr>; })}</tbody>
             </table></div>
             <p className="fonte-detalhe">Nenhum destes foi movido. <strong>NQM não desmente a SS sozinho</strong>: avaria real convive com “não queimado” na bancada — tanto que a triagem de todos eles é <em>reforma total</em>, isto é, o equipamento foi recuperado e voltou. O que a lista faz é apontar onde duas fontes discordam sobre o mesmo equipamento, com o número de série ligando uma à outra, para o seu martelo caso a caso.</p>
+          </section>
+        </>;
+      }
+
+      /* CONFERIR JULHO. A aba do mês mostra o que a régua apurou; esta existe para
+         alguém conferir. Duas coisas acontecem aqui, e são diferentes:
+
+         1. os achados da releitura — o que a segunda leitura encontrou de errado, cada
+            um com o efeito exato no placar. Aceitar um achado NÃO grava nada em lugar
+            nenhum: recalcula o placar na tela para o dono ver o tamanho da decisão
+            antes de tomá-la. O JSON publicado continua como está.
+         2. os 72 caso a caso, com o texto de quem esteve no poste ao lado do que a
+            Crítica gravou — que é a única maneira de conferir de verdade.
+
+         A marca do conferente fica no navegador e sai no export. Não é assinatura de
+         aprovação: essa mora no banco, tem três estágios e nome de gente. */
+      if (modulo === "mes_julho_conf") {
+        if (!mes || !conf) return <section className="panel"><p className="fonte-detalhe">Carregando a conferência de julho…</p></section>;
+        const R = mes.resumo;
+        const somaEfeito = (campo: "recorte" | "casam" | "entram") => conf.achados
+          .filter((a) => achadosConf[a.id] === "aceito")
+          .reduce((s, a) => s + (a.efeito?.[campo] || 0), 0);
+        const recorte = R.no_recorte + somaEfeito("recorte");
+        const casam = R.casaram_na_critica + somaEfeito("casam");
+        const entram = R.entram + somaEfeito("entram");
+        const pendentes = recorte - entram;
+        const mexido = recorte !== R.no_recorte || entram !== R.entram;
+        const olhados = mes.registros.filter((x) => marcasConf[x.ss]).length;
+        const conta = (m: MarcaConf["marca"]) =>
+          mes.registros.filter((x) => marcasConf[x.ss]?.marca === m).length;
+        const FILTROS: Array<[typeof filtroConf, string, number]> = [
+          ["todos", "todos os casos", mes.registros.length],
+          ["entram", "só os que entram", mes.registros.filter((x) => x.entra === "SIM").length],
+          ["pendentes", "só os pendentes", mes.registros.filter((x) => x.entra !== "SIM").length],
+          ["faltam", "ainda não olhados", mes.registros.length - olhados],
+        ];
+        const passaFiltro = (x: MesCaso) =>
+          filtroConf === "todos" ? true
+          : filtroConf === "entram" ? x.entra === "SIM"
+          : filtroConf === "pendentes" ? x.entra !== "SIM"
+          : !marcasConf[x.ss];
+        const ordem = (x: MesCaso) => x.entra === "SIM" ? 1 : 0;   // pendente primeiro: é o que precisa de olho
+        const lista = mes.registros.filter(passaFiltro)
+          .sort((a, b) => ordem(a) - ordem(b) || a.abertura.localeCompare(b.abertura));
+        const MARCAS: Array<[MarcaConf["marca"], string, string, string]> = [
+          ["confere", "C", "good", "confere — li e concordo"],
+          ["nao_confere", "X", "bad", "não confere — a régua errou neste"],
+          ["duvida", "?", "warn", "dúvida — precisa de mais informação"],
+        ];
+        return <>
+          <div className="tarja-previa">
+            <b>Conferência</b>
+            <span>Julho é o único mês em que ninguém bateu martelo: a régua apurou e parou aí. Esta tela é para conferir — o que você marcar fica no seu navegador, sai no export e <b>não altera o indicador</b>.</span>
+            <small>{olhados} de {mes.registros.length} casos já olhados · {conta("confere")} conferem · {conta("nao_confere")} não conferem · {conta("duvida")} em dúvida</small>
+          </div>
+
+          <section className="panel">
+            <div className="panel-title"><div><span>O placar de julho, com o que você aceitar</span>
+              <h2>{br(entram)} entram de {br(recorte)} no recorte</h2></div>
+              <small>{mexido ? "recalculado com os achados aceitos" : "como está publicado hoje"}</small></div>
+            <div className="conf-placar">
+              {[["no recorte", R.no_recorte, recorte], ["casam na Crítica", R.casaram_na_critica, casam],
+                ["entram", R.entram, entram], ["pendentes", R.no_recorte - R.entram, pendentes]]
+                .map(([rot, de, para]) => <div key={String(rot)} className={de !== para ? "mudou" : ""}>
+                  <span>{rot}</span>
+                  <strong>{br(Number(para))}</strong>
+                  {de !== para ? <small>era {br(Number(de))}</small> : <small>sem mudança</small>}
+                </div>)}
+            </div>
+            <p className="fonte-detalhe">Aceitar um achado aqui <strong>não grava nada e não republica número nenhum</strong> — serve para você ver o tamanho da decisão antes de tomá-la. {conf.de_onde_vem}</p>
+          </section>
+
+          <section className="panel">
+            <div className="panel-title"><div><span>O que a segunda leitura achou</span>
+              <h2>{conf.achados.length} achados para o seu martelo</h2></div>
+              <small>{Object.values(achadosConf).filter((v) => v === "aceito").length} aceitos</small></div>
+            <div className="conf-achados">{conf.achados.map((a) => {
+              const est = achadosConf[a.id] || "";
+              return <article key={a.id} className={`conf-achado ${est}`}>
+                <header>
+                  <b>{a.id}</b>
+                  <div><strong>{a.titulo}</strong><span>{a.peso}</span></div>
+                </header>
+                <div className="conf-duas">
+                  <div><span>a régua diz</span><p>{a.o_que_a_regua_diz}</p></div>
+                  <div><span>a conferência diz</span><p>{a.o_que_a_conferencia_diz}</p></div>
+                </div>
+                {a.evidencia ? <ul className="conf-evidencia">{a.evidencia.map((e, i) => <li key={i}>{e}</li>)}</ul> : null}
+                {a.casos ? <div className="table-scroll"><table className="records-table">
+                  <thead><tr><th>Solicitação</th><th>Abertura</th><th>Origem</th><th>Se entrasse</th></tr></thead>
+                  <tbody>{a.casos.map((c) => <tr key={c.ss}>
+                    <td><strong>{c.ss}</strong><span>trafo {c.trafo}</span></td>
+                    <td><strong>{c.abertura}</strong></td>
+                    <td><strong>{c.origem}</strong></td>
+                    <td><strong className={c.veredito === "entraria" ? "nq-forte" : ""}>{c.veredito}</strong><span>{c.nota}</span></td>
+                  </tr>)}</tbody>
+                </table></div> : null}
+                <p className="conf-porque">{a.porque_falhou}</p>
+                <footer>
+                  <em>{a.efeito_se_aceito}</em>
+                  <div className="janela-botoes">
+                    {[["aceito", "aceito"], ["recusado", "não aceito"], ["depois", "decidir depois"]]
+                      .map(([v, rot]) => <button key={v} type="button"
+                        className={est === v ? "ativo" : ""}
+                        onClick={() => marcarAchado(a.id, v)}>{rot}</button>)}
+                  </div>
+                </footer>
+              </article>;
+            })}</div>
+          </section>
+
+          <section className="panel">
+            <div className="panel-title"><div><span>Caso a caso</span>
+              <h2>Os {br(mes.registros.length)} de julho, para conferir</h2></div>
+              <small>pendentes primeiro · {lista.length} na tela</small></div>
+            <div className="janela-botoes conf-filtros">{FILTROS.map(([id, rot, q]) => <button key={id}
+              type="button" className={filtroConf === id ? "ativo" : ""}
+              onClick={() => setFiltroConf(id)}>{rot} <i>{q}</i></button>)}</div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>O que a régua decidiu</th><th>O que a Crítica gravou</th><th>O que o campo escreveu</th><th>Sua marca</th></tr></thead>
+              <tbody>{lista.map((x) => {
+                const m = marcasConf[x.ss];
+                return <tr key={x.ss} className={m ? `conf-${m.marca}` : ""}>
+                  <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span>
+                    <small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small></td>
+                  <td><strong className={x.entra === "SIM" ? "nq-forte" : ""}>{x.entra === "SIM" ? "entra" : x.entra === "PENDENTE" ? "aguarda decisão" : "fora"}</strong>
+                    <span>{x.categoria}</span>
+                    <small>{x.justificativa}</small></td>
+                  <td><strong>{x.critica === "SIM" ? "casou na janela" : x.critica === "AUSENTE" ? "ausente" : "fora da janela"}</strong>
+                    {x.ocorrencias.slice(0, 2).map((o, i) => <span key={i}>{o.inicio.slice(0, 16)} → {o.fim.slice(0, 16)} · {o.clientes} cli</span>)}
+                    <small>{x.ocorrencias[0]?.causa || "sem ocorrência casada"}{x.ocorrencias[0]?.subcausa ? ` / ${x.ocorrencias[0].subcausa}` : ""}</small></td>
+                  <td className="conf-campo">
+                    <span title={x.texto_ss}>{x.texto_ss ? x.texto_ss.slice(0, 190) : "sem texto na solicitação"}</span>
+                    <small title={x.texto_os}>{x.texto_os ? `OS: ${x.texto_os.slice(0, 190)}` : "sem texto na ordem de serviço"}</small>
+                  </td>
+                  <td className="col-classificar">
+                    <div className="classificar-linha">{MARCAS.map(([id, curto, tom, dica]) => <button key={id}
+                      type="button" title={dica}
+                      className={m?.marca === id ? `marcado ${tom}` : tom}
+                      onClick={() => marcarCaso(x.ss, id)}>{curto}</button>)}</div>
+                    <input className="conf-nota" type="text" placeholder="anotação"
+                      defaultValue={m?.nota || ""}
+                      onBlur={(e) => { if (e.target.value !== (m?.nota || "")) marcarCaso(x.ss, m?.marca || "duvida", e.target.value); }} />
+                    {m ? <span>{m.em}</span> : null}
+                  </td>
+                </tr>;
+              })}</tbody>
+            </table></div>
+            <p className="fonte-detalhe">O texto da coluna da direita é o que a equipe escreveu na solicitação e na ordem de serviço — passe o mouse para ler inteiro. É a única fonte desta tela escrita por quem esteve no poste.</p>
+          </section>
+
+          <section className="panel">
+            <div className="panel-title"><div><span>O que a segunda leitura confirmou</span>
+              <h2>Onde a régua está certa</h2></div><small>reproduzido do zero, sem partir do publicado</small></div>
+            <ul className="conf-evidencia conf-bateu">{conf.o_que_bateu.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          </section>
+
+          <section className="panel editorial-note wide"><span>O QUE FICOU EM DÚVIDA</span>
+            {conf.duvidas.map((d, i) => <p key={i}>{d}</p>)}
           </section>
         </>;
       }
