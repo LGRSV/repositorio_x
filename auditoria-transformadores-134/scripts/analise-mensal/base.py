@@ -466,3 +466,45 @@ def grau_de_garantia(dias, mesmo_posto):
     if dias <= GARANTIA_OLHAR:
         return "OLHAR"
     return "FORA"
+
+
+# ── a geometria já extraída ─────────────────────────────────────────────────
+def geometria(caminho="dados/kml-pontos.json"):
+    """Lê dados/kml-pontos.json e devolve (por_codigo, trechos_bt).
+
+    Prefira esta função a pontos_do_kml(): os 176 KML de origem somam 294 MB e viviam
+    num diretório descartável. O extrato tem 12 MB, está no repositório e reproduz as
+    mesmas conclusões — inclusive a do transformador auxiliar.
+
+    por_codigo mapeia o código para uma lista de (circuito, tipo, lat, lon). É lista e
+    não valor único porque o mesmo código pode aparecer em mais de um circuito, e
+    esconder isso já produziu conclusão errada nesta auditoria.
+
+    ARMADILHA: o prefixo do código muda entre a SS e o KML para o MESMO equipamento. A
+    solicitação chama o auxiliar de 5150099122 e o cadastro do KML chama de 5750099122 —
+    mesmos oito dígitos finais, prefixo diferente. Procurar pelo código inteiro não acha.
+    Use `por_final` para casar pelos dígitos finais.
+    """
+    import json as _json
+    d = _json.load(open(caminho, encoding="utf-8"))
+    por_codigo, bt = {}, {}
+    for circ, v in d["circuitos"].items():
+        contagem = v.get("trechos_bt", {})
+        for tipo, nome, lon, lat in v["pontos"]:
+            por_codigo.setdefault(nome, []).append((circ, tipo, lat, lon))
+            # Todo ET entra com contagem explícita, inclusive zero. Sem isto, "não tem
+            # trecho de baixa" e "não está neste extrato" viram a mesma resposta — e é
+            # justamente o ZERO que denuncia o auxiliar. Ambiguidade no lugar errado.
+            if tipo == "ET":
+                bt[nome] = contagem.get(nome, 0)
+    return por_codigo, bt
+
+
+def por_final(por_codigo, digitos=8):
+    """Índice pelos últimos N dígitos, para atravessar a troca de prefixo entre bases."""
+    saida = {}
+    for nome, ocorrencias in por_codigo.items():
+        so_num = "".join(c for c in nome if c.isdigit())
+        if len(so_num) >= digitos:
+            saida.setdefault(so_num[-digitos:], []).extend(ocorrencias)
+    return saida

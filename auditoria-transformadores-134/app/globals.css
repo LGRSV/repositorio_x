@@ -1018,3 +1018,70 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .expurgo-trilha { grid-template-columns: 1fr; }
   .expurgo-botoes button { flex: 1 1 100%; }
 }
+
+/* ── CONFERIR JULHO ────────────────────────────────────────────────────────
+   A segunda leitura do mês. Três peças: o placar que recalcula na tela quando
+   um achado é aceito, os achados em si, e a marca do conferente caso a caso.
+   O amarelo é o mesmo da prévia — enquanto o mês não fechar, a cor não muda. */
+.conf-placar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px; margin: 0 20px 14px; background: var(--line); border: 1px solid var(--line); }
+.conf-placar > div { padding: 13px 15px; background: #fff; }
+.conf-placar > div.mudou { background: #fdf4dd; }
+.conf-placar span { display: block; color: #85888c; font-size: 9px; letter-spacing: .06em;
+  text-transform: uppercase; }
+.conf-placar strong { display: block; margin-top: 5px; font: 500 26px/1 "Newsreader", serif;
+  color: var(--ink); font-variant-numeric: tabular-nums; }
+.conf-placar > div.mudou strong { color: #8a6d1f; }
+.conf-placar small { display: block; margin-top: 4px; color: #85888c; font-size: 10px; }
+.conf-placar > div.mudou small { color: #8a6d1f; font-weight: 600; }
+
+.conf-achados { display: grid; gap: 12px; padding: 0 20px 16px; }
+.conf-achado { border: 1px solid var(--line); border-left: 3px solid #b8860b; background: #fff; }
+.conf-achado.aceito { border-left-color: var(--green); background: #fbfdfa; }
+.conf-achado.recusado { border-left-color: var(--red); background: #fefafa; }
+.conf-achado.depois { border-left-color: #85888c; }
+.conf-achado header { display: grid; grid-template-columns: auto 1fr; gap: 12px;
+  align-items: baseline; padding: 14px 16px 0; }
+.conf-achado header b { padding: 3px 8px; background: var(--ink); color: #fff;
+  font: 600 10px "IBM Plex Mono", monospace; }
+.conf-achado header strong { display: block; font: 600 14px/1.4 "DM Sans", sans-serif; }
+.conf-achado header span { display: block; margin-top: 3px; color: #8a6d1f; font-size: 10px;
+  letter-spacing: .05em; text-transform: uppercase; }
+.conf-duas { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 12px 16px;
+  background: var(--line); border: 1px solid var(--line); }
+.conf-duas > div { padding: 10px 12px; background: #fff; }
+.conf-duas span { color: #85888c; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.conf-duas p { margin: 5px 0 0; font-size: 12px; line-height: 1.55; color: var(--ink); }
+.conf-evidencia { margin: 0 16px 12px; padding-left: 18px; color: #52565b; font-size: 11.5px;
+  line-height: 1.6; }
+.conf-evidencia li + li { margin-top: 4px; }
+.conf-bateu { margin: 0 20px 16px; }
+.conf-porque { margin: 0 16px 12px; color: #62656a; font-size: 11.5px; line-height: 1.6; }
+.conf-achado footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  justify-content: space-between; padding: 11px 16px; border-top: 1px solid var(--line);
+  background: #fbfaf8; }
+.conf-achado footer em { color: #8a6d1f; font: 600 11px "IBM Plex Mono", monospace;
+  font-style: normal; }
+.conf-achado footer .janela-botoes { margin: 0; }
+.conf-achado footer .janela-botoes button { border-color: #c9ccd0; color: #62656a; }
+.conf-achado footer .janela-botoes button.ativo { border-color: var(--ink); background: var(--ink);
+  color: #fff; }
+
+.conf-filtros { margin: 0 20px 12px; }
+.conf-filtros button { border-color: #c9ccd0; color: #62656a; }
+.conf-filtros button.ativo { border-color: var(--ink); background: var(--ink); color: #fff; }
+.conf-filtros i { font-style: normal; opacity: .7; }
+.conf-campo span { display: block; max-width: 380px; color: #52565b; font-size: 10.5px;
+  line-height: 1.5; }
+.conf-campo small { display: block; max-width: 380px; margin-top: 5px; color: #85888c;
+  font-size: 10px; line-height: 1.5; }
+.conf-nota { width: 100%; max-width: 120px; margin-top: 5px; padding: 3px 5px;
+  border: 1px solid var(--line); background: #fff; font: 400 10px "DM Sans", sans-serif; }
+.records-table tr.conf-confere td:first-child { box-shadow: inset 3px 0 0 var(--green); }
+.records-table tr.conf-nao_confere td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.records-table tr.conf-duvida td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+
+@media (max-width: 720px) {
+  .conf-duas { grid-template-columns: 1fr; }
+  .conf-achado header { grid-template-columns: 1fr; }
+}
