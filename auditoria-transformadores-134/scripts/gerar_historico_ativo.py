@@ -110,9 +110,50 @@ for t in inter:
 print(f"\n{lidas} ocorrências lidas · {len(inter)} ativos com ao menos uma · "
       f"{sum(len(v) for v in inter.values())} ligações ativo↔interrupção")
 
+# ── e toda SS que a base de SS/OS registra no mesmo poste ──────────────────
+# A auditoria só olha troca de transformador. O poste tem mais história que isso: em 2024 e
+# 2025 podem ter passado religamento, poda, medição, reclamação de tensão e até outra troca.
+# Sem essa lista, "primeira vez que queima" é afirmação sem base.
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "analise-mensal"))
+from base import ler_ss_os, indexar  # noqa: E402
+
+BASES = "/tmp/claude-0/-home-user/74dc9c64-5026-54ee-a81e-173d2f38a735/scratchpad/bases_11-08-2026"
+cabB, regsB = ler_ss_os(f"{BASES}/BASE_SS_OS_parte1.txt", f"{BASES}/BASE_SS_OS_parte2.txt")
+campoB = indexar(cabB)
+ja = {x["ss"] for v in ss_do_ativo.values() for x in v}
+base_por_ativo = defaultdict(list)
+for r in regsB:
+    t = campoB(r, "NUM_TRAFO").strip()
+    if t not in ativos:
+        continue
+    ss = campoB(r, "NUMERO_SS").strip()
+    base_por_ativo[t].append({
+        "ss": ss, "d": campoB(r, "DATA_ABERTURA_SS").strip()[:16],
+        "f": campoB(r, "DATA_TERMINO_SS").strip()[:16],
+        "t": campoB(r, "TIPOSS").strip(), "s": campoB(r, "SITUACAO_SS").strip(),
+        "g": campoB(r, "ORIGEM").strip() or campoB(r, "ORIGEM_SS").strip(),
+        "x": campoB(r, "DEFEITO").strip() or campoB(r, "DEFEITO_SS").strip(),
+        "e": campoB(r, "COD_EQUIPE").strip(), "q": campoB(r, "SOLICITANTE").strip(),
+        "o": campoB(r, "NUMERO_OS").strip(), "b": campoB(r, "NUM_OBRA").strip(),
+        "c": campoB(r, "QTD_CLIENTES").strip(), "l": campoB(r, "LOCALIDADE").strip(),
+        "n": "" if ss in ja else "sim",
+        "p": (campoB(r, "POTENCIA_RET").strip(), campoB(r, "POTENCIA_INST").strip()),
+        # o que a equipe escreveu, que é o que se quer ler ao clicar
+        "ds": re.sub(r"\s+", " ", campoB(r, "DESCRIPTION_SS").strip())[:900],
+        "do": re.sub(r"\s+", " ", campoB(r, "DESCRICAO_OS").strip())[:900],
+        "ns": campoB(r, "NS_RETIRADO").strip(), "ni": campoB(r, "NS_INSTALADO").strip(),
+        "fab": campoB(r, "FABRICANTE_RETIRADO").strip(),
+    })
+for t in base_por_ativo:
+    base_por_ativo[t].sort(key=lambda x: (x["d"][6:10], x["d"][3:5], x["d"][:2], x["d"][11:]))
+print(f"{sum(len(v) for v in base_por_ativo.values())} SS da base de SS/OS ligadas a "
+      f"{len(base_por_ativo)} ativos")
+
 saida = {"gerado_em": "15/08/2026", "periodo": "dez/2025 a ago/2026",
          "ocorrencias_lidas": lidas,
-         "por_ativo": {t: {"ss": ss_do_ativo.get(t, []), "int": inter.get(t, [])}
+         "por_ativo": {t: {"ss": ss_do_ativo.get(t, []), "base": base_por_ativo.get(t, []),
+                                   "int": inter.get(t, [])}
                        for t in sorted(ativos)}}
 cam = f"{AQUI}/historico-ativo.json"
 json.dump(saida, open(cam, "w"), ensure_ascii=False, separators=(",", ":"))

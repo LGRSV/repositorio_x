@@ -148,7 +148,9 @@ type HistSS = { ss: string; d: string; p: string; v: string; o: string; b: strin
   e: string; g: string; c: string; s: string };
 type HistBase = { ss: string; d: string; t: string; s: string; g: string; x: string;
   e: string; q: string; o: string; b: string; c: string; l: string; f: string;
-  n: string; p: [string, string] };
+  n: string; p: [string, string];
+  /* o texto de quem escreveu a SS e o de quem executou a OS — é o que se quer ler ao abrir */
+  ds?: string; do?: string; ns?: string; ni?: string; fab?: string };
 type HistInt = { n: string; i: string; f: string; m: string; q: string; c: string;
   s: string; a: string; o: string; mes: string; p: string };
 type HistoricoAtivo = {
@@ -1694,7 +1696,7 @@ export default function Page() {
      caso é aberto, tudo isso passa a fazer falta de uma vez. */
   useEffect(() => {
     if (!aberto) return;
-    ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material"].forEach(pedirApoio);
+    ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material", "historico"].forEach(pedirApoio);
   }, [aberto, pedirApoio]);
   /* a gaveta das prévias mostra o histórico do transformador; ele chega quando ela abre.
      Este efeito precisa vir DEPOIS de pedirApoio existir — a primeira versão ficou antes e
@@ -5446,6 +5448,40 @@ export default function Page() {
               <div><span>Ocorrências no semestre</span><strong>{texto(aberto.ocorrencias_ativo)}</strong></div>
               <div><span>Atendimentos no semestre</span><strong>{texto(aberto.atendimentos_ativo)}</strong></div>
             </section>
+            {/* TODA SS JÁ ABERTA NESTE POSTE, de 2024 em diante, venha de onde vier. O
+                semestre da auditoria é uma janela estreita: o mesmo transformador pode ter
+                tido religamento em 2024, poda em 2025 e outra troca antes desta. Sem isso,
+                "primeira vez que queima" é afirmação sem base. Cada uma abre e mostra o que
+                a equipe escreveu na solicitação e o que registrou na ordem de serviço. */}
+            {(() => {
+              const h = historicoAtivo?.por_ativo?.[texto(aberto.trafo)];
+              if (!historicoAtivo) return <p className="fonte-detalhe">Carregando as solicitações deste poste…</p>;
+              const base = h?.base || [];
+              return <section className="hist-base">
+                <div className="panel-title"><div><span>Base de SS/OS · qualquer ano, qualquer tipo</span>
+                  <h2>{br(base.length)} solicitação(ões) já abertas neste transformador</h2></div>
+                  <small>{br(base.filter((x) => x.n).length)} nunca entraram em recorte nenhum</small></div>
+                {base.length === 0 ? <p className="fonte-detalhe">A base de SS/OS de 11/08/2026 não registra nenhuma solicitação com este código de ativo.</p> : null}
+                {base.map((x) => <details key={x.ss + x.d} className="hist-ss">
+                  <summary>
+                    <b>{x.ss}</b>
+                    <span>{x.d}{x.f ? ` → ${x.f}` : ""} · {x.s}</span>
+                    <small>{x.t || "sem tipo"}{x.g ? ` · ${x.g}` : ""}{x.n ? " · fora da auditoria" : ""}</small>
+                  </summary>
+                  <div className="detail-grid">
+                    {[["Situação", x.s], ["Tipo", x.t], ["Origem", x.g], ["Defeito", x.x],
+                      ["Abertura", x.d], ["Término", x.f], ["Equipe", x.e], ["Solicitante", x.q],
+                      ["Ordem de serviço", x.o], ["Obra", x.b], ["Clientes", x.c],
+                      ["Potência", x.p && (x.p[0] || x.p[1]) ? `${x.p[0] || "?"} → ${x.p[1] || "?"} kVA` : ""],
+                      ["Série retirada", x.ns], ["Série instalada", x.ni], ["Fabricante retirado", x.fab]]
+                      .filter(([, v]) => v).map(([r, v]) => <div key={r}><span>{r}</span><strong>{v}</strong></div>)}
+                  </div>
+                  {x.ds ? <div className="narrativa"><span>O QUE A SOLICITAÇÃO DIZ</span><p>{x.ds}</p></div> : null}
+                  {x.do ? <div className="narrativa"><span>O QUE A ORDEM DE SERVIÇO REGISTRA</span><p>{x.do}</p></div> : null}
+                  {!x.ds && !x.do ? <p className="fonte-detalhe">Esta solicitação não tem texto na base — nem na SS nem na OS.</p> : null}
+                </details>)}
+              </section>;
+            })()}
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Evento</th><th>Quando</th><th>Causa</th><th>Equipe</th></tr></thead>
               <tbody>{fluxo.historico.filter((l) => texto(l[0]) === texto(aberto.trafo)).map((l, i) => <tr key={i}>
