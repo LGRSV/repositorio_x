@@ -162,6 +162,22 @@ type HistInt = { n: string; i: string; f: string; m: string; q: string; c: strin
 type SoloAtivo = { fonte: string; escala: string; o_que_e: string; com_solo: number;
   sem_solo: number; por_ativo: Record<string, Record<string, string>> };
 
+/* O transformador que saiu do poste e o que entrou. Dois lados por caso, e — só em julho,
+   onde as 72 OS foram lidas palavra por palavra — o que a equipe ESCREVEU ao lado do que
+   foi DIGITADO. As duas coisas divergem em 29 dos 72. */
+type LadoEquip = {
+  serie: string; marca: string; potencia: string; fabricacao: string; tombamento: string;
+  reformado: string; reformadora: string; data_reforma: string;
+  sem_serie: boolean; sem_tombamento: boolean;
+};
+type EquipCaso = {
+  ret: LadoEquip; ins: LadoEquip; mes: string;
+  fontes?: Record<string, string>; os_diz?: Record<string, string>;
+  conflitos?: string[]; trecho_os?: string; observacao?: string;
+};
+type EquipMes = { fonte: string; o_que_e: string; leitura_de_texto: string;
+  resumo: Record<string, number>; por_ss: Record<string, EquipCaso> };
+
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
   d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
 type HistoricoAtivo = {
@@ -1395,6 +1411,91 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   </table></div>;
 }
 
+/* O EQUIPAMENTO DA TROCA: o que saiu do poste e o que entrou.
+   A auditoria discutia o caso sem nunca mostrar a plaqueta do transformador que falhou.
+   Aqui ela aparece — e, em julho, aparece DUAS VEZES: o que a equipe escreveu na ordem de
+   serviço e o que foi digitado no sistema. Em 29 dos 72 casos as duas não dizem a mesma
+   coisa, e a tela não escolhe entre elas. Escolher seria inventar: só a plaqueta resolve,
+   e o equipamento já saiu do poste. */
+const ROTULO_EQUIP: Record<string, string> = {
+  serie: "Nº de série", marca: "Marca", potencia: "Potência",
+  fabricacao: "Data de fabricação", tombamento: "Tombamento",
+};
+function EquipamentoDaTroca({ caso, ss }: { caso?: EquipCaso | null; ss: string }) {
+  if (!caso) return <p className="fonte-detalhe">Este caso não tem linha na base de SS/OS
+    de 11/08/2026, então não há dado de equipamento para mostrar. Sem inventar: o campo não
+    existe, não é que esteja escondido.</p>;
+
+  const LINHAS: [string, keyof LadoEquip][] = [
+    ["Nº de série", "serie"], ["Marca", "marca"], ["Potência (kVA)", "potencia"],
+    ["Data de fabricação", "fabricacao"], ["Tombamento", "tombamento"],
+    ["É reformado?", "reformado"], ["Reformadora", "reformadora"],
+    ["Data da reforma", "data_reforma"],
+  ];
+  const mostra = (v: string) => (v && v.trim() ? v : "—");
+  /* o campo preenchido com 00, N/A ou ILEGIVEL some com o buraco: aqui ele fica marcado */
+  const oco = (v: string) => ["", "0", "00", "000", "0000", "N/A", "NA", "-", "NAO TEM",
+    "NÃO TEM", "ILEGIVEL", "ILÉGIVEL", "ILEGÍVEL"].includes((v || "").trim().toUpperCase());
+
+  const cf = caso.conflitos || [];
+  const osDiz = caso.os_diz || {};
+  const lidaNoTexto = !!caso.fontes;
+
+  return <>
+    <h3>O transformador que saiu e o que entrou</h3>
+    <div className="equip-par">
+      <table className="tabela equip-tab"><thead><tr>
+        <th>Campo</th><th>RETIRADO — o que falhou</th><th>INSTALADO — o que entrou</th>
+      </tr></thead><tbody>
+        {LINHAS.map(([rot, k]) => {
+          const a = String(caso.ret[k] ?? ""); const b = String(caso.ins[k] ?? "");
+          return <tr key={rot}>
+            <th scope="row">{rot}</th>
+            <td className={oco(a) ? "equip-oco" : ""}>{mostra(a)}</td>
+            <td className={oco(b) ? "equip-oco" : ""}>{mostra(b)}</td>
+          </tr>;
+        })}
+      </tbody></table>
+    </div>
+    {caso.ret.potencia && caso.ins.potencia && caso.ret.potencia !== caso.ins.potencia
+      ? <p className="fonte-detalhe">A potência mudou no poste: <b>{caso.ret.potencia} kVA
+        saiu e {caso.ins.potencia} kVA entrou</b>. Troca de porte não é o mesmo que troca por
+        falha, e é uma das coisas que a régua manda ler duas vezes.</p> : null}
+    {caso.ret.sem_tombamento
+      ? <p className="fonte-detalhe">Este transformador saiu do poste <b>sem tombamento
+        legível</b>{caso.ret.tombamento ? ` (o campo traz "${caso.ret.tombamento}")` : ""} —
+        ativo sem identificação patrimonial rastreável.</p> : null}
+
+    {lidaNoTexto ? <>
+      <h3>O que a equipe escreveu × o que foi digitado</h3>
+      {cf.length ? <>
+        <p className="fonte-detalhe">A ordem de serviço deste caso foi lida palavra por
+          palavra, e o texto da equipe <b>não bate com o sistema</b> em {cf.length}{" "}
+          {cf.length === 1 ? "ponto" : "pontos"}. A tela mostra os dois lados e não escolhe:
+          só a plaqueta resolve, e o equipamento já saiu do poste.</p>
+        <ul className="equip-conflito">{cf.map((x, i) => <li key={i}>{x}</li>)}</ul>
+      </> : <p className="fonte-detalhe">A ordem de serviço foi lida palavra por palavra e
+        <b> bate com o sistema</b> em todos os campos conferidos.</p>}
+      {/* o que a OS escreveu só precisa aparecer separado quando diverge: quando bate, a
+          tabela de cima já é a resposta, e repetir tudo faz o leitor procurar diferença
+          onde não há. O texto original fica logo abaixo de qualquer jeito. */}
+      {cf.length && Object.keys(osDiz).length ? <div className="detail-grid">
+        {Object.entries(osDiz).map(([k, v]) => <div key={k}>
+          <span>{ROTULO_EQUIP[k] || k} — escrito na OS</span><strong>{v}</strong></div>)}
+      </div> : null}
+      {caso.observacao ? <p className="fonte-detalhe">{caso.observacao}</p> : null}
+      {caso.trecho_os ? <div className="narrativa"><span>O TRECHO DA OS DE ONDE ISSO SAIU</span>
+        <p>{caso.trecho_os}</p></div> : null}
+    </> : <p className="fonte-detalhe">Os valores acima vêm dos campos digitados no sistema.
+      A leitura palavra por palavra do texto da ordem de serviço foi feita nas 72 OS de
+      julho/2026 — este caso não está nela, então aqui não há conferência entre o escrito e
+      o digitado. Dizer que bate seria mentir por omissão.</p>}
+    <p className="fonte-detalhe">Fonte: base de SS/OS de 11/08/2026 (partes 1 e 2), SS {ss}.
+      Isto é cadastro do equipamento: não recalcula indicador, não muda classificação e não
+      toca no 1.305.</p>
+  </>;
+}
+
 /* O HISTÓRICO DO TRANSFORMADOR, igual nas duas gavetas. Antes existia escrito duas vezes:
    completo nas 1.510 e resumido em julho e agosto — e "resumido" ali queria dizer sem o
    texto da SS, sem o da OS e sem as obras em volta. Duas telas contando a mesma coisa de
@@ -1696,6 +1797,7 @@ export default function Page() {
      quando esta aba abre. */
   const [historicoAtivo, setHistoricoAtivo] = useState<HistoricoAtivo | null>(null);
   const [solo, setSolo] = useState<SoloAtivo | null>(null);
+  const [equip, setEquip] = useState<EquipMes | null>(null);
   /* O DOSSIÊ DOS MESES. Clicar num caso de julho ou agosto não abria nada: as prévias
      nasceram como lista, e quem quisesse ler o caso inteiro tinha de cruzar as colunas com
      o olho. Agora abrem a mesma gaveta de jan–jun, com a narrativa, a Crítica inteira, o
@@ -1818,6 +1920,7 @@ export default function Page() {
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
       solo: ["solo-ativo.json", (d) => setSolo(d as SoloAtivo), () => setSolo(null)],
+      equip: ["equipamento-mes.json", (d) => setEquip(d as EquipMes), () => setEquip(null)],
       historico: ["historico-ativo.json", (d) => setHistoricoAtivo(d as HistoricoAtivo),
                   () => setHistoricoAtivo(null)],
       passos: ["passos-critica.json", (d) => {
@@ -1854,7 +1957,9 @@ export default function Page() {
   /* a gaveta das prévias mostra o histórico do transformador; ele chega quando ela abre.
      Este efeito precisa vir DEPOIS de pedirApoio existir — a primeira versão ficou antes e
      derrubou a tela inteira com erro de zona morta. */
-  useEffect(() => { if (casoMes) { pedirApoio("historico"); pedirApoio("solo"); } }, [casoMes, pedirApoio]);
+  useEffect(() => {
+    if (casoMes) { pedirApoio("historico"); pedirApoio("solo"); pedirApoio("equip"); }
+  }, [casoMes, pedirApoio]);
 
   const carregarFluxo = () => {
     setErroCarga("");
@@ -5197,7 +5302,8 @@ export default function Page() {
           <em>{casoMes.origem || "sem origem"}</em>
         </div>
         <nav>{[["consolidado", "Consolidado"], ["interrupcao", "Interrupção"],
-              ["campo", "Campo"], ["ativo", "Histórico do ativo"], ["tudo", "Todos os campos"]]
+              ["campo", "Campo"], ["ativo", "Histórico do ativo"],
+              ["equipamento", "Trafo retirado e instalado"], ["tudo", "Todos os campos"]]
           .map(([id, rot]) => <button key={id} className={abaMes === id ? "active" : ""}
             onClick={() => setAbaMes(id)}>{rot}</button>)}</nav>
         <div className="drawer-body">
@@ -5243,6 +5349,9 @@ export default function Page() {
               obrasLidas={historicoAtivo.obras_lidas || 0}
               solo={solo?.por_ativo?.[casoMes.trafo]} />
             : <p className="fonte-detalhe">Carregando o histórico deste transformador…</p>) : null}
+          {abaMes === "equipamento" ? (equip
+            ? <EquipamentoDaTroca caso={equip.por_ss?.[casoMes.ss]} ss={casoMes.ss} />
+            : <p className="fonte-detalhe">Carregando o equipamento desta troca…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
               && !(Array.isArray(v) && !v.length))
