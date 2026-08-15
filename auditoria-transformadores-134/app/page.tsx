@@ -65,6 +65,9 @@ type MesCaso = {
   gemeas: Array<{ ss: string; situacao: string; os: string; duplicata_de_repasse: boolean }>;
   capturado_por: string[]; texto_ss: string; texto_os: string; no_recorte: boolean;
   categoria: string; entra: string; justificativa: string; decidido_por: string; decidido_em: string;
+  /* o texto corrido do caso, escrito por scripts/gerar_narrativa_mes.py a partir dos campos
+     do próprio mês — é o que jan–jun sempre teve e as prévias não tinham */
+  narrativa?: string;
   flag_tmae: string; flag_sem_os: boolean; flag_ausente_critica: boolean; flag_gemea: boolean;
 };
 type Mes = {
@@ -1539,6 +1542,12 @@ export default function Page() {
      conta outra história que um com uma interrupção e uma troca. Arquivo próprio, pedido só
      quando esta aba abre. */
   const [historicoAtivo, setHistoricoAtivo] = useState<HistoricoAtivo | null>(null);
+  /* O DOSSIÊ DOS MESES. Clicar num caso de julho ou agosto não abria nada: as prévias
+     nasceram como lista, e quem quisesse ler o caso inteiro tinha de cruzar as colunas com
+     o olho. Agora abrem a mesma gaveta de jan–jun, com a narrativa, a Crítica inteira, o
+     texto do campo, o histórico do ativo e o despejo de todos os campos. */
+  const [casoMes, setCasoMes] = useState<MesCaso | null>(null);
+  const [abaMes, setAbaMes] = useState("consolidado");
   // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
   // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
   const [classificacao, setClassificacao] = useState<Record<string, { classe: string; quem: string; quando: string }>>({});
@@ -1687,6 +1696,10 @@ export default function Page() {
     if (!aberto) return;
     ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material"].forEach(pedirApoio);
   }, [aberto, pedirApoio]);
+  /* a gaveta das prévias mostra o histórico do transformador; ele chega quando ela abre.
+     Este efeito precisa vir DEPOIS de pedirApoio existir — a primeira versão ficou antes e
+     derrubou a tela inteira com erro de zona morta. */
+  useEffect(() => { if (casoMes) pedirApoio("historico"); }, [casoMes, pedirApoio]);
 
   const carregarFluxo = () => {
     setErroCarga("");
@@ -4313,7 +4326,8 @@ export default function Page() {
               <thead><tr><th>Solicitação</th><th>O que a régua decidiu</th><th>O que a Crítica gravou</th><th>O que o campo escreveu</th><th>Sua marca</th></tr></thead>
               <tbody>{lista.map((x) => {
                 const m = marcasConf[x.ss];
-                return <tr key={x.ss} className={m ? `conf-${m.marca}` : ""}>
+                return <tr key={x.ss} className={m ? `conf-${m.marca}` : ""}
+                  onClick={(ev) => { if (!(ev.target as HTMLElement).closest("button,input,select,textarea,details")) { setCasoMes(x); setAbaMes("consolidado"); } }}>
                   <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || "?"} → {x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span>
                     <span>{x.origem || "sem origem"} · {x.defeito || "sem defeito declarado"}</span>
                     <small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small>
@@ -4380,7 +4394,8 @@ export default function Page() {
             <small>não contam no indicador · aqui para leitura</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Solicitação</th><th>Abertura e local</th><th>Tipo e situação</th><th>Por que ficou fora</th></tr></thead>
-              <tbody>{mes.ampliado.map((x) => <tr key={x.ss}>
+              <tbody>{mes.ampliado.map((x) => <tr key={x.ss} style={{ cursor: "pointer" }}
+                onClick={() => { setCasoMes(x); setAbaMes("consolidado"); }}>
                 <td><strong>{x.ss}</strong><span>trafo {x.trafo}</span><small>OS {x.os || "—"}</small></td>
                 <td><strong>{x.abertura.slice(0, 16)}</strong><span>{x.localidade}</span><small>{x.alimentador}</small></td>
                 <td><strong>{x.tipo_ss || "—"}</strong><span>{x.situacao}</span><small>{x.origem || "sem origem"}</small></td>
@@ -4435,7 +4450,8 @@ export default function Page() {
           <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>As {br(R.no_recorte)} do recorte</h2></div><small>ordenadas por situação e data</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Solicitação</th><th>Situação e decisão</th><th>O que a Crítica gravou</th><th>Bandeiras</th></tr></thead>
-              <tbody>{lista.map((x) => <tr key={x.ss}>
+              <tbody>{lista.map((x) => <tr key={x.ss} style={{ cursor: "pointer" }}
+                onClick={() => { setCasoMes(x); setAbaMes("consolidado"); }}>
                 <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span><small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small></td>
                 <td><strong className={tomJan(x.entra)}>{x.entra === "SIM" ? "entra" : x.entra === "PENDENTE" ? "aguarda decisão" : "fora"}</strong><span>{x.categoria || "sem decisão registrada"}</span><small>{x.decidido_por ? `${x.decidido_por} · ${x.decidido_em}` : "—"}</small></td>
                 <td><strong>{x.critica === "SIM" ? "casou na janela" : x.critica === "AUSENTE" ? "ausente" : "fora da janela"}</strong>
@@ -4957,6 +4973,87 @@ export default function Page() {
       </header>
       {painel()}
     </main>
+
+    {/* A GAVETA DAS PRÉVIAS. Mesmo desenho da de jan–jun, com o que o mês tem: a narrativa
+        escrita a partir dos campos do próprio caso, a Crítica inteira (todas as ocorrências,
+        com a observação da equipe), o texto do campo sem corte, o histórico do transformador
+        e o despejo de todos os campos crus, para não existir dado que a tela esconde. */}
+    {casoMes ? <div className="drawer-layer">
+      <button className="drawer-backdrop" aria-label="Fechar" onClick={() => setCasoMes(null)} />
+      <aside className="drawer">
+        <header>
+          <div><span>{casoMes.trafo} · {casoMes.localidade}</span><h2>{casoMes.ss}</h2>
+            <p>{casoMes.os || "sem OS"} · obra {casoMes.obra || "não gerada"}</p></div>
+          <button onClick={() => setCasoMes(null)}>×</button>
+        </header>
+        <div className="drawer-status">
+          <b className={`pill ${casoMes.entra === "SIM" ? "good" : casoMes.entra === "PENDENTE" ? "warn" : "bad"}`}>
+            {casoMes.entra === "SIM" ? "ENTRA" : casoMes.entra === "PENDENTE" ? "AGUARDA DECISÃO" : "FORA"}</b>
+          <span>{casoMes.critica === "SIM" ? "casou na Crítica" : casoMes.critica === "AUSENTE" ? "ausente da Crítica" : "fora da janela"}</span>
+          <em>{casoMes.origem || "sem origem"}</em>
+        </div>
+        <nav>{[["consolidado", "Consolidado"], ["interrupcao", "Interrupção"],
+              ["campo", "Campo"], ["ativo", "Histórico do ativo"], ["tudo", "Todos os campos"]]
+          .map(([id, rot]) => <button key={id} className={abaMes === id ? "active" : ""}
+            onClick={() => setAbaMes(id)}>{rot}</button>)}</nav>
+        <div className="drawer-body">
+          {abaMes === "consolidado" ? <>
+            <div className="narrativa"><span>COMO ESTE CASO FOI ANALISADO</span>
+              <p>{casoMes.narrativa || "Narrativa ainda não gerada para este caso."}</p></div>
+            <div className="detail-grid">
+              {[["Transformador", casoMes.trafo], ["Potência", `${casoMes.pot_ret || "?"} → ${casoMes.pot_inst || "?"} kVA`],
+                ["Clientes", casoMes.clientes], ["Abertura", casoMes.abertura],
+                ["Município", casoMes.localidade], ["Alimentador", casoMes.alimentador],
+                ["Origem", casoMes.origem], ["Defeito", casoMes.defeito],
+                ["Situação", casoMes.situacao], ["Criticidade", casoMes.criticidade],
+                ["Tipo da SS", casoMes.tipo_ss], ["Decidido por", `${casoMes.decidido_por || "—"}${casoMes.decidido_em ? ` · ${casoMes.decidido_em}` : ""}`]]
+                .map(([r, v]) => <div key={r}><span>{r}</span><strong>{v || "—"}</strong></div>)}
+            </div>
+          </> : null}
+          {abaMes === "interrupcao" ? <>
+            {casoMes.ocorrencias.length === 0
+              ? <p className="fonte-detalhe">Nenhuma ocorrência da Crítica cita este ativo no mês. Ausência não é contraprova: a ocorrência só entra quando finaliza.</p>
+              : casoMes.ocorrencias.map((o, i) => <div key={i} className="conf-oc">
+                  <b>{o.inicio} → {o.fim}</b>
+                  {o.causa || "sem causa"}{o.subcausa ? ` / ${o.subcausa}` : ""}
+                  {" · "}{o.clientes} cliente(s){o.duracao_min != null ? ` · ${o.duracao_min} min` : ""}
+                  {o.papeis ? ` · ativo como ${o.papeis}` : ""}
+                  {" · "}{o.na_janela ? "CASA na janela" : "fora da janela"}
+                  {o.delta_inicio_h != null ? ` (${o.delta_inicio_h} h do início, ${o.delta_fim_h} h do fim)` : ""}
+                  {o.observacao ? <em>{o.observacao}</em> : null}
+                </div>)}
+          </> : null}
+          {abaMes === "campo" ? <>
+            <h3>O que a equipe escreveu</h3>
+            <div className="narrativa"><span>NA SOLICITAÇÃO</span><p>{casoMes.texto_ss || "sem texto"}</p></div>
+            <div className="narrativa"><span>NA ORDEM DE SERVIÇO</span><p>{casoMes.texto_os || "sem texto"}</p></div>
+            <p className="fonte-detalhe">Capturado por: {(casoMes.capturado_por || []).join(" · ") || "—"} · auxiliar: {casoMes.auxiliar || "NAO"} · TMAE: {casoMes.flag_tmae}</p>
+          </> : null}
+          {abaMes === "ativo" ? (() => {
+            const h = historicoAtivo?.por_ativo?.[casoMes.trafo];
+            if (!h) return <p className="fonte-detalhe">Carregando o histórico deste transformador…</p>;
+            return <>
+              <h3>{h.base.length} solicitações neste poste, {h.int.length} interrupções</h3>
+              <p className="fonte-detalhe">Base de SS/OS desde 2024 e Crítica de {historicoAtivo?.periodo}. As marcadas em âmbar nunca entraram em recorte nenhum.</p>
+              {h.base.map((x) => <div key={x.ss} className={`conf-oc${x.n ? " fora-auditoria" : ""}`}>
+                <b>{x.ss}{x.n ? " · fora da auditoria" : ""}</b>
+                {x.d}{x.f ? ` → ${x.f}` : ""} · {x.s} · {x.t || "sem tipo"} · {x.g || "sem origem"}
+              </div>)}
+              {h.int.map((x, i) => <div key={`i${i}`} className="conf-oc">
+                <b>{x.i} → {x.f}</b>{x.c || "sem causa"}{x.s ? ` / ${x.s}` : ""} · {x.m} min · {x.q} cli
+                {x.o ? <em>{x.o}</em> : null}
+              </div>)}
+            </>;
+          })() : null}
+          {abaMes === "tudo" ? <div className="detail-grid">
+            {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
+              && !(Array.isArray(v) && !v.length))
+              .map(([k, v]) => <div key={k}><span>{k}</span>
+                <strong>{typeof v === "object" ? JSON.stringify(v) : String(v)}</strong></div>)}
+          </div> : null}
+        </div>
+      </aside>
+    </div> : null}
 
     {aberto ? <div className="drawer-layer">
       <button className="drawer-backdrop" aria-label="Fechar" onClick={() => setAberto(null)} />
