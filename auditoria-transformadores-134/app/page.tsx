@@ -153,9 +153,12 @@ type HistBase = { ss: string; d: string; t: string; s: string; g: string; x: str
   ds?: string; do?: string; ns?: string; ni?: string; fab?: string };
 type HistInt = { n: string; i: string; f: string; m: string; q: string; c: string;
   s: string; a: string; o: string; mes: string; p: string };
+type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
+  d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
 type HistoricoAtivo = {
   gerado_em: string; periodo: string; ocorrencias_lidas: number; ss_da_base?: number;
-  por_ativo: Record<string, { ss: HistSS[]; base: HistBase[]; int: HistInt[] }>;
+  obras_raio_m?: number; obras_lidas?: number;
+  por_ativo: Record<string, { ss: HistSS[]; base: HistBase[]; int: HistInt[]; obras?: HistObra[] }>;
 };
 
 type CasoRevisto = {
@@ -5480,6 +5483,34 @@ export default function Page() {
                   {x.do ? <div className="narrativa"><span>O QUE A ORDEM DE SERVIÇO REGISTRA</span><p>{x.do}</p></div> : null}
                   {!x.ds && !x.do ? <p className="fonte-detalhe">Esta solicitação não tem texto na base — nem na SS nem na OS.</p> : null}
                 </details>)}
+              </section>;
+            })()}
+            {/* AS OBRAS EM VOLTA, pela coordenada. A pergunta que não se responde caso a caso:
+                estavam mexendo na rede aqui perto? Duas descobertas sustentam esta lista, e as
+                duas foram medidas: na extração de obras a coluna "COORDENADA X" guarda o NORTE
+                e a "COORDENADA Y" guarda o LESTE — trocadas —, e a projeção é UTM 22S em todo o
+                estado, o que se confirmou comparando 1.447 obras que já têm ativo conhecido:
+                erro mediano ZERO metro em 22S contra 657 km em 23S. */}
+            {(() => {
+              const h = historicoAtivo?.por_ativo?.[texto(aberto.trafo)];
+              const obras = h?.obras || [];
+              if (!historicoAtivo) return null;
+              return <section className="hist-base">
+                <div className="panel-title"><div><span>Obras na região · pela coordenada</span>
+                  <h2>{br(obras.length)} obra(s) a até {br(historicoAtivo.obras_raio_m || 2000)} m deste transformador</h2></div>
+                  <small>da mais perto para a mais longe</small></div>
+                {obras.length === 0
+                  ? <p className="fonte-detalhe">Nenhuma obra com coordenada válida perto deste ponto. Cuidado com a leitura: das {br(historicoAtivo.obras_lidas || 0)} obras da extração, só 17.467 trazem coordenada plausível — o resto vem com zero ou com número inventado, e essas ficam invisíveis para qualquer busca por distância.</p>
+                  : <div className="table-scroll"><table className="records-table">
+                      <thead><tr><th>Distância</th><th>Obra</th><th>Estado</th><th>O que é</th></tr></thead>
+                      <tbody>{obras.map((o, i) => <tr key={`${o.o}-${i}`}>
+                        <td><strong>{o.m} m</strong><span>{o.aic === "SIM" ? "AIC" : ""}</span></td>
+                        <td><strong>{o.o}</strong><span>{o.os ? `OS ${o.os}` : ""}</span><small>{o.e || o.r || "—"}</small></td>
+                        <td><strong>{o.s || "—"}</strong><span>{o.oc || ""}</span>
+                          <small>{o.p ? `paralisada em ${o.p}${o.mp ? ` · ${o.mp}` : ""}` : ""}</small></td>
+                        <td><strong>{o.c || "—"}</strong><span>{o.t || ""}</span><small>{(o.d || "").slice(0, 90)}</small></td>
+                      </tr>)}</tbody>
+                    </table></div>}
               </section>;
             })()}
             <div className="table-scroll"><table className="records-table">
