@@ -178,6 +178,23 @@ type EquipCaso = {
 type EquipMes = { fonte: string; o_que_e: string; leitura_de_texto: string;
   resumo: Record<string, number>; por_ss: Record<string, EquipCaso> };
 
+/* O clima do dia da falha, por caso. Raio pelo GLM do GOES-19 e chuva pelo MERGE do INPE
+   — as duas fontes vêm com o próprio limite escrito junto, porque uma delas erra 10 km na
+   posição e a outra tem célula de 11 km. */
+type ClimaCaso = {
+  quando: string; fonte_hora: string; mes: string; lat: number; lon: number;
+  raios_5km_dia: number; raios_20km_dia: number; raios_50km_dia: number;
+  raios_5km_3h: number; raios_20km_3h: number; raios_50km_3h: number;
+  mais_perto_km?: number; mais_perto_min?: number;
+  mais_proximo_no_tempo_min?: number; mais_proximo_no_tempo_km?: number;
+  chuva_dia_mm?: number; chuva_horas?: number[]; chuva_3h_antes?: number;
+  chuva_hora_do_evento_mm?: number; chuva_horas_lidas?: number;
+};
+type FonteClima = { nome: string; orgao: string; onde: string; resolucao: string;
+  o_que_mede: string; limite: string };
+type ClimaMes = { gerado_em: string; casos: number; dias: number; raios_no_tocantins: number;
+  fontes: FonteClima[]; como_ler: string; por_ss: Record<string, ClimaCaso> };
+
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
   d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
 type HistoricoAtivo = {
@@ -1417,6 +1434,101 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    serviço e o que foi digitado no sistema. Em 29 dos 72 casos as duas não dizem a mesma
    coisa, e a tela não escolhe entre elas. Escolher seria inventar: só a plaqueta resolve,
    e o equipamento já saiu do poste. */
+/* O CLIMA DO DIA EM QUE O TRANSFORMADOR FALHOU.
+   Duas fontes públicas, e nenhuma delas responde a pergunta da outra: o GLM do GOES-19 vê
+   o clarão do raio de cima (erro da ordem de 10 km — diz "houve tempestade nesta região",
+   nunca "o raio caiu neste poste"), e o MERGE do INPE dá a chuva numa grade de ~11 km.
+   A leitura forte é a NEGATIVA: caso declarado como descarga atmosférica sem nenhum raio
+   detectado perto é caso para revisar. Raio perto não prova causa. */
+function ClimaDoDia({ c, fontes, comoLer }: {
+  c?: ClimaCaso | null; fontes: FonteClima[]; comoLer: string;
+}) {
+  if (!c) return <p className="fonte-detalhe">Este caso não entrou no mapeamento: ou não
+    tem coordenada na base de SS/OS, ou não tem hora de evento. Sem ponto e sem hora não há
+    o que consultar no satélite — e chutar a posição seria pior que não responder.</p>;
+
+  const hora = c.quando.slice(11, 16);
+  const dia = c.quando.slice(0, 10).split("-").reverse().join("/");
+  const chuvas = c.chuva_horas || [];
+  const pico = chuvas.length ? Math.max(...chuvas) : 0;
+  const horaEvento = Number(c.quando.slice(11, 13));
+  const teveRaio = (c.raios_20km_dia || 0) > 0;
+  const choveu = (c.chuva_dia_mm || 0) > 0.1;
+
+  return <>
+    <h3>O céu sobre este poste em {dia}</h3>
+    <p className="fonte-detalhe">Evento às <b>{hora}</b>, hora local, tomado {c.fonte_hora === "ocorrência"
+      ? "do início da ocorrência da Crítica" : "da abertura da solicitação"}. Ponto:{" "}
+      {c.lat.toFixed(4)}, {c.lon.toFixed(4)}.</p>
+
+    <div className={`clima-veredito ${teveRaio ? "tem" : "nao"}`}>
+      <b>{teveRaio
+        ? `${c.raios_20km_dia} raio${c.raios_20km_dia === 1 ? "" : "s"} a 20 km ou menos, no dia`
+        : "Nenhum raio detectado a 20 km, no dia inteiro"}</b>
+      <span>{teveRaio
+        ? "Houve tempestade na região. Isso NÃO prova que o raio causou a queima."
+        : "O satélite não viu raio nenhum perto daqui neste dia. Ausência de detecção não é prova de que não houve raio — ele pega de 70% a 90% deles."}</span>
+    </div>
+
+    <div className="detail-grid">
+      {[["Raios a 5 km · no dia", c.raios_5km_dia],
+        ["Raios a 20 km · no dia", c.raios_20km_dia],
+        ["Raios a 50 km · no dia", c.raios_50km_dia],
+        ["Raios a 20 km · 3 h em volta", c.raios_20km_3h],
+        ["Raio mais perto", c.mais_perto_km != null
+          ? `${c.mais_perto_km} km · ${Math.abs(c.mais_perto_min ?? 0)} min ${(c.mais_perto_min ?? 0) < 0 ? "antes" : "depois"}` : "nenhum a 100 km"],
+        ["Raio mais próximo no tempo", c.mais_proximo_no_tempo_min != null
+          ? `${Math.abs(c.mais_proximo_no_tempo_min)} min ${c.mais_proximo_no_tempo_min < 0 ? "antes" : "depois"} · ${c.mais_proximo_no_tempo_km} km` : "—"],
+        ["Chuva no dia", c.chuva_dia_mm != null ? `${c.chuva_dia_mm} mm` : "sem dado"],
+        ["Chuva na hora do evento", c.chuva_hora_do_evento_mm != null ? `${c.chuva_hora_do_evento_mm} mm` : "sem dado"],
+        ["Chuva nas 3 h antes", c.chuva_3h_antes != null ? `${c.chuva_3h_antes} mm` : "sem dado"]]
+        .map(([r, v]) => <div key={String(r)}><span>{r}</span>
+          <strong>{v === 0 ? "0" : (v ?? "—")}</strong></div>)}
+    </div>
+
+    {/* Chuva hora a hora — uma série só, então sem legenda: o título já a nomeia. Rótulo
+        direto apenas no pico, que é a única barra que precisa ser lida em número. A hora do
+        evento é marcada por contorno, não por outra cor: cor aqui significa chuva. */}
+    {chuvas.length ? <div className="clima-chuva">
+      <div className="panel-title"><h2>Chuva hora a hora, no ponto</h2>
+        <small>milímetros · hora local · grade de ~11 km do MERGE/INPE</small></div>
+      {pico > 0 ? <>
+        <div className="chuva-barras" role="img"
+          aria-label={`Chuva hora a hora em ${dia}: ${chuvas.map((v, h) => `${h}h ${v}mm`).join(", ")}`}>
+          {chuvas.map((v, h) => <div key={h} className={`chuva-col${h === horaEvento ? " agora" : ""}`}
+            title={`${String(h).padStart(2, "0")}:00 — ${v} mm${h === horaEvento ? " (hora do evento)" : ""}`}>
+            <i style={{ height: `${Math.max(v > 0 ? 3 : 0, (v / pico) * 100)}%` }} />
+          </div>)}
+        </div>
+        <div className="chuva-eixo"><span>00h</span><span>06h</span><span>12h</span>
+          <span>18h</span><span>23h</span></div>
+        <p className="fonte-detalhe">Pico de <b>{pico} mm</b> em uma hora. A coluna com
+          contorno é a hora do evento ({String(horaEvento).padStart(2, "0")}h).</p>
+      </> : <p className="fonte-detalhe">As 24 horas do dia vieram com <b>zero</b> de chuva
+        neste ponto. Julho e agosto são estação seca no Tocantins.</p>}
+      {c.chuva_horas_lidas != null && c.chuva_horas_lidas < 24
+        ? <p className="fonte-detalhe">Só {c.chuva_horas_lidas} das 24 horas estavam
+          publicadas no INPE quando isto foi gerado — as que faltam entram como zero na
+          faixa acima, e isso pode esconder chuva.</p> : null}
+    </div> : null}
+
+    <p className="fonte-detalhe">{comoLer}</p>
+    <div className="clima-fontes">
+      {fontes.map((f) => <div key={f.nome}>
+        <b>{f.nome}</b>
+        <span>{f.orgao}</span>
+        <em>{f.onde}</em>
+        <span>{f.o_que_mede}</span>
+        <span>{f.resolucao}</span>
+        <u>{f.limite}</u>
+      </div>)}
+    </div>
+    {choveu || teveRaio ? null : <p className="fonte-detalhe">Dia seco e sem raio: se a
+      causa registrada para este caso for descarga atmosférica, ela não encontra apoio em
+      nenhuma das duas fontes.</p>}
+  </>;
+}
+
 const ROTULO_EQUIP: Record<string, string> = {
   serie: "Nº de série", marca: "Marca", potencia: "Potência",
   fabricacao: "Data de fabricação", tombamento: "Tombamento",
@@ -1798,6 +1910,7 @@ export default function Page() {
   const [historicoAtivo, setHistoricoAtivo] = useState<HistoricoAtivo | null>(null);
   const [solo, setSolo] = useState<SoloAtivo | null>(null);
   const [equip, setEquip] = useState<EquipMes | null>(null);
+  const [clima, setClima] = useState<ClimaMes | null>(null);
   /* O DOSSIÊ DOS MESES. Clicar num caso de julho ou agosto não abria nada: as prévias
      nasceram como lista, e quem quisesse ler o caso inteiro tinha de cruzar as colunas com
      o olho. Agora abrem a mesma gaveta de jan–jun, com a narrativa, a Crítica inteira, o
@@ -1921,6 +2034,7 @@ export default function Page() {
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
       solo: ["solo-ativo.json", (d) => setSolo(d as SoloAtivo), () => setSolo(null)],
       equip: ["equipamento-mes.json", (d) => setEquip(d as EquipMes), () => setEquip(null)],
+      clima: ["clima-mes.json", (d) => setClima(d as ClimaMes), () => setClima(null)],
       historico: ["historico-ativo.json", (d) => setHistoricoAtivo(d as HistoricoAtivo),
                   () => setHistoricoAtivo(null)],
       passos: ["passos-critica.json", (d) => {
@@ -1958,7 +2072,9 @@ export default function Page() {
      Este efeito precisa vir DEPOIS de pedirApoio existir — a primeira versão ficou antes e
      derrubou a tela inteira com erro de zona morta. */
   useEffect(() => {
-    if (casoMes) { pedirApoio("historico"); pedirApoio("solo"); pedirApoio("equip"); }
+    if (casoMes) {
+      ["historico", "solo", "equip", "clima"].forEach(pedirApoio);
+    }
   }, [casoMes, pedirApoio]);
 
   const carregarFluxo = () => {
@@ -5303,7 +5419,8 @@ export default function Page() {
         </div>
         <nav>{[["consolidado", "Consolidado"], ["interrupcao", "Interrupção"],
               ["campo", "Campo"], ["ativo", "Histórico do ativo"],
-              ["equipamento", "Trafo retirado e instalado"], ["tudo", "Todos os campos"]]
+              ["equipamento", "Trafo retirado e instalado"],
+              ["clima", "Mapeamento climático do dia"], ["tudo", "Todos os campos"]]
           .map(([id, rot]) => <button key={id} className={abaMes === id ? "active" : ""}
             onClick={() => setAbaMes(id)}>{rot}</button>)}</nav>
         <div className="drawer-body">
@@ -5352,6 +5469,10 @@ export default function Page() {
           {abaMes === "equipamento" ? (equip
             ? <EquipamentoDaTroca caso={equip.por_ss?.[casoMes.ss]} ss={casoMes.ss} />
             : <p className="fonte-detalhe">Carregando o equipamento desta troca…</p>) : null}
+          {abaMes === "clima" ? (clima
+            ? <ClimaDoDia c={clima.por_ss?.[casoMes.ss]} fontes={clima.fontes}
+                comoLer={clima.como_ler} />
+            : <p className="fonte-detalhe">Carregando o clima deste dia…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
               && !(Array.isArray(v) && !v.length))
