@@ -1211,3 +1211,19 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .sidebar:not(.menu-aberto) .side-quem,
   .sidebar:not(.menu-aberto) .side-user-link { display: none; }
 }
+
+/* Quem está assinando, no lugar onde se assina. Ver o comentário em page.tsx: o nome só
+   existia na barra lateral, e uma observação acabou gravada com o nome de outra pessoa. */
+.expurgo-quem { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center;
+  margin: 0 0 12px; padding: 9px 11px; border: 1px solid var(--line); background: #fff; }
+.expurgo-quem b { display: grid; place-items: center; width: 30px; height: 30px;
+  background: var(--ink); color: #fff; font: 600 10px "IBM Plex Mono", monospace; }
+.expurgo-quem span { color: #52565b; font-size: 11.5px; line-height: 1.45; }
+.expurgo-quem strong { color: var(--ink); }
+.expurgo-quem button { border: 1px solid var(--line); padding: 7px 10px; background: #fff;
+  color: #6c6f74; font: 600 10px "IBM Plex Mono", monospace; }
+@media (max-width: 820px) {
+  .expurgo-quem { grid-template-columns: auto 1fr; }
+  .expurgo-quem button { grid-column: 2; justify-self: start; min-height: 44px; padding: 10px 14px;
+    font-size: 12px; }
+}

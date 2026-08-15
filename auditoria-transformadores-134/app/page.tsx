@@ -4997,6 +4997,17 @@ export default function Page() {
             </div> : null}
 
             {quem ? <div className="expurgo-acao">
+              {/* QUEM ESTÁ ASSINANDO, no lugar onde se assina. O nome vivia só na barra
+                  lateral — que no celular fica atrás do menu — e o site confia em quem está
+                  guardado no navegador. Resultado real: uma observação foi gravada como
+                  "Matheus Alves · Supervisor" por alguém que não era ele, porque o navegador
+                  tinha aquele acesso. A assinatura leva nome para o banco e não se apaga;
+                  então o nome tem de estar debaixo do dedo de quem toca no botão. */}
+              <p className="expurgo-quem">
+                <b>{quem.iniciais}</b>
+                <span>assinando como <strong>{quem.nome}</strong> · {quem.papel} · estágio {quem.estagio}</span>
+                <button type="button" onClick={sair} title="Sair e entrar com outro acesso">não sou eu</button>
+              </p>
               {vez === 1 ? <label>Motivo do expurgo
                 <select value={motivoExp} onChange={(ev) => setMotivoExp(ev.target.value)} disabled={!minhaVez}>
                   <option value="">Escolha uma justificativa</option>
