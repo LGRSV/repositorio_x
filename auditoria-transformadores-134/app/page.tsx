@@ -139,6 +139,20 @@ type Registro = Record<string, string | number | boolean | null>;
 /* A aba "Revisão da auditoria" não guarda texto nenhum aqui dentro: tudo vem do
    public/revisao.json, gerado por scripts/gerar_revisao.py a partir dos vereditos
    da revisão caso a caso. Chegou veredito novo, roda o script e a aba se atualiza. */
+/* O histórico por ativo, gerado por scripts/gerar_historico_ativo.py: as SS da auditoria,
+   as SS da base de SS/OS e as interrupções da Crítica que citam cada transformador. */
+type HistSS = { ss: string; d: string; p: string; v: string; o: string; b: string;
+  e: string; g: string; c: string; s: string };
+type HistBase = { ss: string; d: string; t: string; s: string; g: string; x: string;
+  e: string; q: string; o: string; b: string; c: string; l: string; f: string;
+  n: string; p: [string, string] };
+type HistInt = { n: string; i: string; f: string; m: string; q: string; c: string;
+  s: string; a: string; o: string; mes: string; p: string };
+type HistoricoAtivo = {
+  gerado_em: string; periodo: string; ocorrencias_lidas: number; ss_da_base?: number;
+  por_ativo: Record<string, { ss: HistSS[]; base: HistBase[]; int: HistInt[] }>;
+};
+
 type CasoRevisto = {
   ss: string; grupo: string; atual: string; correta: string; claro: string; muda: boolean;
   motivo: string; evidencia: string; origem: string; localidade: string; abertura: string;
@@ -1517,6 +1531,14 @@ export default function Page() {
   const [erroCarga, setErroCarga] = useState("");
   const [demorando, setDemorando] = useState(false);
   const [ativo, setAtivo] = useState("");
+  /* O HISTÓRICO COMPLETO DO ATIVO. A aba mostrava o que a auditoria viu — as SS que entraram
+     em recorte e os eventos que casaram com elas. Ficavam de fora duas coisas que só
+     aparecem quando se pergunta pelo ATIVO e não pelo caso: toda SS que a base de SS/OS
+     registra naquele poste, de qualquer tipo, desde 2024; e TODA interrupção da Crítica que
+     cita o ativo, com janela ou sem ela. Um transformador com 30 interrupções e uma troca
+     conta outra história que um com uma interrupção e uma troca. Arquivo próprio, pedido só
+     quando esta aba abre. */
+  const [historicoAtivo, setHistoricoAtivo] = useState<HistoricoAtivo | null>(null);
   // A classificação do analista mora no navegador. Não sobrescreve a decisão do fluxo:
   // fica ao lado dela, com quem marcou e quando, para virar decisão oficial depois.
   const [classificacao, setClassificacao] = useState<Record<string, { classe: string; quem: string; quando: string }>>({});
@@ -1632,6 +1654,8 @@ export default function Page() {
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
+      historico: ["historico-ativo.json", (d) => setHistoricoAtivo(d as HistoricoAtivo),
+                  () => setHistoricoAtivo(null)],
       passos: ["passos-critica.json", (d) => {
         const x = d as { por_oc?: Record<string, Passo[]>; por_ss?: Record<string, PassosSS> };
         setPassos({ por_oc: x?.por_oc || {}, por_ss: x?.por_ss || {} });
@@ -1652,7 +1676,7 @@ export default function Page() {
     insight_almoxarifado: ["almox", "coleta"], insight_garantia: ["coleta"],
     mes_julho: ["julho"], mes_agosto: ["agosto"], mes_julho_conf: ["julho", "conf"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
-    ativos: ["coleta"], bases: ["material"],
+    ativos: ["coleta", "historico"], bases: ["material"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3426,6 +3450,42 @@ export default function Page() {
           <div className="panel-title"><div><span>Histórico</span><h2>Um transformador de cada vez</h2></div><small>{br(new Set(registros.map((r) => texto(r.trafo))).size)} ativos no recorte</small></div>
           <label className="search"><span>⌕</span><input value={ativo} onChange={(e) => setAtivo(e.target.value.trim())} placeholder="Código do transformador, ex.: 5700268028" /></label>
         </section>
+        {/* As duas listas que faltavam. Ficam antes da cronologia porque respondem a
+            pergunta que se faz primeiro ao digitar um código: o que já aconteceu aqui? */}
+        {ativo && historicoAtivo?.por_ativo?.[ativo] ? (() => {
+          const h = historicoAtivo.por_ativo[ativo];
+          return <>
+            <section className="panel"><div className="panel-title"><div><span>Tudo o que a base de SS/OS registra neste poste</span>
+              <h2>{br(h.base.length)} solicitações, de qualquer tipo, desde 2024</h2></div>
+              <small>{br(h.base.filter((x) => x.n).length)} nunca entraram em recorte nenhum</small></div>
+              <p className="fonte-detalhe">Base de SS/OS de 11/08/2026. As marcadas <strong>fora da auditoria</strong> são o que aconteceu no poste <em>além</em> da troca de transformador — religamento, poda, medição, reclamação de tensão, avaria anterior.</p>
+              <div className="table-scroll"><table className="records-table">
+                <thead><tr><th>Solicitação</th><th>Abertura e término</th><th>Tipo e origem</th><th>Quem e o quê</th></tr></thead>
+                <tbody>{h.base.map((x) => <tr key={x.ss} className={x.n ? "linha-fora-auditoria" : ""}>
+                  <td><strong>{x.ss}</strong><span>{x.n ? "fora da auditoria" : "na auditoria"}</span><small>OS {x.o || "—"} · obra {x.b || "—"}</small></td>
+                  <td><strong>{x.d}</strong><span>{x.f ? `→ ${x.f}` : "sem término"}</span><small>{x.s}</small></td>
+                  <td><strong>{x.t || "sem tipo"}</strong><span>{x.g || "sem origem"}</span><small>{x.x || ""}</small></td>
+                  <td><strong>{x.q || "—"}</strong><span>equipe {x.e || "—"} · {x.c || "?"} cliente(s)</span>
+                    <small>{x.p?.[0] || x.p?.[1] ? `${x.p[0] || "?"} → ${x.p[1] || "?"} kVA` : ""}</small></td>
+                </tr>)}</tbody>
+              </table></div>
+            </section>
+            <section className="panel"><div className="panel-title"><div><span>Interrupções na Crítica</span>
+              <h2>{br(h.int.length)} ocorrências citam este ativo</h2></div>
+              <small>{historicoAtivo.periodo} · com janela ou sem ela</small></div>
+              <p className="fonte-detalhe">Toda ocorrência em que o ativo aparece como problema, interrompido ou fechado — não só a que sustenta uma solicitação. Lidas {br(historicoAtivo.ocorrencias_lidas)} ocorrências.</p>
+              <div className="table-scroll"><table className="records-table">
+                <thead><tr><th>Quando</th><th>Causa</th><th>Tamanho</th><th>O que a equipe escreveu</th></tr></thead>
+                <tbody>{h.int.map((x, i) => <tr key={`${x.n}-${i}`}>
+                  <td><strong>{x.i}</strong><span>→ {x.f}</span><small>ocorrência {x.n || "—"} · {x.mes}</small></td>
+                  <td><strong>{x.c || "sem causa"}</strong><span>{x.s || ""}</span><small>ativo como {x.p || "—"}</small></td>
+                  <td><strong>{x.m} min</strong><span>{x.q} cliente(s)</span><small>alimentador {x.a || "—"}</small></td>
+                  <td><small className="conf-oc">{x.o || "sem observação"}</small></td>
+                </tr>)}</tbody>
+              </table></div>
+            </section>
+          </>;
+        })() : null}
         {ativo && historicoDoAtivo.length ? <>
           <section className="kpi-grid ativo-kpis">
             <Kpi rotulo="Solicitações" valor={ssDoAtivo.length} nota={ssDoAtivo.map((r) => texto(r.ss)).join(" · ")} tom="ink" />
