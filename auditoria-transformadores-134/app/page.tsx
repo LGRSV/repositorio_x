@@ -328,6 +328,18 @@ const VISITANTE: Usuario = {
   descricao: "Cópia estática do site: lê tudo, não grava nada.",
 };
 
+/* Guardar no navegador pode falhar: depósito cheio, aba privada, política do aparelho.
+   Sem isto o erro estoura no meio da função e derruba o que vinha depois — inclusive o
+   envio ao banco. Devolve se conseguiu, para quem chama poder avisar em vez de mentir. */
+const guardarLocal = (chave: string, valor: string): boolean => {
+  try {
+    window.localStorage.setItem(chave, valor);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const CHAVE_USUARIO = "auditoria-134-demo-user";
 /* As duas marcas da conferência de julho. Mesmo formato de hora do resto do site: local,
    legível, e no mesmo padrão que a volta do banco produz. */
@@ -1423,7 +1435,7 @@ export default function Page() {
       if (antes && antes.marca === marca && nota === undefined) delete novo[ss];
       else novo[ss] = { marca, nota: nota !== undefined ? nota : (antes?.nota || ""),
                         em: agoraLocal() };
-      localStorage.setItem(CHAVE_CONF_CASOS, JSON.stringify(novo));
+      guardarLocal(CHAVE_CONF_CASOS, JSON.stringify(novo));
       return novo;
     });
   };
@@ -1431,7 +1443,7 @@ export default function Page() {
     setAchadosConf((a) => {
       const novo = { ...a };
       if (novo[id] === v) delete novo[id]; else novo[id] = v;
-      localStorage.setItem(CHAVE_CONF_ACHADOS, JSON.stringify(novo));
+      guardarLocal(CHAVE_CONF_ACHADOS, JSON.stringify(novo));
       return novo;
     });
   };
@@ -1509,6 +1521,17 @@ export default function Page() {
   const [comentario, setComentario] = useState("");
   const [motivoExp, setMotivoExp] = useState("");
   const [erroExp, setErroExp] = useState("");
+  /* O CAMPO NÃO PODE ATRAVESSAR A PORTA. O comentário e o motivo do expurgo viviam num
+     estado só, sem dono: escrever no caso A, fechar sem gravar e abrir o caso B trazia o
+     texto do A dentro do B, com o botão vermelho de pedir expurgo logo abaixo. Um toque
+     assinava o expurgo do transformador errado, numa tabela que não apaga. Trocar de caso
+     limpa os três — e limpar é o comportamento certo mesmo sem o defeito: comentário é
+     sobre um caso, não sobre a sessão. */
+  useEffect(() => {
+    setComentario("");
+    setMotivoExp("");
+    setErroExp("");
+  }, [aberto]);
   const [salvandoExp, setSalvandoExp] = useState(false);
   const [janela, setJanela] = useState(24);
   // Quantas marcações ainda não entraram no banco. Enquanto isso era zero por definição —
@@ -1579,7 +1602,7 @@ export default function Page() {
     for (const linha of todas) {
       try { await enviar(linha); } catch { sobrou.push(linha); }
     }
-    localStorage.setItem(FILA, JSON.stringify(sobrou));
+    guardarLocal(FILA, JSON.stringify(sobrou));
     setPendentes(sobrou.length);
   };
 
@@ -1707,7 +1730,7 @@ export default function Page() {
         });
         if (entraram) {
           setClassificacao(juntos);
-          localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(juntos));
+          guardarLocal("fluxo-1510-classificacao", JSON.stringify(juntos));
           setExportado(`${entraram} classificações recuperadas do banco`);
           setTimeout(() => setExportado(""), 8000);
         }
@@ -2750,14 +2773,24 @@ export default function Page() {
 
   const classificar = (ss: string, classe: string) => {
     if (COPIA) return;   // ver o comentário de COPIA: marca que não grava é pior que marca nenhuma
-    const atual = { ...classificacao };
     const agora = new Date();
-    if (classe === "LIMPAR") delete atual[ss];
-    // hora local de quem está lendo, no mesmo formato que a volta do banco produz — antes uma
-    // ponta era UTC e a outra local, e a comparação "qual é a mais recente" errava por 3 horas
-    else atual[ss] = { classe, quem: "análise local", quando: agora.toLocaleString("sv-SE").slice(0, 16) };
-    setClassificacao(atual);
-    localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(atual));
+    /* Atualização funcional, não cópia do estado atual: duas marcas no mesmo tique — dois
+       toques rápidos, ou um toque enquanto a tela redesenha — faziam a segunda nascer da
+       foto anterior e apagar a primeira. Medido: 1 de 20 sobrevivia com 0 ms entre elas. */
+    setClassificacao((antes) => {
+      const atual = { ...antes };
+      if (classe === "LIMPAR") delete atual[ss];
+      // hora local de quem está lendo, no mesmo formato que a volta do banco produz — antes uma
+      // ponta era UTC e a outra local, e a comparação "qual é a mais recente" errava por 3 horas
+      else atual[ss] = { classe, quem: "análise local", quando: agora.toLocaleString("sv-SE").slice(0, 16) };
+      if (!guardarLocal("fluxo-1510-classificacao", JSON.stringify(atual))) {
+        setErroCarga("O navegador recusou guardar a classificação neste aparelho — "
+          + "ela vai para o banco assim que houver rede, mas não sobrevive a fechar a aba.");
+      }
+      return atual;
+    });
+    // o envio ao banco vem DEPOIS e independe do disco: antes, o setItem estourando levava
+    // o envio junto, e a marca não chegava a lugar nenhum
     if (classe !== "LIMPAR") void drenar([{ ss, classe, marcado_em: agora.toISOString() }]);
   };
   /* Os botões do dossiê. Preventivo e Excluído chegaram à tabela como V e X e não chegaram
@@ -3803,7 +3836,7 @@ export default function Page() {
                       lidas += 1;
                     });
                     setClassificacao(novo);
-                    localStorage.setItem("fluxo-1510-classificacao", JSON.stringify(novo));
+                    guardarLocal("fluxo-1510-classificacao", JSON.stringify(novo));
                     window.alert(`${lidas} marcações restauradas. As que já estavam aqui foram mantidas.`);
                   };
                   leitor.readAsText(f, "utf-8");
