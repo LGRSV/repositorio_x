@@ -190,12 +190,16 @@ type ClimaCaso = {
   chuva_dia_mm?: number; chuva_horas?: number[]; chuva_3h_antes?: number;
   chuva_hora_do_evento_mm?: number; chuva_horas_lidas?: number;
   declara_descarga?: boolean; no_recorte?: boolean;
+  raios_5km_semana?: number; raios_20km_semana?: number; raios_50km_semana?: number;
+  semana_mais_perto_km?: number; semana_mais_perto_h?: number;
+  semana_raios_por_dia?: number[]; semana_chuva_por_dia?: (number | null)[];
+  semana_chuva_mm?: number; semana_dias_com_chuva?: number;
 };
 type FonteClima = { nome: string; orgao: string; onde: string; resolucao: string;
   o_que_mede: string; limite: string };
 type ClimaMes = { gerado_em: string; casos: number; dias: number; raios_no_tocantins: number;
   fontes: FonteClima[]; como_ler: string; por_ss: Record<string, ClimaCaso>;
-  cruzamento?: Record<string, number | string> };
+  cruzamento?: Record<string, number | string>; janela_semana?: string };
 
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
   d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
@@ -1442,9 +1446,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    nunca "o raio caiu neste poste"), e o MERGE do INPE dá a chuva numa grade de ~11 km.
    A leitura forte é a NEGATIVA: caso declarado como descarga atmosférica sem nenhum raio
    detectado perto é caso para revisar. Raio perto não prova causa. */
-function ClimaDoDia({ c, fontes, comoLer, cruzamento }: {
+function ClimaDoDia({ c, fontes, comoLer, cruzamento, janelaSemana }: {
   c?: ClimaCaso | null; fontes: FonteClima[]; comoLer: string;
-  cruzamento?: Record<string, number | string>;
+  cruzamento?: Record<string, number | string>; janelaSemana?: string;
 }) {
   if (!c) return <p className="fonte-detalhe">Este caso não entrou no mapeamento: ou não
     tem coordenada na base de SS/OS, ou não tem hora de evento. Sem ponto e sem hora não há
@@ -1531,13 +1535,66 @@ function ClimaDoDia({ c, fontes, comoLer, cruzamento }: {
           faixa acima, e isso pode esconder chuva.</p> : null}
     </div> : null}
 
+    {/* A SEMANA ANTERIOR. Transformador furado por surto nem sempre morre na hora, e o
+        para-raios que segurou a tempestade de terça pode ter deixado passar na quinta. Mas
+        quanto mais longe do evento, mais fraca a ligação — por isso o dia continua vindo
+        primeiro, e a semana vem rotulada como contexto. */}
+    {c.semana_raios_por_dia ? <div className="clima-semana">
+      <div className="panel-title"><h2>Os oito dias que antecedem a falha</h2>
+        <small>do sétimo dia antes até o dia do evento · contexto, não causa</small></div>
+      <div className="detail-grid">
+        {[["Raios a 20 km · na semana", c.raios_20km_semana],
+          ["Raios a 5 km · na semana", c.raios_5km_semana],
+          ["Raio mais perto da semana", c.semana_mais_perto_km != null
+            ? `${c.semana_mais_perto_km} km · ${Math.abs(c.semana_mais_perto_h ?? 0)} h ${(c.semana_mais_perto_h ?? 0) < 0 ? "antes" : "depois"}`
+            : "nenhum a 50 km"],
+          ["Chuva na semana", c.semana_chuva_mm != null ? `${c.semana_chuva_mm} mm` : "sem dado"],
+          ["Dias com chuva", c.semana_dias_com_chuva]]
+          .map(([r, v]) => <div key={String(r)}><span>{r}</span>
+            <strong>{v === 0 ? "0" : (v ?? "—")}</strong></div>)}
+      </div>
+      {/* duas medidas de unidades diferentes NUNCA no mesmo eixo: duas faixas, mesmos
+          oito dias embaixo, cada uma com a sua escala e o seu número escrito. */}
+      <div className="semana-faixa">
+        <b>Raios a 20 km, por dia</b>
+        <div className="semana-barras" role="img"
+          aria-label={`Raios a 20 km por dia, do sétimo dia antes até o dia do evento: ${(c.semana_raios_por_dia || []).join(", ")}`}>
+          {(c.semana_raios_por_dia || []).map((v, i) => {
+            const alto = Math.max(...(c.semana_raios_por_dia || [1]), 1);
+            return <div key={i} className={`semana-col${i === 7 ? " dia" : ""}`}
+              title={`${i === 7 ? "dia do evento" : `${7 - i} dia(s) antes`} — ${v} raio(s) a 20 km`}>
+              <i style={{ height: `${v ? Math.max(4, (v / alto) * 100) : 0}%`, background: "var(--amber)" }} />
+              <u>{v || ""}</u></div>;
+          })}
+        </div>
+      </div>
+      <div className="semana-faixa">
+        <b>Chuva no ponto, por dia (mm)</b>
+        <div className="semana-barras" role="img"
+          aria-label={`Chuva por dia em milímetros, do sétimo dia antes até o dia do evento: ${(c.semana_chuva_por_dia || []).map((v) => v == null ? "sem dado" : v).join(", ")}`}>
+          {(c.semana_chuva_por_dia || []).map((v, i) => {
+            const vals = (c.semana_chuva_por_dia || []).filter((x): x is number => x != null);
+            const alto = Math.max(...(vals.length ? vals : [1]), 0.01);
+            return <div key={i} className={`semana-col${i === 7 ? " dia" : ""}${v == null ? " vazio" : ""}`}
+              title={`${i === 7 ? "dia do evento" : `${7 - i} dia(s) antes`} — ${v == null ? "sem dado publicado" : `${v} mm`}`}>
+              <i style={{ height: `${v ? Math.max(4, (v / alto) * 100) : 0}%` }} />
+              <u>{v ? v : ""}</u></div>;
+          })}
+        </div>
+        <div className="semana-eixo"><span>7 dias antes</span><span>dia do evento</span></div>
+      </div>
+      {janelaSemana ? <p className="fonte-detalhe">{janelaSemana}</p> : null}
+    </div> : null}
+
     {cruzamento ? <p className="fonte-detalhe">No conjunto de julho e agosto:{" "}
       <b>{String(cruzamento.declaram_descarga)}</b> casos declaram descarga atmosférica, e{" "}
       <b>{String(cruzamento.declaram_sem_raio_20km)}</b> deles não têm raio nenhum detectado
       a 20 km no dia ({String(cruzamento.declaram_sem_raio_50km)} nem a 50 km). No recorte
       que entra no indicador são {String(cruzamento.recorte_declaram)} declarações e{" "}
-      {String(cruzamento.recorte_sem_raio_20km)} sem apoio. Para-raios curto-circuitado NÃO
-      foi contado como declaração de raio — é o equipamento, não a descarga.</p> : null}
+      {String(cruzamento.recorte_sem_raio_20km)} sem apoio. Alargando para a semana inteira,
+      ainda ficam <b>{String(cruzamento.declaram_sem_raio_20km_semana)}</b> sem nenhum raio a
+      20 km em oito dias. Para-raios curto-circuitado NÃO foi contado como declaração de
+      raio — é o equipamento, não a descarga.</p> : null}
     <p className="fonte-detalhe">{comoLer}</p>
     <div className="clima-fontes">
       {fontes.map((f) => <div key={f.nome}>
@@ -5497,7 +5554,8 @@ export default function Page() {
             : <p className="fonte-detalhe">Carregando o equipamento desta troca…</p>) : null}
           {abaMes === "clima" ? (clima
             ? <ClimaDoDia c={clima.por_ss?.[casoMes.ss]} fontes={clima.fontes}
-                comoLer={clima.como_ler} cruzamento={clima.cruzamento} />
+                comoLer={clima.como_ler} cruzamento={clima.cruzamento}
+                janelaSemana={clima.janela_semana} />
             : <p className="fonte-detalhe">Carregando o clima deste dia…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
