@@ -4172,17 +4172,42 @@ export default function Page() {
               <tbody>{lista.map((x) => {
                 const m = marcasConf[x.ss];
                 return <tr key={x.ss} className={m ? `conf-${m.marca}` : ""}>
-                  <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span>
-                    <small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small></td>
+                  <td><strong>{x.ss}</strong><span>trafo {x.trafo} · {x.pot_ret || "?"} → {x.pot_inst || "?"} kVA · {x.clientes || "?"} cliente(s)</span>
+                    <span>{x.origem || "sem origem"} · {x.defeito || "sem defeito declarado"}</span>
+                    <small>{x.abertura.slice(0, 16)} · {x.localidade} · {x.alimentador}</small>
+                    <small>OS {x.os || "—"} · obra {x.obra || "não gerada"}</small>
+                    <small>{x.tipo_ss} · {x.situacao} · {x.criticidade}</small></td>
                   <td><strong className={x.entra === "SIM" ? "nq-forte" : ""}>{x.entra === "SIM" ? "entra" : x.entra === "PENDENTE" ? "aguarda decisão" : "fora"}</strong>
                     <span>{x.categoria}</span>
-                    <small>{x.justificativa}</small></td>
+                    <small>{x.justificativa}</small>
+                    <small>{x.decidido_por}{x.decidido_em ? ` · ${x.decidido_em}` : ""}</small>
+                    <small>achado por: {(x.capturado_por || []).join(" · ") || "—"}</small>
+                    <small>auxiliar: {x.auxiliar || "NAO"}{x.auxiliar_evidencias?.length
+                      ? ` (${x.auxiliar_evidencias.join("; ")})` : ""} · TMAE: {x.flag_tmae}</small>
+                    {x.gemeas?.length ? <small>gêmeas: {x.gemeas.map((g) => g.ss).join(", ")}</small> : null}</td>
+                  {/* TODAS as ocorrências, não as duas primeiras: 15 casos têm mais de duas, e em
+                      19 a causa da segunda não é a da primeira — cortar em duas escondia 30 das
+                      142 e mostrava uma causa que podia não ser a do caso. A observação da equipe,
+                      que nunca aparecia, é o texto que mais decide numa conferência. */}
                   <td><strong>{x.critica === "SIM" ? "casou na janela" : x.critica === "AUSENTE" ? "ausente" : "fora da janela"}</strong>
-                    {x.ocorrencias.slice(0, 2).map((o, i) => <span key={i}>{o.inicio.slice(0, 16)} → {o.fim.slice(0, 16)} · {o.clientes} cli</span>)}
-                    <small>{x.ocorrencias[0]?.causa || "sem ocorrência casada"}{x.ocorrencias[0]?.subcausa ? ` / ${x.ocorrencias[0].subcausa}` : ""}</small></td>
+                    {x.ocorrencias.length === 0 ? <small>sem ocorrência casada</small> : null}
+                    {x.ocorrencias.map((o, i) => <small key={i} className="conf-oc">
+                      <b>{o.inicio.slice(0, 16)} → {o.fim.slice(0, 16)}</b>
+                      {o.causa || "sem causa"}{o.subcausa ? ` / ${o.subcausa}` : ""}
+                      {" · "}{o.clientes} cli{o.duracao_min != null ? ` · ${o.duracao_min} min` : ""}
+                      {o.papeis ? ` · ${o.papeis}` : ""}
+                      {" · "}{o.na_janela ? "CASA" : "fora"}
+                      {o.delta_inicio_h != null ? ` (${o.delta_inicio_h} h do início, ${o.delta_fim_h} h do fim)` : ""}
+                      {o.observacao ? <em>{o.observacao}</em> : null}
+                    </small>)}</td>
+                  {/* O texto vinha cortado em 190 caracteres com o resto só no title — e num
+                      telefone o title nunca aparece. Em 61 dos 72 casos isso escondia o texto
+                      de quem esteve no poste, que é a testemunha mais direta que existe. */}
                   <td className="conf-campo">
-                    <span title={x.texto_ss}>{x.texto_ss ? x.texto_ss.slice(0, 190) : "sem texto na solicitação"}</span>
-                    <small title={x.texto_os}>{x.texto_os ? `OS: ${x.texto_os.slice(0, 190)}` : "sem texto na ordem de serviço"}</small>
+                    <details><summary>solicitação{x.texto_ss ? "" : " — sem texto"}</summary>
+                      <p>{x.texto_ss || "—"}</p></details>
+                    <details><summary>ordem de serviço{x.texto_os ? "" : " — sem texto"}</summary>
+                      <p>{x.texto_os || "—"}</p></details>
                   </td>
                   <td className="col-classificar">
                     <div className="classificar-linha">{MARCAS.map(([id, curto, tom, dica]) => <button key={id}
@@ -4204,6 +4229,22 @@ export default function Page() {
             <div className="panel-title"><div><span>O que a segunda leitura confirmou</span>
               <h2>Onde a régua está certa</h2></div><small>reproduzido do zero, sem partir do publicado</small></div>
             <ul className="conf-evidencia conf-bateu">{conf.o_que_bateu.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          </section>
+
+          {/* As 345 de fora do recorte. A aba do mês afirmava que elas estavam "listadas no
+              fim, à vista", e não estavam em tela nenhuma — a promessa existia, a lista não. */}
+          <section className="panel"><div className="panel-title"><div><span>Fora do recorte oficial</span>
+            <h2>{br(mes.ampliado.length)} solicitações que citam transformador e não entram nas 72</h2></div>
+            <small>não contam no indicador · aqui para leitura</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Solicitação</th><th>Abertura e local</th><th>Tipo e situação</th><th>Por que ficou fora</th></tr></thead>
+              <tbody>{mes.ampliado.map((x) => <tr key={x.ss}>
+                <td><strong>{x.ss}</strong><span>trafo {x.trafo}</span><small>OS {x.os || "—"}</small></td>
+                <td><strong>{x.abertura.slice(0, 16)}</strong><span>{x.localidade}</span><small>{x.alimentador}</small></td>
+                <td><strong>{x.tipo_ss || "—"}</strong><span>{x.situacao}</span><small>{x.origem || "sem origem"}</small></td>
+                <td><small>{x.categoria || "não está na lista oficial do mês (infotrafo)"}</small></td>
+              </tr>)}</tbody>
+            </table></div>
           </section>
 
           <section className="panel editorial-note wide"><span>O QUE FICOU EM DÚVIDA</span>
