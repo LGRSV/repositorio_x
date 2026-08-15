@@ -1386,6 +1386,75 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
   </table></div>;
 }
 
+/* O HISTÓRICO DO TRANSFORMADOR, igual nas duas gavetas. Antes existia escrito duas vezes:
+   completo nas 1.510 e resumido em julho e agosto — e "resumido" ali queria dizer sem o
+   texto da SS, sem o da OS e sem as obras em volta. Duas telas contando a mesma coisa de
+   jeitos diferentes é como um número virar dois. Aqui é um só, e as prévias passam a ter
+   exatamente o que o semestre tem. */
+function HistoricoDoAtivo({ trafo, base, ints, obras, periodo, raio, obrasLidas }: {
+  trafo: string; base: HistBase[]; ints: HistInt[]; obras: HistObra[];
+  periodo: string; raio: number; obrasLidas: number;
+}) {
+  const nb = (v: number) => v.toLocaleString("pt-BR");
+  return <>
+    <section className="hist-base">
+      <div className="panel-title"><div><span>Base de SS/OS · qualquer ano, qualquer tipo</span>
+        <h2>{nb(base.length)} solicitação(ões) já abertas no transformador {trafo}</h2></div>
+        <small>{nb(base.filter((x) => x.n).length)} nunca entraram em recorte nenhum</small></div>
+      {base.length === 0 ? <p className="fonte-detalhe">A base de SS/OS de 11/08/2026 não registra nenhuma solicitação com este código de ativo.</p> : null}
+      {base.map((x) => <details key={x.ss + x.d} className="hist-ss">
+        <summary>
+          <b>{x.ss}</b>
+          <span>{x.d}{x.f ? ` → ${x.f}` : ""} · {x.s}</span>
+          <small>{x.t || "sem tipo"}{x.g ? ` · ${x.g}` : ""}{x.n ? " · fora da auditoria" : ""}</small>
+        </summary>
+        <div className="detail-grid">
+          {[["Situação", x.s], ["Tipo", x.t], ["Origem", x.g], ["Defeito", x.x],
+            ["Abertura", x.d], ["Término", x.f], ["Equipe", x.e], ["Solicitante", x.q],
+            ["Ordem de serviço", x.o], ["Obra", x.b], ["Clientes", x.c],
+            ["Potência", x.p && (x.p[0] || x.p[1]) ? `${x.p[0] || "?"} → ${x.p[1] || "?"} kVA` : ""],
+            ["Série retirada", x.ns], ["Série instalada", x.ni], ["Fabricante retirado", x.fab]]
+            .filter(([, v]) => v).map(([r, v]) => <div key={r}><span>{r}</span><strong>{v}</strong></div>)}
+        </div>
+        {x.ds ? <div className="narrativa"><span>O QUE A SOLICITAÇÃO DIZ</span><p>{x.ds}</p></div> : null}
+        {x.do ? <div className="narrativa"><span>O QUE A ORDEM DE SERVIÇO REGISTRA</span><p>{x.do}</p></div> : null}
+        {!x.ds && !x.do ? <p className="fonte-detalhe">Esta solicitação não tem texto na base — nem na SS nem na OS.</p> : null}
+      </details>)}
+    </section>
+
+    <section className="hist-base">
+      <div className="panel-title"><div><span>Interrupções na Crítica</span>
+        <h2>{nb(ints.length)} ocorrência(s) citam este ativo</h2></div>
+        <small>{periodo} · com janela ou sem ela</small></div>
+      {ints.length === 0 ? <p className="fonte-detalhe">Nenhuma ocorrência cita este ativo no período lido.</p> : null}
+      {ints.map((x, i) => <div key={`i${i}`} className="conf-oc">
+        <b>{x.i} → {x.f}</b>
+        {x.c || "sem causa"}{x.s ? ` / ${x.s}` : ""} · {x.m} min · {x.q} cliente(s)
+        {x.a ? ` · alimentador ${x.a}` : ""}{x.p ? ` · ativo como ${x.p}` : ""}
+        {x.o ? <em>{x.o}</em> : null}
+      </div>)}
+    </section>
+
+    <section className="hist-base">
+      <div className="panel-title"><div><span>Obras na região · pela coordenada</span>
+        <h2>{nb(obras.length)} obra(s) a até {nb(raio)} m deste transformador</h2></div>
+        <small>da mais perto para a mais longe</small></div>
+      {obras.length === 0
+        ? <p className="fonte-detalhe">Nenhuma obra com coordenada válida perto deste ponto. Cuidado com a leitura: das {nb(obrasLidas)} obras da extração, só 17.467 trazem coordenada plausível — o resto vem com zero ou com número inventado, e essas ficam invisíveis para qualquer busca por distância.</p>
+        : <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Distância</th><th>Obra</th><th>Estado</th><th>O que é</th></tr></thead>
+            <tbody>{obras.map((o, i) => <tr key={`${o.o}-${i}`}>
+              <td><strong>{o.m} m</strong><span>{o.aic === "SIM" ? "AIC" : ""}</span></td>
+              <td><strong>{o.o}</strong><span>{o.os ? `OS ${o.os}` : ""}</span><small>{o.e || o.r || "—"}</small></td>
+              <td><strong>{o.s || "—"}</strong><span>{o.oc || ""}</span>
+                <small>{o.p ? `paralisada em ${o.p}${o.mp ? ` · ${o.mp}` : ""}` : ""}</small></td>
+              <td><strong>{o.c || "—"}</strong><span>{o.t || ""}</span><small>{(o.d || "").slice(0, 90)}</small></td>
+            </tr>)}</tbody>
+          </table></div>}
+    </section>
+  </>;
+}
+
 /* ------------------------------------------------------------------ tela */
 
 export default function Page() {
@@ -5034,22 +5103,15 @@ export default function Page() {
             <div className="narrativa"><span>NA ORDEM DE SERVIÇO</span><p>{casoMes.texto_os || "sem texto"}</p></div>
             <p className="fonte-detalhe">Capturado por: {(casoMes.capturado_por || []).join(" · ") || "—"} · auxiliar: {casoMes.auxiliar || "NAO"} · TMAE: {casoMes.flag_tmae}</p>
           </> : null}
-          {abaMes === "ativo" ? (() => {
-            const h = historicoAtivo?.por_ativo?.[casoMes.trafo];
-            if (!h) return <p className="fonte-detalhe">Carregando o histórico deste transformador…</p>;
-            return <>
-              <h3>{h.base.length} solicitações neste poste, {h.int.length} interrupções</h3>
-              <p className="fonte-detalhe">Base de SS/OS desde 2024 e Crítica de {historicoAtivo?.periodo}. As marcadas em âmbar nunca entraram em recorte nenhum.</p>
-              {h.base.map((x) => <div key={x.ss} className={`conf-oc${x.n ? " fora-auditoria" : ""}`}>
-                <b>{x.ss}{x.n ? " · fora da auditoria" : ""}</b>
-                {x.d}{x.f ? ` → ${x.f}` : ""} · {x.s} · {x.t || "sem tipo"} · {x.g || "sem origem"}
-              </div>)}
-              {h.int.map((x, i) => <div key={`i${i}`} className="conf-oc">
-                <b>{x.i} → {x.f}</b>{x.c || "sem causa"}{x.s ? ` / ${x.s}` : ""} · {x.m} min · {x.q} cli
-                {x.o ? <em>{x.o}</em> : null}
-              </div>)}
-            </>;
-          })() : null}
+          {abaMes === "ativo" ? (historicoAtivo ? <HistoricoDoAtivo
+              trafo={casoMes.trafo}
+              base={historicoAtivo.por_ativo?.[casoMes.trafo]?.base || []}
+              ints={historicoAtivo.por_ativo?.[casoMes.trafo]?.int || []}
+              obras={historicoAtivo.por_ativo?.[casoMes.trafo]?.obras || []}
+              periodo={historicoAtivo.periodo}
+              raio={historicoAtivo.obras_raio_m || 2000}
+              obrasLidas={historicoAtivo.obras_lidas || 0} />
+            : <p className="fonte-detalhe">Carregando o histórico deste transformador…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
               && !(Array.isArray(v) && !v.length))
@@ -5451,68 +5513,19 @@ export default function Page() {
               <div><span>Ocorrências no semestre</span><strong>{texto(aberto.ocorrencias_ativo)}</strong></div>
               <div><span>Atendimentos no semestre</span><strong>{texto(aberto.atendimentos_ativo)}</strong></div>
             </section>
-            {/* TODA SS JÁ ABERTA NESTE POSTE, de 2024 em diante, venha de onde vier. O
-                semestre da auditoria é uma janela estreita: o mesmo transformador pode ter
-                tido religamento em 2024, poda em 2025 e outra troca antes desta. Sem isso,
-                "primeira vez que queima" é afirmação sem base. Cada uma abre e mostra o que
-                a equipe escreveu na solicitação e o que registrou na ordem de serviço. */}
-            {(() => {
-              const h = historicoAtivo?.por_ativo?.[texto(aberto.trafo)];
-              if (!historicoAtivo) return <p className="fonte-detalhe">Carregando as solicitações deste poste…</p>;
-              const base = h?.base || [];
-              return <section className="hist-base">
-                <div className="panel-title"><div><span>Base de SS/OS · qualquer ano, qualquer tipo</span>
-                  <h2>{br(base.length)} solicitação(ões) já abertas neste transformador</h2></div>
-                  <small>{br(base.filter((x) => x.n).length)} nunca entraram em recorte nenhum</small></div>
-                {base.length === 0 ? <p className="fonte-detalhe">A base de SS/OS de 11/08/2026 não registra nenhuma solicitação com este código de ativo.</p> : null}
-                {base.map((x) => <details key={x.ss + x.d} className="hist-ss">
-                  <summary>
-                    <b>{x.ss}</b>
-                    <span>{x.d}{x.f ? ` → ${x.f}` : ""} · {x.s}</span>
-                    <small>{x.t || "sem tipo"}{x.g ? ` · ${x.g}` : ""}{x.n ? " · fora da auditoria" : ""}</small>
-                  </summary>
-                  <div className="detail-grid">
-                    {[["Situação", x.s], ["Tipo", x.t], ["Origem", x.g], ["Defeito", x.x],
-                      ["Abertura", x.d], ["Término", x.f], ["Equipe", x.e], ["Solicitante", x.q],
-                      ["Ordem de serviço", x.o], ["Obra", x.b], ["Clientes", x.c],
-                      ["Potência", x.p && (x.p[0] || x.p[1]) ? `${x.p[0] || "?"} → ${x.p[1] || "?"} kVA` : ""],
-                      ["Série retirada", x.ns], ["Série instalada", x.ni], ["Fabricante retirado", x.fab]]
-                      .filter(([, v]) => v).map(([r, v]) => <div key={r}><span>{r}</span><strong>{v}</strong></div>)}
-                  </div>
-                  {x.ds ? <div className="narrativa"><span>O QUE A SOLICITAÇÃO DIZ</span><p>{x.ds}</p></div> : null}
-                  {x.do ? <div className="narrativa"><span>O QUE A ORDEM DE SERVIÇO REGISTRA</span><p>{x.do}</p></div> : null}
-                  {!x.ds && !x.do ? <p className="fonte-detalhe">Esta solicitação não tem texto na base — nem na SS nem na OS.</p> : null}
-                </details>)}
-              </section>;
-            })()}
-            {/* AS OBRAS EM VOLTA, pela coordenada. A pergunta que não se responde caso a caso:
-                estavam mexendo na rede aqui perto? Duas descobertas sustentam esta lista, e as
-                duas foram medidas: na extração de obras a coluna "COORDENADA X" guarda o NORTE
-                e a "COORDENADA Y" guarda o LESTE — trocadas —, e a projeção é UTM 22S em todo o
-                estado, o que se confirmou comparando 1.447 obras que já têm ativo conhecido:
-                erro mediano ZERO metro em 22S contra 657 km em 23S. */}
-            {(() => {
-              const h = historicoAtivo?.por_ativo?.[texto(aberto.trafo)];
-              const obras = h?.obras || [];
-              if (!historicoAtivo) return null;
-              return <section className="hist-base">
-                <div className="panel-title"><div><span>Obras na região · pela coordenada</span>
-                  <h2>{br(obras.length)} obra(s) a até {br(historicoAtivo.obras_raio_m || 2000)} m deste transformador</h2></div>
-                  <small>da mais perto para a mais longe</small></div>
-                {obras.length === 0
-                  ? <p className="fonte-detalhe">Nenhuma obra com coordenada válida perto deste ponto. Cuidado com a leitura: das {br(historicoAtivo.obras_lidas || 0)} obras da extração, só 17.467 trazem coordenada plausível — o resto vem com zero ou com número inventado, e essas ficam invisíveis para qualquer busca por distância.</p>
-                  : <div className="table-scroll"><table className="records-table">
-                      <thead><tr><th>Distância</th><th>Obra</th><th>Estado</th><th>O que é</th></tr></thead>
-                      <tbody>{obras.map((o, i) => <tr key={`${o.o}-${i}`}>
-                        <td><strong>{o.m} m</strong><span>{o.aic === "SIM" ? "AIC" : ""}</span></td>
-                        <td><strong>{o.o}</strong><span>{o.os ? `OS ${o.os}` : ""}</span><small>{o.e || o.r || "—"}</small></td>
-                        <td><strong>{o.s || "—"}</strong><span>{o.oc || ""}</span>
-                          <small>{o.p ? `paralisada em ${o.p}${o.mp ? ` · ${o.mp}` : ""}` : ""}</small></td>
-                        <td><strong>{o.c || "—"}</strong><span>{o.t || ""}</span><small>{(o.d || "").slice(0, 90)}</small></td>
-                      </tr>)}</tbody>
-                    </table></div>}
-              </section>;
-            })()}
+            {/* A MESMA leitura das prévias: uma implementação só para as duas gavetas.
+                As SS já abertas neste poste em qualquer ano, as interrupções que citam o
+                ativo e as obras a até 2 km — cada uma com a ressalva do que a fonte não
+                consegue responder. */}
+            {historicoAtivo ? <HistoricoDoAtivo
+              trafo={texto(aberto.trafo)}
+              base={historicoAtivo.por_ativo?.[texto(aberto.trafo)]?.base || []}
+              ints={historicoAtivo.por_ativo?.[texto(aberto.trafo)]?.int || []}
+              obras={historicoAtivo.por_ativo?.[texto(aberto.trafo)]?.obras || []}
+              periodo={historicoAtivo.periodo}
+              raio={historicoAtivo.obras_raio_m || 2000}
+              obrasLidas={historicoAtivo.obras_lidas || 0} />
+              : <p className="fonte-detalhe">Carregando as solicitações e as obras deste poste…</p>}
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Evento</th><th>Quando</th><th>Causa</th><th>Equipe</th></tr></thead>
               <tbody>{fluxo.historico.filter((l) => texto(l[0]) === texto(aberto.trafo)).map((l, i) => <tr key={i}>
