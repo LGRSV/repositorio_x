@@ -157,6 +157,11 @@ type HistBase = { ss: string; d: string; t: string; s: string; g: string; x: str
   cf?: string; vaz?: string; pr?: string; mot?: string };
 type HistInt = { n: string; i: string; f: string; m: string; q: string; c: string;
   s: string; a: string; o: string; mes: string; p: string };
+/* A classe de solo debaixo do transformador, do mapa de pedologia do IBGE. Escala
+   1:250.000: é o solo da REGIÃO do poste, não o do buraco da haste. */
+type SoloAtivo = { fonte: string; escala: string; o_que_e: string; com_solo: number;
+  sem_solo: number; por_ativo: Record<string, Record<string, string>> };
+
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
   d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
 type HistoricoAtivo = {
@@ -1395,9 +1400,10 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    texto da SS, sem o da OS e sem as obras em volta. Duas telas contando a mesma coisa de
    jeitos diferentes é como um número virar dois. Aqui é um só, e as prévias passam a ter
    exatamente o que o semestre tem. */
-function HistoricoDoAtivo({ trafo, base, ints, obras, periodo, raio, obrasLidas }: {
+function HistoricoDoAtivo({ trafo, base, ints, obras, periodo, raio, obrasLidas, solo }: {
   trafo: string; base: HistBase[]; ints: HistInt[]; obras: HistObra[];
   periodo: string; raio: number; obrasLidas: number;
+  solo?: Record<string, string> | null;
 }) {
   const nb = (v: number) => v.toLocaleString("pt-BR");
   return <>
@@ -1425,6 +1431,26 @@ function HistoricoDoAtivo({ trafo, base, ints, obras, periodo, raio, obrasLidas 
         {!x.ds && !x.do ? <p className="fonte-detalhe">Esta solicitação não tem texto na base — nem na SS nem na OS.</p> : null}
       </details>)}
     </section>
+
+    {/* O SOLO DEBAIXO DO POSTE. Vem do mapa de pedologia do IBGE, e está aqui por um
+        motivo elétrico: o aterramento é o caminho que a descarga usa para ir embora, e a
+        resistência dele depende do solo. Areia quartzosa seca dá resistência alta; argila
+        úmida dá baixa. A auditoria já mede a haste antes e depois — o solo é a metade da
+        conta que faltava. Não é causa: é contexto, e a escala do mapa obriga a dizer isso. */}
+    {solo ? <section className="hist-base">
+      <div className="panel-title"><div><span>Solo · IBGE, pedologia 1:250.000</span>
+        <h2>{solo.legenda || solo.grande_gru || solo.ordem || "classe não informada"}</h2></div>
+        <small>a região do poste, não o buraco da haste</small></div>
+      <div className="detail-grid">
+        {[["Ordem", solo.ordem], ["Subordem", solo.subordem], ["Grande grupo", solo.grande_gru],
+          ["Subgrupo", solo.subgrupos], ["Textura", solo.textura], ["Relevo", solo.relevo],
+          ["Erosão", solo.erosao], ["Pedregosidade", solo.pedregosid],
+          ["Rochosidade", solo.rochosidad], ["Horizonte", solo.horizonte],
+          ["Componente", solo.componente], ["Carta", solo.cd_fcim]]
+          .filter(([, v]) => v).map(([r, v]) => <div key={r}><span>{r}</span><strong>{v}</strong></div>)}
+      </div>
+      <p className="fonte-detalhe">Nesta escala um polígono cobre quilômetros. Serve para dizer em que tipo de terreno o poste está, e por isso conversa com a medição de aterramento — não serve para explicar um caso sozinho.</p>
+    </section> : null}
 
     {/* O EQUIPAMENTO, SS POR SS. A pergunta que só se responde vendo os dois lados: o que
         saiu do poste e o que entrou, em cada troca que este transformador já teve. É onde
@@ -1669,6 +1695,7 @@ export default function Page() {
      conta outra história que um com uma interrupção e uma troca. Arquivo próprio, pedido só
      quando esta aba abre. */
   const [historicoAtivo, setHistoricoAtivo] = useState<HistoricoAtivo | null>(null);
+  const [solo, setSolo] = useState<SoloAtivo | null>(null);
   /* O DOSSIÊ DOS MESES. Clicar num caso de julho ou agosto não abria nada: as prévias
      nasceram como lista, e quem quisesse ler o caso inteiro tinha de cruzar as colunas com
      o olho. Agora abrem a mesma gaveta de jan–jun, com a narrativa, a Crítica inteira, o
@@ -1790,6 +1817,7 @@ export default function Page() {
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
+      solo: ["solo-ativo.json", (d) => setSolo(d as SoloAtivo), () => setSolo(null)],
       historico: ["historico-ativo.json", (d) => setHistoricoAtivo(d as HistoricoAtivo),
                   () => setHistoricoAtivo(null)],
       passos: ["passos-critica.json", (d) => {
@@ -1808,11 +1836,11 @@ export default function Page() {
     revisao: ["revisao"], insight_revisao: ["revisao"],
     insight_material: ["material"], obra: ["material"],
     insight_tempos: ["tmae", "passos"], semdesloc: ["tmae"],
-    insight_aterramento: ["aterr"], insight_naoqueimado: ["reforma"],
+    insight_aterramento: ["aterr", "solo"], insight_naoqueimado: ["reforma"],
     insight_almoxarifado: ["almox", "coleta"], insight_garantia: ["coleta"],
     mes_julho: ["julho"], mes_agosto: ["agosto"], mes_julho_conf: ["julho", "conf"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
-    ativos: ["coleta", "historico"], bases: ["material"],
+    ativos: ["coleta", "historico", "solo"], bases: ["material"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -1821,12 +1849,12 @@ export default function Page() {
      caso é aberto, tudo isso passa a fazer falta de uma vez. */
   useEffect(() => {
     if (!aberto) return;
-    ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material", "historico"].forEach(pedirApoio);
+    ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material", "historico", "solo"].forEach(pedirApoio);
   }, [aberto, pedirApoio]);
   /* a gaveta das prévias mostra o histórico do transformador; ele chega quando ela abre.
      Este efeito precisa vir DEPOIS de pedirApoio existir — a primeira versão ficou antes e
      derrubou a tela inteira com erro de zona morta. */
-  useEffect(() => { if (casoMes) pedirApoio("historico"); }, [casoMes, pedirApoio]);
+  useEffect(() => { if (casoMes) { pedirApoio("historico"); pedirApoio("solo"); } }, [casoMes, pedirApoio]);
 
   const carregarFluxo = () => {
     setErroCarga("");
@@ -4695,6 +4723,14 @@ export default function Page() {
 
       /* INSIGHT · ATERRAMENTO. O dado que estava parado no formulário da OS. Não move ninguém. */
       if (modulo === "insight_aterramento") {
+      /* SOLO × RESISTÊNCIA DA HASTE. A medição sozinha diz que um poste está em 40 Ω; o
+         solo diz em que terreno esse poste está. Juntas, dizem se 40 Ω ali é descuido ou é
+         o que aquele chão dá. É leitura, não veredito: são 1.182 medições, nove meses e uma
+         escala de mapa que cobre quilômetros — não fecha causa nenhuma. */
+      const soloDe = (ss: string) => {
+        const r = registros.find((x) => texto(x.ss) === ss);
+        return r ? solo?.por_ativo?.[texto(r.trafo)] : undefined;
+      };
         const naConta = registros.filter((r) => arquivo(r) === "SAÍDA");
         const q = (f: (r: Registro) => boolean) => naConta.filter(f).length;
         const ruins = naConta.filter((r) => ["acima", "grave"].includes(faixaTerra(r)));
@@ -4740,6 +4776,45 @@ export default function Page() {
           barra("Não preenchido — vazio ou zero", "sem", "terra_sem"),
         ];
         return <>
+        {solo ? (() => {
+          const porOrdem: Record<string, number[]> = {};
+          Object.entries(aterr).forEach(([ss, a]) => {
+            const sd = soloDe(ss);
+            const v = Number(String(a.pior ?? a.pior_depois ?? "").replace(",", "."));
+            if (!sd || !isFinite(v) || v <= 0) return;
+            const o = sd.ordem || "não informada";
+            (porOrdem[o] = porOrdem[o] || []).push(v);
+          });
+          const linhas = Object.entries(porOrdem).filter(([, v]) => v.length >= 10)
+            .sort((a, b) => b[1].length - a[1].length)
+            .map(([o, v]) => {
+              const ord = [...v].sort((x, y) => x - y);
+              const med = ord[Math.floor(ord.length / 2)];
+              const acima = v.filter((x) => x >= 25).length;
+              return { o, n: v.length, med, acima, pct: Math.round((acima * 100) / v.length) };
+            });
+          return <section className="panel"><div className="panel-title">
+            <div><span>Solo × aterramento · pedologia do IBGE</span>
+              <h2>Que resistência cada tipo de chão entrega</h2></div>
+            <small>a pior haste medida, por ordem de solo</small></div>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Ordem do solo</th><th>Postes medidos</th><th>Mediana</th><th>Acima de 25 Ω</th></tr></thead>
+              <tbody>{linhas.map((l) => <tr key={l.o}>
+                <td><strong>{l.o}</strong></td>
+                <td><strong>{br(l.n)}</strong></td>
+                <td><strong className={l.med >= 25 ? "nq-forte" : ""}>{l.med.toFixed(1).replace(".", ",")} Ω</strong></td>
+                <td><strong>{l.pct}%</strong><span>{br(l.acima)} postes</span></td>
+              </tr>)}</tbody>
+            </table></div>
+            {/* o texto lê a própria tabela: número escrito à mão vira número errado na
+                primeira vez que o dado muda */}
+            <p className="fonte-detalhe">{(() => {
+              const pior = [...linhas].sort((a, b) => b.med - a.med)[0];
+              const melhor = [...linhas].sort((a, b) => a.med - b.med)[0];
+              return pior && melhor ? `O ${pior.o.toLowerCase()} aparece com a maior mediana — ${pior.med.toFixed(1).replace(".", ",")} Ω e ${pior.pct}% dos postes acima do limite — contra ${melhor.med.toFixed(1).replace(".", ",")} Ω do ${melhor.o.toLowerCase()}. ` : "";
+            })()}<strong>Isso é leitura, não veredito</strong>: são 1.182 medições em nove meses, e a pedologia do IBGE está em escala 1:250.000 — cada polígono cobre quilômetros, então o solo é o da região do poste, não o do buraco da haste. Serve para perguntar onde a malha precisa ser reforçada, não para explicar um caso.</p>
+          </section>;
+        })() : null}
           <section className="panel">
             <div className="panel-title"><div><span>A pior das três hastes · medição {terraQuando === "antes" ? "ANTES" : "DEPOIS"} do serviço</span><h2>{terraQuando === "antes"
               ? `${br(semMelhoria.length)} queimaram sobre aterramento fora da norma — e ninguém consertou`
@@ -5165,7 +5240,8 @@ export default function Page() {
               obras={historicoAtivo.por_ativo?.[casoMes.trafo]?.obras || []}
               periodo={historicoAtivo.periodo}
               raio={historicoAtivo.obras_raio_m || 2000}
-              obrasLidas={historicoAtivo.obras_lidas || 0} />
+              obrasLidas={historicoAtivo.obras_lidas || 0}
+              solo={solo?.por_ativo?.[casoMes.trafo]} />
             : <p className="fonte-detalhe">Carregando o histórico deste transformador…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
@@ -5579,7 +5655,8 @@ export default function Page() {
               obras={historicoAtivo.por_ativo?.[texto(aberto.trafo)]?.obras || []}
               periodo={historicoAtivo.periodo}
               raio={historicoAtivo.obras_raio_m || 2000}
-              obrasLidas={historicoAtivo.obras_lidas || 0} />
+              obrasLidas={historicoAtivo.obras_lidas || 0}
+              solo={solo?.por_ativo?.[texto(aberto.trafo)]} />
               : <p className="fonte-detalhe">Carregando as solicitações e as obras deste poste…</p>}
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Evento</th><th>Quando</th><th>Causa</th><th>Equipe</th></tr></thead>
