@@ -1227,3 +1227,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .expurgo-quem button { grid-column: 2; justify-self: start; min-height: 44px; padding: 10px 14px;
     font-size: 12px; }
 }
+
+/* SS que a base registra no poste e a auditoria nunca olhou: é o contexto que explica
+   metade dos casos, e precisa se distinguir do que já passou por recorte. */
+.records-table tr.linha-fora-auditoria td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+.records-table tr.linha-fora-auditoria { background: #fdfbf3; }
