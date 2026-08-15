@@ -189,11 +189,13 @@ type ClimaCaso = {
   mais_proximo_no_tempo_min?: number; mais_proximo_no_tempo_km?: number;
   chuva_dia_mm?: number; chuva_horas?: number[]; chuva_3h_antes?: number;
   chuva_hora_do_evento_mm?: number; chuva_horas_lidas?: number;
+  declara_descarga?: boolean; no_recorte?: boolean;
 };
 type FonteClima = { nome: string; orgao: string; onde: string; resolucao: string;
   o_que_mede: string; limite: string };
 type ClimaMes = { gerado_em: string; casos: number; dias: number; raios_no_tocantins: number;
-  fontes: FonteClima[]; como_ler: string; por_ss: Record<string, ClimaCaso> };
+  fontes: FonteClima[]; como_ler: string; por_ss: Record<string, ClimaCaso>;
+  cruzamento?: Record<string, number | string> };
 
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
   d: string; e: string; a: string; p: string; mp: string; os: string; r: string; m: number };
@@ -1440,8 +1442,9 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    nunca "o raio caiu neste poste"), e o MERGE do INPE dá a chuva numa grade de ~11 km.
    A leitura forte é a NEGATIVA: caso declarado como descarga atmosférica sem nenhum raio
    detectado perto é caso para revisar. Raio perto não prova causa. */
-function ClimaDoDia({ c, fontes, comoLer }: {
+function ClimaDoDia({ c, fontes, comoLer, cruzamento }: {
   c?: ClimaCaso | null; fontes: FonteClima[]; comoLer: string;
+  cruzamento?: Record<string, number | string>;
 }) {
   if (!c) return <p className="fonte-detalhe">Este caso não entrou no mapeamento: ou não
     tem coordenada na base de SS/OS, ou não tem hora de evento. Sem ponto e sem hora não há
@@ -1451,6 +1454,7 @@ function ClimaDoDia({ c, fontes, comoLer }: {
   const dia = c.quando.slice(0, 10).split("-").reverse().join("/");
   const chuvas = c.chuva_horas || [];
   const pico = chuvas.length ? Math.max(...chuvas) : 0;
+  const soma = chuvas.reduce((t, v) => t + v, 0);
   const horaEvento = Number(c.quando.slice(11, 13));
   const teveRaio = (c.raios_20km_dia || 0) > 0;
   const choveu = (c.chuva_dia_mm || 0) > 0.1;
@@ -1469,6 +1473,13 @@ function ClimaDoDia({ c, fontes, comoLer }: {
         ? "Houve tempestade na região. Isso NÃO prova que o raio causou a queima."
         : "O satélite não viu raio nenhum perto daqui neste dia. Ausência de detecção não é prova de que não houve raio — ele pega de 70% a 90% deles."}</span>
     </div>
+
+    {c.declara_descarga ? <div className={`clima-veredito ${teveRaio ? "tem" : "alerta"}`}>
+      <b>Este caso declara descarga atmosférica{teveRaio ? "" : " — e o satélite não viu raio nenhum a 20 km no dia"}</b>
+      <span>{teveRaio
+        ? "A declaração encontra apoio: houve tempestade na região neste dia. Apoio não é prova de causa."
+        : `A causa registrada não encontra apoio em nenhuma das duas fontes${(c.raios_50km_dia || 0) === 0 ? " — nem alargando para 50 km" : ""}. É caso para revisar, não veredito: o satélite pega de 70% a 90% dos raios.`}</span>
+    </div> : null}
 
     <div className="detail-grid">
       {[["Raios a 5 km · no dia", c.raios_5km_dia],
@@ -1502,8 +1513,16 @@ function ClimaDoDia({ c, fontes, comoLer }: {
         </div>
         <div className="chuva-eixo"><span>00h</span><span>06h</span><span>12h</span>
           <span>18h</span><span>23h</span></div>
-        <p className="fonte-detalhe">Pico de <b>{pico} mm</b> em uma hora. A coluna com
-          contorno é a hora do evento ({String(horaEvento).padStart(2, "0")}h).</p>
+        <p className="fonte-detalhe">Pico de <b>{pico} mm</b> em uma hora, e{" "}
+          <b>{soma.toFixed(2)} mm</b> somando as 24 horas. A coluna com contorno é a hora do
+          evento ({String(horaEvento).padStart(2, "0")}h).</p>
+        {/* o diário e o horário do MERGE são produtos separados e não fecham na casa dos
+            décimos. Mostrar só um dos dois faria o leitor achar que a tela se contradiz. */}
+        {c.chuva_dia_mm != null && Math.abs(soma - c.chuva_dia_mm) > 0.05
+          ? <p className="fonte-detalhe">O total diário do MERGE ({c.chuva_dia_mm} mm) não
+            fecha com a soma das horas ({soma.toFixed(2)} mm): são dois produtos distintos
+            do INPE, gerados separadamente. A diferença aqui é de {Math.abs(soma - c.chuva_dia_mm).toFixed(2)} mm.</p>
+          : null}
       </> : <p className="fonte-detalhe">As 24 horas do dia vieram com <b>zero</b> de chuva
         neste ponto. Julho e agosto são estação seca no Tocantins.</p>}
       {c.chuva_horas_lidas != null && c.chuva_horas_lidas < 24
@@ -1512,6 +1531,13 @@ function ClimaDoDia({ c, fontes, comoLer }: {
           faixa acima, e isso pode esconder chuva.</p> : null}
     </div> : null}
 
+    {cruzamento ? <p className="fonte-detalhe">No conjunto de julho e agosto:{" "}
+      <b>{String(cruzamento.declaram_descarga)}</b> casos declaram descarga atmosférica, e{" "}
+      <b>{String(cruzamento.declaram_sem_raio_20km)}</b> deles não têm raio nenhum detectado
+      a 20 km no dia ({String(cruzamento.declaram_sem_raio_50km)} nem a 50 km). No recorte
+      que entra no indicador são {String(cruzamento.recorte_declaram)} declarações e{" "}
+      {String(cruzamento.recorte_sem_raio_20km)} sem apoio. Para-raios curto-circuitado NÃO
+      foi contado como declaração de raio — é o equipamento, não a descarga.</p> : null}
     <p className="fonte-detalhe">{comoLer}</p>
     <div className="clima-fontes">
       {fontes.map((f) => <div key={f.nome}>
@@ -5471,7 +5497,7 @@ export default function Page() {
             : <p className="fonte-detalhe">Carregando o equipamento desta troca…</p>) : null}
           {abaMes === "clima" ? (clima
             ? <ClimaDoDia c={clima.por_ss?.[casoMes.ss]} fontes={clima.fontes}
-                comoLer={clima.como_ler} />
+                comoLer={clima.como_ler} cruzamento={clima.cruzamento} />
             : <p className="fonte-detalhe">Carregando o clima deste dia…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
