@@ -100,7 +100,7 @@ type Conferencia = {
 };
 /* A marca do conferente. Mora no navegador, sai no export junto com as classificações,
    e NÃO altera o indicador — julho segue sendo prévia até o martelo do dono. */
-type MarcaConf = { marca: "confere" | "nao_confere" | "duvida"; nota: string; em: string };
+type MarcaConf = { marca: "confere" | "nao_confere" | "duvida" | ""; nota: string; em: string };
 
 type OrdemReforma = {
   op: string; data: string; tipo: string; triagem: string; status: string;
@@ -150,7 +150,11 @@ type HistBase = { ss: string; d: string; t: string; s: string; g: string; x: str
   e: string; q: string; o: string; b: string; c: string; l: string; f: string;
   n: string; p: [string, string];
   /* o texto de quem escreveu a SS e o de quem executou a OS — é o que se quer ler ao abrir */
-  ds?: string; do?: string; ns?: string; ni?: string; fab?: string };
+  ds?: string; do?: string;
+  /* o equipamento dos dois lados: o que saiu do poste e o que entrou */
+  ns?: string; ni?: string; tr?: string; ti?: string; fab?: string; fai?: string;
+  dfr?: string; dfi?: string; rri?: string; rfi?: string; rrr?: string;
+  cf?: string; vaz?: string; pr?: string; mot?: string };
 type HistInt = { n: string; i: string; f: string; m: string; q: string; c: string;
   s: string; a: string; o: string; mes: string; p: string };
 type HistObra = { o: string; s: string; oc: string; aic: string; c: string; t: string;
@@ -1422,6 +1426,35 @@ function HistoricoDoAtivo({ trafo, base, ints, obras, periodo, raio, obrasLidas 
       </details>)}
     </section>
 
+    {/* O EQUIPAMENTO, SS POR SS. A pergunta que só se responde vendo os dois lados: o que
+        saiu do poste e o que entrou, em cada troca que este transformador já teve. É onde
+        aparece peça nova que durou pouco, peça reformada que voltou, e a idade do que
+        queimou — a data de fabricação está aqui, não no indicador. */}
+    <section className="hist-base">
+      <div className="panel-title"><div><span>Informações do ativo · o que saiu e o que entrou</span>
+        <h2>O equipamento em cada troca</h2></div>
+        <small>série, tombamento, fabricante, fabricação e se é reformado</small></div>
+      {base.filter((x) => x.ns || x.ni || x.tr || x.ti).length === 0
+        ? <p className="fonte-detalhe">Nenhuma das solicitações deste poste registra série ou tombamento — a ficha do equipamento fica em branco na base.</p>
+        : <div className="table-scroll"><table className="records-table">
+            <thead><tr><th>Solicitação</th><th>Transformador RETIRADO</th><th>Transformador INSTALADO</th><th>O que o campo marcou</th></tr></thead>
+            <tbody>{base.filter((x) => x.ns || x.ni || x.tr || x.ti).map((x) => <tr key={`eq-${x.ss}-${x.d}`}>
+              <td><strong>{x.ss}</strong><span>{x.d}</span><small>{x.n ? "fora da auditoria" : "na auditoria"}</small></td>
+              <td><strong>{x.p?.[0] ? `${x.p[0]} kVA` : "potência não registrada"}</strong>
+                <span>série {x.ns || "—"} · tomb {x.tr || "—"}</span>
+                <small>{x.fab || "fabricante não registrado"}{x.dfr ? ` · fabricado em ${x.dfr}` : ""}
+                  {x.rrr ? ` · ${x.rrr}` : ""}</small></td>
+              <td><strong>{x.p?.[1] ? `${x.p[1]} kVA` : "potência não registrada"}</strong>
+                <span>série {x.ni || "—"} · tomb {x.ti || "—"}</span>
+                <small>{x.fai || "fabricante não registrado"}{x.dfi ? ` · fabricado em ${x.dfi}` : ""}
+                  {x.rri ? ` · reformado: ${x.rri}` : ""}{x.rfi && x.rfi !== "NÃO É REFORMADO" ? ` · ${x.rfi}` : ""}</small></td>
+              <td><small>{[x.mot ? `motivo provável: ${x.mot}` : "", x.vaz ? `vazamento: ${x.vaz}` : "",
+                x.cf ? `cola e fita: ${x.cf}` : "", x.pr ? `para-raios: ${x.pr}` : ""]
+                .filter(Boolean).join(" · ") || "sem ficha de campo"}</small></td>
+            </tr>)}</tbody>
+          </table></div>}
+    </section>
+
     <section className="hist-base">
       <div className="panel-title"><div><span>Interrupções na Crítica</span>
         <h2>{nb(ints.length)} ocorrência(s) citam este ativo</h2></div>
@@ -1518,14 +1551,34 @@ export default function Page() {
     try { return JSON.parse(localStorage.getItem(CHAVE_CONF_ACHADOS) || "{}"); } catch { return {}; }
   });
   const [filtroConf, setFiltroConf] = useState<"todos" | "entram" | "pendentes" | "faltam">("todos");
-  const marcarCaso = (ss: string, marca: MarcaConf["marca"], nota?: string) => {
+  /* GRAVAR ENQUANTO SE ESCREVE, não só ao sair do campo. A anotação era salva no onBlur —
+     e no celular ninguém "sai do campo": rola a tela, fecha a aba, troca de aplicativo. Pior,
+     a lista se redesenha a cada marca e o campo volta ao valor guardado, levando junto o que
+     tinha acabado de ser digitado. Agora grava meio segundo depois da última tecla, e também
+     quando a página é escondida ou fechada. */
+  const relogios = useRef<Record<string, number>>({});
+  const anotar = (ss: string, texto: string, marcaAtual?: MarcaConf["marca"] | "") => {
+    window.clearTimeout(relogios.current[ss]);
+    relogios.current[ss] = window.setTimeout(() => {
+      marcarCaso(ss, marcaAtual || "", texto);
+    }, 500);
+  };
+
+  const marcarCaso = (ss: string, marca: MarcaConf["marca"] | "", nota?: string) => {
     setMarcasConf((m) => {
       const antes = m[ss];
-      /* clicar de novo no mesmo botão desmarca — conferência tem de poder voltar atrás */
       const novo = { ...m };
-      if (antes && antes.marca === marca && nota === undefined) delete novo[ss];
-      else novo[ss] = { marca, nota: nota !== undefined ? nota : (antes?.nota || ""),
-                        em: agoraLocal() };
+      /* TOCAR DE NOVO NO MESMO BOTÃO TIRA A MARCA — E SÓ A MARCA.
+         A primeira versão apagava o registro inteiro nesse caso, e junto ia a anotação:
+         quem marcava "dúvida", escrevia o porquê e tocava em "dúvida" outra vez — ou dava
+         um toque duplo sem querer, que no celular acontece o tempo todo — perdia o texto
+         sem aviso nenhum. Marca e anotação são coisas diferentes: desmarcar não pode
+         apagar o que a pessoa escreveu. O registro só desaparece quando não sobra nem
+         marca nem texto. */
+      const virou = antes && antes.marca === marca && nota === undefined ? "" : marca;
+      const texto = nota !== undefined ? nota : (antes?.nota || "");
+      if (!virou && !texto.trim()) delete novo[ss];
+      else novo[ss] = { marca: virou as MarcaConf["marca"], nota: texto, em: agoraLocal() };
       guardarLocal(CHAVE_CONF_CASOS, JSON.stringify(novo));
       return novo;
     });
@@ -4446,7 +4499,9 @@ export default function Page() {
                       onClick={() => marcarCaso(x.ss, id)}>{curto}</button>)}</div>
                     <input className="conf-nota" type="text" placeholder="anotação"
                       defaultValue={m?.nota || ""}
-                      onBlur={(e) => { if (e.target.value !== (m?.nota || "")) marcarCaso(x.ss, m?.marca || "duvida", e.target.value); }} />
+                      onChange={(e) => anotar(x.ss, e.target.value, m?.marca)}
+                      onBlur={(e) => { window.clearTimeout(relogios.current[x.ss]);
+                        if (e.target.value !== (m?.nota || "")) marcarCaso(x.ss, m?.marca || "", e.target.value); }} />
                     {m ? <span>{m.em}</span> : null}
                   </td>
                 </tr>;
