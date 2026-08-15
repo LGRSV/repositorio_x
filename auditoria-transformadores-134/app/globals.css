@@ -1148,3 +1148,28 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .conf-campo { min-width: 240px; }
   .conf-campo details summary { padding: 12px 11px; font-size: 12px; }
 }
+
+/* ── DUAS COISAS QUE A AUDITORIA DE TOQUE MEDIU E QUE SÓ APARECEM NO CELULAR ──
+
+   1. A aba de conferir julho empurrava a página para 683px numa tela de 390. A causa não
+      era a tabela: era o grid de .conf-achados, cujos itens têm largura mínima própria
+      (as células da tabelinha de casos, 150 e 190px), e grid não encolhe filho abaixo do
+      conteúdo a menos que se diga. minmax(0, 1fr) diz.
+   2. Nas tabelas largas, ao arrastar até a coluna de classificar, a coluna que diz DE QUEM
+      é o caso já saiu pela esquerda — a 828px fora da tela. Classificar sem ver o número da
+      SS é como assinar de olhos fechados. A primeira coluna passa a ficar presa. */
+.conf-achados { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 820px) {
+  .records-table td:first-child, .records-table th:first-child {
+    position: sticky; left: 0; z-index: 2; background: #fff;
+    box-shadow: 6px 0 8px -6px rgba(0, 0, 0, .18); }
+  .records-table th:first-child { background: var(--ink); }
+  /* a linha colorida por decisão continua valendo na coluna presa */
+  .records-table tr.linha-queimada td:first-child { background: #fbfaf8; }
+  .records-table tr.linha-excluida td:first-child { background: #fdf7f7; }
+  .records-table tr.linha-preventiva td:first-child { background: #f7faf8; }
+  .records-table tr.conf-confere td:first-child { background: #f7fbf8; }
+  .records-table tr.conf-nao_confere td:first-child { background: #fdf6f6; }
+  .records-table tr.conf-duvida td:first-child { background: #fdfbf3; }
+}
