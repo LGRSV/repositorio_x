@@ -1232,3 +1232,7 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
    metade dos casos, e precisa se distinguir do que já passou por recorte. */
 .records-table tr.linha-fora-auditoria td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
 .records-table tr.linha-fora-auditoria { background: #fdfbf3; }
+
+/* na gaveta das prévias, o bloco de ocorrência também serve para SS do histórico */
+.drawer-body .conf-oc { margin-bottom: 8px; }
+.drawer-body .conf-oc.fora-auditoria { border-left-color: var(--amber); background: #fdfbf3; }
