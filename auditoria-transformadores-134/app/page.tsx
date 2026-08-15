@@ -1460,6 +1460,19 @@ export default function Page() {
   const [recorte, setRecorte] = useState<{ id: string; rotulo: string } | null>(null);
   const [aberto, setAberto] = useState<Registro | null>(null);
   const [abaDossie, setAbaDossie] = useState("consolidado");
+  /* O dossiê é uma camada `position: fixed`, e fixed se ancora na janela — que nem sempre é a
+     janela que a pessoa está vendo. Dentro de um quadro alto (o site embutido em outra
+     página, como na cópia estática aberta pelo aplicativo), a camada nasce no topo do quadro
+     enquanto o dedo está lá embaixo na lista: o toque abre o cartão e a tela não muda nada,
+     que é indistinguível de não ter aberto. Levar a camada para a vista conserta isso e não
+     atrapalha quem está no computador, onde ela já está à vista. */
+  useEffect(() => {
+    if (!aberto) return;
+    const id = window.setTimeout(() => {
+      document.querySelector(".drawer-layer")?.scrollIntoView({ block: "start" });
+    }, 30);
+    return () => window.clearTimeout(id);
+  }, [aberto]);
   /* As 31 categorias de exclusão viviam abertas dentro do dossiê. No computador passava; no
      celular ocupavam mais que uma tela inteira e empurravam tudo o que interessa para baixo —
      ele descreveu como "tá foda". Agora ficam atrás de um botão, e só aparecem quando ele diz
@@ -2891,6 +2904,12 @@ export default function Page() {
     setBusca("");
     const alvo = (RECORTES[id] || []).find((x) => x.id === (recorteId || PADRAO[id]));
     setRecorte(alvo ? { id: alvo.id, rotulo: alvo.rotulo } : null);
+    /* Voltar ao topo ao trocar de aba. No computador o menu fica fixo na lateral e a troca é
+       visível mesmo caindo no meio da aba nova; no celular o menu está lá em cima, já rolado
+       para fora da tela — quem toca numa linha lá embaixo e vai para outra aba aterrissa no
+       meio dela, vendo uma tabela que não é a que tocou e nenhum cartão. Parece defeito, e
+       era. */
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   };
   /* Entrar na oficina cai direto na primeira aba dela; sair devolve a Visão geral. As duas
      coisas passam pelo irPara para o recorte acompanhar — trocar o menu sem trocar o recorte
@@ -3618,7 +3637,7 @@ export default function Page() {
             <Kpi rotulo="…destes, contando duas vezes" valor={br(reincidentes.filter((x) => x.linhas.filter((r) => arquivo(r) === "SAÍDA").length > 1).length)} nota="saíram pela ponta mais de uma vez" tom="red" aoClicar={() => abrirRecorte("reincidente_saida")} />
             <Kpi rotulo="Segunda SS em 30 dias ou menos" valor={br(reincidentes.filter((x) => x.dias <= 30).length)} nota="o mesmo transformador voltou a pedir troca no mesmo mês" tom="red" aoClicar={() => abrirRecorte("reincidente_30")} />
           </section>
-          {reincidentes.length ? <section className="panel"><div className="panel-title"><div><span>Comparativo</span><h2>Ativos com mais de uma solicitação</h2></div><small>clique numa linha para abrir o dossiê</small></div>
+          {reincidentes.length ? <section className="panel"><div className="panel-title"><div><span>Comparativo</span><h2>Ativos com mais de uma solicitação</h2></div><small>clique numa linha para ver o histórico deste transformador</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Transformador</th><th>Intervalo</th><th>Solicitações</th><th>Ocorrências</th><th>Material</th><th>Causa</th></tr></thead>
               <tbody>{reincidentes.map((x) => <tr key={x.trafo} onClick={() => { setAtivo(x.trafo); irPara("ativos"); }}>
