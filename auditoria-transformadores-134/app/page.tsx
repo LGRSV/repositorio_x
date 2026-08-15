@@ -1453,6 +1453,11 @@ export default function Page() {
      Ele manda no gráfico, nos chips e na tabela ao mesmo tempo. */
   const [terraQuando, setTerraQuando] = useState<"antes" | "depois">("antes");
   const [modulo, setModulo] = useState<Modulo>("visao");
+  /* NO CELULAR O MENU COMEÇA FECHADO. Deitado numa tira, ele ocupava 537px — 81% da
+     primeira tela — e ainda assim escondia 18 dos 27 itens numa rolagem lateral sem
+     barra visível. Fechado, a primeira tela é o conteúdo; o botão diz onde você está e
+     abre a lista inteira quando é preciso trocar. No computador nada disso existe. */
+  const [menuAberto, setMenuAberto] = useState(false);
   /* O mês da aba aberta. As duas abas de mês usam o mesmo componente de tela: o que muda
      é qual JSON está por trás. */
   const mesAberto = modulo === "mes_julho" || modulo === "mes_julho_conf" ? "julho" : "agosto";
@@ -4816,7 +4821,7 @@ export default function Page() {
       <small>As classificações manuais continuam vindo ao vivo — elas não são congeladas por esta versão.</small>
       <a href="?">voltar para o atual →</a>
     </div> : null}
-    <aside className="sidebar">
+    <aside className={`sidebar${menuAberto ? " menu-aberto" : ""}`}>
       {/* O T exporta. A classificação manual vive só no localStorage deste navegador — quem
           analisa do outro lado não a enxerga, e sem isso a pergunta "as que eu aprovei estão
           casando com a Crítica?" não tem como ser respondida fora daqui. Um clique baixa o
@@ -4836,10 +4841,17 @@ export default function Page() {
           {pendentes ? <small className="exportou pendente"
             onClick={() => void drenar()}>{br(pendentes)} sem gravar no banco — clique para tentar de novo</small> : null}</div>
       </div>
+      {/* só aparece no celular — ver .abre-menu no globals.css */}
+      <button type="button" className="abre-menu" aria-expanded={menuAberto}
+        onClick={() => setMenuAberto((v) => !v)}>
+        <b>{menuAberto ? "fechar" : "menu"}</b>
+        <span>{TITULOS[modulo]?.titulo || "Visão geral"}</span>
+        <i aria-hidden="true">{menuAberto ? "▲" : "▼"}</i>
+      </button>
       <nav>{navAtual.map((g) => <div className="nav-group" key={g.grupo}>
         <span>{g.grupo}</span>
         {g.itens.map((item) => <button key={item.codigo} className={modulo === item.id && (item.recorte ? recorte?.id === item.recorte : true) ? "active" : ""}
-          onClick={() => irPara(item.id, item.recorte)}>
+          onClick={() => { irPara(item.id, item.recorte); setMenuAberto(false); }}>
           <b>{item.codigo}</b><em>{item.rotulo}</em>
           {item.entram ? <i className="nav-entram">{br(item.entram)}</i> : null}
           {item.param ? <small title="ficam presos nesta etapa">{br(item.param)}</small> : null}
