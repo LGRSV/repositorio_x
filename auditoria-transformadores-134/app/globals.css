@@ -272,6 +272,12 @@ button { cursor: pointer; }
   .drawer > nav { order: 1; }
   .drawer-body { order: 2; }
   .classificar { order: 3; border-top: 1px solid var(--soft); border-bottom: 0; }
+  /* O BLOCO DE EXPURGO ficou de fora desta reordenação e herdou order 0 — ou seja, subiu
+     para ANTES das abas. Com 537px de altura, abrir um caso no celular mostrava só a
+     papelada de assinatura: as abas do dossiê nasciam em 683px e o conteúdo em 724, numa
+     tela de 664. Quem abria o caso via o formulário de expurgo e nada do caso. Ele desce
+     para depois do conteúdo, junto com a classificação: primeiro se lê, depois se assina. */
+  .expurgo { order: 4; flex: 0 0 auto; }
   /* o corpo deixa de ser o dono da rolagem: quem rola agora é a gaveta */
   .drawer-body { flex: none; overflow: visible; padding: 18px 16px 90px; }
   .classificar { padding: 10px 16px; }
@@ -1172,4 +1178,36 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .records-table tr.conf-confere td:first-child { background: #f7fbf8; }
   .records-table tr.conf-nao_confere td:first-child { background: #fdf6f6; }
   .records-table tr.conf-duvida td:first-child { background: #fdfbf3; }
+}
+
+/* ── O MENU NO CELULAR ─────────────────────────────────────────────────────
+   Deitado numa tira, o menu ocupava 537px — 81% da primeira tela — e mesmo assim
+   escondia 18 dos 27 itens numa rolagem lateral cuja barra tem zero pixel de altura.
+   Quem abria o site via menu, menu e menu, e precisava adivinhar que dava para arrastar
+   de lado. Agora ele começa fechado, atrás de um botão que diz onde você está; escolher
+   um item fecha de novo. No computador o botão não existe e a barra lateral é a de sempre. */
+.abre-menu { display: none; }
+@media (max-width: 820px) {
+  .abre-menu { display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+    gap: 10px; width: 100%; min-height: 52px; margin: 10px 0 0; padding: 12px 14px;
+    border: 1px solid #4a4d52; background: #24272c; color: #fff; text-align: left; }
+  .abre-menu b { padding: 3px 8px; background: var(--red); color: #fff;
+    font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+  .abre-menu span { overflow: hidden; font: 600 14px "DM Sans", sans-serif;
+    text-overflow: ellipsis; white-space: nowrap; }
+  .abre-menu i { color: #b7babd; font-style: normal; font-size: 12px; }
+  .sidebar nav { display: none; }
+  .sidebar.menu-aberto nav { display: flex; max-height: 60vh; overflow-y: auto; margin-top: 10px; }
+  /* aberto, o menu deixa de ser uma tira lateral e vira lista: os 27 itens em coluna,
+     alcançáveis com o polegar, sem rolagem lateral escondida */
+  .sidebar.menu-aberto nav { flex-direction: column; }
+  .sidebar.menu-aberto .nav-group { width: 100%; }
+  .sidebar nav button { min-height: 46px; }
+  .side-export { margin-top: 10px; }
+  /* com o menu fechado, o topo é só marca e botão: exportar, quem está olhando e o selo da
+     fotografia descem para dentro do menu. Assim a primeira tela é o conteúdo, que é o que
+     a pessoa veio ver. */
+  .sidebar:not(.menu-aberto) .side-export,
+  .sidebar:not(.menu-aberto) .side-quem,
+  .sidebar:not(.menu-aberto) .side-user-link { display: none; }
 }
