@@ -278,7 +278,7 @@ const USUARIOS: Usuario[] = [
   { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação. Abre pedido de expurgo.", estagio: 1 },
   { id: "danillo", nome: "Danillo", papel: "Coordenador", iniciais: "DA", usuario: "danillo", hash: "8e02a118d8e46fb520abc4f17872e787d5871ff3addcdac1ab502ca6d68a29e5", descricao: "Coordenação da operação e acompanhamento das filas. Abre pedido de expurgo.", estagio: 1 },
-  { id: "joao-antonio", nome: "João Antônio", papel: "Desenvolvedor", iniciais: "JA", usuario: "joao.antonio", hash: "64795ba3cfd3f4a64848338c380369ac414c115503f90da6501d1e75b37343fb", descricao: "Acesso técnico total e configuração do protótipo.", estagio: 1 },
+  { id: "joao-antonio", nome: "João Antônio Lagares", papel: "Desenvolvedor", iniciais: "JA", usuario: "joao.antonio", hash: "64795ba3cfd3f4a64848338c380369ac414c115503f90da6501d1e75b37343fb", descricao: "Acesso técnico total e configuração do protótipo.", estagio: 1 },
   { id: "carlos", nome: "Carlos", papel: "Desenvolvedor 2", iniciais: "CA", usuario: "carlos", hash: "927d34147fb540eddd32e9ef035f5a523563d35a0a5819a708b1040f9141c2aa", descricao: "Acesso técnico ao protótipo, manutenção e apoio à configuração.", estagio: 1 },
 ];
 
