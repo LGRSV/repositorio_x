@@ -1236,3 +1236,17 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 /* na gaveta das prévias, o bloco de ocorrência também serve para SS do histórico */
 .drawer-body .conf-oc { margin-bottom: 8px; }
 .drawer-body .conf-oc.fora-auditoria { border-left-color: var(--amber); background: #fdfbf3; }
+
+/* As solicitações já abertas no mesmo poste, dentro do dossiê. Cada uma abre e mostra o
+   que a equipe escreveu — é a leitura que responde "já queimou antes?" sem sair da tela. */
+.hist-base { margin-top: 18px; }
+.hist-base .panel-title { margin-bottom: 12px; }
+.hist-ss { border: 1px solid var(--line); background: #fff; margin-bottom: 6px; }
+.hist-ss summary { display: grid; gap: 3px; padding: 11px 13px; cursor: pointer; }
+.hist-ss summary b { font: 600 13px "IBM Plex Mono", monospace; }
+.hist-ss summary span { color: #52565b; font-size: 12px; }
+.hist-ss summary small { color: #85888c; font-size: 10.5px; }
+.hist-ss[open] { border-color: var(--ink); }
+.hist-ss > .detail-grid, .hist-ss > .narrativa { margin: 0 13px 12px; }
+.hist-ss .narrativa { padding: 11px 13px; }
+@media (max-width: 820px) { .hist-ss summary { padding: 14px 13px; } }
