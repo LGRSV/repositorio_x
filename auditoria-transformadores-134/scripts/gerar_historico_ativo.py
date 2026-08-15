@@ -142,8 +142,23 @@ for r in regsB:
         # o que a equipe escreveu, que é o que se quer ler ao clicar
         "ds": re.sub(r"\s+", " ", campoB(r, "DESCRIPTION_SS").strip())[:900],
         "do": re.sub(r"\s+", " ", campoB(r, "DESCRICAO_OS").strip())[:900],
+        # O EQUIPAMENTO, dos dois lados. A SS diz o que saiu do poste e o que entrou; sem
+        # isso não dá para perguntar "há quanto tempo essa peça estava lá" nem "o que
+        # entrou é novo ou reformado" — e as duas perguntas mudam a leitura da queima.
         "ns": campoB(r, "NS_RETIRADO").strip(), "ni": campoB(r, "NS_INSTALADO").strip(),
+        "tr": campoB(r, "TOMBAMENTO_RETIRADO").strip(),
+        "ti": campoB(r, "TOMBAMENTO_INSTALADO").strip(),
         "fab": campoB(r, "FABRICANTE_RETIRADO").strip(),
+        "fai": campoB(r, "FABRICANTE_INSTALADO").strip(),
+        "dfr": campoB(r, "DATA_FABRICACAO_RETIRADO").strip()[:10],
+        "dfi": campoB(r, "DATA_FABRICACAO_INSTALADO").strip()[:10],
+        "rri": campoB(r, "TRAFO_INSTALADO_É_REFORMADO").strip(),
+        "rfi": campoB(r, "REFORMADORA_INSTALADO").strip(),
+        "rrr": campoB(r, "TRANSFORMADOR_RETIRADO_É_REFORMADO").strip(),
+        "cf": campoB(r, "FEITO_COLA_E_FITA").strip(),
+        "vaz": campoB(r, "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO").strip(),
+        "pr": campoB(r, "PARA_RAIOS_INSTALADO_SUBSTITUIDO").strip(),
+        "mot": campoB(r, "PROVÁVEL_MOTIVO_DO_DEFEITO").strip(),
     })
 for t in base_por_ativo:
     base_por_ativo[t].sort(key=lambda x: (x["d"][6:10], x["d"][3:5], x["d"][:2], x["d"][11:]))
