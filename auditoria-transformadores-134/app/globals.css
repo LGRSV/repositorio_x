@@ -1,4 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Newsreader:opsz,wght@6..72,500&display=swap");
+/* A FONTE NÃO BLOCA MAIS O DESENHO. Este arquivo começava com um @import de
+   fonts.googleapis.com, e @import de folha externa é bloqueante: o navegador não
+   desenha nada até resolver DNS, TLS e baixar a folha — dois ida-e-volta antes do
+   primeiro pixel, ~1,1 s por abertura numa rede de celular. O mesmo pedido agora sai
+   do index.html como link assíncrono: a tela aparece com a fonte do sistema e troca
+   sozinha quando a de verdade chega. */
 
 :root {
   --ink: #202328;

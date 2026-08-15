@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapaAtivos, { type PontoAtivo } from "./MapaAtivos";
 
 /* ------------------------------------------------------------------ tipos */
@@ -88,6 +88,8 @@ type ConfAchado = {
   trafo_na_ss?: string; trafo_na_critica?: string;
   o_que_a_regua_diz: string; o_que_a_conferencia_diz: string;
   evidencia?: string[]; casos?: ConfCaso[]; porque_falhou: string; efeito_se_aceito: string;
+  /* o efeito em número, para a tela recalcular o placar sem interpretar a frase */
+  efeito?: { recorte: number; casam: number; entram: number };
 };
 type Conferencia = {
   gerado_em: string; titulo: string; de_onde_vem: string;
@@ -1460,18 +1462,26 @@ export default function Page() {
   const [recorte, setRecorte] = useState<{ id: string; rotulo: string } | null>(null);
   const [aberto, setAberto] = useState<Registro | null>(null);
   const [abaDossie, setAbaDossie] = useState("consolidado");
-  /* O dossiê é uma camada `position: fixed`, e fixed se ancora na janela — que nem sempre é a
-     janela que a pessoa está vendo. Dentro de um quadro alto (o site embutido em outra
-     página, como na cópia estática aberta pelo aplicativo), a camada nasce no topo do quadro
-     enquanto o dedo está lá embaixo na lista: o toque abre o cartão e a tela não muda nada,
-     que é indistinguível de não ter aberto. Levar a camada para a vista conserta isso e não
-     atrapalha quem está no computador, onde ela já está à vista. */
+  /* O dossiê é uma camada `position: fixed`, e fixed se ancora na janela do quadro em que a
+     página roda. Numa aba normal isso é a tela, e está certo. Num quadro ALTO — o site
+     embutido em outra página, como na cópia estática — a "janela" é a caixa inteira do
+     quadro: a camada nasce no topo dele enquanto o dedo está mil pixels abaixo, e o toque
+     abre um cartão que ninguém vê.
+
+     A primeira tentativa aqui foi chamar scrollIntoView na camada. Não funciona, e a
+     verificação adversarial provou: pedir rolagem a um elemento `fixed`, que já ocupa a
+     viewport inteira, é inócuo — antes e depois davam exatamente a mesma posição. O que
+     funciona é tirar o `fixed` no modo cópia e ancorar a camada na altura em que a pessoa
+     está. Na aba normal nada muda, porque a rolagem é do próprio documento. */
   useEffect(() => {
-    if (!aberto) return;
-    const id = window.setTimeout(() => {
-      document.querySelector(".drawer-layer")?.scrollIntoView({ block: "start" });
-    }, 30);
-    return () => window.clearTimeout(id);
+    if (!aberto || !COPIA) return;
+    const camada = document.querySelector<HTMLElement>(".drawer-layer");
+    if (!camada) return;
+    camada.style.position = "absolute";
+    camada.style.top = `${window.scrollY}px`;
+    camada.style.bottom = "auto";
+    camada.style.height = `${window.innerHeight}px`;
+    camada.scrollIntoView({ block: "start" });
   }, [aberto]);
   /* As 31 categorias de exclusão viviam abertas dentro do dossiê. No computador passava; no
      celular ocupavam mais que uma tela inteira e empurravam tudo o que interessa para baixo —
@@ -1573,6 +1583,59 @@ export default function Page() {
     setPendentes(sobrou.length);
   };
 
+  /* ── OS ARQUIVOS DE APOIO, SOB DEMANDA ────────────────────────────────────
+     Cada entrada diz: como buscar, onde guardar, e o que fazer se falhar. `pedidos` é a
+     memória de quem já foi pedido — sem ela, trocar de aba duas vezes pediria duas vezes.
+     A falha guarda o valor vazio de propósito: assim a tela mostra "sem dado" em vez de
+     ficar em "carregando…" para sempre. */
+  const pedidos = useRef<Set<string>>(new Set());
+  const pedirApoio = useCallback((chave: string) => {
+    if (pedidos.current.has(chave)) return;
+    pedidos.current.add(chave);
+    const guarda: Record<string, [string, (d: unknown) => void, () => void]> = {
+      revisao: ["revisao.json", (d) => setRevisao(d as Revisao), () => setRevisao(null)],
+      coleta: ["coleta-ativos.json", (d) => setColeta((d as { por_ss: Record<string, ColetaItem> })?.por_ss || {}), () => setColeta({})],
+      material: ["material-obra.json", (d) => setMaterial((d as { por_obra: Record<string, MaterialObra> })?.por_obra || {}), () => setMaterial({})],
+      tmae: ["tmae-tempos.json", (d) => setTmae((d as { por_ss: Record<string, TmaeTempo> })?.por_ss || {}), () => setTmae({})],
+      reforma: ["reformadora.json", (d) => setReforma((d as { por_ss: Record<string, OrdemReforma> })?.por_ss || {}), () => setReforma({})],
+      aterr: ["aterramento.json", (d) => setAterr((d as { por_ss: Record<string, Aterramento> })?.por_ss || {}), () => setAterr({})],
+      terceiros: ["terceiros.json", (d) => setTerceiros((d as { por_ss: Record<string, { n: number; fontes: { campo: string; valor: string }[] }> })?.por_ss || {}), () => setTerceiros({})],
+      almox: ["garantia-almoxarifado.json", (d) => setAlmox(d as Almoxarifado), () => setAlmox(null)],
+      julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
+      agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
+      conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
+      passos: ["passos-critica.json", (d) => {
+        const x = d as { por_oc?: Record<string, Passo[]>; por_ss?: Record<string, PassosSS> };
+        setPassos({ por_oc: x?.por_oc || {}, por_ss: x?.por_ss || {} });
+      }, () => setPassos({ por_oc: {}, por_ss: {} })],
+    };
+    const alvo = guarda[chave];
+    if (!alvo) return;
+    fetch(assetUrl(alvo[0])).then((r) => r.json()).then(alvo[1]).catch(alvo[2]);
+  }, []);
+
+  /* De que arquivo cada aba precisa. A lista é curta de propósito: pedir a mais aqui
+     desfaz o ganho de tirar os pedidos da abertura. */
+  const APOIO_DA_ABA: Partial<Record<Modulo, string[]>> = {
+    revisao: ["revisao"], insight_revisao: ["revisao"],
+    insight_material: ["material"], obra: ["material"],
+    insight_tempos: ["tmae", "passos"], semdesloc: ["tmae"],
+    insight_aterramento: ["aterr"], insight_naoqueimado: ["reforma"],
+    insight_almoxarifado: ["almox", "coleta"], insight_garantia: ["coleta"],
+    mes_julho: ["julho"], mes_agosto: ["agosto"], mes_julho_conf: ["julho", "conf"],
+    interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
+    ativos: ["coleta"], bases: ["material"],
+  };
+  useEffect(() => {
+    (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
+  }, [modulo, pedirApoio]);
+  /* O dossiê mostra peça, aterramento, reforma, atendimento e passos: quando o primeiro
+     caso é aberto, tudo isso passa a fazer falta de uma vez. */
+  useEffect(() => {
+    if (!aberto) return;
+    ["coleta", "tmae", "aterr", "reforma", "terceiros", "passos", "material"].forEach(pedirApoio);
+  }, [aberto, pedirApoio]);
+
   const carregarFluxo = () => {
     setErroCarga("");
     setDemorando(false);
@@ -1591,31 +1654,11 @@ export default function Page() {
     const t = setTimeout(() => setDemorando(true), 15000);
     fetch(assetUrl("metodo.json")).then((r) => r.json()).then(setMetodo).catch(() => setMetodo(null));
     void t;
-    fetch(assetUrl("revisao.json")).then((r) => r.json()).then(setRevisao).catch(() => setRevisao(null));
-    fetch(assetUrl("coleta-ativos.json")).then((r) => r.json())
-      .then((d) => setColeta(d?.por_ss || {})).catch(() => setColeta({}));
-    fetch(assetUrl("material-obra.json")).then((r) => r.json())
-      .then((d) => setMaterial(d?.por_obra || {})).catch(() => setMaterial({}));
-    fetch(assetUrl("tmae-tempos.json")).then((r) => r.json())
-      .then((d) => setTmae(d?.por_ss || {})).catch(() => setTmae({}));
-    fetch(assetUrl("reformadora.json")).then((r) => r.json())
-      .then((d) => setReforma(d?.por_ss || {})).catch(() => setReforma({}));
-    fetch(assetUrl("aterramento.json")).then((r) => r.json())
-      .then((d) => setAterr(d?.por_ss || {})).catch(() => setAterr({}));
-    fetch(assetUrl("terceiros.json")).then((r) => r.json())
-      .then((d) => setTerceiros(d?.por_ss || {})).catch(() => setTerceiros({}));
-    fetch(assetUrl("garantia-almoxarifado.json")).then((r) => r.json())
-      .then(setAlmox).catch(() => setAlmox(null));
-    for (const [nome, arq] of [["agosto", "agosto-2026.json"], ["julho", "julho-2026.json"]]) {
-      fetch(assetUrl(arq)).then((r) => r.json())
-        .then((d) => setMeses((m) => ({ ...m, [nome]: d })))
-        .catch(() => setMeses((m) => ({ ...m, [nome]: null })));
-    }
-    fetch(assetUrl("julho-conferencia.json")).then((r) => r.json())
-      .then(setConf).catch(() => setConf(null));
-    fetch(assetUrl("passos-critica.json")).then((r) => r.json())
-      .then((d) => setPassos({ por_oc: d?.por_oc || {}, por_ss: d?.por_ss || {} }))
-      .catch(() => setPassos({ por_oc: {}, por_ss: {} }));
+    /* Os doze arquivos de apoio saem daqui. Eles somam 422 KB e antes eram pedidos TODOS
+       na abertura, junto com o fluxo de 20 MB — treze pedidos disputando a mesma banda no
+       momento em que a pessoa só quer ver a primeira tela. Numa rede de celular isso custou
+       2 segundos medidos, para dado que a maioria das visitas nunca usa. Agora cada um chega
+       quando a aba que precisa dele abre. */
     const salvo = localStorage.getItem("fluxo-1510-classificacao");
     const local: Record<string, { classe: string; quem: string; quando: string }> =
       salvo ? JSON.parse(salvo) : {};
@@ -2144,6 +2187,7 @@ export default function Page() {
     /* As abas de mês têm lista própria, não recortam o conjunto das 1.510. */
     mes_agosto: [],
     mes_julho: [],
+    mes_julho_conf: [],
     insight_naoqueimado: [
       { id: "nq_nqm", rotulo: "NQM — a reformadora diz que NÃO queimou", nota: "O código NQM é escrito por quem abriu o transformador na bancada da reformadora. A distribuidora tirou o equipamento da rede como queimado, pagou a troca e mandou reformar — e lá dentro se constatou que ele não tinha queimado. Não é prova de que a SS estava errada: avaria real convive com “não queimado”. É onde duas fontes discordam sobre o mesmo equipamento.", teste: (r) => arquivo(r) === "SAÍDA" && naoQueimado(r) },
       { id: "nq_com_op", rotulo: "Foram para a reformadora", nota: "Casaram com uma ordem de produção da reformadora, pelo número de série ou pelo tombamento do equipamento retirado. Os demais ou não foram para reforma, ou foram para outro centro, ou não têm ficha de COLETA com série legível.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) },
