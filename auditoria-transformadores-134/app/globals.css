@@ -1085,3 +1085,43 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   .conf-duas { grid-template-columns: 1fr; }
   .conf-achado header { grid-template-columns: 1fr; }
 }
+
+/* ── O CELULAR, DEPOIS DA AUDITORIA DE TOQUE ───────────────────────────────
+   Três defeitos medidos numa tela de 390px, em ordem de dano:
+
+   1. CAMPO DE TEXTO COM MENOS DE 16px DÁ ZOOM. O Safari do iPhone amplia a
+      página sozinho quando o foco cai num campo de fonte menor que 16px, e
+      não desamplia ao sair. Isso acontecia justamente na caixa de comentário
+      do expurgo e na busca — a ação central da tela. 16px aqui não é estética,
+      é o que impede a tela de saltar embaixo do dedo.
+   2. ALVOS PEQUENOS DEMAIS. Os botões de classificar tinham 24px de largura e
+      ~27px de altura, contra os 44px que um polegar acerta. Numa tabela que
+      rola de lado, errar o alvo significa classificar o caso errado.
+   3. A ANOTAÇÃO DA CONFERÊNCIA cabia em 120px com fonte de 10px — larga o
+      bastante para uma palavra.
+
+   Vale só até 820px: no computador o ponteiro é preciso e a tabela precisa da
+   densidade que estes tamanhos maiores tirariam. */
+@media (max-width: 820px) {
+  input, textarea, select,
+  .search input, .sheet-toolbar input, .login-panel input,
+  .expurgo-acao select, .expurgo-acao textarea, .side-user select { font-size: 16px; }
+
+  .expurgo-acao select, .expurgo-acao textarea { padding: 11px; }
+  .expurgo-acao textarea { min-height: 96px; }
+  .expurgo-botoes button { min-height: 46px; padding: 12px 14px; font-size: 13px; }
+
+  /* os seis botões de classe viram uma grade de alvos de polegar */
+  .classificar-linha { flex-wrap: wrap; gap: 6px; }
+  .classificar-linha button { flex: 1 0 44px; width: auto; min-width: 44px; min-height: 44px;
+    font-size: 13px; }
+  .classificar button { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+  .col-classificar { min-width: 168px; }
+
+  .conf-nota { max-width: none; padding: 10px 11px; font-size: 16px; }
+  .conf-filtros button, .janela-botoes button { min-height: 44px; padding: 11px 14px;
+    font-size: 13px; }
+
+  /* o mapa comia 70% da tela antes de o texto começar */
+  .mapa-ativos { height: 320px; }
+}
