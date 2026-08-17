@@ -1332,3 +1332,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   font: 500 9.5px "IBM Plex Mono", monospace; }
 .semana-eixo { display: flex; justify-content: space-between; margin-top: 5px;
   color: var(--muted); font: 500 10px "IBM Plex Mono", monospace; }
+
+/* O número da intervenção dentro do bloco da ocorrência, e as observações de campo uma a
+   uma. A prévia mostrava só a primeira observação — e a segunda costuma ser a que explica. */
+.conf-oc .oc-num { display: block; color: var(--muted);
+  font: 500 10.5px "IBM Plex Mono", monospace; margin: 2px 0 4px; }
+.oc-obs { margin: 8px 0 0; padding-left: 16px; }
+.oc-obs li { color: #52565b; font-size: 12px; line-height: 1.55; margin-bottom: 5px; }

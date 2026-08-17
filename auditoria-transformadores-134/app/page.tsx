@@ -197,6 +197,34 @@ type ClimaCaso = {
 };
 type FonteClima = { nome: string; orgao: string; onde: string; resolucao: string;
   o_que_mede: string; limite: string };
+/* O que a Crítica de julho e a base de SS/OS têm sobre cada caso, completo: o número da
+   intervenção pelos dois lados, a ocorrência inteira com TODAS as observações de campo, a
+   plaqueta do retirado, a última instalação daquele número de série e o texto integral de
+   toda SS/OS já aberta no mesmo poste. */
+type OcJulho = { intervencao: string; inicio: string; fim: string; papeis: string;
+  causa: string; subcausa: string; clientes: string; duracao_min: string; passos: number;
+  na_janela: boolean; observacoes: string[] };
+type SsAnterior = { ss: string; os: string; abertura: string; origem: string; defeito: string;
+  texto_ss: string; texto_os: string };
+type JulhoCompletoCaso = {
+    ss: string; trafo: string;
+    intervencao_ss_os: string; intervencao_ss_os_bruto: string; intervencao_critica: string;
+    ocorrencias_julho: OcJulho[]; ausente_na_critica: boolean;
+    ativo_corrigido_na_critica?: string | null;
+    fab_retirado_campo?: string; ns_retirado?: string;
+    fab_instalado_campo?: string; ns_instalado?: string;
+    reincidente_ultima_instalacao?: { ss: string; os: string; abertura: string;
+      quando_instalou_este_ns: string; texto_ss: string; texto_os: string;
+      fabricante: string; fab: string } | null;
+    ss_os_anteriores_no_ativo: SsAnterior[];
+    reforma?: Record<string, string>; reforma_contradicoes?: string[];
+    citado_em_observacao?: string[];
+    idade_instalado_anos?: number; instalado_reformado?: boolean;
+    suspeita_estoque?: string; nota_idade?: string;
+};
+type JulhoCompleto = { gerado_em: string; fonte: string; nota_intervencao: string;
+  por_ss: Record<string, JulhoCompletoCaso> };
+
 type ClimaMes = { gerado_em: string; casos: number; dias: number; raios_no_tocantins: number;
   fontes: FonteClima[]; como_ler: string; por_ss: Record<string, ClimaCaso>;
   cruzamento?: Record<string, number | string>; janela_semana?: string };
@@ -1440,6 +1468,126 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    serviço e o que foi digitado no sistema. Em 29 dos 72 casos as duas não dizem a mesma
    coisa, e a tela não escolhe entre elas. Escolher seria inventar: só a plaqueta resolve,
    e o equipamento já saiu do poste. */
+
+/* A CRÍTICA INTEIRA DO CASO, E O QUE JÁ ACONTECEU NESTE POSTE.
+   Três coisas que a prévia não trazia e que ele pediu de uma vez: o número da intervenção
+   pelos dois lados, a ocorrência com TODAS as observações de campo (não só a primeira), e o
+   texto integral de qualquer SS/OS já aberta no mesmo código de ativo.
+
+   Sobre o número da intervenção, e isto precisa ficar escrito na tela: o NUM_INT da base de
+   SS/OS e o número de sequência da Crítica são NUMERAÇÕES DIFERENTES — só 25 dos 72
+   coincidem. O que liga as duas bases é o código do ativo. Mostrar um só, como se fosse "o"
+   número, faria o leitor cruzar coisa que não cruza. */
+function CriticaCompleta({ c, nota }: { c?: JulhoCompletoCaso | null; nota: string }) {
+  if (!c) return <p className="fonte-detalhe">Este caso não está no cruzamento — não há
+    linha dele na base de SS/OS de 11/08.</p>;
+  const ocs = c.ocorrencias_julho || [];
+  const ant = c.ss_os_anteriores_no_ativo || [];
+  const rc = c.reincidente_ultima_instalacao;
+  return <>
+    <h3>O número da intervenção</h3>
+    <div className="detail-grid">
+      <div><span>Na base de SS/OS (NUM_INT)</span>
+        <strong>{c.intervencao_ss_os || c.intervencao_ss_os_bruto || "—"}</strong></div>
+      <div><span>Na Crítica (sequência da operação)</span>
+        <strong>{c.intervencao_critica || "não encontrada"}</strong></div>
+    </div>
+    <p className="fonte-detalhe">{nota}</p>
+    {c.ativo_corrigido_na_critica
+      ? <p className="fonte-detalhe">O código do ativo da SS ({c.trafo}) não existe na
+        Crítica; o casamento foi feito com <b>{c.ativo_corrigido_na_critica}</b>, que difere
+        num dígito. A própria ordem de serviço já apontava essa correção.</p> : null}
+
+    <h3>A ocorrência na Crítica de julho</h3>
+    {c.ausente_na_critica
+      ? <p className="fonte-detalhe">Este ativo <b>não aparece na Crítica de julho em papel
+        nenhum</b> — nem com defeito, nem interrompido, nem manobrado. Conferido nos 7.007
+        passos do mês. Ausência aqui não é contraprova: a ocorrência só entra na Crítica
+        quando finaliza. E ausente das COLUNAS DE ATIVO não quer dizer que o código não
+        apareça no texto livre de alguma ocorrência — quando aparece, está logo abaixo.</p>
+      : ocs.map((o, i) => <div key={i} className={`conf-oc${o.na_janela ? "" : " fora-auditoria"}`}>
+          <b>{o.inicio} → {o.fim}</b>
+          <span className="oc-num">intervenção {o.intervencao}</span>
+          {o.causa} / {o.subcausa}
+          {" · "}{o.clientes || "?"} cliente(s){o.duracao_min ? ` · ${o.duracao_min} min` : ""}
+          {" · "}ativo como {o.papeis} · {o.passos} passo(s)
+          {" · "}{o.na_janela ? "CASA na janela" : "fora da janela"}
+          {o.observacoes.length
+            ? <ul className="oc-obs">{o.observacoes.map((x, j) => <li key={j}>{x}</li>)}</ul>
+            : <em>sem observação de campo escrita nesta ocorrência</em>}
+        </div>)}
+
+    <h3>A plaqueta do que saiu</h3>
+    <div className="detail-grid">
+      {[["Nº de série retirado", c.ns_retirado], ["Fabricação do retirado", c.fab_retirado_campo],
+        ["Nº de série instalado", c.ns_instalado], ["Fabricação do instalado", c.fab_instalado_campo]]
+        .map(([r, v]) => <div key={String(r)}><span>{r}</span><strong>{v || "—"}</strong></div>)}
+    </div>
+    {rc ? <div className="hist-base">
+      <div className="panel-title"><span>REINCIDENTE</span>
+        <h2>Este mesmo equipamento já tinha sido instalado antes</h2></div>
+      <p className="fonte-detalhe">O número de série que saiu agora ({c.ns_retirado}) foi
+        <b> instalado</b> na SS <b>{rc.ss}</b>, em {rc.quando_instalou_este_ns}
+        {rc.fabricante ? ` — ${rc.fabricante}` : ""}{rc.fab ? `, fabricação ${rc.fab}` : ""}.
+        Rastreado pelo número de série, não pelo poste: o equipamento pode ter rodado.</p>
+      {rc.texto_ss ? <div className="narrativa"><span>SS DAQUELA INSTALAÇÃO</span><p>{rc.texto_ss}</p></div> : null}
+      {rc.texto_os ? <div className="narrativa"><span>OS DAQUELA INSTALAÇÃO</span><p>{rc.texto_os}</p></div> : null}
+    </div> : null}
+
+    <h3>Reforma e idade do que entrou</h3>
+    {c.suspeita_estoque
+      ? <div className="clima-veredito alerta"><b>Transformador antigo instalado, sem constar reforma</b>
+        <span>{c.suspeita_estoque}</span></div>
+      : c.nota_idade
+        ? <p className="fonte-detalhe">{c.nota_idade}</p> : null}
+    <div className="detail-grid">
+      {[["Idade do instalado", c.idade_instalado_anos != null ? `${c.idade_instalado_anos} anos de fábrica` : "—"],
+        ["Retirado é reformado?", c.reforma?.retirado_e_reformado],
+        ["Reformadora do retirado", c.reforma?.reformadora_desat_col1],
+        ["Data da reforma do retirado", c.reforma?.data_reforma_retirado],
+        ["Instalado é reformado?", c.reforma?.instalado_e_reformado],
+        ["Reformadora do instalado", c.reforma?.reformadora_instalado],
+        ["Data da reforma do instalado", c.reforma?.data_reforma_instalado]]
+        .map(([r, v]) => <div key={String(r)}><span>{r}</span><strong>{v || "—"}</strong></div>)}
+    </div>
+    {c.reforma_contradicoes?.length ? <>
+      <p className="fonte-detalhe">A própria base se contradiz sobre a reforma deste caso.
+        Isso importa para a data de fabricação: em trafo reformado a plaqueta traz a data de
+        FÁBRICA e o sistema pode trazer a da REFORMA — e aí a divergência não é erro de
+        digitação, é outra coisa sendo medida.</p>
+      <ul className="equip-conflito">{c.reforma_contradicoes.map((x, i) => <li key={i}>{x}</li>)}</ul>
+    </> : null}
+
+    {c.citado_em_observacao?.length ? <>
+      <h3>Citado no texto de outra ocorrência</h3>
+      <p className="fonte-detalhe">Este ativo não aparece em coluna de ativo nenhuma da
+        Crítica, mas o código dele está <b>escrito no texto livre</b> de outra ocorrência.
+        Não é casamento — é pista, e fica separado de propósito.</p>
+      <ul className="oc-obs">{c.citado_em_observacao.map((x, i) => <li key={i}>{x}</li>)}</ul>
+    </> : null}
+
+    <h3>Já abertas neste mesmo poste</h3>
+    {ant.length === 0
+      ? <p className="fonte-detalhe">Nenhuma outra solicitação foi aberta neste código de
+        ativo em toda a base (2024 a 2026). Não é o mesmo que "nunca houve": a base começa
+        em 2024, e 4,1% das SS não trazem o código do transformador.</p>
+      : <>
+        <p className="fonte-detalhe">{ant.length} solicitação(ões) anterior(es), da mais
+          recente para a mais antiga, com o texto integral de cada uma.</p>
+        {ant.map((a, i) => <details key={i} className="hist-ss">
+          <summary><b>{a.ss}</b>
+            <span>{a.abertura} · {a.origem || "sem origem"} / {a.defeito || "sem defeito"}</span>
+            <small>OS {a.os || "não apontada"}</small></summary>
+          {a.texto_ss ? <div className="narrativa"><span>TEXTO INTEGRAL DA SS</span><p>{a.texto_ss}</p></div> : null}
+          {a.texto_os ? <div className="narrativa"><span>TEXTO INTEGRAL DA OS</span><p>{a.texto_os}</p></div> : null}
+          {!a.texto_ss && !a.texto_os ? <p className="fonte-detalhe">Sem texto escrito nesta solicitação.</p> : null}
+        </details>)}
+      </>}
+    <p className="fonte-detalhe">Fonte: Crítica de julho de 2026 (7.007 passos) e base de
+      SS/OS de 11/08 (partes 1 e 2). Leitura: não recalcula indicador nem muda classificação.</p>
+  </>;
+}
+
 /* O CLIMA DO DIA EM QUE O TRANSFORMADOR FALHOU.
    Duas fontes públicas, e nenhuma delas responde a pergunta da outra: o GLM do GOES-19 vê
    o clarão do raio de cima (erro da ordem de 10 km — diz "houve tempestade nesta região",
@@ -1994,6 +2142,7 @@ export default function Page() {
   const [solo, setSolo] = useState<SoloAtivo | null>(null);
   const [equip, setEquip] = useState<EquipMes | null>(null);
   const [clima, setClima] = useState<ClimaMes | null>(null);
+  const [completo, setCompleto] = useState<JulhoCompleto | null>(null);
   /* O DOSSIÊ DOS MESES. Clicar num caso de julho ou agosto não abria nada: as prévias
      nasceram como lista, e quem quisesse ler o caso inteiro tinha de cruzar as colunas com
      o olho. Agora abrem a mesma gaveta de jan–jun, com a narrativa, a Crítica inteira, o
@@ -2118,6 +2267,7 @@ export default function Page() {
       solo: ["solo-ativo.json", (d) => setSolo(d as SoloAtivo), () => setSolo(null)],
       equip: ["equipamento-mes.json", (d) => setEquip(d as EquipMes), () => setEquip(null)],
       clima: ["clima-mes.json", (d) => setClima(d as ClimaMes), () => setClima(null)],
+      completo: ["julho-completo.json", (d) => setCompleto(d as JulhoCompleto), () => setCompleto(null)],
       historico: ["historico-ativo.json", (d) => setHistoricoAtivo(d as HistoricoAtivo),
                   () => setHistoricoAtivo(null)],
       passos: ["passos-critica.json", (d) => {
@@ -2138,7 +2288,8 @@ export default function Page() {
     insight_tempos: ["tmae", "passos"], semdesloc: ["tmae"],
     insight_aterramento: ["aterr", "solo"], insight_naoqueimado: ["reforma"],
     insight_almoxarifado: ["almox", "coleta"], insight_garantia: ["coleta"],
-    mes_julho: ["julho"], mes_agosto: ["agosto"], mes_julho_conf: ["julho", "conf"],
+    mes_julho: ["julho"], mes_agosto: ["agosto"],
+    mes_julho_conf: ["julho", "conf", "completo"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
   };
@@ -2156,7 +2307,7 @@ export default function Page() {
      derrubou a tela inteira com erro de zona morta. */
   useEffect(() => {
     if (casoMes) {
-      ["historico", "solo", "equip", "clima"].forEach(pedirApoio);
+      ["historico", "solo", "equip", "clima", "completo"].forEach(pedirApoio);
     }
   }, [casoMes, pedirApoio]);
 
@@ -5503,7 +5654,8 @@ export default function Page() {
         <nav>{[["consolidado", "Consolidado"], ["interrupcao", "Interrupção"],
               ["campo", "Campo"], ["ativo", "Histórico do ativo"],
               ["equipamento", "Trafo retirado e instalado"],
-              ["clima", "Mapeamento climático do dia"], ["tudo", "Todos os campos"]]
+              ["clima", "Mapeamento climático do dia"],
+              ["critica", "Crítica e histórico do poste"], ["tudo", "Todos os campos"]]
           .map(([id, rot]) => <button key={id} className={abaMes === id ? "active" : ""}
             onClick={() => setAbaMes(id)}>{rot}</button>)}</nav>
         <div className="drawer-body">
@@ -5557,6 +5709,9 @@ export default function Page() {
                 comoLer={clima.como_ler} cruzamento={clima.cruzamento}
                 janelaSemana={clima.janela_semana} />
             : <p className="fonte-detalhe">Carregando o clima deste dia…</p>) : null}
+          {abaMes === "critica" ? (completo
+            ? <CriticaCompleta c={completo.por_ss?.[casoMes.ss]} nota={completo.nota_intervencao} />
+            : <p className="fonte-detalhe">Carregando a Crítica deste caso…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined
               && !(Array.isArray(v) && !v.length))
