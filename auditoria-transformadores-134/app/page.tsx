@@ -221,8 +221,24 @@ type JulhoCompletoCaso = {
     citado_em_observacao?: string[];
     idade_instalado_anos?: number; instalado_reformado?: boolean;
     suspeita_estoque?: string; nota_idade?: string;
+    feito_no_equipamento?: FeitoEquip;
+};
+/* O que foi feito no equipamento. Teste a vazio NÃO tem coluna em base nenhuma —
+   só existe quando alguém escreve no texto livre, e por isso a leitura é de texto,
+   com a negação detectada antes de contar. Cola e fita vem da coluna
+   FEITO_COLA_E_FITA. Todos os números daqui saem de enriquecer_julho.py. */
+type FeitoEquip = { teste_vazio: string; trecho: string; modelo_abertura: string;
+  cola_e_fita: string };
+type FeitoEquipResumo = {
+  teste_vazio_base: { universo: number; com_mencao: number; feito: number;
+    nao_feito: number; grafia_colada: number; modelo_linhas: number;
+    modelo_sim: number; modelo_nao: number };
+  cola_e_fita_base: { sim: number; nao: number; vazio: number };
+  julho: { casos: number; feito: number; nao_feito: number; nao_menciona: number;
+    cola_sim: number; cola_nao: number; cola_vazio: number; sem_linha_na_base: number };
 };
 type JulhoCompleto = { gerado_em: string; fonte: string; nota_intervencao: string;
+  feito_no_equipamento?: FeitoEquipResumo;
   por_ss: Record<string, JulhoCompletoCaso> };
 
 type ClimaMes = { gerado_em: string; casos: number; dias: number; raios_no_tocantins: number;
@@ -1487,12 +1503,15 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
    SS/OS e o número de sequência da Crítica são NUMERAÇÕES DIFERENTES — só 25 dos 72
    coincidem. O que liga as duas bases é o código do ativo. Mostrar um só, como se fosse "o"
    número, faria o leitor cruzar coisa que não cruza. */
-function CriticaCompleta({ c, nota }: { c?: JulhoCompletoCaso | null; nota: string }) {
+function CriticaCompleta({ c, nota, feito }: { c?: JulhoCompletoCaso | null; nota: string;
+  feito?: FeitoEquipResumo }) {
   if (!c) return <p className="fonte-detalhe">Este caso não está no cruzamento — não há
     linha dele na base de SS/OS de 11/08.</p>;
   const ocs = c.ocorrencias_julho || [];
   const ant = c.ss_os_anteriores_no_ativo || [];
   const rc = c.reincidente_ultima_instalacao;
+  const fe = c.feito_no_equipamento;
+  const tvb = feito?.teste_vazio_base;
   return <>
     <h3>O número da intervenção</h3>
     <div className="detail-grid">
@@ -1542,6 +1561,53 @@ function CriticaCompleta({ c, nota }: { c?: JulhoCompletoCaso | null; nota: stri
       {rc.texto_ss ? <div className="narrativa"><span>SS DAQUELA INSTALAÇÃO</span><p>{rc.texto_ss}</p></div> : null}
       {rc.texto_os ? <div className="narrativa"><span>OS DAQUELA INSTALAÇÃO</span><p>{rc.texto_os}</p></div> : null}
     </div> : null}
+
+    {/* O QUE FOI FEITO NO EQUIPAMENTO. Duas perguntas que decidem conferência e não
+        estavam em tela nenhuma: houve teste a vazio, e o caso foi de cola e fita?
+        A primeira não tem coluna em base nenhuma — o formulário de campo não pergunta —
+        então a resposta é lida do texto livre, com a NEGAÇÃO detectada antes de contar:
+        "não foi feito teste avazio" carrega as mesmas palavras que "feito teste avazio",
+        e contar negação como afirmação seria mentir na tela. */}
+    <h3>O que foi feito no equipamento</h3>
+    {!fe ? <p className="fonte-detalhe">Este caso não tem linha na base de SS/OS de 11/08 —
+      sem o texto da SS/OS e sem a coluna FEITO_COLA_E_FITA, não há o que ler.</p> : <>
+      <div className="detail-grid">
+        <div><span>Teste a vazio · lido do texto livre</span>
+          <strong>{fe.teste_vazio === "feito" ? "feito"
+            : fe.teste_vazio === "nao_feito" ? "NÃO foi feito"
+            : "a SS e a OS não mencionam"}</strong></div>
+        <div><span>Cola e fita · coluna FEITO_COLA_E_FITA</span>
+          <strong>{fe.cola_e_fita || "campo vazio na base"}</strong></div>
+      </div>
+      {fe.trecho ? <div className="narrativa"><span>ONDE O TEXTO DIZ</span>
+        <p>…{fe.trecho}…</p></div> : null}
+      {fe.teste_vazio === "nao_menciona"
+        ? <p className="fonte-detalhe">O formulário de campo <b>não pergunta</b> sobre teste
+          a vazio — não existe coluna disso em base nenhuma. A informação só existe quando
+          alguém escreve no texto livre da SS ou da OS, e neste caso ninguém escreveu.
+          Não mencionar não é &quot;não foi feito&quot;: é buraco de registro.</p> : null}
+      {fe.cola_e_fita.trim().toUpperCase() === "SIM"
+        ? <div className="clima-veredito alerta">
+            <b>O campo declarou cola e fita neste caso</b>
+            <span>{feito ? `Nos ${br(feito.julho.casos)} de julho a coluna traz
+              ${br(feito.julho.cola_sim)} "Sim" e ${br(feito.julho.cola_nao)} "Não"${
+              feito.julho.cola_vazio ? `, com ${br(feito.julho.cola_vazio)} em branco` : ""}. ` : ""}
+              {c.idade_instalado_anos != null && c.instalado_reformado
+                ? `E o mesmo caso recebeu um transformador reformado de
+                   ${c.idade_instalado_anos} anos de fábrica.` : ""}</span>
+          </div> : null}
+      {tvb && feito ? <p className="fonte-detalhe">Na base inteira de SS/OS
+        ({br(tvb.universo)} linhas), <b>{br(tvb.com_mencao)}</b> mencionam teste a vazio no
+        texto livre: {br(tvb.feito)} dizem feito e <b>{br(tvb.nao_feito)} dizem que NÃO foi
+        feito</b>. A grafia mais comum é &quot;TESTE AVAZIO&quot;, colado
+        ({br(tvb.grafia_colada)} das {br(tvb.com_mencao)}). Outras {br(tvb.modelo_linhas)} SS
+        trazem a pergunta no modelo de abertura do despacho — &quot;HOUVE TESTE À VAZIO&quot;:
+        {" "}{br(tvb.modelo_sim)} SIM e {br(tvb.modelo_nao)} NÃO — contadas em separado,
+        porque modelo de despacho não é relato de quem esteve no poste. Nos
+        {" "}{br(feito.julho.casos)} de julho, {br(feito.julho.feito + feito.julho.nao_feito)} caso(s)
+        {" "}menciona(m) o teste{feito.julho.nao_feito ? "" : " (e diz que foi feito)"} —
+        os outros {br(feito.julho.nao_menciona)} não dizem nada.</p> : null}
+    </>}
 
     <h3>Reforma e idade do que entrou</h3>
     {c.suspeita_estoque
@@ -2025,9 +2091,20 @@ export default function Page() {
     if (typeof window === "undefined") return {};
     try { return JSON.parse(localStorage.getItem(CHAVE_CONF_CASOS) || "{}"); } catch { return {}; }
   });
-  const [achadosConf, setAchadosConf] = useState<Record<string, string>>(() => {
+  /* O veredito de cada achado agora carrega a HORA junto. Sem ela não existe "vence o
+     mais recente" na mescla com o banco — e o formato antigo (só a palavra) ainda está
+     no aparelho de quem já usou a aba, então a leitura aceita os dois. */
+  const [achadosConf, setAchadosConf] = useState<Record<string, { v: string; em: string }>>(() => {
     if (typeof window === "undefined") return {};
-    try { return JSON.parse(localStorage.getItem(CHAVE_CONF_ACHADOS) || "{}"); } catch { return {}; }
+    try {
+      const cru = JSON.parse(localStorage.getItem(CHAVE_CONF_ACHADOS) || "{}") as
+        Record<string, string | { v: string; em: string }>;
+      const lido: Record<string, { v: string; em: string }> = {};
+      for (const [k, x] of Object.entries(cru)) {
+        lido[k] = typeof x === "string" ? { v: x, em: "" } : x;
+      }
+      return lido;
+    } catch { return {}; }
   });
   const [filtroConf, setFiltroConf] = useState<"todos" | "entram" | "pendentes" | "faltam">("todos");
   /* GRAVAR ENQUANTO SE ESCREVE, não só ao sair do campo. A anotação era salva no onBlur —
@@ -2059,14 +2136,22 @@ export default function Page() {
       if (!virou && !texto.trim()) delete novo[ss];
       else novo[ss] = { marca: virou as MarcaConf["marca"], nota: texto, em: agoraLocal() };
       guardarLocal(CHAVE_CONF_CASOS, JSON.stringify(novo));
+      /* E a mesma anotação segue para o banco — inclusive a retirada, que vira linha de
+         marca e nota vazias (a lápide que avisa os outros aparelhos). Se o envio falhar,
+         a linha fica na fila local e a tela avisa: falha de rede não vira perda de dado. */
+      void drenarConf([{ tipo: "caso", ss, marca: virou || "", nota: texto,
+        marcado_em: new Date().toISOString() }]);
       return novo;
     });
   };
   const marcarAchado = (id: string, v: string) => {
     setAchadosConf((a) => {
       const novo = { ...a };
-      if (novo[id] === v) delete novo[id]; else novo[id] = v;
+      const tirou = novo[id]?.v === v;
+      if (tirou) delete novo[id]; else novo[id] = { v, em: agoraLocal() };
       guardarLocal(CHAVE_CONF_ACHADOS, JSON.stringify(novo));
+      void drenarConf([{ tipo: "achado", ss: id, marca: tirou ? "" : v, nota: "",
+        marcado_em: new Date().toISOString() }]);
       return novo;
     });
   };
@@ -2197,6 +2282,10 @@ export default function Page() {
   const SUPA_KEY = "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh";
   const FILA = "fluxo-1510-pendentes";
   type Marca = { ss: string; classe: string; marcado_em: string };
+  /* uma linha da conferência de julho a caminho do banco: caso (ss = solicitação)
+     ou achado (ss = id do achado, A1..A4) */
+  type LinhaConf = { tipo: "caso" | "achado"; ss: string; marca: string; nota: string;
+    marcado_em: string };
 
   /* ── O FLUXO DE EXPURGO, EM TRÊS ESTÁGIOS ──────────────────────────────────
      Tabela própria (trafo_expurgo), append-only como a das classificações: cada ação
@@ -2250,6 +2339,50 @@ export default function Page() {
     }
     guardarLocal(FILA, JSON.stringify(sobrou));
     setPendentes(sobrou.length);
+  };
+
+  /* ── A CONFERÊNCIA DE JULHO VAI PARA O BANCO ────────────────────────────
+     As marcas e anotações da aba "Conferir julho" viviam só no localStorage: trocar de
+     aparelho ou limpar o navegador apagava uma noite de conferência — já aconteceu.
+     Agora cada anotação vira linha na tabela julho_conferencia (append-only, como
+     trafo_expurgo: o estado é a última linha, o histórico é a tabela inteira).
+     O localStorage continua sendo o cache que funciona sem rede; o que o banco recusar
+     fica nesta fila e é tentado de novo a cada carga e a cada nova anotação, com o
+     contador na tela — a lição da classificação vale aqui: silêncio nunca é sucesso. */
+  const FILA_CONF = "julho-conferencia-pendentes";
+  const [confPendentes, setConfPendentes] = useState(0);
+  const enviarConf = async (linha: LinhaConf) => {
+    const r = await fetch(`${SUPA}/rest/v1/julho_conferencia`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPA_KEY,
+        "Authorization": `Bearer ${SUPA_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+      },
+      /* quem assina é quem está na sessão AGORA — a fila pode ser drenada depois do
+         login, e é o login que dá nome à anotação */
+      body: JSON.stringify({ ...linha,
+        quem_id: quem?.id || "analise-local", quem_nome: quem?.nome || "análise local" }),
+    });
+    if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  };
+  const drenarConf = async (novas: LinhaConf[] = []) => {
+    /* a cópia estática lê tudo e não grava nada — a promessa da tarja vale aqui também */
+    if (COPIA) return;
+    let fila: LinhaConf[] = [];
+    try { fila = JSON.parse(localStorage.getItem(FILA_CONF) || "[]"); } catch { fila = []; }
+    /* uma nova anotação da mesma chave substitui a que esperava na fila: o estado
+       intermediário que nunca chegou ao banco não é história que alguém tenha visto */
+    const todas = [...fila.filter((f) =>
+      !novas.some((x) => x.tipo === f.tipo && x.ss === f.ss)), ...novas];
+    if (!todas.length) { setConfPendentes(0); return; }
+    const sobrou: LinhaConf[] = [];
+    for (const linha of todas) {
+      try { await enviarConf(linha); } catch { sobrou.push(linha); }
+    }
+    guardarLocal(FILA_CONF, JSON.stringify(sobrou));
+    setConfPendentes(sobrou.length);
   };
 
   /* ── OS ARQUIVOS DE APOIO, SOB DEMANDA ────────────────────────────────────
@@ -2416,6 +2549,79 @@ export default function Page() {
         void drenar(faltando);
       })
       .catch(() => { void drenar(); });
+    /* A conferência de julho volta do banco e se mescla com o que está neste aparelho —
+       o mais recente vence, dos dois lados, como nas classificações. O navegador novo
+       chega vazio e se enche do que o outro gravou; a linha de marca e nota vazias é a
+       lápide de um registro retirado noutro aparelho. */
+    fetch(`${SUPA}/rest/v1/julho_conferencia_atual?select=*`, { headers: cab })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((linhas: Array<{ tipo: string; ss: string; marca: string; nota: string;
+        marcado_em: string }>) => {
+        const doBanco = Array.isArray(linhas) ? linhas : [];
+        const casos = { ...marcasConf };
+        const achados = { ...achadosConf };
+        const noBanco = new Map(doBanco.map((l) => [`${l.tipo}|${l.ss}`, l]));
+        let mudouCasos = false; let mudouAchados = false; let entraram = 0;
+        doBanco.forEach((l) => {
+          const quando = new Date(l.marcado_em).toLocaleString("sv-SE").slice(0, 16);
+          const lapide = !l.marca && !(l.nota || "").trim();
+          if (l.tipo === "caso") {
+            const atual = casos[l.ss];
+            if (atual && atual.em >= quando) return;
+            if (lapide) { if (atual) { delete casos[l.ss]; mudouCasos = true; } return; }
+            casos[l.ss] = { marca: (l.marca || "") as MarcaConf["marca"],
+              nota: l.nota || "", em: quando };
+            mudouCasos = true; entraram += 1;
+          } else if (l.tipo === "achado") {
+            const atual = achados[l.ss];
+            if (atual && (atual.em || "") >= quando) return;
+            if (lapide) { if (atual) { delete achados[l.ss]; mudouAchados = true; } return; }
+            achados[l.ss] = { v: l.marca, em: quando };
+            mudouAchados = true; entraram += 1;
+          }
+        });
+        if (mudouCasos) {
+          setMarcasConf(casos);
+          guardarLocal(CHAVE_CONF_CASOS, JSON.stringify(casos));
+        }
+        if (mudouAchados) {
+          setAchadosConf(achados);
+          guardarLocal(CHAVE_CONF_ACHADOS, JSON.stringify(achados));
+        }
+        if (entraram) {
+          setExportado(`${entraram} anotação(ões) da conferência recuperada(s) do banco`);
+          setTimeout(() => setExportado(""), 8000);
+        }
+        /* e o caminho de volta: o que está neste aparelho e não está no banco com o
+           mesmo conteúdo entra na fila agora — o resgate do que nunca foi gravado.
+           A hora local vira instante com a mesma guarda das classificações: hora futura
+           é registro suspeito, e o banco recusa marcado_em no futuro. */
+        const agoraConf = new Date();
+        const isoDe = (em: string) => {
+          const bruto = String(em || "").replace(" ", "T");
+          let m = new Date(bruto);
+          if (Number.isNaN(m.getTime()) || m > agoraConf) m = new Date(`${bruto}Z`);
+          if (Number.isNaN(m.getTime()) || m > agoraConf) m = agoraConf;
+          return m.toISOString();
+        };
+        const faltamConf: LinhaConf[] = [];
+        Object.entries(casos).forEach(([ss, c]) => {
+          const b = noBanco.get(`caso|${ss}`);
+          if (!b || (b.marca || "") !== (c.marca || "") || (b.nota || "") !== (c.nota || "")) {
+            faltamConf.push({ tipo: "caso", ss, marca: c.marca || "",
+              nota: c.nota || "", marcado_em: isoDe(c.em) });
+          }
+        });
+        Object.entries(achados).forEach(([id, a]) => {
+          const b = noBanco.get(`achado|${id}`);
+          if (!b || (b.marca || "") !== a.v) {
+            faltamConf.push({ tipo: "achado", ss: id, marca: a.v, nota: "",
+              marcado_em: isoDe(a.em) });
+          }
+        });
+        void drenarConf(faltamConf);
+      })
+      .catch(() => { void drenarConf(); });
     return () => clearTimeout(t);
   }, []);
 
@@ -4843,7 +5049,7 @@ export default function Page() {
         if (!mes || !conf) return <section className="panel"><p className="fonte-detalhe">Carregando a conferência de julho…</p></section>;
         const R = mes.resumo;
         const somaEfeito = (campo: "recorte" | "casam" | "entram") => conf.achados
-          .filter((a) => achadosConf[a.id] === "aceito")
+          .filter((a) => achadosConf[a.id]?.v === "aceito")
           .reduce((s, a) => s + (a.efeito?.[campo] || 0), 0);
         const recorte = R.no_recorte + somaEfeito("recorte");
         const casam = R.casaram_na_critica + somaEfeito("casam");
@@ -4875,8 +5081,15 @@ export default function Page() {
         return <>
           <div className="tarja-previa">
             <b>Conferência</b>
-            <span>Julho é o único mês em que ninguém bateu martelo: a régua apurou e parou aí. Esta tela é para conferir — o que você marcar fica no seu navegador, sai no export e <b>não altera o indicador</b>.</span>
+            <span>Julho é o único mês em que ninguém bateu martelo: a régua apurou e parou aí. Esta tela é para conferir — o que você marcar fica gravado no banco e neste navegador, sai no export e <b>não altera o indicador</b>.</span>
             <small>{olhados} de {mes.registros.length} casos já olhados · {conta("confere")} conferem · {conta("nao_confere")} não conferem · {conta("duvida")} em dúvida</small>
+            {/* O AVISO DE NÃO SINCRONIZADO. A anotação nunca some da tela nem do aparelho
+                quando a rede cai — ela fica na fila e este aviso diz isso, em vez de o
+                site fingir que gravou. O toque tenta de novo na hora. */}
+            {confPendentes ? <small className="conf-sync" role="button"
+              onClick={() => void drenarConf()}>
+              {br(confPendentes)} anotação(ões) ainda não sincronizada(s) com o banco —
+              guardada(s) neste aparelho. Toque para tentar de novo.</small> : null}
           </div>
 
           <section className="panel">
@@ -4898,9 +5111,9 @@ export default function Page() {
           <section className="panel">
             <div className="panel-title"><div><span>O que a segunda leitura achou</span>
               <h2>{conf.achados.length} achados para o seu martelo</h2></div>
-              <small>{Object.values(achadosConf).filter((v) => v === "aceito").length} aceitos</small></div>
+              <small>{Object.values(achadosConf).filter((v) => v.v === "aceito").length} aceitos</small></div>
             <div className="conf-achados">{conf.achados.map((a) => {
-              const est = achadosConf[a.id] || "";
+              const est = achadosConf[a.id]?.v || "";
               return <article key={a.id} className={`conf-achado ${est}`}>
                 <header>
                   <b>{a.id}</b>
@@ -5743,7 +5956,8 @@ export default function Page() {
                 janelaSemana={clima.janela_semana} />
             : <p className="fonte-detalhe">Carregando o clima deste dia…</p>) : null}
           {abaMes === "critica" ? (completo
-            ? <CriticaCompleta c={completo.por_ss?.[casoMes.ss]} nota={completo.nota_intervencao} />
+            ? <CriticaCompleta c={completo.por_ss?.[casoMes.ss]} nota={completo.nota_intervencao}
+                feito={completo.feito_no_equipamento} />
             : <p className="fonte-detalhe">Carregando a Crítica deste caso…</p>) : null}
           {abaMes === "tudo" ? <div className="detail-grid">
             {Object.entries(casoMes).filter(([, v]) => v !== "" && v !== null && v !== undefined

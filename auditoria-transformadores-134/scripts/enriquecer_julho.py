@@ -155,6 +155,71 @@ def ocorrencias_do_ativo(trafo, abertura):
     return saida, CORRIGE.get(t)
 
 
+# ── o que foi feito no equipamento: teste a vazio e cola e fita ────────────
+# O formulário de campo (COLETA) não pergunta sobre teste a vazio — não existe
+# coluna em base nenhuma. A informação só existe quando alguém ESCREVE no texto
+# livre da SS ou da OS. Por isso a leitura aqui é de texto, com uma armadilha:
+# "NÃO foi feito teste avazio" contém a mesma palavra que "feito teste avazio",
+# e contar a negação como afirmação seria mentir. A negação é detectada antes.
+#
+# Há ainda um MODELO de abertura de SS ("SEGUE SS DO TRAFO ... HOUVE TESTE À
+# VAZIO: SIM/NÃO"), colado por quem abre a SS no despacho. Ele é contado em
+# separado das menções livres: é resposta de modelo, não relato de quem esteve
+# no poste — e misturá-lo com o texto livre inflaria a contagem.
+RE_MODELO = re.compile(r"HOUVE\s+TESTE\s+À?\s*VAZIO:?\s*(SIM|N[ÃA]O)?")
+RE_COLADO = re.compile(r"TESTE\s+AVAZIO")
+# a negação vem ANTES da menção no texto ("não foi feito teste avazio devido…")
+RE_NEGACAO = re.compile(
+    r"N[ÃA]O\s+(FOI\s+)?(FEITO|REALIZADO|HOUVE|EFETUADO|POSS[IÍ]VEL|CONSEGUIU)"
+    r"|SEM\s+TESTE|N[ÃA]O\s+FIZ")
+
+
+def teste_vazio_do_texto(texto_ss, texto_os):
+    """Classifica UMA SS: (classe, trecho, resposta_do_modelo).
+
+    classe: 'feito' | 'nao_feito' | 'nao_menciona' — só sobre o texto LIVRE.
+    trecho: a vizinhança da menção, para a tela mostrar a evidência em vez de
+    pedir confiança. resposta_do_modelo: SIM/NÃO quando a SS traz o modelo."""
+    t = n(texto_ss) + " || " + n(texto_os)
+    m_modelo = RE_MODELO.search(t)
+    modelo = (m_modelo.group(1) or "").replace("NAO", "NÃO") if m_modelo else ""
+    livre = RE_MODELO.sub("#", t)
+    mencoes = list(re.finditer(r"VAZIO", livre))
+    if not mencoes:
+        return "nao_menciona", "", modelo
+    negado = any(RE_NEGACAO.search(livre[max(0, m.start() - 70):m.start()])
+                 for m in mencoes)
+    m0 = mencoes[0]
+    trecho = livre[max(0, m0.start() - 90):m0.end() + 40].strip()
+    return ("nao_feito" if negado else "feito"), trecho, modelo
+
+
+# a contagem na base INTEIRA, calculada aqui e gravada no JSON: a tela nunca
+# escreve número que o script não tenha tirado do dado
+tv_base = {"universo": len(regs), "com_mencao": 0, "feito": 0, "nao_feito": 0,
+           "grafia_colada": 0, "modelo_linhas": 0, "modelo_sim": 0, "modelo_nao": 0}
+cf_base = {"sim": 0, "nao": 0, "vazio": 0}
+for r in regs:
+    cls, _, modelo = teste_vazio_do_texto(campo(r, "DESCRIPTION_SS"), campo(r, "DESCRICAO_OS"))
+    if cls != "nao_menciona":
+        tv_base["com_mencao"] += 1
+        tv_base["feito" if cls == "feito" else "nao_feito"] += 1
+        if RE_COLADO.search(n(campo(r, "DESCRIPTION_SS")) + " " + n(campo(r, "DESCRICAO_OS"))):
+            tv_base["grafia_colada"] += 1
+    if modelo:
+        tv_base["modelo_linhas"] += 1
+        tv_base["modelo_sim" if modelo == "SIM" else "modelo_nao"] += 1
+    cfv = campo(r, "FEITO_COLA_E_FITA").strip().upper()
+    # a coluna traz lixo em poucas linhas (pedaços de e-mail, anos soltos):
+    # só Sim e Não contam como resposta; o resto é vazio ou ilegível
+    if cfv == "SIM":
+        cf_base["sim"] += 1
+    elif cfv in ("NAO", "NÃO"):
+        cf_base["nao"] += 1
+    else:
+        cf_base["vazio"] += 1
+
+
 # ── monta caso a caso ──────────────────────────────────────────────────────
 d = json.load(open(f"{APP}/julho-2026.json", encoding="utf-8"))
 comp = {}
@@ -264,6 +329,17 @@ for x in d["registros"]:
                 }
         it["reincidente_ultima_instalacao"] = reincid
 
+    # (5) o que foi feito no equipamento: teste a vazio (texto livre) e cola e
+    # fita (coluna FEITO_COLA_E_FITA). Quando a linha da base não existe, o
+    # bloco diz isso em vez de fingir resposta.
+    if r is not None:
+        cls, trecho, modelo = teste_vazio_do_texto(campo(r, "DESCRIPTION_SS"),
+                                                   campo(r, "DESCRICAO_OS"))
+        it["feito_no_equipamento"] = {
+            "teste_vazio": cls, "trecho": trecho, "modelo_abertura": modelo,
+            "cola_e_fita": campo(r, "FEITO_COLA_E_FITA").strip(),
+        }
+
     # (4) texto integral de toda SS/OS anterior no mesmo ativo
     anteriores = []
     for rr in por_ativo_ss.get(trafo, []):
@@ -294,11 +370,28 @@ print(f"com SS/OS anteriores no mesmo ativo: {com_ant}")
 tot_obs = sum(len(o["observacoes"]) for v in comp.values() for o in v["ocorrencias_julho"])
 print(f"observações de campo coletadas no total: {tot_obs}")
 
+# o resumo dos 72 para teste a vazio e cola e fita — contado dos casos, não digitado
+tv72 = {"casos": len(comp), "feito": 0, "nao_feito": 0, "nao_menciona": 0,
+        "cola_sim": 0, "cola_nao": 0, "cola_vazio": 0, "sem_linha_na_base": 0}
+for v in comp.values():
+    fe = v.get("feito_no_equipamento")
+    if not fe:
+        tv72["sem_linha_na_base"] += 1
+        continue
+    tv72[fe["teste_vazio"]] += 1
+    cfv = fe["cola_e_fita"].upper()
+    tv72["cola_sim" if cfv == "SIM" else "cola_nao" if cfv in ("NAO", "NÃO")
+         else "cola_vazio"] += 1
+print(f"teste a vazio na base: {tv_base['com_mencao']} mencionam "
+      f"({tv_base['feito']} feito / {tv_base['nao_feito']} NÃO) · nos 72: {tv72}")
+
 cam = f"{APP}/julho-completo.json"
-json.dump({"gerado_em": "16/08/2026",
+json.dump({"gerado_em": "17/08/2026",
            "fonte": "Base SS/OS 11/08 (partes 1 e 2) · Crítica de julho de 2026 (7.007 passos)",
            "nota_intervencao": "O NUM_INT da SS/OS e o número de sequência da Crítica são "
                                "numerações diferentes; só 25 dos 72 coincidem. O que liga as "
                                "duas bases é o código do ativo (68 dos 72).",
+           "feito_no_equipamento": {"teste_vazio_base": tv_base,
+                                    "cola_e_fita_base": cf_base, "julho": tv72},
            "por_ss": comp}, open(cam, "w"), ensure_ascii=False, separators=(",", ":"))
 print(f"gravado {cam} ({os.path.getsize(cam)/1024:.0f} KB)")
