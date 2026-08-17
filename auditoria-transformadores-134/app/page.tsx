@@ -712,6 +712,15 @@ const emMs = (v: unknown) => {
 };
 const H_MS = 3600000;
 
+/* As prévias guardam data em dd/mm/aaaa e as 1.510 em ISO. As réguas medem tempo com
+   new Date(), que lê ISO — passar "07/08/2026" direto faria o desenho marcar 8 de JULHO em
+   vez de 7 de AGOSTO, e o erro seria silencioso: a régua desenharia bonito, no dia errado. */
+const paraIso = (v: unknown) => {
+  const t = texto(v).trim();
+  const m = t.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:[ T](\d{2}:\d{2}(?::\d{2})?))?$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}${m[4] ? ` ${m[4]}` : " 00:00"}` : t;
+};
+
 /* A PRIMEIRA RÉGUA. A barra escura é o intervalo da ocorrência, as faixas claras são a tolerância
    dos dois lados e o pino é a hora em que a SS foi aberta. Com `didatica` o desenho ganha a
    legenda das faixas — usado uma vez, no alto da aba; na lista ele aparece pelado, porque lá o
@@ -5660,6 +5669,30 @@ export default function Page() {
             onClick={() => setAbaMes(id)}>{rot}</button>)}</nav>
         <div className="drawer-body">
           {abaMes === "consolidado" ? <>
+            {/* A RÉGUA, pedida para os 72: a mesma das 1.510, no mesmo eixo compartilhado.
+                Mostra de relance se a SS nasceu dentro da janela da ocorrência — que é a
+                pergunta que decide o caso. Uma régua por ocorrência, porque um poste pode
+                ter mais de uma no mesmo dia e a que casa não é sempre a primeira. */}
+            {(() => {
+              const ocs = casoMes.ocorrencias || [];
+              if (!ocs.length) return <p className="fonte-detalhe">Sem ocorrência na Crítica
+                para desenhar a régua deste caso.</p>;
+              return <div className="regua-do-mes">
+                {ocs.map((o, i) => <div key={i} className="regua-uma">
+                  <ReguaJanela didatica={i === 0} r={{
+                    abertura: paraIso(casoMes.abertura),
+                    oc_ini: paraIso(o.inicio), oc_fim: paraIso(o.fim),
+                    /* aberta_antes é comparada com a STRING "SIM" lá dentro; passar
+                       booleano cai no else e escreve "depois" quando é "antes". */
+                    oc_dist_h: o.delta_inicio_h,
+                    aberta_antes: (o.delta_inicio_h ?? 0) < 0 ? "SIM" : "NAO",
+                  } as unknown as Registro} />
+                  <small className="regua-rotulo">{o.causa || "sem causa"}
+                    {o.subcausa ? ` / ${o.subcausa}` : ""}
+                    {o.papeis ? ` · ativo como ${o.papeis}` : ""}</small>
+                </div>)}
+              </div>;
+            })()}
             <div className="narrativa"><span>COMO ESTE CASO FOI ANALISADO</span>
               <p>{casoMes.narrativa || "Narrativa ainda não gerada para este caso."}</p></div>
             <div className="detail-grid">

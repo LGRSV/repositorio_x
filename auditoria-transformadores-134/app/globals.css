@@ -1339,3 +1339,12 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
   font: 500 10.5px "IBM Plex Mono", monospace; margin: 2px 0 4px; }
 .oc-obs { margin: 8px 0 0; padding-left: 16px; }
 .oc-obs li { color: #52565b; font-size: 12px; line-height: 1.55; margin-bottom: 5px; }
+
+/* A régua das prévias: uma por ocorrência, com a causa embaixo. Duas ocorrências no mesmo
+   dia são comuns, e a que casa na janela não é sempre a primeira — por isso cada uma ganha
+   o seu desenho em vez de uma régua só com a "principal". */
+.regua-do-mes { margin-bottom: 16px; }
+.regua-uma { padding: 12px 0; border-bottom: 1px solid var(--soft); }
+.regua-uma:last-child { border-bottom: 0; }
+.regua-rotulo { display: block; margin-top: 6px; color: var(--muted);
+  font: 500 11px "IBM Plex Sans", sans-serif; }
