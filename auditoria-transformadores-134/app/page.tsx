@@ -98,8 +98,9 @@ type Conferencia = {
   gerado_em: string; titulo: string; de_onde_vem: string;
   o_que_bateu: string[]; achados: ConfAchado[]; duvidas: string[];
 };
-/* A marca do conferente. Mora no navegador, sai no export junto com as classificações,
-   e NÃO altera o indicador — julho segue sendo prévia até o martelo do dono. */
+/* A marca do conferente. Mora no banco (julho_conferencia, append-only) com o
+   localStorage de cache offline, sai no export junto com as classificações, e NÃO
+   altera o indicador — julho segue sendo prévia até o martelo do dono. */
 type MarcaConf = { marca: "confere" | "nao_confere" | "duvida" | ""; nota: string; em: string };
 
 type OrdemReforma = {
@@ -3807,7 +3808,7 @@ export default function Page() {
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
     mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
-    mes_julho_conf: { olho: "Prévia · segunda leitura", titulo: "Conferir julho", texto: "Os 72 casos de julho para leitura caso a caso, com o texto de quem esteve no poste ao lado do que a Crítica gravou — e o que a releitura adversarial achou de errado, com o efeito exato de cada achado sobre o placar do mês. Nada aqui muda o indicador sozinho: a marca é sua, fica no seu navegador e sai no export." },
+    mes_julho_conf: { olho: "Prévia · segunda leitura", titulo: "Conferir julho", texto: "Os 72 casos de julho para leitura caso a caso, com o texto de quem esteve no poste ao lado do que a Crítica gravou — e o que a releitura adversarial achou de errado, com o efeito exato de cada achado sobre o placar do mês. Nada aqui muda o indicador sozinho: a marca é sua, fica gravada no banco (e neste aparelho, para funcionar sem rede) e sai no export." },
     insight_almoxarifado: { olho: "Insight · não move ninguém", titulo: "Garantia: o controle do almoxarifado", texto: "O relatório de garantia do fornecedor — 51 equipamentos que saíram da rede e voltaram para o fabricante, com nota de retorno, romaneio e remessa. Base de peça, não de SS: o elo com a auditoria é o número de série e o tombamento." },
     insight_naoqueimado: { olho: "Insight · não move ninguém", titulo: "Não queimados: o que a bancada da reformadora disse", texto: "838 ordens de produção do centro Tocantins, uma por equipamento que foi para a bancada. Quem abriu o transformador escreveu o motivo da retirada — e um dos códigos é NQM, não queimado. É a única fonte desta auditoria que olhou o equipamento por dentro." },
     insight_reincidencia: { olho: "Insight · não move ninguém", titulo: "Reincidência: o mesmo transformador queimando de novo", texto: "Quando o ativo trocado volta a queimar dentro do recorte, e quanto tempo depois. Prazo curto tira a rede da conversa: em uma semana o que muda não é o clima, é o que foi instalado, como foi protegido e onde." },
@@ -5043,8 +5044,9 @@ export default function Page() {
          2. os 72 caso a caso, com o texto de quem esteve no poste ao lado do que a
             Crítica gravou — que é a única maneira de conferir de verdade.
 
-         A marca do conferente fica no navegador e sai no export. Não é assinatura de
-         aprovação: essa mora no banco, tem três estágios e nome de gente. */
+         A marca do conferente vai para o banco (julho_conferencia, append-only, com o
+         localStorage de cache offline) e sai no export. Não é assinatura de aprovação:
+         essa é o fluxo de expurgo, que tem três estágios e ordem. */
       if (modulo === "mes_julho_conf") {
         if (!mes || !conf) return <section className="panel"><p className="fonte-detalhe">Carregando a conferência de julho…</p></section>;
         const R = mes.resumo;
