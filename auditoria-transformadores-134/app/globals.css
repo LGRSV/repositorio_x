@@ -967,6 +967,10 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .tarja-previa b { grid-row: span 2; align-self: center; padding: 4px 10px; background: #b8860b; color: #fff;
   font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
 .tarja-previa small { grid-column: 2; color: #6b5a2c; font-size: 12px; }
+/* O aviso de anotação não sincronizada. É alvo de toque (tenta reenviar), então tem
+   os 44px de altura do dedo — aviso que só o mouse acerta não serve para o iPhone. */
+.tarja-previa small.conf-sync { display: flex; align-items: center; min-height: 44px;
+  color: #9c3418; font-weight: 700; cursor: pointer; }
 @media (max-width: 640px) {
   .tarja-previa { grid-template-columns: 1fr; }
   .tarja-previa b { grid-row: auto; justify-self: start; }
