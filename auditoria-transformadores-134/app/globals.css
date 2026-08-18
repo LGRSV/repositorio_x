@@ -1352,3 +1352,34 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 .regua-uma:last-child { border-bottom: 0; }
 .regua-rotulo { display: block; margin-top: 6px; color: var(--muted);
   font: 500 11px "IBM Plex Sans", sans-serif; }
+
+/* A VISÃO DE PLANILHA DOS 72. Ler um caso e varrer 72 são tarefas diferentes: os cartões
+   servem à primeira, esta grade à segunda. Cabeçalho e primeira coluna ficam presos, que é
+   o que faz uma grade larga ser navegável — sem isso o leitor perde de vista qual linha
+   está lendo já na quarta coluna. */
+.conf-ferramentas { display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 10px 0 14px; }
+.conf-ferramentas button { border: 1px solid var(--line); background: #fff; color: var(--ink);
+  padding: 9px 13px; font: 600 11px "IBM Plex Sans", sans-serif; min-height: 38px; }
+.conf-ferramentas button.ativo { background: var(--ink); color: #fff; border-color: var(--ink); }
+.conf-ferramentas small { color: var(--muted); font-size: 10.5px; }
+.grade-scroll { overflow: auto; max-height: 68vh; border: 1px solid var(--line);
+  -webkit-overflow-scrolling: touch; }
+.grade-julho { border-collapse: separate; border-spacing: 0; font-size: 11.5px; }
+.grade-julho th, .grade-julho td { border-right: 1px solid var(--soft);
+  border-bottom: 1px solid var(--soft); padding: 7px 9px; text-align: left;
+  max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grade-julho thead th { position: sticky; top: 0; z-index: 3; background: #f2f0ec;
+  font: 600 10.5px "IBM Plex Sans", sans-serif; color: #45484c; }
+.grade-julho tbody td:first-child, .grade-julho thead th:first-child {
+  position: sticky; left: 0; z-index: 2; background: #fff; font-weight: 600; }
+.grade-julho thead th:first-child { z-index: 4; background: #f2f0ec; }
+.grade-julho tbody tr:nth-child(even) td { background: #fafbfc; }
+.grade-julho tbody tr:nth-child(even) td:first-child { background: #fafbfc; }
+.grade-julho tbody tr:hover td { background: #eef3f8; cursor: pointer; }
+.grade-julho .num { text-align: right; font-family: "IBM Plex Mono", monospace; }
+@media (max-width: 820px) {
+  .grade-scroll { max-height: 60vh; }
+  .grade-julho th, .grade-julho td { padding: 9px 8px; font-size: 11px; }
+  .conf-ferramentas button { min-height: 44px; }
+}
