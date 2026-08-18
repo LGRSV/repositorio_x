@@ -2195,6 +2195,7 @@ export default function Page() {
      não a mesma coisa feita de dois jeitos — por isso um botão troca a lista pela grade,
      em vez de eu escolher por ele. */
   const [gradeConf, setGradeConf] = useState(false);
+  const [buscaConf, setBuscaConf] = useState("");
   /* GRAVAR ENQUANTO SE ESCREVE, não só ao sair do campo. A anotação era salva no onBlur —
      e no celular ninguém "sai do campo": rola a tela, fecha a aba, troca de aplicativo. Pior,
      a lista se redesenha a cada marca e o campo volta ao valor guardado, levando junto o que
@@ -5156,13 +5157,37 @@ export default function Page() {
           ["pendentes", "só os pendentes", mes.registros.filter((x) => x.entra !== "SIM").length],
           ["faltam", "ainda não olhados", mes.registros.length - olhados],
         ];
-        const passaFiltro = (x: MesCaso) =>
+        /* O ÍNDICE DA BUSCA. Concatenar e normalizar o texto de cada caso a cada tecla
+           digitada é o que trava: são 72 casos com narrativa, texto de SS e de OS, e o
+           trabalho todo se repete a cada letra. Aqui o texto de cada caso é preparado uma
+           vez só; digitar passa a ser só procurar dentro de string pronta.
+           A busca cobre o que a pessoa tem na cabeça quando procura: número da SS, da OS,
+           da obra, o ativo, o município, o alimentador, a origem, o defeito, a série, a
+           intervenção — e o texto que a equipe escreveu, que é onde mora o que nenhum
+           campo estruturado guarda. */
+        const indiceBusca = new Map<string, string>();
+        for (const x of mes.registros) {
+          const c = completo?.por_ss?.[x.ss];
+          indiceBusca.set(x.ss, normalize([
+            x.ss, x.os, x.obra, x.trafo, x.localidade, x.alimentador, x.origem, x.defeito,
+            x.situacao, x.tipo_ss, x.criticidade, x.categoria, x.entra, x.narrativa,
+            x.texto_ss, x.texto_os,
+            (x.ocorrencias || []).map((o) => `${o.causa} ${o.subcausa} ${o.observacao || ""}`).join(" "),
+            c?.ns_retirado, c?.ns_instalado, c?.intervencao_critica, c?.intervencao_ss_os,
+            marcasConf[x.ss]?.nota,
+          ].filter(Boolean).join(" ")));
+        }
+        const agulhaConf = normalize(buscaConf).trim();
+        const passaBusca = (x: MesCaso) =>
+          !agulhaConf || (indiceBusca.get(x.ss) || "").includes(agulhaConf);
+
+        const passaFiltroBotao = (x: MesCaso) =>
           filtroConf === "todos" ? true
           : filtroConf === "entram" ? x.entra === "SIM"
           : filtroConf === "pendentes" ? x.entra !== "SIM"
           : !marcasConf[x.ss];
         const ordem = (x: MesCaso) => x.entra === "SIM" ? 1 : 0;   // pendente primeiro: é o que precisa de olho
-        const lista = mes.registros.filter(passaFiltro)
+        const lista = mes.registros.filter((x) => passaFiltroBotao(x) && passaBusca(x))
           .sort((a, b) => ordem(a) - ordem(b) || a.abertura.localeCompare(b.abertura));
         const MARCAS: Array<[MarcaConf["marca"], string, string, string]> = [
           ["confere", "C", "good", "confere — li e concordo"],
@@ -5241,7 +5266,8 @@ export default function Page() {
           <section className="panel">
             <div className="panel-title"><div><span>Caso a caso</span>
               <h2>Os {br(mes.registros.length)} de julho, para conferir</h2></div>
-              <small>pendentes primeiro · {lista.length} na tela</small></div>
+              <small>pendentes primeiro · {lista.length} na tela
+                {agulhaConf ? ` · buscando "${buscaConf}"` : ""}</small></div>
             <div className="janela-botoes conf-filtros">{FILTROS.map(([id, rot, q]) => <button key={id}
               type="button" className={filtroConf === id ? "ativo" : ""}
               onClick={() => setFiltroConf(id)}>{rot} <i>{q}</i></button>)}</div>
@@ -5250,6 +5276,14 @@ export default function Page() {
                 grade — uma lista só no código, para a tela e o Excel nunca divergirem.
                 E leva a marca e a anotação junto, que é o trabalho dele. */}
             <div className="conf-ferramentas">
+              {/* A barra de busca. Procura no que está escrito também, não só nos códigos:
+                  é no texto da equipe que mora o que campo nenhum guarda. */}
+              <label className="search conf-busca"><span>⌕</span>
+                <input value={buscaConf} onChange={(e) => setBuscaConf(e.target.value)}
+                  placeholder="SS, OS, obra, ativo, município, série, causa, texto do campo…" />
+                {buscaConf ? <button type="button" className="limpa-busca"
+                  onClick={() => setBuscaConf("")} title="Limpar a busca">×</button> : null}
+              </label>
               <button type="button" className={gradeConf ? "ativo" : ""}
                 onClick={() => setGradeConf((v) => !v)}>
                 {gradeConf ? "ver em cartões" : "ver como planilha"}</button>
