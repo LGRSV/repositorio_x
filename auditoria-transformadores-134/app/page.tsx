@@ -1445,7 +1445,7 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
       {modo === "insight_aterramento" && <>
         {/* Ordem dele: "traga os campos de medição nessa aba, antes e depois, dos que tiverem".
             As três leituras aparecem uma a uma — X1, X2 e X3 —, porque é o trio que conta a
-            história: 1.448 Ω numa haste e 1,2 Ω noutra não é o mesmo caso que três medições
+            história: 8,1 Ω numa haste e 0,02 Ω noutra não é o mesmo caso que três medições
             de 20 Ω, e a média esconderia isso. */}
         <td>{terra && (terra.antes.length || terra.depois.length) ? <>
           {terra.antes.length ? <p className="terra-linha"><b>antes</b> {terra.antes.map((x, i) => <em key={i} className={x > 100 ? "grave" : x > 25 ? "alto" : ""}>X{i + 1} {x.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} Ω</em>)}</p> : <p className="terra-linha"><b>antes</b> <em>não preenchido</em></p>}
@@ -2138,7 +2138,7 @@ export default function Page() {
      fechado para devolver e se voltou por onde caiu. gerar_passos.py explica os campos. */
   const [passos, setPassos] = useState<{ por_oc: Record<string, Passo[]>; por_ss: Record<string, PassosSS> }>({ por_oc: {}, por_ss: {} });
   /* OS TEMPOS REAIS DO TMAE. Os campos at_ini e at_fim do fluxo NÃO são a hora da equipe: são a
-     janela da ocorrência copiada — em 1.039 das 1.160 com atendimento, at_ini é idêntico a
+     janela da ocorrência copiada — em 1.040 das 1.229 com atendimento, at_ini é idêntico a
      oc_ini. Enquanto a régua do TMAE foi desenhada com eles, ela mostrava a barra da Crítica
      noutra cor, e dizer "o atendimento cabe dentro da ocorrência" era quase tautologia.
      Estes vêm da base do TMAE: quando a equipe saiu, quando chegou e quando concluiu. */
@@ -2881,7 +2881,7 @@ export default function Page() {
      Nada aqui move ninguém. É fila de leitura: cada caso chega com o motivo e o trecho que o
      denunciou, para ele bater o martelo caso a caso na aba de classificação.
 
-     O TAP EXIGE CUIDADO. A OS traz "POS. DO TAP; 3º" como campo de formulário em 588 das 1.305 —
+     O TAP EXIGE CUIDADO. A OS traz "POS. DO TAP; 3º" como campo de formulário em 632 das 1.510 —
      procurar a palavra solta traria quase todo mundo. Só conta quando o tap aparece com defeito:
      submerso, queimado, danificado, errado. */
   const TXT_TAP = /TAP\s+(SUBMERS|QUEIMAD|DANIFICAD|COM DEFEITO|SOLTO|ERRAD)|(SUBMERS\w*)\s*(O\s*)?TAP|COMUTADOR/i;
@@ -3065,7 +3065,7 @@ export default function Page() {
 
   /* A MARGEM. Ordem dele: "a diferença tem que ser expressiva, pelo menos 1.500 reais".
      Passar da cerca por trinta reais é ruído de arredondamento de obra, não achado — e uma
-     lista com 38 linhas dessas some no meio de si mesma. Com a margem sobram 11, e cada uma
+     lista com 34 linhas dessas some no meio de si mesma. Com a margem sobram 7, e cada uma
      tem uma diferença que se defende em voz alta. */
   const MARGEM = margem;
   /* Cinco respostas, e a diferença entre elas importa: "acima"/"abaixo" é achado; "borda" passa
@@ -3175,7 +3175,7 @@ export default function Page() {
       { id: "nq_sucata", rotulo: "Triados como sucata", nota: "A reformadora abriu e condenou: o equipamento não voltou para a rede. É o extremo oposto do NQM e reforça a queima.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.triagem).toUpperCase().startsWith("SUCATA") },
       { id: "nq_garantia", rotulo: "Triados como garantia", nota: "A reformadora enquadrou o caso como garantia — o custo não é da distribuidora. Vale conferir se isso está refletido no valor da obra.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.triagem).toUpperCase().startsWith("GARANTIA") },
       { id: "nq_cci", rotulo: "Curto-circuito interno na bancada", nota: "A reformadora identificou curto interno ao abrir. É causa de equipamento, não de rede — e não é o que a Crítica costuma registrar.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.codigo) === "CCI" },
-      { id: "nq_aguardando", rotulo: "Ainda aguardando na reformadora", nota: "A ordem de produção existe e o equipamento está lá, mas nem entrou em produção: status “aguardando”. É ativo parado, fora da rede e fora da bancada — 220 dos 291 que casaram, com mediana de 55 dias fora e casos de até 143.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.status).toUpperCase().startsWith("AGUARDANDO") },
+      { id: "nq_aguardando", rotulo: "Ainda aguardando na reformadora", nota: "A ordem de produção existe e o equipamento está lá, mas nem entrou em produção: status “aguardando”. É ativo parado, fora da rede e fora da bancada — 227 dos 304 que casaram, com mediana de 55 dias fora e casos de até 143.", teste: (r) => arquivo(r) === "SAÍDA" && texto(reformaDe(r)?.status).toUpperCase().startsWith("AGUARDANDO") },
       { id: "nq_sem_motivo", rotulo: "Foram para reforma sem motivo declarado", nota: "Existe ordem de produção, mas o campo do motivo da retirada veio vazio. Não diz nada contra o caso; diz que a bancada não registrou a causa.", teste: (r) => arquivo(r) === "SAÍDA" && Boolean(reformaDe(r)) && !texto(reformaDe(r)?.motivo) },
     ],
     /* A reincidência: o mesmo transformador queimando de novo, e quanto tempo depois. */
@@ -3201,7 +3201,7 @@ export default function Page() {
     /* A fila de revisão detalhada: só olha, e cada chip é um motivo de leitura. */
     insight_revisao: [
       { id: "rev_todos", rotulo: "Tudo que pedi para você reler", nota: "Toda solicitação dos 1.305 em que alguma fonte discorda de outra, ou em que o texto de campo descreve coisa que a Crítica não gravou. Nada aqui foi movido — é fila de leitura para o seu martelo.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).length > 0 },
-      { id: "rev_terceiro", rotulo: "Furto, abalroamento ou dano de terceiro", nota: "Casos em que TRÊS OU MAIS campos independentes — o formulário que a equipe preenche na OS, o defeito da SS, a origem, o carimbo contábil da obra, a descrição livre do cadastro, a causa da Crítica ou a do TMAE — dizem furto, abalroamento, vandalismo ou dano causado por terceiro. Dentro dos 1.305 há 16 com pelo menos um campo assim; estes são os que várias bases confirmam. Furto é motivo de exclusão do indicador, e dano de terceiro abre discussão de ressarcimento: os dois merecem o seu martelo caso a caso.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "terceiro") },
+      { id: "rev_terceiro", rotulo: "Furto, abalroamento ou dano de terceiro", nota: "Casos em que TRÊS OU MAIS campos independentes — o formulário que a equipe preenche na OS, o defeito da SS, a origem, o carimbo contábil da obra, a descrição livre do cadastro, a causa da Crítica ou a do TMAE — dizem furto, abalroamento, vandalismo ou dano causado por terceiro. Dentro dos 1.305 há 14 com pelo menos um campo assim; estes são os que várias bases confirmam. Furto é motivo de exclusão do indicador, e dano de terceiro abre discussão de ressarcimento: os dois merecem o seu martelo caso a caso.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "terceiro") },
       { id: "rev_carga", rotulo: "Texto diz sobrecarga, tap ou tensão — a Crítica diz outra coisa", nota: "Quem esteve no poste escreveu tap submerso, defeito interno, sobrecarga ou tensão fora do normal, e a subcausa gravada na Crítica é outra — descarga atmosférica, vazamento, RD de AT. Ordem dele a partir da DG-RD-PO 00422: estes deveriam ser lidos como sobrecarga ou regulação, e não como o que a Crítica gravou. A palavra “tap” sozinha não conta: ela aparece como campo de formulário da OS em 588 casos; só entra quando vem com defeito — submerso, queimado, danificado.", teste: (r) => arquivo(r) === "SAÍDA" && paraRever(r).some((x) => x.id === "carga") },
     ],
     /* Quem divide o mesmo evento: também só olha. */
@@ -3246,10 +3246,10 @@ export default function Page() {
       { id: "def_ch", rotulo: "Defeito em chave", nota: "O defeito foi aberto numa chave. O transformador aparece como interrompido, não como defeituoso.", teste: (r) => texto(r.def_elemento) === "CH" },
       { id: "def_dj", rotulo: "Defeito em disjuntor", nota: "O defeito foi aberto num disjuntor.", teste: (r) => texto(r.def_elemento) === "DJ" },
       { id: "def_nenhum", rotulo: "Sem defeito localizado na janela", nota: "Nenhuma ocorrência na janela, nem com defeito no ativo nem com ele apenas interrompido.", teste: (r) => !texto(r.def_elemento) },
-      { id: "todos", rotulo: "Toda a fila", nota: "As 1.510 chegam a esta etapa: ninguém foi filtrado ainda, porque a esteira começa aqui.", teste: () => true },
-      { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => ["A", "B", "C"].includes(texto(r.e1_nivel)) },
-      { id: "comfato", rotulo: "Viraram fato", nota: "Têm a interrupção na janela e ela não pertence a outra SS. É este o número que segue como prova.", teste: (r) => r.fato === "F1" || r.fato === "F0" },
-      { id: "soat", rotulo: "Só com atendimento", nota: "Sem interrupção na janela, mas com equipe registrada no TMAE. Passam a etapa pelo deslocamento, não pelo fato.", teste: (r) => r.fato === "F2" },
+      { id: "todos", rotulo: "Toda a fila", nota: "Quem chega a esta etapa. As demais pararam antes, nas peneiras anteriores.", teste: (r) => texto(r.chega_e1) === "SIM" },
+      { id: "casou", rotulo: "Com interrupção na janela", nota: "A abertura da SS cai dentro do intervalo da interrupção ou a até 24 horas de qualquer uma das duas bordas dele.", teste: (r) => texto(r.chega_e1) === "SIM" && ["A", "B", "C"].includes(texto(r.e1_nivel)) },
+      { id: "comfato", rotulo: "Viraram fato", nota: "Têm a interrupção na janela e ela não pertence a outra SS. É este o número que segue como prova.", teste: (r) => texto(r.chega_e1) === "SIM" && (r.fato === "F1" || r.fato === "F0") },
+      { id: "soat", rotulo: "Só com atendimento", nota: "Sem interrupção na janela, mas com equipe registrada no TMAE. Passam a etapa pelo deslocamento, não pelo fato.", teste: (r) => texto(r.chega_e1) === "SIM" && r.fato === "F2" },
       { id: "ressalva", rotulo: "Com ressalva", nota: "Programada, preventiva, sem cliente, de outro elemento ou reclamação individual.", teste: (r) => Boolean(texto(r.ressalvas)) },
       { id: "fora", rotulo: "Aparece em outra data", nota: "O ativo tem ocorrência no semestre, mas nenhuma perto da SS.", teste: (r) => r.e1_nivel === "FORA" },
       { id: "sem", rotulo: "Sem nenhuma ocorrência", nota: "O código não aparece na base de interrupção em seis meses.", teste: (r) => r.e1_nivel === "SEM" },
@@ -3350,7 +3350,7 @@ export default function Page() {
       { id: "obra_diz", rotulo: "A obra diz outra causa", nota: "O cadastro de obras traz um campo de descrição preenchido depois da execução — \u201cSUBST. TRAFO QUEIMADO\u201d, \u201cFURTO DE BENS TRAFO\u201d. É a terceira voz do caso: a SS diz o que pediu, a OS o que executou, a obra sob que rótulo o custo entrou. Aqui ela não bate com a leitura.", teste: (r) => r.obra_diverge === "SIM" },
       { id: "sigco_dic", rotulo: "SIGCO divergente da leitura", nota: "O custo entrou num projeto que pressupõe uma causa e a leitura concluiu outra. O dicionário de projetos foi construído das 1.479 obras: 8812 é queima em 98%, 61993 é furto em 85%, 20497 é dano de terceiro em 100%, 8444 é vazamento de óleo. Só acusa projeto com mais de 60% de pureza — abaixo disso ele mistura causas e não pressupõe nada.", teste: (r) => r.sigco_diverge === "SIM" },
       { id: "obra_sigco", rotulo: "A obra e o SIGCO discordam entre si", nota: "O sinal mais limpo do acervo: dois campos do próprio cadastro se contradizendo, sem leitura nossa envolvida. A obra foi aberta com um rótulo e o custo entrou noutro projeto — quem escreveu os dois foi a mesma casa, depois da execução.", teste: (r) => r.obra_sigco_discordam === "SIM" },
-      { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.e4_alertas).includes("espera") },
+      { id: "sigco", rotulo: "SIGCO divergente", nota: "O projeto SIGCO da obra pressupõe uma causa e o caso tem outra.", teste: (r) => texto(r.sigco_diverge) === "SIM" },
     ],
     decisao: [
       { id: "reincidente_saida", rotulo: "Contaram duas vezes", nota: "O mesmo transformador saiu pela ponta da esteira mais de uma vez no semestre. Não é erro de contagem quando os dois eventos existem e cada um tem ocorrência e material próprios — mas é o primeiro lugar onde uma duplicidade apareceria.", teste: (r) => arquivo(r) === "SAÍDA" && registros.filter((x) => arquivo(x) === "SAÍDA" && texto(x.trafo) === texto(r.trafo)).length > 1 },
@@ -3373,7 +3373,7 @@ export default function Page() {
           teste: (r: Registro) => texto(r.etiquetas).split(" · ").includes(e),
         })),
       { id: "contida", rotulo: "Entrou pela contenção — a ocorrência coube dentro da SS", nota: "A SS abriu ANTES do apagão, e mesmo assim a ocorrência é dela: o corte começou e terminou com a SS já aberta. A ordem que a janela assume — evento, depois SS — não é a única do campo. Um transformador vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar para trocar: nesses, a SS nasce primeiro e o desligamento é o serviço. Contenção é prova mais forte que distância, e por isso ela entra sem depender da janela de 24 horas.", teste: (r) => r.oc_contida_na_ss === "SIM" },
-      { id: "at_forajanela", rotulo: "Atendimento exibido é de fora da janela", nota: "O dossiê mostra um atendimento do TMAE que não cai na janela desta SS — em alguns casos meses depois. O campo vinha herdado de uma rodada antiga e entrava como prova sem que ninguém olhasse a data. Continua contando enquanto você não decidir: exigir a data dentro da janela tira 52 casos da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho.", teste: (r) => r.at_fora_da_janela === "SIM" },
+      { id: "at_forajanela", rotulo: "Atendimento exibido é de fora da janela", nota: "O dossiê mostra um atendimento do TMAE que não cai na janela desta SS — em alguns casos meses depois. O campo vinha herdado de uma rodada antiga e entrava como prova sem que ninguém olhasse a data. Continua contando enquanto você não decidir: exigir a data dentro da janela tira 87 casos da SAÍDA, de 1.269 para 1.182, e esse número vai a conselho.", teste: (r) => r.at_fora_da_janela === "SIM" },
       { id: "saida", rotulo: "Saíram pela cascata", nota: "Passaram por interrupção, deslocamento, texto e material.", teste: (r) => r.cascata === "SAÍDA" },
       /* O MESMO CONJUNTO QUE OS BIG NUMBERS DESTA ABA CONTAM. O chip acima lista o que o
          ARQUIVO arquivou (1.269); os cartões no alto contam o que a TELA arquiva, que é o
@@ -3457,11 +3457,11 @@ export default function Page() {
          saíram do indicador; 25 foram interrompidos na janela com o defeito noutro elemento;
          35 têm defeito próprio noutra data; 8 só aparecem interrompidos por defeito alheio. A
          pergunta "tem interrupção?" tem resposta diferente em cada um. */
-      { id: "sem_no_trafo", rotulo: "Sem interrupção NO TRANSFORMADOR", nota: "A Crítica não registra defeito neste transformador dentro da janela. Pode haver interrupção — inclusive uma que o deixou sem energia —, mas com o defeito aberto noutro elemento: unidade consumidora, chave, disjuntor. O que falta é o registro de defeito no próprio ativo.", teste: (r) => texto(r.def_elemento) !== "TR" },
-      { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => r.aberta_antes === "SIM" },
-      { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
+      { id: "sem_no_trafo", rotulo: "Sem interrupção NO TRANSFORMADOR — nesta fila", nota: "A Crítica não registra defeito neste transformador dentro da janela. Pode haver interrupção — inclusive uma que o deixou sem energia —, mas com o defeito aberto noutro elemento: unidade consumidora, chave, disjuntor. O que falta é o registro de defeito no próprio ativo.", teste: (r) => parouNaInterrupcao(r) && texto(r.def_elemento) !== "TR" },
+      { id: "antes", rotulo: "Aberta antes da interrupção", nota: "A ocorrência existe no mesmo transformador, mas começou depois de a SS ser aberta por mais de uma hora. Não é \u201csem evento\u201d: é registro atrasado ou evento diferente, e a pergunta que ela levanta é essa. A tolerância para trás é de uma hora porque a ordem normal do campo é o cliente ligar, a SS nascer e a ocorrência ser registrada minutos depois.", teste: (r) => parouNaInterrupcao(r) && r.aberta_antes === "SIM" },
+      { id: "antes_q", rotulo: "Aberta antes · texto diz queima ou avaria", nota: "Dos abertos antes da interrupção, os que o texto descreve como falha do equipamento. São os que merecem leitura à mão primeiro.", teste: (r) => parouNaInterrupcao(r) && r.aberta_antes === "SIM" && ["QUEIMADO", "AVARIADO"].includes(texto(r.categoria_texto)) },
       { id: "def_outro", rotulo: "Interrupção com defeito em outro elemento", nota: "Não há ocorrência com defeito neste transformador na janela, mas há ocorrência que o deixou sem energia com o defeito noutro elemento — unidade consumidora, chave ou disjuntor. É informação, não prova: o transformador ficou sem energia, o que não quer dizer que ele falhou.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.def_elemento)) },
-      { id: "outro_assunto", rotulo: "A ocorrência mostrada não é deste serviço", nota: "A SS e o transformador são os do caso; o que não bate é a ocorrência exibida no painel. O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 858 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
+      { id: "outro_assunto", rotulo: "A ocorrência mostrada não é deste serviço", nota: "A SS e o transformador são os do caso; o que não bate é a ocorrência exibida no painel. O caso não casou, e a ocorrência que aparece no dossiê é só a mais próxima. A nota de campo dela descreve conexão, cabo, medidor ou disjuntor, sem citar transformador nenhum: ela não explica nada sobre este ativo. Vale só fora da janela — dentro dela, a nota omitir a palavra é rotina, acontece em 904 casos.", teste: (r) => r.oc_outro_assunto === "SIM" },
     ],
     expurgos: [
       // A terceira peneira hoje tem UM motivo de parada: a obra não comprova a troca. A
@@ -3473,7 +3473,7 @@ export default function Page() {
          está no export de material tem: o que falta é a extração chegar. Chamar as duas de
          "sem prova" é dizer que a prova não existe, quando o que não existe é o nosso acesso. */
       { id: "obra_encerrada_sem_mat", rotulo: "Obra encerrada e conferida, sem transformador", nota: "A obra está no export de material, foi encerrada e tem valor realizado — e não movimentou transformador nenhum. Aqui o zero é medida, não ausência de dado: alguém executou e cobrou algo que não foi a troca do transformador.", teste: (r) => r.material_conferido === "SIM" && (Number(r.trafos_material) || 0) === 0 && (Number(r.obra_realizado) || 0) > 0 },
-      { id: "siago", rotulo: "Só falta a extração do SIAGO", nota: "A obra existe, com número, descrição e enquadramento — e não está no export de material que temos. Não é ausência de prova: é ausência da extração. Estes 25 fecham sozinhos quando o SIAGO vier, e são a fila mais barata de resolver desta auditoria.", teste: (r) => r.pendente_siago === "SIM" },
+      { id: "siago", rotulo: "Só falta a extração do SIAGO", nota: "A obra existe, com número, descrição e enquadramento — e não está no export de material que temos. Não é ausência de prova: é ausência da extração. Estes 27 fecham sozinhos quando o SIAGO vier, e são a fila mais barata de resolver desta auditoria.", teste: (r) => r.pendente_siago === "SIM" },
       { id: "siago_retido", rotulo: "Retidos que só esperam a extração do SIAGO", nota: "Destes que a terceira peneira segurou, os que têm obra com número, descrição e enquadramento — e que simplesmente não estão no export de material que temos. Não é ausência de prova: é ausência da extração. Fecham sozinhos quando o SIAGO vier.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.pendente_siago === "SIM" },
       { id: "semprova_mat", rotulo: "Sem prova · material não conferido", nota: "A obra está fora do export de material, ou não chegou a ser gerada.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.material_conferido !== "SIM" },
       { id: "semprova_texto", rotulo: "Sem prova · texto não decide", nota: "A leitura ficou indefinida, e ela nunca decide sozinha.", teste: (r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.leitura === "L3" },
@@ -3514,7 +3514,7 @@ export default function Page() {
       { id: "g_tap", rotulo: "Tape interno", nota: "O transformador foi trocado para regularizar tensão porque o tape é interno e não pode ser ajustado em campo. Nunca dispara pelo campo do formulário \u201cPOS. TAP : 03\u201d, que aparece em 627 das 1.510 descrevendo o equipamento retirado e não é causa de nada.", teste: (r) => gatilhoDe(r) === "tap" },
       { id: "g_cadastro", rotulo: "Possível erro de cadastro do código", nota: "A equipe declara no texto que o código do cadastro não corresponde ao equipamento que está no poste. Enquanto isso não for resolvido, qualquer casamento por código é casamento com o ativo errado — o caso não sustenta nem inclusão nem exclusão pelo campo.", teste: (r) => gatilhoDe(r) === "erro_cadastro" },
       { id: "g_forajanela", rotulo: "Ausente da base de interrupções · registro em outra data", nota: "O ativo aparece na Crítica, mas a SS não foi aberta durante nenhuma ocorrência dele nem nas 24 horas seguintes ao último passo. A distância fica escrita em cada caso — 26 dias e 26 horas são coisas diferentes, e quem lê precisa ver qual é.", teste: (r) => gatilhoDe(r) === "fora_da_janela" },
-      { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => r.oc_contida_na_ss === "SIM" },
+      { id: "g_contida", rotulo: "Fora da janela · mas o corte cabe no serviço", nota: "A ocorrência começa depois de a SS abrir e termina antes de ela fechar — em alguns casos no mesmo minuto. Pode não ser evento alheio: pode ser o desligamento que a própria equipe fez para trocar o transformador. Um trafo vazando óleo continua energizado, e ninguém fica sem luz até alguém desligar. São os candidatos mais fortes a voltar para o indicador.", teste: (r) => arquivo(r) === "EXCLUÍDA" && r.oc_contida_na_ss === "SIM" },
       { id: "g_ausente", rotulo: "Ausente da base de interrupções", nota: "Reúne os dois casos de não haver interrupção que sustente a SS: o código que não aparece na Crítica em papel nenhum e o que aparece, mas em data que não cabe na janela. Você pediu que contassem juntos. Os dois recortes finos continuam aqui embaixo para separar quando for preciso.", teste: (r) => categoriaDe(r) === "sem_interrupcao" },
       { id: "g_seminterr", rotulo: "Ausente da base de interrupções · sem registro nenhum", nota: "O código do transformador não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado. Conferido linha a linha nos sete meses do acervo. Sem registro de interrupção não há evento a medir.", teste: (r) => gatilhoDe(r) === "sem_interrupcao" },
       { id: "g_dup", rotulo: "SS duplicada", nota: "Divide o mesmo evento e o mesmo transformador com outra SS. A interrupção prova uma troca, não duas — e a prova fica com a SS mais próxima do evento.", teste: (r) => gatilhoDe(r) === "duplicada" },
@@ -4543,14 +4543,16 @@ export default function Page() {
             </div>
             </section>
           <section className="kpi-grid">
-            <Kpi rotulo="Passam por esta etapa" valor={br(chegam.length)} nota="todas do recorte: aqui ninguém foi filtrado ainda" tom="ink" />
+            <Kpi rotulo="Passam por esta etapa" valor={br(chegam.length)} nota="as demais pararam nas peneiras anteriores" tom="ink" />
             <Kpi rotulo="Com interrupção na janela" valor={br(naJanela.length)} nota={`${pct(naJanela.length, chegam.length)}% do recorte`} tom="green" aoClicar={() => abrirRecorte("casou")} />
             <Kpi rotulo="Seguem para o deslocamento" valor={br(seguem.length)} nota={`${br(casados.length)} com fato + ${br(soAtendimento.length)} só com atendimento`} tom="green" />
             <Kpi rotulo="Com ressalva" valor={br(conta((r) => Boolean(texto(r.ressalvas))))} nota="programada, sem cliente, outro elemento" tom="amber" aoClicar={() => abrirRecorte("ressalva")} />
             <Kpi rotulo="Em outra data" valor={br(conta((r) => r.e1_nivel === "FORA"))} nota="o ativo aparece, mas longe da SS" tom="blue" aoClicar={() => abrirRecorte("fora")} />
-            <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota="o código não aparece em seis meses" tom="red" aoClicar={() => abrirRecorte("sem")} />
-            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota={`da SS até o intervalo da ocorrência — ${br(conta((r) => Number(r.oc_dist_h) === 0))} abrem dentro dele`} tom="ink" />
-            <Kpi rotulo="Clientes interrompidos" valor={br(registros.reduce((s, r) => s + (Number(r.oc_cons) || 0), 0))} nota="somados nas ocorrências casadas" tom="ink" />
+            <Kpi rotulo="Sem ocorrência" valor={br(conta((r) => r.e1_nivel === "SEM"))} nota={`sem defeito na janela — ${br(conta((r) => r.e1_nivel === "SEM" && texto(r.censo_critica) === "AUSENTE"))} não aparecem em papel nenhum`} tom="red" aoClicar={() => abrirRecorte("sem")} />
+            <Kpi rotulo="Distância mediana" valor={`${mediana(casados.map((r) => Math.abs(Number(r.oc_dist_h) || 0)))} h`} nota={`da SS até o intervalo da ocorrência — ${br(conta((r) => r.oc_dist_h === 0))} abrem dentro dele`} tom="ink" />
+            {/* a soma era de TODAS as ocorrências ligadas (18.512) com a nota dizendo "casadas";
+                agora soma só quem casou de fato — distância zero, ocorrência própria */}
+            <Kpi rotulo="Clientes interrompidos" valor={br(registros.filter((r) => r.oc_dist_h === 0).reduce((s, r) => s + (Number(r.oc_cons) || 0), 0))} nota="somados nas ocorrências casadas" tom="ink" />
           </section>
           <section className="janela-controle">
             <span>Janela da interrupção</span>
@@ -4645,7 +4647,7 @@ export default function Page() {
             {/* O cartão media com "SIGCO" e o chip com "espera": o alerta é gravado como
                 "8812 espera queimado", então o cartão marcava 0 e abria 126. Agora os dois
                 fazem a mesma pergunta ao mesmo campo. */}
-            <Kpi rotulo="SIGCO divergente" valor={br(conta((r) => texto(r.e4_alertas).includes("espera")))} nota="código da SS diferente do projeto" tom="blue" aoClicar={() => abrirRecorte("sigco")} />
+            <Kpi rotulo="SIGCO divergente" valor={br(conta((r) => texto(r.sigco_diverge) === "SIM"))} nota="código da SS diferente do projeto" tom="blue" aoClicar={() => abrirRecorte("sigco")} />
             <Kpi rotulo="Empreiteiras" valor={br(new Set(registros.map((r) => texto(r.obra_empreiteira)).filter(Boolean)).size)} nota="executaram as obras" tom="ink" />
             <Kpi rotulo="Realizado" valor={`R$ ${br(Math.round(registros.reduce((s, r) => s + (Number(r.obra_realizado) || 0), 0)))}`} nota="soma do custo das obras" tom="ink" />
           </section>
@@ -4667,7 +4669,7 @@ export default function Page() {
            informação de rede, e é a primeira coisa que alguém pergunta numa reunião. */
         const naSaidaLista = registros.filter((r) => arquivo(r) === "SAÍDA");
         /* REINCIDÊNCIA CONTADA NA BASE INTEIRA, não só na saída. Olhar apenas quem saiu duas
-           vezes mostra 8 ativos; olhar a base mostra 34 — e os outros 26 são justamente os
+           vezes mostra 9 ativos; olhar a base mostra 34 — e os outros 25 são justamente os
            interessantes, porque neles o mesmo transformador gerou uma segunda solicitação que
            NÃO contou: parou por falta de prova, ou saiu pela porta. É onde se enxerga se a conta
            está deixando evento repetido de fora. */
@@ -4735,7 +4737,7 @@ export default function Page() {
           </section>
         </>;
       }
-      /* A quarta peneira é a que fecha o 884 e era a única sem cabeçalho: caía no return null
+      /* A quarta peneira é a que fecha o 1.269 e era a única sem cabeçalho: caía no return null
          e abria direto na lista, sem KPI e sem uma linha explicando o que é uma ressalva.
          Numa aba que decide o número final, isso é o pior lugar para ficar mudo. */
       if (modulo === "ressalva") {
@@ -4937,7 +4939,9 @@ export default function Page() {
                 <Barras dados={[
                   { label: "Nenhuma ocorrência exibida", value: aus.length - comOc },
                   { label: "Vizinho no alimentador — hipótese", value: comViz },
-                  { label: "Nada encontrado nem no vizinho", value: aus.length - comViz },
+                  /* "vazio" não é "nada encontrado": é busca que não foi registrada */
+                  { label: "Nada encontrado nem no vizinho", value: aus.filter((r) => texto(r.vizinho).startsWith("Nada")).length },
+                  { label: "Sem busca de vizinho registrada", value: aus.filter((r) => !texto(r.vizinho)).length },
                   { label: "Com atendimento do TMAE", value: comAt },
                 ]} total={aus.length} aoSelecionar={(l) => abrirRecorte(l.startsWith("Vizinho") ? "vizinho" : l.startsWith("Nada") ? "nada" : "p_ausente")} />
                 <p className="fluxo-nota">Para estes <strong>{br(aus.length)}</strong> o dossiê <strong>não mostra ocorrência nenhuma</strong>, e não é omissão: o código não aparece na Crítica em papel nenhum — nem com defeito, nem interrompido, nem manobrado — em sete meses de acervo. Exibir “a ocorrência mais próxima” aqui seria inventar vínculo. A única ligação que existe é o <strong>teste do vizinho</strong>, e ele é hipótese declarada, não prova: aponta uma ocorrência em OUTRO ativo do mesmo alimentador na janela, com a suspeita de número operativo trocado. Quem for a campo confere isso; a tela não decide por ele.</p>
@@ -5026,7 +5030,7 @@ export default function Page() {
                 setBusca(""); abrirRecorte(chave ? GATILHO_CHIP[chave] || `g:${chave}` : "manual");
               }} /></article>
             <article className="panel"><div className="panel-title"><div><span>Exclusões</span><h2>Natureza do motivo</h2></div></div>
-              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[categoriaDe(r)] || "Classificada por você" })), "_n", 12)} total={excluidas} /></article>
+              <Barras dados={contar(registros.filter((r) => arquivo(r) === "EXCLUÍDA").map((r) => ({ ...r, _n: NATUREZA[categoriaDe(r)] || "Regra sem natureza mapeada" })), "_n", 12)} total={excluidas} /></article>
           </section>
           <section className="panel editorial-note wide destaque"><span>POR QUE ISTO NÃO É UMA PENEIRA</span>
             <p>Peneira pergunta se o caso se sustenta. Exclusão diz que o caso é de outra natureza — e isso não depende de haver interrupção na janela. Um furto é furto tenha ou não a Crítica registrado corte naquele dia; a ausência de fato não muda a causa declarada, e a presença também não. Enquanto a exclusão morava dentro da terceira peneira, só era julgado quem passasse da primeira: {br(conta((r) => arquivo(r) === "EXCLUÍDA" && r.fato === "F3"))} casos com causa declarada fora do indicador ficavam parados em “sem interrupção na janela”, aparecendo como pendência de leitura quando já tinham resposta.</p>
@@ -5070,9 +5074,9 @@ export default function Page() {
             <p className="fonte-detalhe">As três dividem o mesmo começo e o mesmo fim. É isso que permite comparar: com escalas próprias, uma ocorrência de duas horas ficaria do mesmo tamanho de uma SS de duas semanas. Faixa vazia quer dizer que aquela base não tem registro para este caso — e isso está escrito ao lado, em vez de a faixa sumir.</p>
           </section>
           <section className="panel editorial-note wide"><span>A TEORIA DO CAMPO, TESTADA</span>
-            <p><strong>O casamento que decide é o da SS com a Crítica, não o do atendimento.</strong> O TMAE é marcador: pode faltar sem prejuízo, e falta em 145 casos. Já a SS ter nascido com o cliente ainda sem energia é a prova de que o pedido e o apagão são o mesmo evento — e isso vale em <strong>{br(naConta.filter(ssDentroDaCritica).length)}</strong> das <strong>{br(naConta.length)}</strong>, sem tolerância nenhuma. Outras <strong>{br(naConta.filter(ssNaTolerancia).length)}</strong> entram pela tolerância da janela, e as <strong>{br(naConta.filter((r) => !ssDentroDaCritica(r) && !ssNaTolerancia(r)).length)}</strong> restantes entraram pela contenção ou pelo seu veredito — nenhuma por distração da régua.</p>
-            <p>A ordem esperada é esta: a ocorrência da Crítica engloba tudo, a equipe do TMAE sai um pouco depois de ela abrir, e a SS nasce um pouco depois de a equipe sair. <strong>Ela se confirma em 896 casos.</strong> Da Crítica até a equipe sair, a mediana é de <strong>7,7 horas</strong>; daí até a SS nascer, <strong>2,6 horas</strong>.</p>
-            <p>Isto só pôde ser medido depois de uma correção: os campos <strong>at_ini</strong> e <strong>at_fim</strong> do fluxo <strong>não são a hora da equipe</strong> — são a janela da ocorrência copiada, idêntica a ela em 1.039 das 1.160 com atendimento. Enquanto a régua azul usou esses campos, ela desenhava a barra da Crítica noutra cor, e dizer que o atendimento cabia dentro da ocorrência era quase tautologia. Agora a faixa azul é <em>quando a equipe saiu → quando concluiu</em>, com um traço branco marcando <em>quando ela chegou</em>, direto da base do TMAE.</p>
+            <p><strong>O casamento que decide é o da SS com a Crítica, não o do atendimento.</strong> O TMAE é marcador: pode faltar sem prejuízo, e falta em 140 casos. Já a SS ter nascido com o cliente ainda sem energia é a prova de que o pedido e o apagão são o mesmo evento — e isso vale em <strong>{br(naConta.filter(ssDentroDaCritica).length)}</strong> das <strong>{br(naConta.length)}</strong>, sem tolerância nenhuma. Outras <strong>{br(naConta.filter(ssNaTolerancia).length)}</strong> entram pela tolerância da janela, e as <strong>{br(naConta.filter((r) => !ssDentroDaCritica(r) && !ssNaTolerancia(r)).length)}</strong> restantes entraram pela contenção ou pelo seu veredito — nenhuma por distração da régua.</p>
+            <p>A ordem esperada é esta: a ocorrência da Crítica engloba tudo, a equipe do TMAE sai um pouco depois de ela abrir, e a SS nasce um pouco depois de a equipe sair. <strong>Ela se confirma em 871 casos.</strong> Da Crítica até a equipe sair, a mediana é de <strong>7,7 horas</strong>; daí até a SS nascer, <strong>2,6 horas</strong>.</p>
+            <p>Isto só pôde ser medido depois de uma correção: os campos <strong>at_ini</strong> e <strong>at_fim</strong> do fluxo <strong>não são a hora da equipe</strong> — são a janela da ocorrência copiada, idêntica a ela em 1.040 das 1.229 com atendimento. Enquanto a régua azul usou esses campos, ela desenhava a barra da Crítica noutra cor, e dizer que o atendimento cabia dentro da ocorrência era quase tautologia. Agora a faixa azul é <em>quando a equipe saiu → quando concluiu</em>, com um traço branco marcando <em>quando ela chegou</em>, direto da base do TMAE.</p>
           </section>
           <section className="panel editorial-note wide"><span>O QUE ESTA ABA NÃO DIZ</span>
             <p>Nenhum destes recortes fala sobre a <strong>causa</strong> da falha. SS aberta por muito tempo não é caso mal decidido; atendimento antes da SS é o comportamento normal do campo — o cliente liga, a equipe vai, a solicitação nasce depois para formalizar.</p>
@@ -5327,7 +5331,7 @@ export default function Page() {
                       ? ` (${x.auxiliar_evidencias.join("; ")})` : ""} · TMAE: {x.flag_tmae}</small>
                     {x.gemeas?.length ? <small>gêmeas: {x.gemeas.map((g) => g.ss).join(", ")}</small> : null}</td>
                   {/* TODAS as ocorrências, não as duas primeiras: 15 casos têm mais de duas, e em
-                      19 a causa da segunda não é a da primeira — cortar em duas escondia 30 das
+                      8 a causa da segunda não é a da primeira — cortar em duas escondia 30 das
                       142 e mostrava uma causa que podia não ser a do caso. A observação da equipe,
                       que nunca aparecia, é o texto que mais decide numa conferência. */}
                   <td><strong>{x.critica === "SIM" ? "casou na janela" : x.critica === "AUSENTE" ? "ausente" : "fora da janela"}</strong>
@@ -5427,10 +5431,10 @@ export default function Page() {
               <thead><tr><th>O que a régua achou</th><th>Quantos</th><th>O que isso quer dizer</th></tr></thead>
               <tbody>
                 <tr><td><strong>Casaram na Crítica</strong></td><td><strong>{br(R.casaram_na_critica)}</strong></td><td>A abertura da SS cai na janela de uma ocorrência do mesmo ativo — prova elétrica própria.</td></tr>
-                <tr><td><strong>Ausentes da Crítica</strong></td><td><strong>{br(R.ausentes_da_critica)}</strong></td><td>Não é contraprova: a ocorrência só entra na Crítica quando <em>finaliza</em>. Três casos deste mês eram ausentes em 10/08 e passaram a casar em 11/08.</td></tr>
+                <tr><td><strong>Ausentes da Crítica</strong></td><td><strong>{br(R.ausentes_da_critica)}</strong></td><td>Não é contraprova: a ocorrência só entra na Crítica quando <em>finaliza</em>. Reprocessar com uma extração mais nova pode fazê-los casar.</td></tr>
                 <tr><td><strong>Sem OS apontada</strong></td><td><strong>{br(R.sem_os)}</strong></td><td>Apontamento pendente, não ausência de serviço.</td></tr>
                 <tr><td><strong>Suspeita de auxiliar</strong></td><td><strong>{br(R.suspeita_auxiliar)}</strong></td><td>Transformador de serviço auxiliar não é carga de cliente e fica fora do indicador. Confirmação pela distância no KML.</td></tr>
-                <tr><td><strong>Universo ampliado</strong></td><td><strong>{br(R.universo_ampliado)}</strong></td><td>SS que citam transformador e ficam <em>fora</em> do recorte oficial do mês. Não entram na conta — estão listadas no fim, à vista.</td></tr>
+                <tr><td><strong>Universo ampliado</strong></td><td><strong>{br(R.universo_ampliado)}</strong></td><td>SS que citam transformador e ficam <em>fora</em> do recorte oficial do mês. Não entram na conta do mês; ficam fora do placar de propósito.</td></tr>
               </tbody>
             </table></div>
           </section>
@@ -5675,9 +5679,9 @@ export default function Page() {
           </section>
           <section className="panel editorial-note wide"><span>O QUE ISTO DIZ, E O QUE NÃO DIZ</span>
             <p><strong>Quase um em cada três transformadores que queimaram estava sobre aterramento acima do limite da norma</strong> — {br(ruins.length)} dos {br(medidos.length)} com medição anterior ao serviço, sendo {br(q((r) => faixaTerra(r) === "grave"))} acima de 100 Ω, o pior deles com {ohm(p(1))}. A distribuidora <strong>mediu isso na hora da troca</strong>, escreveu o número, e em <strong>{br(semMelhoria.length)} deles respondeu NÃO à pergunta “fez melhoria de aterramento”</strong>. O transformador novo foi instalado no mesmo ponto, com o mesmo aterramento.</p>
-            <p>O que <strong>não</strong> dá para dizer: que o aterramento ruim explica a queima por raio. Cruzei, e ele não separa — entre os queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 32%. Quem apresentar isso como causa provada vai ser desmentido na primeira pergunta. O achado é de <strong>manutenção</strong>, não de causalidade: existe um cadastro de pontos ruins, medido pela própria equipe, e ele não virou serviço.</p>
-            <p><strong>São três medições, e elas são de pontos diferentes.</strong> As colunas X1, X2 e X3 do formulário não são a mesma leitura repetida: em apenas 7% dos casos as três vêm iguais, e a razão entre a maior e a menor tem mediana de 1,3× — mas chega a 405× em casos como 1.448 Ω numa haste e 1,2 Ω noutra. Por isso a régua usa a <strong>pior</strong>: aterramento é caminho, e o pior caminho é o que define o que sobra para o equipamento. Se a régua usasse a média, os fora da norma cairiam de 228 para 185; se usasse a melhor das três, para 153. A escolha é conservadora de propósito, e está dita aqui para quem quiser refazer a conta.</p>
-            <p><strong>E o que aconteceu com os ruins depois do serviço.</strong> Dos {br(228)} que estavam acima de 25 Ω antes, {br(193)} têm medição posterior: <strong>165 continuaram acima</strong> — 159 deles queimados — e só <strong>28 caíram para dentro da norma</strong>. Os outros 35 não foram medidos de novo. É a mesma história por outro ângulo: a equipe volta ao poste, mede, e o ponto continua como estava.</p>
+            <p>O que <strong>não</strong> dá para dizer: que o aterramento ruim explica a queima por raio. Cruzei, e ele não separa — entre os queimados por descarga atmosférica, 33% estão acima de 25 Ω; entre as demais causas, 29%. Quem apresentar isso como causa provada vai ser desmentido na primeira pergunta. O achado é de <strong>manutenção</strong>, não de causalidade: existe um cadastro de pontos ruins, medido pela própria equipe, e ele não virou serviço.</p>
+            <p><strong>São três medições, e elas são de pontos diferentes.</strong> As colunas X1, X2 e X3 do formulário não são a mesma leitura repetida: em apenas 7% dos casos as três vêm iguais, e a razão entre a maior e a menor tem mediana de 1,3× — mas chega a 405× em casos como 8,1 Ω numa haste e 0,02 Ω noutra. Por isso a régua usa a <strong>pior</strong>: aterramento é caminho, e o pior caminho é o que define o que sobra para o equipamento. Se a régua usasse a média, os fora da norma cairiam de 223 para 180; se usasse a melhor das três, para 149. A escolha é conservadora de propósito, e está dita aqui para quem quiser refazer a conta.</p>
+            <p><strong>E o que aconteceu com os ruins depois do serviço.</strong> Dos {br(223)} que estavam acima de 25 Ω antes, {br(190)} têm medição posterior: <strong>163 continuaram acima</strong> — 157 deles queimados — e só <strong>27 caíram para dentro da norma</strong>. Os outros 33 não foram medidos de novo. É a mesma história por outro ângulo: a equipe volta ao poste, mede, e o ponto continua como estava.</p>
             <p><strong>A medição que vale é a de ANTES do serviço</strong>, e é dele a correção. A de depois descreve o ponto já mexido: usá-la seria apresentar o conserto como se fosse a condição que matou o equipamento. Por isso {br(q((r) => faixaTerra(r) === "so_depois"))} solicitações que só trazem o número posterior ficam em faixa própria, fora das cinco. Entre as que têm as duas medições, {br(naConta.filter((r) => { const a = terraDe(r); return Boolean(a?.antes.length && a?.depois.length && Math.max(...a.antes) === Math.max(...a.depois)); }).length)} repetem o mesmo número nos dois campos — a equipe copiou, o que é coerente com não ter feito melhoria.</p>
             <p><strong>Zero não é medição.</strong> {br(q((r) => faixaTerra(r) === "sem"))} solicitações vieram com as três hastes vazias ou zeradas, e elas contam aqui como <em>não preenchido</em> — nunca como bom. Resistência zero não existe num aterramento de distribuição: é campo em branco lançado como zero, e somá-lo ao grupo bom empurraria a mediana para baixo e diria que o parque está bem aterrado quando ninguém mediu.</p>
             <p>Onde a melhoria foi feita, ela aparece: em <strong>{br(q((r) => { const a = terraDe(r); return Boolean(a?.pior && a?.pior_depois && a.pior_depois < a.pior); }))}</strong> casos a medição de depois é menor que a de antes — há quedas de 6.105 Ω para 967 Ω. O formulário serve; o que falta é a ordem de serviço depois dele.</p>
@@ -5874,7 +5878,7 @@ export default function Page() {
           <section className="panel editorial-note wide"><span>POR QUE PELO TEXTO E NÃO PELO CAMPO</span>
             <p>A base traz três campos numéricos de potência para o mesmo transformador, e eles brigam: <strong>POTENCIA_RET</strong> e <strong>POT_RET</strong> discordam em 222 das que contam. Já o texto é escrito por quem esteve no poste.</p>
             <p>A ordem de leitura é esta, e ela importa: <strong>1.</strong> o trafo INSTALADO nomeado na OS — <em>“TRANSFORMADOR INSTALADO: 15 KVA”</em> —, que é o que a obra pagou; <strong>2.</strong> a potência única citada na OS; <strong>3.</strong> a SS, só quando a OS não disser nada. Cada linha mostra de qual das três veio.</p>
-            <p>O instalado é o certo para comparar com dinheiro: numa troca com aumento de potência, o que saiu e o que entrou são diferentes, e a SS descreve o que a equipe encontrou — o retirado. Ler só a SS deixava 401 casos sem julgamento; lendo a OS primeiro, sobram menos de metade disso.</p>
+            <p>O instalado é o certo para comparar com dinheiro: numa troca com aumento de potência, o que saiu e o que entrou são diferentes, e a SS descreve o que a equipe encontrou — o retirado. Ler só a SS deixava 465 casos sem julgamento; lendo a OS primeiro, sobram menos de metade disso.</p>
             <p>Passar da cerca por pouco não vira achado: a diferença precisa ser de <strong>R$ {br(margem)} ou mais</strong> para a linha entrar. Sem margem nenhuma seriam {br(acima.length + abaixo.length + borda.length)} casos, a maioria passando por algumas centenas de reais — ruído de arredondamento de obra, que afoga as que importam. Os que ficam entre a cerca e a margem estão no recorte “na borda”, não sumiram.</p>
             <p>E o que sai daqui é <strong>achado, não veredito</strong>. Valor acima da faixa costuma ser obra que cobriu mais de uma troca ou que instalou potência maior que a do texto; valor abaixo costuma ser obra que não apropriou o custo inteiro. Nenhum dos dois, sozinho, prova erro — os dois merecem uma olhada.</p>
           </section>
@@ -5900,7 +5904,10 @@ export default function Page() {
 
     return <>
       {cabecalho()}
-      <section className="panel list-panel">
+      {/* A LISTA DAS 1.510 NÃO PERTENCE ÀS ABAS DE MÊS. Julho e agosto têm universo
+          próprio e a tarja diz "indicador separado" — renderizar as 1.510 embaixo,
+          rotuladas com o título do mês, contradizia a própria tarja. */}
+      {modulo.startsWith("mes_") ? null : <section className="panel list-panel">
         <div className="list-head">
           <div><span>{br(listadas.length)} solicitações{listadas.length > CAP ? ` · mostrando as ${CAP} primeiras` : ""}</span>
             <strong>{recorteAtivo ? recorteAtivo.rotulo : recorte ? recorte.rotulo : titulo.titulo}</strong></div>
@@ -5919,7 +5926,7 @@ export default function Page() {
         {listadas.length
           ? <Tabela classificacoes={classificacao} aoClassificar={classificar} coleta={coleta} potenciaDe={potenciaDoCaso} distanciaDe={distanciaDaFaixa} ladoDe={foraDaFaixa} materialDe={materialDa} ssNaObraDe={(r) => ssPorObra.get(obraDe(r)) || 1} estadoDe={estadoMaterial} parceirasOcDe={parceirasOc} parceirasAtDe={parceirasAt} tmaeDe={(r) => tmae[texto(r.ss)]} revisaoDe={paraRever} terraDe={terraDe} reincDe2={reincDe} terraQuando={terraQuando} reformaDe2={reformaDe} linhas={listadas.slice(0, CAP)} modo={modulo} aoAbrir={(r) => { setAberto(r); setAbaDossie(modulo === "insight_tempos" ? "tempos" : "consolidado"); setMotivosAbertos(false); }} />
           : <div className="empty"><strong>Nenhuma solicitação neste recorte</strong><span>Ajuste a busca ou escolha outro filtro acima.</span></div>}
-      </section>
+      </section>}
     </>;
   };
 
@@ -6423,7 +6430,7 @@ export default function Page() {
                 anterior e entrava como prova sem que ninguém conferisse a data — houve caso de
                 atendimento de 11 de junho sustentando SS de 3 de janeiro.</li>
                 <li>O caso continua onde está: exigir a data dentro da janela tira 52 solicitações
-                da SAÍDA, de 1.269 para 1.217, e esse número vai a conselho — não é mudança para
+                da SAÍDA, de 1.269 para 1.182, e esse número vai a conselho — não é mudança para
                 se fazer calada.</li></ul></article> : null}
             <article className="source-text"><span>OBSERVAÇÃO DO EXECUTANTE</span><p>{texto(aberto.at_obs) || "Sem observação."}</p></article>
             {texto(aberto.lacuna_base) ? <article className="work-alerts danger"><span>LACUNA CONHECIDA DA BASE</span><ul><li>{texto(aberto.lacuna_base)}</li></ul></article> : null}
