@@ -556,6 +556,61 @@ function mediana(valores: number[]) {
   return v.length ? v[Math.floor(v.length / 2)] : 0;
 }
 
+/* AS COLUNAS DOS 72 DE JULHO. Uma lista só serve à grade na tela E ao arquivo baixado:
+   se fossem duas listas, um dia a tela mostraria uma coisa e o Excel outra, e ninguém
+   descobriria até alguém conferir na mão. O tipo "n" é numérico e sai sem aspas para o
+   Excel somar; o resto é texto. */
+type ColJulho = { k: string; rot: string; larg?: number; n?: boolean;
+  v: (x: MesCaso, extra: { marca?: MarcaConf; comp?: JulhoCompletoCaso; clima?: ClimaCaso }) => string | number };
+const COLUNAS_JULHO: ColJulho[] = [
+  { k: "ss", rot: "Solicitação", larg: 190, v: (x) => texto(x.ss) },
+  { k: "trafo", rot: "Transformador", larg: 120, v: (x) => texto(x.trafo) },
+  { k: "entra", rot: "Entra?", larg: 90, v: (x) => texto(x.entra) },
+  { k: "categoria", rot: "Categoria", larg: 300, v: (x) => texto(x.categoria) },
+  { k: "critica", rot: "Crítica", larg: 100, v: (x) => texto(x.critica) },
+  { k: "abertura", rot: "Abertura da SS", larg: 150, v: (x) => texto(x.abertura) },
+  { k: "localidade", rot: "Município", larg: 170, v: (x) => texto(x.localidade) },
+  { k: "alimentador", rot: "Alimentador", larg: 120, v: (x) => texto(x.alimentador) },
+  { k: "origem", rot: "Origem", larg: 130, v: (x) => texto(x.origem) },
+  { k: "defeito", rot: "Defeito", larg: 190, v: (x) => texto(x.defeito) },
+  { k: "clientes", rot: "Clientes", larg: 90, n: true, v: (x) => Number(x.clientes) || 0 },
+  { k: "pot_ret", rot: "kVA retirado", larg: 100, n: true, v: (x) => Number(x.pot_ret) || 0 },
+  { k: "pot_inst", rot: "kVA instalado", larg: 100, n: true, v: (x) => Number(x.pot_inst) || 0 },
+  { k: "os", rot: "Ordem de serviço", larg: 180, v: (x) => texto(x.os) },
+  { k: "obra", rot: "Obra", larg: 120, v: (x) => texto(x.obra) },
+  { k: "interv", rot: "Intervenção (Crítica)", larg: 160,
+    v: (_x, e) => texto(e.comp?.intervencao_critica) },
+  /* a causa vem do mês; quando o mês não traz (caso sem ocorrência casada), cai para a
+     ocorrência reconstruída da Crítica de julho — mesma fonte, lida direto */
+  { k: "oc_causa", rot: "Causa da ocorrência", larg: 200,
+    v: (x, e) => texto((x.ocorrencias || [])[0]?.causa
+      || (e.comp?.ocorrencias_julho || [])[0]?.causa) },
+  { k: "oc_sub", rot: "Subcausa", larg: 260,
+    v: (x, e) => texto((x.ocorrencias || [])[0]?.subcausa
+      || (e.comp?.ocorrencias_julho || [])[0]?.subcausa) },
+  { k: "ns_ret", rot: "Nº série retirado", larg: 130, v: (_x, e) => texto(e.comp?.ns_retirado) },
+  { k: "fab_ret", rot: "Fabricação retirado", larg: 130, v: (_x, e) => texto(e.comp?.fab_retirado_campo) },
+  { k: "ns_inst", rot: "Nº série instalado", larg: 130, v: (_x, e) => texto(e.comp?.ns_instalado) },
+  { k: "idade_inst", rot: "Idade do instalado (anos)", larg: 130, n: true,
+    v: (_x, e) => e.comp?.idade_instalado_anos ?? "" },
+  { k: "reformado", rot: "Instalado é reformado?", larg: 130,
+    v: (_x, e) => texto(e.comp?.instalado_reformado) },
+  { k: "teste_vazio", rot: "Teste a vazio", larg: 130,
+    v: (_x, e) => texto(e.comp?.feito_no_equipamento?.teste_vazio) },
+  { k: "cola", rot: "Cola e fita", larg: 100,
+    v: (_x, e) => texto(e.comp?.feito_no_equipamento?.cola_e_fita) },
+  { k: "raios20", rot: "Raios a 20 km no dia", larg: 130, n: true,
+    v: (_x, e) => e.clima?.raios_20km_dia ?? "" },
+  { k: "chuva", rot: "Chuva no dia (mm)", larg: 120, n: true,
+    v: (_x, e) => e.clima?.chuva_dia_mm ?? "" },
+  { k: "marca", rot: "Sua marca", larg: 110,
+    v: (_x, e) => ({ confere: "confere", erro: "erro", duvida: "dúvida" } as Record<string, string>)[e.marca?.marca || ""] || "" },
+  { k: "anotacao", rot: "Sua anotação", larg: 320, v: (_x, e) => texto(e.marca?.nota) },
+  { k: "narrativa", rot: "Como o caso foi analisado", larg: 520, v: (x) => texto(x.narrativa) },
+  { k: "texto_ss", rot: "Texto da solicitação", larg: 420, v: (x) => texto(x.texto_ss) },
+  { k: "texto_os", rot: "Texto da ordem de serviço", larg: 420, v: (x) => texto(x.texto_os) },
+];
+
 /* As colunas da planilha. Uma lista só, usada na tela, no CSV e no dossiê — se o número
    da caixa e a lista divergirem, é porque alguém criou uma segunda fonte de verdade. */
 const COLUNAS: Array<[string, string]> = [
@@ -589,6 +644,33 @@ const COLUNAS: Array<[string, string]> = [
   ["Observação em campo", "oc_obs"], ["Observação do executante", "at_obs"],
   ["Descrição da SS", "desc_ss"], ["Descrição da OS", "desc_os"],
 ];
+
+/* O ARQUIVO DOS 72. Sai das mesmas COLUNAS_JULHO da grade — e leva a marca e a anotação
+   do conferente, que é o trabalho dele e não pode ficar preso na tela.
+   Formato: CSV com ponto e vírgula e BOM, que é o que o Excel em português abre com dois
+   toques. Gerar .xlsx de verdade exigiria uma biblioteca, e biblioteca externa não passa
+   na política de segurança desta página — um .xlsx que não abre seria pior que um .csv
+   que abre. O separador decimal fica em vírgula pelo mesmo motivo. */
+function baixarJulho(linhas: MesCaso[], marcas: Record<string, MarcaConf>,
+                     completo: JulhoCompleto | null, clima: ClimaMes | null) {
+  const escapa = (v: string | number, num?: boolean) => {
+    if (v === null || v === undefined || v === "") return "";
+    if (num) return String(v).replace(".", ",");
+    return `"${String(v).replace(/"/g, '""').replace(/\r?\n/g, " ")}"`;
+  };
+  const cab = COLUNAS_JULHO.map((c) => escapa(c.rot)).join(";");
+  const corpo = linhas.map((x) => {
+    const extra = { marca: marcas[x.ss], comp: completo?.por_ss?.[x.ss], clima: clima?.por_ss?.[x.ss] };
+    return COLUNAS_JULHO.map((c) => escapa(c.v(x, extra), c.n)).join(";");
+  }).join("\r\n");
+  const blob = new Blob([`\ufeff${cab}\r\n${corpo}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `julho-2026-conferencia-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 function baixarCSV(linhas: Registro[], titulo: string, janela: number) {
   const cabec = [...COLUNAS.map(([r]) => r), "janela_horas"].join(";");
@@ -2108,6 +2190,11 @@ export default function Page() {
     } catch { return {}; }
   });
   const [filtroConf, setFiltroConf] = useState<"todos" | "entram" | "pendentes" | "faltam">("todos");
+  /* Ele pediu para "visualizar no site como se fosse em excel". A lista de cartões é boa
+     para LER um caso; é ruim para VARRER 72 procurando um padrão. São as duas coisas, e
+     não a mesma coisa feita de dois jeitos — por isso um botão troca a lista pela grade,
+     em vez de eu escolher por ele. */
+  const [gradeConf, setGradeConf] = useState(false);
   /* GRAVAR ENQUANTO SE ESCREVE, não só ao sair do campo. A anotação era salva no onBlur —
      e no celular ninguém "sai do campo": rola a tela, fecha a aba, troca de aplicativo. Pior,
      a lista se redesenha a cada marca e o campo volta ao valor guardado, levando junto o que
@@ -2432,7 +2519,9 @@ export default function Page() {
     insight_aterramento: ["aterr", "solo"], insight_naoqueimado: ["reforma"],
     insight_almoxarifado: ["almox", "coleta"], insight_garantia: ["coleta"],
     mes_julho: ["julho"], mes_agosto: ["agosto"],
-    mes_julho_conf: ["julho", "conf", "completo"],
+    /* o clima entra aqui também: sem ele o arquivo baixado sai com as colunas de raio e
+       chuva vazias, e vazio no Excel parece dado ausente em vez de arquivo não carregado */
+    mes_julho_conf: ["julho", "conf", "completo", "clima"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
   };
@@ -5156,7 +5245,35 @@ export default function Page() {
             <div className="janela-botoes conf-filtros">{FILTROS.map(([id, rot, q]) => <button key={id}
               type="button" className={filtroConf === id ? "ativo" : ""}
               onClick={() => setFiltroConf(id)}>{rot} <i>{q}</i></button>)}</div>
-            <div className="table-scroll"><table className="records-table">
+            {/* Ler um caso e varrer 72 são tarefas diferentes: os cartões servem à
+                primeira, a grade à segunda. O arquivo baixado sai das MESMAS colunas da
+                grade — uma lista só no código, para a tela e o Excel nunca divergirem.
+                E leva a marca e a anotação junto, que é o trabalho dele. */}
+            <div className="conf-ferramentas">
+              <button type="button" className={gradeConf ? "ativo" : ""}
+                onClick={() => setGradeConf((v) => !v)}>
+                {gradeConf ? "ver em cartões" : "ver como planilha"}</button>
+              <button type="button" className="sheet-download"
+                onClick={() => baixarJulho(lista, marcasConf, completo, clima)}>
+                Baixar Excel ({br(lista.length)})</button>
+              <small>o arquivo sai com o filtro que está na tela, com a sua marca e a sua anotação</small>
+            </div>
+            {gradeConf ? <div className="grade-scroll"><table className="grade-julho">
+              <thead><tr>{COLUNAS_JULHO.map((c) => <th key={c.k}
+                style={{ minWidth: c.larg || 120 }} className={c.n ? "num" : undefined}>{c.rot}</th>)}</tr></thead>
+              <tbody>{lista.map((x) => {
+                const extra = { marca: marcasConf[x.ss], comp: completo?.por_ss?.[x.ss],
+                                clima: clima?.por_ss?.[x.ss] };
+                return <tr key={x.ss} onClick={() => { setCasoMes(x); setAbaMes("consolidado"); }}>
+                  {COLUNAS_JULHO.map((c) => {
+                    const v = c.v(x, extra);
+                    return <td key={c.k} className={c.n ? "num" : undefined}
+                      title={String(v ?? "")}>{v === "" || v === null || v === undefined ? "—" : String(v)}</td>;
+                  })}
+                </tr>;
+              })}</tbody>
+            </table></div> : null}
+            {gradeConf ? null : <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Solicitação</th><th>O que a régua decidiu</th><th>O que a Crítica gravou</th><th>O que o campo escreveu</th><th>Sua marca</th></tr></thead>
               <tbody>{lista.map((x) => {
                 const m = marcasConf[x.ss];
@@ -5213,7 +5330,7 @@ export default function Page() {
                   </td>
                 </tr>;
               })}</tbody>
-            </table></div>
+            </table></div>}
             <p className="fonte-detalhe">O texto da coluna da direita é o que a equipe escreveu na solicitação e na ordem de serviço — passe o mouse para ler inteiro. É a única fonte desta tela escrita por quem esteve no poste.</p>
           </section>
 
