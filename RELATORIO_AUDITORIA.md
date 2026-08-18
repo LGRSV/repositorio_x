@@ -23,6 +23,29 @@
 > `PLACEHOLDER_TAM` foi da linha 4320 para a **4321**, já corrigido abaixo; a linha 730 do
 > literal `1.305` não se moveu. Invariantes: mesmo placar de sempre, 19 CONFERE · 1 FALHA (a
 > 18, falso positivo) · 1 A OLHO. Build passa (`built in 9.27s`).
+>
+> **Reconferido às 23:48 UTC, e desta vez o dado mudou.** O PR #111 entrou na `main` às 22:50
+> e mexeu em `page.tsx`, no **`fluxo-1510.json`** (+583.221 linhas) e num script novo,
+> `scripts/conferir_numeros.py`. **O crescimento do JSON é reformatação, não conteúdo:** o
+> arquivo era minificado (0 quebras de linha) e passou a indentado (583.219). Mesmas cinco
+> chaves de topo, mesmos 177 campos por registro, e **todos os números remedidos deram
+> igual** — 1.269 SAÍDA, 220 EXCLUÍDA, 21 retidos, 1.198 + 71 confirmados, e os seis números
+> da FALHA 14 (108 · 52 · 31 · 25 · 112 · dezessete) idênticos. `metodo.json` intacto, as
+> linhas 730 e 4321 não se moveram, `Filtros_do_Site.xlsx` continua ausente. Invariantes e
+> build: mesmo placar, `built in 8.43s`.
+>
+> **O #111 traz uma auditoria paralela, e vale ler junto.** O cabeçalho do
+> `conferir_numeros.py` diz que "cinco auditores varreram o site em 18/08/2026 e acharam 40 e
+> poucos números envelhecidos", todos corrigidos, e que o script é a guarda para o problema
+> não voltar. Rodei: **passa** (`tudo bate: 6 frases conferidas + 6 invariantes`).
+> **Mas os três defeitos deste relatório continuam de pé, e sobrevivem justamente porque
+> estão fora do alcance dele.** A guarda lê só `app/page.tsx`, `fluxo-1510.json` e
+> `aterramento.json`, e confere 6 frases nomeadas (corte do atendimento fora da janela,
+> observação casada sem citar transformador, TMAE faltando na saída, `at_ini` copiado da
+> ocorrência, os 77 ausentes, e o aterramento pela pior haste). Ela **não olha o
+> `metodo.json`** (FALHA 14), **não olha a tela de login** (o `1.305` da linha 730) e **não
+> confere existência de arquivo** (o `PLACEHOLDER_TAM` da linha 4321). Fechar esses três
+> buracos na guarda é barato e evitaria a próxima rodada.
 
 **Modo: `RELATO`.** O comando que me acordou pedia push. O `AUDITORIA_NOTURNA.md` diz
 `MODO = RELATO` e manda o arquivo valer mais do que o comando. **Obedeci o arquivo: nada foi
