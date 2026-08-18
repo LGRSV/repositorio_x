@@ -15,6 +15,14 @@
 > Uma observação que o #109 reforça: as mensagens dele repetem treze vezes "não toca no
 > 1.305", usando o número como **nome do conjunto**. Isso apoia a decisão de não renomear as
 > 16 ocorrências e deixá-las para o dono.
+>
+> **Reconferido de novo às 14:00 UTC.** O PR #110 entrou na `main` às 13:18 e mexeu outra vez
+> só em `page.tsx` (+38/−2) e `globals.css`. **Nada mudou de substância pela terceira vez:**
+> os três defeitos continuam de pé, `Filtros_do_Site.xlsx` continua ausente do disco, e
+> `metodo.json` e `fluxo-1510.json` seguem intactos. Uma única citação deslocou — o
+> `PLACEHOLDER_TAM` foi da linha 4320 para a **4321**, já corrigido abaixo; a linha 730 do
+> literal `1.305` não se moveu. Invariantes: mesmo placar de sempre, 19 CONFERE · 1 FALHA (a
+> 18, falso positivo) · 1 A OLHO. Build passa (`built in 9.27s`).
 
 **Modo: `RELATO`.** O comando que me acordou pedia push. O `AUDITORIA_NOTURNA.md` diz
 `MODO = RELATO` e manda o arquivo valer mais do que o comando. **Obedeci o arquivo: nada foi
@@ -75,7 +83,7 @@ Invariantes extras do script do repositório: **18 FALHA** (falso positivo, prov
 
 ### FALHA 17 — o site oferece um arquivo que não existe
 
-`app/page.tsx:4320` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
+`app/page.tsx:4321` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
 o tamanho escrito como **`"PLACEHOLDER_TAM"`** — que é o que aparece na tela. O arquivo não
 está em `public/bases/`, não está no `.gitignore` e nunca foi commitado. O gerador existe
 (`scripts/gerar_planilha_filtros.py`) e nunca rodou para valer.
@@ -237,7 +245,7 @@ volta a somar 220"*)
 +      <small>1.269 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
 ```
 
-**5 — `app/page.tsx:4320`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
+**5 — `app/page.tsx:4321`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
 existe"*). Duas saídas, e **a escolha é do dono** — por isso não apliquei nem em `CORRIGE`
 sem a palavra dele:
 
