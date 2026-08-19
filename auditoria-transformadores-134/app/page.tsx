@@ -517,6 +517,39 @@ const LEITURA_ROTULO: Record<string, string> = {
   L1: "Texto diz falha", L2: "Texto diz outra causa", L3: "Texto não decide",
 };
 
+/* AS PEÇAS QUE VOLTARAM DE GARANTIA E QUEIMARAM DE NOVO. O relatório do almoxarifado
+   (lista do Douglas Nazário) mostra 51 equipamentos devolvidos ao fornecedor com nota de
+   retorno — e o cruzamento por número de série achou dois que, depois de voltarem da
+   garantia, foram reinstalados em 2026 e queimaram de novo: um em UM DIA, outro em 47.
+   O flag vale para as quatro SS envolvidas — a que instalou a peça devolvida e a que a
+   retirou queimada — porque quem abre qualquer uma delas precisa ver a história inteira.
+   A lista é fixa de propósito: são fatos conferidos a mão contra três bases (SS/OS,
+   movimentação e reformadora), não uma regra que possa capturar caso errado. */
+const GARANTIA_REINCIDENTE: Record<string, {
+  papel: "queimou" | "instalou"; serie: string; marca: string; nf: string;
+  instalada: string; ssInstalou: string; queimou: string; ssQueimou: string;
+  dias: number; antes: string;
+}> = (() => {
+  const trael = {
+    serie: "339450", marca: "TRAEL 15 kVA", nf: "97394",
+    instalada: "26/03/2026", ssInstalou: "ETO-RD-AG 00339/2026",
+    queimou: "27/03/2026", ssQueimou: "ETO-RD-AG 00344/2026", dias: 1,
+    antes: "já havia sido retirada pela ENC-RD-PS 00405/2024 em 21/03/2024 e devolvida ao fornecedor (NF de retorno 97394)",
+  };
+  const potencial = {
+    serie: "122932", marca: "POTENCIAL 45 kVA", nf: "97091",
+    instalada: "11/03/2026", ssInstalou: "ETO-RD-AR 00455/2026",
+    queimou: "27/04/2026", ssQueimou: "ETO-RD-AR 00752/2026", dias: 47,
+    antes: "já havia durado 5 dias no poste em 2025 (ETO-RD-DP 00412 → 00417/2025) e sido devolvida ao fornecedor (NF de retorno 97091)",
+  };
+  return {
+    "ETO-RD-AG 00344/2026": { papel: "queimou", ...trael },
+    "ETO-RD-AG 00339/2026": { papel: "instalou", ...trael },
+    "ETO-RD-AR 00752/2026": { papel: "queimou", ...potencial },
+    "ETO-RD-AR 00455/2026": { papel: "instalou", ...potencial },
+  };
+})();
+
 function contar(linhas: Registro[], campo: string, limite = 12): Par[] {
   const mapa = new Map<string, number>();
   linhas.forEach((l) => {
@@ -1379,7 +1412,15 @@ function Tabela({ linhas, modo, aoAbrir, classificacoes, aoClassificar, coleta =
         : excluida ? `linha-excluida${meu === "EXCLUIDO" ? " por-mim" : ""}`
         : undefined;
       return <tr key={texto(r.ss)} className={cor} onClick={() => aoAbrir(r)}>
-      <td><strong>{texto(r.ss)}</strong><span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
+      <td><strong>{texto(r.ss)}</strong>
+        {/* o flag aparece já na lista para as quatro SS das duas peças que voltaram de
+           garantia e queimaram de novo — a história completa está no dossiê */}
+        {GARANTIA_REINCIDENTE[texto(r.ss)]
+          ? <b className="flag-garantia" title={GARANTIA_REINCIDENTE[texto(r.ss)].papel === "queimou"
+            ? `Série ${GARANTIA_REINCIDENTE[texto(r.ss)].serie}: voltou de garantia e queimou de novo em ${GARANTIA_REINCIDENTE[texto(r.ss)].dias} dia(s). Abra o caso para a história completa.`
+            : `Instalou a série ${GARANTIA_REINCIDENTE[texto(r.ss)].serie}, devolvida de garantia — queimou de novo em ${GARANTIA_REINCIDENTE[texto(r.ss)].dias} dia(s).`}>
+            {GARANTIA_REINCIDENTE[texto(r.ss)].papel === "queimou" ? "⟲ garantia reincidiu" : "⟲ instalou devolvida"}</b> : null}
+        <span>{texto(r.os) || "sem OS"}</span><code>{texto(r.trafo)}</code></td>
       <td><strong>{dataBR(r.abertura)}</strong><span>{texto(r.localidade)}</span><small>{texto(r.equipe_ss)} · {texto(r.origem)}</small></td>
 
       {modo === "insight_tempos" && <>
@@ -6140,8 +6181,24 @@ export default function Page() {
           <b className={`pill ${decisaoClasse(texto(aberto.decisao))}`}>{texto(aberto.decisao)}</b>
           <span>{FATO_ROTULO[texto(aberto.fato)]}</span>
           <span>{LEITURA_ROTULO[texto(aberto.leitura)]}</span>
+          {GARANTIA_REINCIDENTE[texto(aberto.ss)]
+            ? <b className="pill bad">{GARANTIA_REINCIDENTE[texto(aberto.ss)].papel === "queimou"
+              ? "voltou de garantia e queimou de novo" : "instalou peça devolvida de garantia"}</b> : null}
           <em>{texto(aberto.categoria_texto)}</em>
         </div>
+        {(() => {
+          const g = GARANTIA_REINCIDENTE[texto(aberto.ss)];
+          if (!g) return null;
+          return <article className="work-alerts danger"><span>PEÇA QUE VOLTOU DE GARANTIA E QUEIMOU DE NOVO — SÉRIE {g.serie}</span>
+            <ul>
+              <li>O transformador {g.marca}, série <strong>{g.serie}</strong>, está no relatório de garantia do almoxarifado: {g.antes}.</li>
+              <li>Depois de voltar do fornecedor, foi reinstalado em <strong>{g.instalada}</strong> pela {g.ssInstalou} — e queimou de novo em <strong>{g.queimou}</strong>, retirado pela {g.ssQueimou}: <strong>{g.dias === 1 ? "durou UM dia no poste" : `durou ${g.dias} dias no poste`}</strong>.</li>
+              <li>{g.papel === "queimou"
+                ? "Esta SS é a da segunda queima. Uma peça que retorna de garantia e falha de novo em dias pede laudo do fornecedor — o defeito veio na peça, não do poste."
+                : "Esta SS instalou a peça devolvida de garantia. A segunda queima está registrada na " + g.ssQueimou + "."}</li>
+              <li>Cruzamento conferido em três bases: relatório do almoxarifado (NF de retorno {g.nf}), base SS/OS e movimentação por obra.</li>
+            </ul></article>;
+        })()}
         <div className="classificar">
           <span>Sua classificação</span>
           <div>{CLASSES.map(([id, rotulo, tom]) => <button key={id}
