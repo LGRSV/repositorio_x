@@ -114,12 +114,12 @@ E no bloco `leitura`: **"errada em 118 solicitações"** → hoje são **128**
 ### FALHA 18 — é o teste que está errado, não o site
 
 O script acusa "o contador do cabeçalho não usa `listadas.length`". **Usa.** Está na linha
-6013 do `page.tsx`. O que acontece é que existem **dois** `header-meta` e a regex do teste
-casa só com o primeiro (linha 6012, o ramo das abas de mês) e olha 200 caracteres à frente —
+6054 do `page.tsx`. O que acontece é que existem **dois** `header-meta` e a regex do teste
+casa só com o primeiro (linha 6053, o ramo das abas de mês) e olha 200 caracteres à frente —
 não alcança o ramo do recorte, que vem na linha seguinte.
 
 O ramo do mês usa o universo do próprio mês de propósito, e há comentário no código dizendo
-isso (linha 6010). **Não mexi no site.** O diff E conserta o teste.
+isso, logo acima. **Não mexi no site.** O diff E conserta o teste.
 
 Isso repete o padrão que o próprio roteiro avisa: das falhas dos primeiros disparos, a maioria
 era erro do teste. Esta é a quarta.
@@ -154,10 +154,16 @@ envelheceram** junto com o resto: as "22 SS que passam só com o TMAE" e as "89 
 `QTD_CONS_INTER_FAT = 0`" são contagens do modelo antigo. **Não recontei e não mexi** — quando
 o dono revisar o roteiro, essas quatro precisam ser reescritas com ele.
 
-### Build
+### Build, e uma nota sobre o `main` ter andado durante a rodada
 
-`pnpm install --frozen-lockfile` + `pnpm run build:pages` **passam** na árvore limpa
-(built in 3.52s). Como nenhuma mudança foi aplicada, não há build de mudança para reportar.
+`pnpm install --frozen-lockfile` + `pnpm run build:pages` **passam**. Como nenhuma correção
+foi aplicada, não há build de mudança para reportar.
+
+A auditoria começou em `65835e0` e o PR #112 entrou no `main` no meio dela, mexendo em
+`page.tsx` (+59 linhas) e `globals.css`. **Reexecutei os 21 invariantes contra o `main` novo
+(`d15c8e5`) e o resultado é idêntico:** 19 conferem, falha a 18, a 15 fica a olho. Nenhum
+arquivo de dado foi tocado por aquele PR, então todas as medições acima continuam válidas —
+só as linhas citadas do `page.tsx` andaram, e já estão atualizadas no texto.
 
 ---
 
