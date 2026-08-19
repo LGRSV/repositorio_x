@@ -861,6 +861,8 @@ button.month:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px;
 
 /* O instante em que a equipe chegou, dentro da faixa do deslocamento. */
 .regua-chegou { position: absolute; top: 0; width: 2px; height: 11px; background: #fff; box-shadow: 0 0 0 1px var(--blue); }
+/* O flag das peças que voltaram de garantia e queimaram de novo — na lista e no dossiê. */
+.flag-garantia { display: block; width: fit-content; margin: 2px 0; padding: 1px 5px; border: 1px solid var(--red); color: var(--red); background: var(--red-soft); font: 600 8px "IBM Plex Mono", monospace; letter-spacing: .05em; text-transform: uppercase; }
 .rev-motivo { margin: 0 0 4px; font-size: 10px; line-height: 1.45; }
 .rev-motivo b { font-weight: 600; color: var(--ink); }
 .bar-causa { margin-top: 4px; height: 14px; display: flex; background: #efece7; }
