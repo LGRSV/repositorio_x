@@ -69,6 +69,19 @@ def chave(v):
     return re.sub(r"^0+", "", v.replace(".", "")) or ""
 
 
+def so_digitos(v):
+    """Só os dígitos, sem zero à esquerda.
+
+    Existe por causa da ITAM, que grava a série com letra na frente ("C250457") enquanto a
+    SS/OS registra só o número ("250457"). Comparar assim, sozinho, casaria equipamentos de
+    fabricantes diferentes que dividem o mesmo número — por isso o casamento por esta chave
+    só vale quando o TOMBAMENTO ou a MARCA confirmam junto. Foi assim que dois ITAM entraram
+    sem abrir a porta para falso positivo.
+    """
+    d = re.sub(r"\D", "", texto(v))
+    return d.lstrip("0") or ""
+
+
 def data_br(v):
     m = re.match(r"(\d{2})/(\d{2})/(\d{4})", texto(v))
     return datetime(int(m.group(3)), int(m.group(2)), int(m.group(1))) if m else None
@@ -78,7 +91,14 @@ def ler_ss_os(caminhos):
     """Junta linhas até fechar as 64 colunas — o texto da SS e da OS quebra linha."""
     cabecalho, registros = None, []
     for caminho in caminhos:
-        linhas = Path(caminho).read_text(encoding="utf-8").split("\n")
+        # a exportação sai ora em UTF-8, ora em latin-1 conforme a máquina que gerou
+        for cod in ("utf-8", "latin-1"):
+            try:
+                bruto = Path(caminho).read_text(encoding=cod)
+                break
+            except UnicodeDecodeError:
+                continue
+        linhas = bruto.split("\n")
         cab = linhas[0].split("@")
         n = len(cab)
         if cabecalho is None:
@@ -112,6 +132,36 @@ def ler_reformadora(caminho):
     cab = celulas(trs[0], "th")
     linhas = [c for tr in trs[1:] for c in [celulas(tr, "td")] if len(c) == len(cab)]
     return {c: i for i, c in enumerate(cab)}, linhas
+
+
+def ler_movimentacao(caminho):
+    """A planilha de movimentação por obra: uma linha por peça que entrou (I) ou saiu (R).
+
+    É a terceira fonte, e a única que enxerga o equipamento pelo PATRIMÔNIO junto da obra.
+    Serve para localizar peça que a SS/OS não registrou — e para dizer que a peça existiu
+    mesmo quando nenhuma solicitação a menciona.
+    """
+    import openpyxl
+
+    aba = openpyxl.load_workbook(caminho, read_only=True, data_only=True).worksheets[0]
+    linhas = list(aba.iter_rows(values_only=True))
+    cab = [texto(c) for c in linhas[0]]
+    ix = {c: i for i, c in enumerate(cab)}
+    saida = []
+    for r in linhas[1:]:
+        if len(r) <= max(ix.values() or [0]):
+            continue
+        def v(nome):
+            i = ix.get(nome)
+            return texto(r[i]) if i is not None else ""
+        if not (v("NUM_SERIE") or v("NUM_PATRIMONIO")):
+            continue
+        saida.append({
+            "obra": v("NUM_OBRA"), "pat": v("NUM_PATRIMONIO"), "serie": v("NUM_SERIE"),
+            "mov": v("TIP_MOVIMENTO"), "data": v("DTH_SELECAO_PROJ")[:10],
+            "marca": v("NOME_FABRICANTE"), "kva": v("VAL_POTENCIA"), "motivo": v("DSC_MOTIVO"),
+        })
+    return saida
 
 
 def ler_relatorio(caminho):
@@ -166,12 +216,14 @@ def main():
     p.add_argument("--relatorio", required=True, help="Relatório de Garantia do fornecedor (.xlsx)")
     p.add_argument("--ss-os", required=True, nargs="+", help="as partes da base SS/OS (.txt)")
     p.add_argument("--reformadora", required=True, help="ordens de produção da reformadora (.html)")
+    p.add_argument("--movimentacao", help="planilha de movimentação por obra (.xlsx) — opcional")
     p.add_argument("--saida", default=str(PUBLIC / "garantia-almoxarifado.json"))
     args = p.parse_args()
 
     CAB, ix, ALM = ler_relatorio(args.relatorio)
     si, SSB = ler_ss_os(args.ss_os)
     ri, OPS = ler_reformadora(args.reformadora)
+    MOV = ler_movimentacao(args.movimentacao) if args.movimentacao else []
     coleta = json.loads((PUBLIC / "coleta-ativos.json").read_text(encoding="utf-8"))["por_ss"]
     no_indicador, classe_de, fluxo = conjunto_1305()
     if len(no_indicador) != 1305:
@@ -196,17 +248,23 @@ def main():
     itens = []
     for a in ALM:
         ctrl, tomb, serie = chave(a[C_CTRL]), chave(a[C_TOMB]), chave(a[C_SERIE])
+        serie_d, marca = so_digitos(a[C_SERIE]), texto(a[C_FAB]).upper()
         eventos = []
         for linha in SSB:
             achou = []
-            if serie and chave(campo(linha, "NS_RETIRADO")) == serie:
-                achou.append(("retirado", "série"))
-            if tomb and chave(campo(linha, "TOMBAMENTO_RETIRADO")) == tomb:
-                achou.append(("retirado", "tombamento"))
-            if serie and chave(campo(linha, "NS_INSTALADO")) == serie:
-                achou.append(("instalado", "série"))
-            if tomb and chave(campo(linha, "TOMBAMENTO_INSTALADO")) == tomb:
-                achou.append(("instalado", "tombamento"))
+            for c_ns, c_tb, c_fab, papel in (
+                    ("NS_RETIRADO", "TOMBAMENTO_RETIRADO", "FABRICANTE_RETIRADO", "retirado"),
+                    ("NS_INSTALADO", "TOMBAMENTO_INSTALADO", "FABRICANTE_INSTALADO", "instalado")):
+                tb_base = chave(campo(linha, c_tb))
+                if serie and chave(campo(linha, c_ns)) == serie:
+                    achou.append((papel, "série"))
+                elif serie_d and so_digitos(campo(linha, c_ns)) == serie_d and (
+                        (tomb and tb_base == tomb)
+                        or (marca and marca[:4] in texto(campo(linha, c_fab)).upper())):
+                    # a letra do prefixo não está na base: só entra com tombamento ou marca junto
+                    achou.append((papel, "série (grafia)"))
+                if tomb and tb_base == tomb:
+                    achou.append((papel, "tombamento"))
             if not achou:
                 continue
             d = data_br(campo(linha, "DATA_ABERTURA_SS"))
@@ -241,6 +299,18 @@ def main():
                     "marca_base": texto(c.get("fabricante")) if papel == "retirado" else "",
                     "base": "COLETA",
                 })
+        movs = []
+        for m in MOV:
+            k = None
+            if serie_d and so_digitos(m["serie"]) == serie_d:
+                k = "série"
+            elif tomb and chave(m["pat"]) == tomb:
+                k = "patrimônio"
+            if k:
+                movs.append({**m, "chave": k,
+                             "papel": "instalado" if m["mov"] == "I" else "retirado"})
+        movs.sort(key=lambda m: m["data"] or "9999")
+
         op = None
         for o in OPS:
             if ((ctrl and chave(o[ri["Controle"]]) == ctrl)
@@ -262,8 +332,11 @@ def main():
             "vazamento": texto(a[C_VAZ]) == "True", "falha": texto(a[C_FALHA]) == "True",
             "dma": texto(a[C_DMA]), "status": texto(a[C_ST]), "nf_retorno": texto(a[C_NF]),
             "remessa": texto(a[C_REM]), "romaneio": texto(a[C_ROM]), "fornecedor": texto(a[C_FORN]),
-            "eventos": eventos, "op": op,
-            "achou_serie": any("série" in e["chave"] for e in eventos),
+            "eventos": eventos, "op": op, "movimentacoes": movs,
+            "achou_serie": any(e["chave"].startswith("série") or "+série" in e["chave"] for e in eventos),
+            "achou_serie_exata": any("série" in e["chave"] and "grafia" not in e["chave"] for e in eventos),
+            "achou_serie_grafia": any("grafia" in e["chave"] for e in eventos),
+            "achou_mov": bool(movs),
             "achou_tomb": any("tombamento" in e["chave"] for e in eventos),
             "no1305": sorted({e["ss"] for e in eventos if e["no1305"]}),
             "codigos": sorted({e["trafo"] for e in eventos if e["trafo"]}),
@@ -278,9 +351,37 @@ def main():
                     break
         return n
 
+    # ── o ano em que a peça saiu do poste ─────────────────────────────────────
+    # O relatório do almoxarifado não tem data nenhuma: ele diz que a peça voltou, não
+    # quando ela falhou. Quem data é a SS que a retirou. Sem isto a lista parece "casos de
+    # 2026" e não é — a maioria saiu da rede em 2024.
+    def ano_de(e):
+        m = re.search(r"/(\d{4})", texto(e.get("data")))
+        return m.group(1) if m else ""
+
+    for x in itens:
+        retiradas = [e for e in x["eventos"] if e["papel"] == "retirado" and ano_de(e)]
+        instalacoes = [e for e in x["eventos"] if e["papel"] == "instalado" and ano_de(e)]
+        x["ano_ultima_retirada"] = max((ano_de(e) for e in retiradas), default="")
+        x["retirada_2026"] = sorted({e["ss"] for e in retiradas if ano_de(e) == "2026"})
+        x["instalado_2026"] = sorted({e["ss"] for e in instalacoes if ano_de(e) == "2026"})
+        x["toca_2026"] = bool(x["retirada_2026"] or x["instalado_2026"])
+
     resumo = {
         "total": len(itens),
-        "localizados": sum(1 for x in itens if x["eventos"]),
+        "localizados": sum(1 for x in itens if x["eventos"] or x.get("movimentacoes")),
+        "localizados_ssos": sum(1 for x in itens if x["eventos"]),
+        "por_serie_exata": sum(1 for x in itens if x.get("achou_serie_exata")),
+        "por_serie_grafia": sum(1 for x in itens if x.get("achou_serie_grafia")),
+        "por_tombamento": sum(1 for x in itens if x["achou_tomb"]),
+        "por_movimentacao": sum(1 for x in itens if x.get("achou_mov")),
+        "so_pelo_tombamento": sum(1 for x in itens if x["achou_tomb"] and not x["achou_serie"]),
+        "so_pela_movimentacao": sum(1 for x in itens if x.get("achou_mov") and not x["eventos"]),
+        "em_nenhuma_base": sum(1 for x in itens if not x["eventos"] and not x.get("movimentacoes")),
+        "com_retirada_2026": sum(1 for x in itens if x["retirada_2026"]),
+        "com_instalacao_2026": sum(1 for x in itens if x["instalado_2026"] and not x["retirada_2026"]),
+        "anos_de_retirada": {a: sum(1 for x in itens if x["ano_ultima_retirada"] == a)
+                             for a in sorted({x["ano_ultima_retirada"] for x in itens if x["ano_ultima_retirada"]})},
         "so_serie": [x["controle"] for x in itens if x["achou_serie"] and not x["achou_tomb"]],
         "so_tombamento": [x["controle"] for x in itens if x["achou_tomb"] and not x["achou_serie"]],
         "ambas": [x["controle"] for x in itens if x["achou_serie"] and x["achou_tomb"]],
@@ -299,7 +400,11 @@ def main():
         "itens": itens,
     }
     Path(args.saida).write_text(json.dumps(saida, ensure_ascii=False), encoding="utf-8")
-    print(f"{len(itens)} equipamentos · {resumo['localizados']} localizados · {resumo['no1305']} nas 1.305")
+    print(f"{len(itens)} equipamentos · {resumo['localizados']} localizados em alguma base · {resumo['no1305']} nas 1.305")
+    print(f"  série exata {resumo['por_serie_exata']} · série com grafia corrigida {resumo['por_serie_grafia']} · "
+          f"tombamento {resumo['por_tombamento']} · movimentação {resumo['por_movimentacao']}")
+    print(f"  só o tombamento acha: {resumo['so_pelo_tombamento']} · em base nenhuma: {resumo['em_nenhuma_base']}")
+    print(f"  retirada em 2026: {resumo['com_retirada_2026']} · anos: {resumo['anos_de_retirada']}")
     print(f"  série: SS/OS {resumo['por_serie_ssos']} · COLETA {resumo['por_serie_coleta']}")
     print(f"  tombamento: SS/OS {resumo['por_tomb_ssos']} · COLETA {resumo['por_tomb_coleta']}")
     print(f"  só série {len(resumo['so_serie'])} · só tombamento {len(resumo['so_tombamento'])} · ambas {len(resumo['ambas'])}")
