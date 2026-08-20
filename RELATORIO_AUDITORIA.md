@@ -1,5 +1,324 @@
 # Relatório da auditoria automática
 
+## 18/08/2026, 00:28 UTC — MODO RELATO · o roteiro está velho, e há 3 defeitos reais no site
+
+> **Reconferido às 03:06 UTC, depois que a `main` andou.** O PR #109 ("Os 72 de julho em
+> grade e em arquivo baixável") entrou na `main` às 01:48 e mexeu em `page.tsx` (+120/−3) e
+> `globals.css`. **Os três defeitos continuam de pé** e `Filtros_do_Site.xlsx` continua
+> ausente do disco; `metodo.json` e `fluxo-1510.json` não foram tocados, então os seis números
+> velhos seguem velhos. O que mudou foram **duas linhas citadas aqui**, já corrigidas no texto
+> abaixo: o literal `1.305` saiu da linha 648 para a **730**, e o `PLACEHOLDER_TAM` saiu da
+> linha 4231 para a **4320**, as duas em `app/page.tsx`. Invariantes rodados de
+> novo contra o código novo: mesmo placar, 19 CONFERE · 1 FALHA (a 18, falso positivo) · 1 A
+> OLHO. Build passa (`built in 7.67s`).
+>
+> Uma observação que o #109 reforça: as mensagens dele repetem treze vezes "não toca no
+> 1.305", usando o número como **nome do conjunto**. Isso apoia a decisão de não renomear as
+> 16 ocorrências e deixá-las para o dono.
+>
+> **Reconferido de novo às 14:00 UTC.** O PR #110 entrou na `main` às 13:18 e mexeu outra vez
+> só em `page.tsx` (+38/−2) e `globals.css`. **Nada mudou de substância pela terceira vez:**
+> os três defeitos continuam de pé, `Filtros_do_Site.xlsx` continua ausente do disco, e
+> `metodo.json` e `fluxo-1510.json` seguem intactos. Uma única citação deslocou — o
+> `PLACEHOLDER_TAM` foi da linha 4320 para a **4321**, já corrigido abaixo; a linha 730 do
+> literal `1.305` não se moveu. Invariantes: mesmo placar de sempre, 19 CONFERE · 1 FALHA (a
+> 18, falso positivo) · 1 A OLHO. Build passa (`built in 9.27s`).
+>
+> **Reconferido às 23:48 UTC, e desta vez o dado mudou.** O PR #111 entrou na `main` às 22:50
+> e mexeu em `page.tsx`, no **`fluxo-1510.json`** (+583.221 linhas) e num script novo,
+> `scripts/conferir_numeros.py`. **O crescimento do JSON é reformatação, não conteúdo:** o
+> arquivo era minificado (0 quebras de linha) e passou a indentado (583.219). Mesmas cinco
+> chaves de topo, mesmos 177 campos por registro, e **todos os números remedidos deram
+> igual** — 1.269 SAÍDA, 220 EXCLUÍDA, 21 retidos, 1.198 + 71 confirmados, e os seis números
+> da FALHA 14 (108 · 52 · 31 · 25 · 112 · dezessete) idênticos. `metodo.json` intacto, as
+> linhas 730 e 4321 não se moveram, `Filtros_do_Site.xlsx` continua ausente. Invariantes e
+> build: mesmo placar, `built in 8.43s`.
+>
+> **O #111 traz uma auditoria paralela, e vale ler junto.** O cabeçalho do
+> `conferir_numeros.py` diz que "cinco auditores varreram o site em 18/08/2026 e acharam 40 e
+> poucos números envelhecidos", todos corrigidos, e que o script é a guarda para o problema
+> não voltar. Rodei: **passa** (`tudo bate: 6 frases conferidas + 6 invariantes`).
+> **Mas os três defeitos deste relatório continuam de pé, e sobrevivem justamente porque
+> estão fora do alcance dele.** A guarda lê só `app/page.tsx`, `fluxo-1510.json` e
+> `aterramento.json`, e confere 6 frases nomeadas (corte do atendimento fora da janela,
+> observação casada sem citar transformador, TMAE faltando na saída, `at_ini` copiado da
+> ocorrência, os 77 ausentes, e o aterramento pela pior haste). Ela **não olha o
+> `metodo.json`** (FALHA 14), **não olha a tela de login** (o `1.305` da linha 730) e **não
+> confere existência de arquivo** (o `PLACEHOLDER_TAM` da linha 4321). Fechar esses três
+> buracos na guarda é barato e evitaria a próxima rodada.
+>
+> **Reconferido às 01:52 UTC de 19/08, e este é o teste mais duro que os achados passaram.**
+> O #112 entrou na `main` e trouxe, entre outras coisas, um commit chamado *"Rodada de
+> verificação: 5 auditores, ~405 conferências, 33 correções"*. **Os três defeitos passaram
+> intactos por essa varredura.** O literal `1.305` continua na tela de login (agora na linha
+> **763**), o `PLACEHOLDER_TAM` continua anunciando um arquivo que não existe (agora na linha
+> **4362**), `Filtros_do_Site.xlsx` continua fora de `public/bases/`, e `metodo.json` e
+> `fluxo-1510.json` não foram tocados — os seis números velhos seguem velhos. Invariantes,
+> `conferir_numeros.py` e build: todos no mesmo lugar (`built in 14.15s`).
+>
+> Isso reforça o parágrafo acima em vez de contradizê-lo: duas rodadas de auditoria humana
+> (~40 números numa, ~405 conferências e 33 correções na outra) e uma guarda automatizada
+> passaram por cima dos mesmos três pontos. Não é descuido de quem varreu — é que **os três
+> moram fora do que qualquer uma dessas varreduras olha**: um arquivo que não é lido
+> (`metodo.json`), uma tela que não é varrida (o login) e uma classe de defeito que não é
+> testada (link para arquivo inexistente).
+>
+> **Reconferido às 16:53 UTC de 20/08.** Os PRs #114 e #115 entraram na `main` durante o
+> intervalo (garantia do almoxarifado — localização por quatro chaves, caminho da obra e
+> custo das trocas). Mexeram só em `page.tsx`, `globals.css`, `garantia-almoxarifado.json` e
+> `scripts/gerar_garantia_almoxarifado.py`. **Nada mudou de substância pela quinta vez:** os
+> três defeitos continuam de pé, `Filtros_do_Site.xlsx` ausente, `metodo.json` e
+> `fluxo-1510.json` intactos. As duas citações deslocaram — o `1.305` foi da linha 763 para
+> a **784** e o `PLACEHOLDER_TAM` foi da 4362 para a **4383**, já corrigidos abaixo.
+> Invariantes, `conferir_numeros.py` e build: mesmo placar (`built in 11.26s`).
+
+**Modo: `RELATO`.** O comando que me acordou pedia push. O `AUDITORIA_NOTURNA.md` diz
+`MODO = RELATO` e manda o arquivo valer mais do que o comando. **Obedeci o arquivo: nada foi
+commitado, nada foi publicado.** Só este relatório foi escrito no diretório de trabalho. Os
+diffs exatos do que eu teria mudado estão no fim.
+
+**Placar: 18 conferem · 3 falham · 1 a olho, de 21** (o script do repositório tem 21
+invariantes; o roteiro descreve 17 — a numeração abaixo segue a do roteiro).
+
+### O achado que manda em todos os outros: o roteiro descreve um site que não existe mais
+
+A seção 6 do `AUDITORIA_NOTURNA.md` diz medir o estado atual da `main`. Não mede. **Nenhum
+dos números dela bate, e a diferença não é drift — é outro regime.**
+
+| | Roteiro diz | Medido hoje |
+|---|---|---|
+| Saída confirmada | 884 = 856 queimados + 28 avariados | **1.269 = 1.198 + 71** |
+| Decisão da esteira | INCLUIR 884 · REVISÃO 617 · EXCLUIR 9 | **INCLUIR 1.269 · REVISÃO 21 · EXCLUIR 220** |
+| Baldes da cascata | 7 | **3** (`SAÍDA`, `EXCLUÍDA`, `RETIDO — SEM PROVA DE TROCA`) |
+| Fato | F1 1.259 · F3 206 · F2 22 · F0 20 · FD 3 | **F1 1.324 · F3 173 · F0 13** (F2 e FD não existem) |
+| `e1_nivel` | A 1.000 · B 279 · C 3 · FORA 91 · SEM 137 | **A 1.140 · B 197 · FORA 71 · SEM 102** (C não existe) |
+| Decisão da matriz | 1.262 / 184 / 64 | 1.262 / 184 / 64 — **o único bloco que bate** |
+
+O `AUDITORIA_NOTURNA.md` foi editado pela última vez em `d17e949` (05/08). O
+`fluxo-1510.json` mudou em cinco commits **depois** disso (`#60`, `#61`, `#62`, `#67`, `#68`).
+Já em `d17e949` o dado era 1.269 — ou seja, a seção 6 **já estava velha quando o roteiro foi
+escrito**. O clone é raso (69 commits), então não consegui achar o commit em que 884 existiu;
+o comentário do invariante 19 no script do repositório confirma que 884 foi real um dia.
+
+**Consequência prática:** a seção 5 (regra da esteira), a seção 6 inteira, o invariante 8 e as
+lacunas conhecidas descrevem o regime antigo. Conferi o site contra **o dado**, não contra o
+roteiro. Quem for atualizar o roteiro precisa reescrever a seção 6 com os valores acima.
+
+### Os 17 invariantes, um a um
+
+| # | Resultado | Medido |
+|---|---|---|
+| 1 | **CONFERE** | 1.510 registros, 1.510 `ss` distintos, 0 duplicados |
+| 2 | **CONFERE** | SAÍDA 1.269 + EXCLUÍDA 220 + RETIDO SEM PROVA 21 = 1.510 |
+| 3 | **CONFERE** | 1.510 − 220 = 1.290 = `chega_e1/e2/e3`; 1.290 − 21 = 1.269 = SAÍDA. *(Minha primeira versão falhou porque eu apliquei a corrente de 4 passagens do roteiro, que pressupõe 7 baldes. Teste meu errado, não o site.)* |
+| 4 | **CONFERE** | 0 divergências, com 57 vereditos do dono fora da conta. *(Falhava no meu teste em 3 casos — os três são "o dono martelou queimado", override explícito, não defeito.)* |
+| 5 | **CONFERE** | INCLUIR↔SAÍDA, EXCLUIR↔EXCLUÍDA, resto REVISÃO: 0 fora do casamento |
+| 6 | **CONFERE** | 1.198 QUEIMADO + 71 AVARIADO = 1.269 = SAÍDA; 0 preenchidos fora da saída |
+| 7 | **CONFERE** | 7 blocos e 4 totais batem. *(Meu teste acusou `duplicadas` 1 vs 3: o `resumo` conta `expurgo_gatilho == "duplicada"` (1), eu contei `duplicada == "SIM"` (3). Definições diferentes, resumo internamente coerente — teste meu errado. Fica a observação: dois campos com o mesmo nome e contagens diferentes é armadilha para o próximo leitor.)* |
+| 8 | **CONFERE** | 0 violações. *(Meu teste achou 16. Nos 16 a ocorrência **começa depois** da abertura da SS — 16 de 16, conferido. A janela real do site é assimétrica: 1h antes do primeiro passo até 24h depois do último. O invariante 8 escrito no roteiro não tem a cláusula de direção e por isso é mais rígido que o site. Teste do roteiro errado.)* |
+| 9 | **CONFERE** | 3 disputas, cada uma com exatamente 2 SS; o dono é o de menor `\|oc_dist_h\|`; 3 perdedores marcados `duplicada=SIM`, 0 fora da exclusão. **Ressalva medida:** dos 3 perdedores só **1** tem `e1_conflito` e `disputa_perdida=SIM` preenchidos (`DOLP-RD-PA 00690/2026`); `ETO-RD-PS 00077/2026` e `ETO-RD-AG 00344/2026` estão sem os dois. Não é falha do invariante como o site o define, mas é inconsistência interna do dado. Registrada, não corrigida — é dado gerado por script. |
+| 10 | **CONFERE** | `expurgo=SIM` 220 ↔ cascata EXCLUÍDA 220, diferença simétrica 0 |
+| 11 | **CONFERE** | 123 marcadas (24 `borda_2025` + 99 `tmae_gap_jan`), 0 sem `lacuna_base` |
+| 12 | **CONFERE** | 0 ocorrências de `[ÃÂ][\x80-\xBF]` em `page.tsx`, `MapaAtivos.tsx`, `metodo.json` e em 12 campos de texto dos 1.510 registros |
+| 13 | **CONFERE** | 31 módulos distintos entre `NAV` (21 itens) e `NAV_OFICINA` (11 itens — `decisao` aparece nos dois); 31 chaves em `RECORTES`; 31 no tipo `Modulo`. 0 faltando nos dois sentidos |
+| 14 | **FALHA** | 6 números velhos no `metodo.json`. Detalhe abaixo |
+| 15 | **FALHA** | `page.tsx:784` renderiza "1.305 queimados e avariados" — o dado diz 1.269. Detalhe abaixo |
+| 16 | **CONFERE** | `dataBR` converte aaaa-mm-dd→dd/mm/aaaa e preserva hora; 0 literais ISO renderizados; o histórico do ativo já vem em dd/mm/aaaa no JSON, então o `{x.d}` cru está certo |
+| 17 | **FALHA** | `Filtros_do_Site.xlsx` é oferecido para download, não existe em disco, e anuncia o tamanho como o literal `PLACEHOLDER_TAM`. Detalhe abaixo |
+
+Invariantes extras do script do repositório: **18 FALHA** (falso positivo, provado abaixo),
+**19 CONFERE** (destravado nesta rodada), **20 CONFERE** (57 vereditos, 0 divergências).
+
+### FALHA 17 — o site oferece um arquivo que não existe
+
+`app/page.tsx:4383` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
+o tamanho escrito como **`"PLACEHOLDER_TAM"`** — que é o que aparece na tela. O arquivo não
+está em `public/bases/`, não está no `.gitignore` e nunca foi commitado. O gerador existe
+(`scripts/gerar_planilha_filtros.py`) e nunca rodou para valer.
+
+**Efeito:** na apresentação à alta direção, um cartão de download com a palavra
+`PLACEHOLDER_TAM` no lugar do tamanho, e o clique dá 404. É o defeito mais visível dos três.
+
+Os outros 16 arquivos anunciados existem e o tamanho bate — **respeitada a diferença de
+unidade**: `Base_*` em MB decimal, `Original_*` em MiB. Uma exceção conferida com cuidado:
+`Bases_Gerais.xlsx` anuncia 2,4 MB e tem 2.534.008 bytes = 2,53 MB decimal ou **2,42 MiB**.
+Só ele é grande o bastante para distinguir as duas escalas, e ele bate em MiB — o contrário
+do que o roteiro afirma sobre as `Base_*`. O arquivo não mudou de tamanho em todo o histórico
+disponível. **Não mexi: a dúvida sobrou.**
+
+### FALHA 14 — seis números velhos no `metodo.json`
+
+A aba Método imprime o `metodo.json` como está. Todos os seis estão no bloco `cascata`.
+
+**a) `blocos[5].paragrafos[0]` — a soma não fecha dentro da própria frase.** Ela diz que saem
+220 pela porta e que elas se dividem em "137" + "103" = **240**. Medido: **108 + 112 = 220**.
+
+| Diz | Mede |
+|---|---|
+| primeira família, 137 casos | **108** (`sem_interrupcao` 77 + `fora_da_janela` 31) |
+| 47 sem aparecer na Crítica em papel nenhum | **52** (`censo_critica = AUSENTE`) |
+| 83 com defeito no próprio código em outra data | **31** (`censo_critica = DEFEITO EM OUTRA DATA`) |
+| 7 sem rastro em base alguma | **25**, e não é "sem rastro": é `SEM DEFEITO NELE` — aparecem só como interrompidos ou manobrados |
+| segunda família, 103 casos | **112** |
+| "mais dezoito categorias menores" | **dezessete** (21 categorias na família 2, menos as 4 nomeadas) |
+
+O 52 / 31 / 25 não é invenção minha: é exatamente a divisão que o próprio `page.tsx` já
+escreve na descrição do `Sem_Interrupcao_Critica.xlsx` ("os 52 que não aparecem na Crítica em
+papel nenhum dos 25 que aparecem só como interrompidos ou manobrados", mais 31). **A tela
+calculada e a aba Método estão contando histórias diferentes sobre o mesmo conjunto.**
+
+**b) `blocos[5].tabela`, linha 2** — "1.134 corroboram, 135 sem registro". Medido nas 1.290
+que a própria linha diz receber: **1.126 CORROBORA · 132 SEM REGISTRO · 32 com o campo
+vazio**. Nenhum recorte do dado (1.510, 1.290 ou 1.269) produz 1.134/135.
+
+**c) `blocos[5].tabela`, linha 3** — "18 deles só esperam a extração do SIAGO". Medido:
+**19** dos 21 têm `pendente_siago = SIM`.
+
+**d) `blocos[5].tabela`, linha 4 e `paragrafos[3]`** — "76 chegam à saída com a ressalva
+escrita ao lado", nos dois lugares. Medido: **83** registros na SAÍDA com `ressalvas`
+preenchido.
+
+**O que NÃO falhou no `metodo.json`:** a tabela da cascata nas colunas Recebe/Passa
+(1.510→1.290→1.269) bate; a frase de resultado do bloco `correcoes` está **atual** — diz
+"1.269 confirmados — 1.198 queimados e 71 avariados", exatamente o dado. A FALHA 14 fechada
+em 02/08 não voltou; estes são outros números, que o teste do repositório não cobre.
+
+### FALHA 15 — a tela de entrada anuncia 1.305, a barra lateral calcula 1.269
+
+`app/page.tsx:784`, na tela de login, antes de qualquer coisa:
+
+> `1.305 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia`
+
+É literal escrito à mão. A barra lateral da mesma aplicação calcula `naSaida` dos registros e
+mostra **1.269**. A versão congelada `public/versoes/2026-08-11/` também traz 1.269, e
+`Base_Esteira_Completa.xlsx` também. **Nenhum recorte do dado atual dá 1.305.**
+
+Os percentuais que o `metodo.json` cita ao lado de "as 1.305" fecham com o conjunto de
+**1.269**: prefixo 57 = 97,6% (1.238/1.269), 53 = 2,2%, 52 = 0,2% — o texto diz 97,6% / 2,1%
+/ 0,2%. Ou seja, o número envelheceu e os percentuais ao lado dele foram recalculados.
+
+**Onde parei de propor mudança:** "1.305" aparece **17 vezes em texto que vai para a tela**
+(fora de comentário). Dezesseis delas usam o número como **nome próprio do conjunto**, e
+várias estão dentro de frases que são ordem do dono — "Ordem dele: regras e método podem
+mudar, mas os 1.305 não", "os 1.305 não se movem", "não soma com as 1.305, que continuam
+congeladas". Renomear isso é mexer em decisão do dono, item 4 da lista do que eu não posso
+tocar. **Proponho corrigir só a linha 784**, que é a única afirmação puramente factual sobre
+a contagem, e deixo as outras 16 para a palavra dele. Se o conjunto de 1.305
+existe de verdade e o `fluxo-1510.json` perdeu 36 casos, isso é maior que um número de texto e
+precisa dele.
+
+### FALHA 18 (script do repositório) — é o teste que está errado, não o site
+
+`scripts/auditoria_invariantes.py:420` procura `listadas.length` nos 200 caracteres seguintes
+ao **primeiro** `className="header-meta"`. Hoje há dois: a variante de mês (`page.tsx:5854`,
+que usa `mes.resumo.entram`, e está certa) vem antes da geral (`page.tsx:5855`, que usa
+`br(listadas.length)`, e está certa também). O regex acha a primeira e reprova.
+
+**O contador do cabeçalho está correto.** Só o teste precisa de conserto.
+
+### FALHA 19 destravada
+
+Estava em "não deu para abrir a planilha — `openpyxl` não instalado". Instalei o `openpyxl`
+no ambiente (`pip`, fora do repositório — **nenhuma dependência nova em `package.json` ou nos
+lockfiles**, a regra do `--frozen-lockfile` está intacta) e o invariante passou:
+`Base_Esteira_Completa.xlsx` tem 1.510 linhas, saída 1.269, 1.198 queimados + 71 avariados —
+igual ao `fluxo-1510.json`. **A planilha de download está sincronizada com o site.**
+
+### Deixado para o dono, não tocado
+
+1. As **4 decisões do dono** da seção "o que você NÃO pode mexer" — não encontrei argumento
+   novo em nenhuma delas nesta rodada.
+2. **`e1_conflito` faltando em 2 dos 3 perdedores de disputa** (invariante 9). É dado gerado
+   por script; preencher à mão seria editar derivado.
+3. **`Bases_Gerais.xlsx` em MiB** quando o roteiro diz que as `Base_*` são MB decimal.
+4. **As 16 ocorrências de "1.305" como nome do conjunto** (FALHA 15).
+5. **O `AUDITORIA_NOTURNA.md` inteiro** — a seção 6, a regra da seção 5, o invariante 8 e as
+   lacunas conhecidas descrevem o regime antigo. O roteiro autoriza corrigi-lo ("corrija este
+   arquivo junto"), mas reescrever a seção 6 em `RELATO` sem o dono ver a divergência primeiro
+   me pareceu errado: é o documento que decide o que o próximo agente vai fazer. **A tabela do
+   topo deste relatório é o material pronto para isso.**
+6. **A lacuna de dezembro de 2025 foi fechada e o roteiro não sabe.** O `lacuna_base` dos
+   registros marcados hoje diz "dezembro agora está no acervo. A ocorrência foi encontrada
+   lá" — o roteiro ainda a lista como lacuna aberta.
+
+### Não consegui verificar
+
+- **Invariante 15 na íntegra.** Conferi todo o `NAV`/`NAV_OFICINA` (todos os 31 rótulos são
+  calculados dos registros em tempo de execução — nenhum literal) e varri o `page.tsx` atrás
+  de literais com separador de milhar. Achei o de `:784`. Os outros 62 resultados da varredura
+  são falsos positivos (`3600000`, trechos de prosa, `62.616` da base do TMAE). **Não há
+  garantia automática de que não sobrou um literal em texto corrido** — o script do repositório
+  também marca este como "A OLHO".
+- **O regime de 884.** Clone raso; não deu para achar o commit em que ele existiu nem o que o
+  substituiu.
+
+### Verificação
+
+`pnpm install --frozen-lockfile && pnpm run build:pages` **passa** (built in 558ms, 0 erros).
+`python3 scripts/auditoria_invariantes.py`: 19 CONFERE, 1 FALHA (a 18, falso positivo), 1 A
+OLHO. **Nada foi commitado. `git status` está limpo.**
+
+### Os diffs exatos que eu teria aplicado, em `CORRIGE`
+
+**1 — `public/metodo.json`, `blocos[5].paragrafos[0]`** (um commit: *"o parágrafo da porta
+volta a somar 220"*)
+
+```diff
+-Saem por ali 220 solicitações, e elas se dividem em duas famílias que convém não misturar. A primeira, com 137 casos, é de quem não tem interrupção que sustente o caso: 47 cujo código não aparece na Crítica em papel nenhum nos sete meses do acervo, 83 que aparecem com defeito no próprio código mas em outra data, e 7 que não deixaram rastro em base alguma, nem pelo teste do vizinho. A segunda, com 103 casos, é de quem tem causa ou documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes internos, e mais dezoito categorias menores, cada uma com o motivo escrito na linha.
++Saem por ali 220 solicitações, e elas se dividem em duas famílias que convém não misturar. A primeira, com 108 casos, é de quem não tem interrupção que sustente o caso: 52 cujo código não aparece na Crítica em papel nenhum nos sete meses do acervo, 31 que aparecem com defeito no próprio código mas em outra data, e 25 que aparecem só como interrompidos ou manobrados, sem defeito aberto neles. A segunda, com 112 casos, é de quem tem causa ou documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes internos, e mais dezessete categorias menores, cada uma com o motivo escrito na linha.
+```
+
+**2 — `public/metodo.json`, `blocos[5].tabela.linhas`** (mesmo commit)
+
+```diff
+-['2 · Deslocamento (marcador)', '1.290', '1.290', '0 — não retém: 1.134 corroboram, 135 sem registro']
++['2 · Deslocamento (marcador)', '1.290', '1.290', '0 — não retém: 1.126 corroboram, 132 sem registro e 32 sem o campo preenchido']
+-['3 · SS e OS com material', '1.290', '1.269', '21 sem prova de troca — e 18 deles só esperam a extração do SIAGO']
++['3 · SS e OS com material', '1.290', '1.269', '21 sem prova de troca — e 19 deles só esperam a extração do SIAGO']
+-['4 · Ressalva da interrupção', '1.269', '1.269', '0 — a ressalva virou marcador: 76 chegam à saída com ela escrita']
++['4 · Ressalva da interrupção', '1.269', '1.269', '0 — a ressalva virou marcador: 83 chegam à saída com ela escrita']
+```
+
+**3 — `public/metodo.json`, `blocos[5].paragrafos[3]`** (mesmo commit)
+
+```diff
+-São 76 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável, porque quem for defender o número precisa saber quais são.
++São 83 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável, porque quem for defender o número precisa saber quais são.
+```
+
+**4 — `app/page.tsx:784`** (commit próprio: *"a tela de entrada para de anunciar 1.305"*)
+
+```diff
+-      <small>1.305 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
++      <small>1.269 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
+```
+
+**5 — `app/page.tsx:4383`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
+existe"*). Duas saídas, e **a escolha é do dono** — por isso não apliquei nem em `CORRIGE`
+sem a palavra dele:
+
+- *(a)* rodar `scripts/gerar_planilha_filtros.py`, commitar o `.xlsx` e trocar
+  `"PLACEHOLDER_TAM"` pelo tamanho real; ou
+- *(b)* remover a linha até o arquivo existir:
+
+```diff
+-        ["Filtros_do_Site.xlsx", "Todos os filtros do site, aba por aba", "Cada filtro de cada tela com quantos casos tem e o que significa, mais a tabela longa filtro × SS de onde sai qualquer tabela dinâmica, e uma aba de dimensões com uma linha por solicitação. A composição de cada filtro não é recalculada: um robô abre o site, clica filtro por filtro e baixa a planilha de cada um — o que está aqui é o que a tela mostra, porque veio dela.", "PLACEHOLDER_TAM"],
+```
+
+**6 — `scripts/auditoria_invariantes.py:419-422`** (commit próprio: *"o invariante 18 para de
+reprovar o cabeçalho certo"*)
+
+```diff
+-cab = re.search(r'className="header-meta".{0,200}', page, re.S)
+-if not cab or "listadas.length" not in cab.group(0):
++cabs = re.findall(r'className="header-meta".{0,200}', page, re.S)
++if not any("listadas.length" in c for c in cabs):
+     p18.append('o contador do cabeçalho não usa listadas.length: ele anuncia um número '
+                'diferente do que a tabela abaixo mostra')
+```
+
+---
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
