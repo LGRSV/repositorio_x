@@ -99,6 +99,8 @@ button { cursor: pointer; }
 .records-table tbody tr.linha-preventiva:hover { background: #efeade; }
 
 .records-table td strong, .records-table td span, .records-table td small, .records-table td code { display: block; }.records-table td strong { font-size: 12px; }.records-table td span { margin-top: 3px; color: #686b6f; }.records-table td small { max-width: 330px; margin-top: 4px; color: #8a8d91; font-size: 9px; line-height: 1.45; }.records-table td code { margin-top: 4px; color: #8c8e91; font: 500 9px "IBM Plex Mono", monospace; }
+/* negrito NO MEIO da frase: o strong da célula é bloco, o b continua na linha */
+.records-table td b { font-weight: 600; color: var(--ink); }
 .clip { max-width: 380px; margin: 0; color: #686b6f; display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-height: 1.5; }
 .condition { display: inline-block; font-size: 10px; }.condition.queimado { color: var(--red); }.condition.avariado { color: var(--blue); }
 .pill { display: inline-flex; width: fit-content; padding: 4px 6px; border: 1px solid currentColor; font: 600 9px "IBM Plex Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }.pill.good { color: var(--green); background: #edf4f0; }.pill.bad { color: var(--red); background: var(--red-soft); }.pill.warn { color: var(--amber); background: #f7f1e6; }.pill.pend { color: var(--blue); background: #e9f0f5; }

@@ -39,12 +39,33 @@ type AlmoxItem = {
   op: { op: string; data: string; triagem: string; status: string; motivo_triagem: string;
         garantia_confirmada: string; reformadora: string; fabricante: string; controle: string } | null;
   achou_serie: boolean; achou_tomb: boolean; no1305: string[]; codigos: string[];
+  /* Acrescentados na revisão de 19/08, quando a conferência mostrou que buscar só pela
+     série deixava peça de fora: a série com a grafia corrigida (a ITAM grava letra na
+     frente), a planilha de movimentação por obra como terceira fonte, e o ANO em que a
+     peça saiu do poste — que é o que separa "voltou da garantia" de "queimou em 2026". */
+  achou_serie_exata?: boolean; achou_serie_grafia?: boolean; achou_mov?: boolean;
+  movimentacoes?: { obra: string; pat: string; serie: string; mov: string; data: string;
+                    marca: string; kva: string; motivo: string; chave: string; papel: string }[];
+  ano_ultima_retirada?: string; retirada_2026?: string[]; instalado_2026?: string[]; toca_2026?: boolean;
+  /* A obra é o elo que leva a peça até o dinheiro: cada SS tem obra, cada obra tem custo no
+     AIC. E é também uma chave de busca — a movimentação diz em que obra a peça se moveu, e
+     daí se chega a SS que não anotaram série nem tombamento. */
+  obras?: string[]; custo_obras?: number;
+  via_obra?: { ss: string; obra: string; no1305: boolean }[];
 };
 type Almoxarifado = {
   gerado_em: string; fonte: string; colunas_originais: string[];
   resumo: { total: number; localizados: number; so_serie: string[]; so_tombamento: string[];
     ambas: string[]; nenhuma: string[]; por_serie_ssos: number; por_serie_coleta: number;
-    por_tomb_ssos: number; por_tomb_coleta: number; no1305: number };
+    por_tomb_ssos: number; por_tomb_coleta: number; no1305: number;
+    localizados_ssos: number; por_serie_exata: number; por_serie_grafia: number;
+    por_tombamento: number; por_movimentacao: number; so_pelo_tombamento: number;
+    so_pela_movimentacao: number; em_nenhuma_base: number; com_retirada_2026: number;
+    com_instalacao_2026: number; anos_de_retirada: Record<string, number>;
+    ss_2026: number; ss_2026_no1305: number; pecas_com_ss_2026: number; achadas_via_obra: number;
+    obras_todas: number; obras_1305: number; realizado_todas: number; realizado_1305: number;
+    orcado_1305: number; mo_1305: number; mt_1305: number;
+    status_1305: Record<string, number>; polos_1305: Record<string, number> };
   itens: AlmoxItem[];
 };
 
@@ -5510,25 +5531,74 @@ export default function Page() {
       if (modulo === "insight_almoxarifado") {
         if (!almox) return <section className="panel"><p className="fonte-detalhe">Carregando o controle do almoxarifado…</p></section>;
         const R = almox.resumo;
+        /* Reais no padrão brasileiro, sem centavos: os valores de obra são inteiros no AIC. */
+        const dinheiro = (v: number) => `R$ ${Math.round(v || 0).toLocaleString("pt-BR")}`;
         const ordem = (x: AlmoxItem) => x.no1305.length ? 0 : (x.eventos.length ? 1 : 2);
         const lista = [...almox.itens].sort((a, b) => ordem(a) - ordem(b) || a.controle.localeCompare(b.controle));
         const sim = (v: boolean) => v ? "sim" : "não";
         return <>
           <section className="panel">
-            <div className="panel-title"><div><span>Controle do almoxarifado · {R.total} equipamentos</span><h2>{R.localizados} têm passagem registrada pela rede, {R.no1305} caem nas 1.305</h2></div><small>{R.nenhuma.length} não aparecem em base nenhuma</small></div>
+            <div className="panel-title"><div><span>Controle do almoxarifado · {R.total} equipamentos</span><h2>{R.localizados} têm passagem registrada pela rede, {R.no1305} caem nas 1.305, {R.com_retirada_2026} queimaram em 2026</h2></div><small>{R.em_nenhuma_base} não aparecem em base nenhuma</small></div>
             <p className="fonte-detalhe">Este relatório é o <strong>rastro fiscal da devolução ao fabricante</strong>: nota de retorno, romaneio SGE, controle de remessa SIENF e o fornecedor que recebeu. Ele identifica a <strong>peça</strong>, não o poste — não tem número de SS nem código operativo. Por isso ele não entra na cascata e não move o indicador: o que ele faz é permitir perguntar, para cada peça devolvida, onde ela esteve instalada e quando saiu.</p>
           </section>
-          <section className="panel"><div className="panel-title"><div><span>As três chaves do almoxarifado</span><h2>Série e tombamento se complementam — controle não existe nas bases da auditoria</h2></div><small>união de série e tombamento: {R.so_serie.length + R.so_tombamento.length + R.ambas.length} de {R.total}</small></div>
+          <section className="panel"><div className="panel-title"><div><span>Quantos foram localizados, e por qual chave</span><h2>{R.localizados} de {R.total} têm passagem registrada — {R.em_nenhuma_base} não aparecem em base nenhuma</h2></div><small>quatro chaves, três bases</small></div>
             <div className="table-scroll"><table className="records-table">
-              <thead><tr><th>Chave</th><th>Base SS/OS</th><th>Base COLETA</th><th>O que ela alcança</th></tr></thead>
+              <thead><tr><th>Chave de busca</th><th>Quantos acha</th><th>Onde procura</th><th>O que ela alcança</th></tr></thead>
               <tbody>
-                <tr><td><strong>Número de série</strong></td><td><strong>{R.por_serie_ssos} de {R.total}</strong></td><td><strong>{R.por_serie_coleta} de {R.total}</strong></td><td>Retirado e instalado nas duas bases. É a chave mais completa.</td></tr>
-                <tr><td><strong>Tombamento</strong></td><td><strong>{R.por_tomb_ssos} de {R.total}</strong></td><td><strong>{R.por_tomb_coleta} de {R.total}</strong></td><td>Na COLETA só existe para o retirado — por isso ela acha quase nada, já que a maioria destas peças aparece como <em>instalada</em>.</td></tr>
-                <tr><td><strong>Controle</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td>Nenhuma das duas guarda esse campo. Só a base da reformadora tem, e lá ele funciona.</td></tr>
+                <tr><td><strong>Número de série</strong><span>grafia exata</span></td><td><strong>{R.por_serie_exata} de {R.total}</strong></td><td>SS/OS e COLETA</td><td>Retirado e instalado. É a chave mais completa e a mais segura.</td></tr>
+                <tr><td><strong>Série com a grafia corrigida</strong><span>só dígitos</span></td><td><strong>+{R.por_serie_grafia}</strong></td><td>SS/OS</td><td>A ITAM grava a série com letra na frente (<em>C250457</em>) e a SS/OS registra só o número. Esta chave só vale quando o <b>tombamento ou a marca confirmam junto</b> — sozinha ela casaria equipamentos de fabricantes diferentes que dividem o mesmo número.</td></tr>
+                <tr><td><strong>Tombamento</strong></td><td><strong>{R.por_tombamento} de {R.total}</strong></td><td>SS/OS e COLETA</td><td>Acha <b>{R.so_pelo_tombamento}</b> que a série sozinha não acharia. Na COLETA só existe para o retirado.</td></tr>
+                <tr><td><strong>Série ou patrimônio</strong><span>na movimentação por obra</span></td><td><strong>{R.por_movimentacao} de {R.total}</strong></td><td>movimentação</td><td>Terceira fonte, ligada à obra e não à solicitação. Confirma que a peça existiu mesmo quando nenhuma SS a menciona.</td></tr>
+                <tr><td><strong>A obra</strong><span>movimentação → obra → SS</span></td><td><b>+{R.achadas_via_obra} SS</b></td><td>movimentação e SS/OS</td><td>Caminho indireto: a movimentação diz em que <strong>obra</strong> a peça se moveu, e a base diz que SS pertence àquela obra. Alcança solicitação que <b>não anotou série nem tombamento</b> — nenhuma busca por número a encontraria.</td></tr>
+                <tr><td><strong>Controle</strong></td><td><strong>0</strong></td><td>—</td><td>Nem a SS/OS nem a COLETA guardam esse campo. Só a reformadora tem, e lá ele funciona.</td></tr>
               </tbody>
             </table></div>
-            <p className="fonte-detalhe"><strong>As duas chaves úteis se complementam, e é por isso que vale rodar as duas.</strong> Só a série acha {R.so_serie.length} equipamentos — controles {R.so_serie.join(", ")}. Só o tombamento acha {R.so_tombamento.length} — controles {R.so_tombamento.join(", ")}. As duas juntas acham {R.ambas.length}. Buscar por uma só perderia entre {Math.min(R.so_serie.length, R.so_tombamento.length)} e {Math.max(R.so_serie.length, R.so_tombamento.length)} peças.</p>
-            <p className="fonte-detalhe">Cada chave foi comparada só contra campo do mesmo tipo, nunca cruzada. Cruzar controle com tombamento produz casamento falso: são numerações independentes que colidem por acaso — aconteceu com dois controles nesta base, e os dois foram descartados.</p>
+            <p className="fonte-detalhe"><strong>Nenhuma chave sozinha dá conta.</strong> A série exata acha {R.por_serie_exata}; somando a grafia corrigida e o tombamento sobe para {R.localizados_ssos} na SS/OS, e com a movimentação chega a {R.localizados} de {R.total}. O tombamento sozinho salva {R.so_pelo_tombamento} peças que a busca por série perderia — e foi exatamente isso que uma primeira conferência, feita só pela série, deixou escapar.</p>
+            <p className="fonte-detalhe">Cada chave é comparada só contra campo do mesmo tipo, nunca cruzada. Cruzar controle com tombamento produz casamento falso: são numerações independentes que colidem por acaso — aconteceu com dois controles nesta base, e os dois foram descartados.</p>
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>Quando a peça saiu da rede</span><h2>{R.ss_2026} SS de 2026 citam estas peças, {R.ss_2026_no1305} dentro das 1.305 — mas só {R.com_retirada_2026} são a peça QUEIMANDO</h2></div><small>o relatório do almoxarifado não tem data nenhuma</small></div>
+            <p className="fonte-detalhe">Esta é a pergunta que o relatório <strong>não responde sozinho</strong>: ele diz que a peça voltou ao fabricante — com nota de retorno, romaneio e remessa — mas não diz quando ela falhou. Quem data é a SS que a retirou do poste. Sem esse cruzamento a lista parece um conjunto de casos recentes, e não é.</p>
+            <p className="fonte-detalhe"><strong>Dois números diferentes, e confundi-los inverte a leitura.</strong> As peças aparecem em <strong>{R.ss_2026} solicitações de 2026</strong> ({R.ss_2026_no1305} delas dentro das 1.305), envolvendo {R.pecas_com_ss_2026} das {R.total} peças — mas na quase totalidade dessas SS a peça entra como <em>instalada</em>, isto é, é a <strong>reposição</strong> que foi posta no poste e depois devolvida ao fabricante. Só em <strong>{R.com_retirada_2026}</strong> a peça aparece como <em>retirada</em>: essas são as que efetivamente queimaram em 2026.</p>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Ano da última retirada</th><th>Quantas peças</th><th>Leitura</th></tr></thead>
+              <tbody>
+                {Object.entries(R.anos_de_retirada).sort((a, b) => b[0].localeCompare(a[0])).map(([ano, n]) => <tr key={ano}>
+                  <td><strong>{ano}</strong></td><td><strong>{n}</strong></td>
+                  <td>{ano === "2026" ? "queimaram dentro do ano da auditoria — é aqui que a garantia renovada pode ser cobrada" : `falha de ${ano}. O retorno ao fabricante pode ser recente, mas a queima não é de 2026`}</td>
+                </tr>)}
+                <tr><td><strong>sem retirada registrada</strong></td><td><strong>{R.total - Object.values(R.anos_de_retirada).reduce((a, b) => a + b, 0)}</strong></td>
+                  <td>{R.com_instalacao_2026 > 0 ? <>Inclui <b>{R.com_instalacao_2026}</b> que voltaram do fornecedor e foram <b>reinstaladas em 2026</b> — estão no poste hoje como reposição. As demais nunca geraram SS: perfil de peça que falhou no momento da instalação.</> : "Nunca geraram SS — perfil de peça que falhou no momento da instalação."}</td></tr>
+              </tbody>
+            </table></div>
+            {(() => {
+              const q26 = almox.itens.filter((x) => (x.retirada_2026 || []).length);
+              if (!q26.length) return null;
+              return <><h3>As {q26.length} que queimaram em 2026</h3>
+                <div className="table-scroll"><table className="records-table">
+                  <thead><tr><th>Equipamento</th><th>Documentos da devolução</th><th>Onde queimou em 2026</th><th>Histórico da peça</th></tr></thead>
+                  <tbody>{q26.map((x) => <tr key={x.controle}>
+                    <td><strong>série {x.serie}</strong><span>tomb {x.tombamento} · controle {x.controle}</span><small>{x.marca}</small></td>
+                    <td><strong>NF retorno {x.nf_retorno || "—"}</strong><span>romaneio {x.romaneio || "—"}</span><small>fornecedor {x.fornecedor || "—"}</small></td>
+                    <td>{(x.retirada_2026 || []).map((ss, i) => <strong key={i}>{ss}{x.no1305.includes(ss) ? " · nas 1.305" : ""}</strong>)}
+                      <small>achada por {[x.achou_serie_exata ? "série" : null, x.achou_serie_grafia ? "série (grafia)" : null, x.achou_tomb ? "tombamento" : null, x.achou_mov ? "movimentação" : null].filter(Boolean).join(" + ")}</small></td>
+                    <td>{x.eventos.filter((e) => e.base === "SS/OS").map((e, i) => <span key={i}>{e.data} · {e.papel} · {e.ss}{e.no1305 ? " · nas 1.305" : ""}</span>)}</td>
+                  </tr>)}</tbody>
+                </table></div>
+                <p className="fonte-detalhe">Nestas peças <strong>todas as chaves batem juntas</strong> — série, tombamento e movimentação apontam para o mesmo equipamento. É a confirmação mais forte que estas bases permitem, e não depende de casamento frouxo.</p></>;
+            })()}
+          </section>
+          <section className="panel"><div className="panel-title"><div><span>O que estas trocas custaram</span><h2>{R.obras_1305} obras dentro das 1.305, {dinheiro(R.realizado_1305)} já realizados e encerrados</h2></div><small>{R.obras_todas} obras no total · {dinheiro(R.realizado_todas)}</small></div>
+            <p className="fonte-detalhe">Cada substituição destas peças gerou uma <strong>obra</strong>, e a obra tem custo no AIC. O caminho é <strong>SS → NUM_OBRA → AIC</strong>. É aqui que a conversa de garantia deixa de ser sobre peça e passa a ser sobre dinheiro: <strong>se a garantia fosse reconhecida, parte deste custo seria recuperável</strong>.</p>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Recorte</th><th>Obras distintas</th><th>Realizado</th><th>Orçado</th><th>Composição</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Todas as obras tocadas pelas {R.total} peças</strong></td><td><strong>{R.obras_todas}</strong></td><td><strong>{dinheiro(R.realizado_todas)}</strong></td><td>—</td><td>inclui 2024 e 2025</td></tr>
+                <tr><td><strong>Só o que está dentro das 1.305</strong></td><td><strong>{R.obras_1305}</strong></td><td><strong>{dinheiro(R.realizado_1305)}</strong></td><td><strong>{dinheiro(R.orcado_1305)}</strong></td>
+                  <td>mão de obra {dinheiro(R.mo_1305)} · material {dinheiro(R.mt_1305)}<span>o material é {Math.round(R.mt_1305 / (R.mo_1305 + R.mt_1305) * 100)}% do custo</span></td></tr>
+              </tbody>
+            </table></div>
+            <p className="fonte-detalhe"><strong>Status destas obras:</strong> {Object.entries(R.status_1305).map(([k, v]) => `${v} em ${k.replace("ENCERRAMENTO:", "").toLowerCase()}`).join(" · ")}. <strong>Nenhuma aberta</strong> — já foram pagas e encerradas contabilmente. Polos: {Object.entries(R.polos_1305).map(([k, v]) => `${k.toLowerCase()} ${v}`).join(", ")}.</p>
+            <p className="fonte-detalhe"><strong>Cuidado ao somar, e é por isso que tudo aqui é por obra distinta:</strong> a mesma obra costuma atender duas SS — a que retirou e a que instalou — e a mesma peça aparece nas duas pontas. Somar linha a linha contaria o mesmo dinheiro duas vezes.</p>
           </section>
           <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>Os {R.total} do controle do almoxarifado</h2></div><small>nota de retorno, romaneio, remessa e onde a peça esteve</small></div>
             <div className="table-scroll"><table className="records-table">
@@ -5536,12 +5606,22 @@ export default function Page() {
               <tbody>{lista.map((x) => <tr key={x.controle}>
                 <td><strong>controle {x.controle}</strong><span>série {x.serie} · tomb {x.tombamento}</span><small>{x.marca} · {x.descricao}</small></td>
                 <td><strong>NF retorno {x.nf_retorno || "—"}</strong><span>romaneio {x.romaneio || "—"} · remessa {x.remessa || "—"}</span><small>DMA {x.dma || "—"} · fornecedor {x.fornecedor || "—"}</small></td>
-                <td><strong>{x.status || "—"}</strong><span>vazamento {sim(x.vazamento)} · falha {sim(x.falha)}</span><small>{x.op ? `OP ${x.op.op} · ${x.op.triagem} · ${x.op.status}` : "sem ordem de produção"}</small></td>
-                <td>{x.eventos.length === 0
-                  ? <><strong className="nq-forte">sem passagem registrada</strong><span>nenhuma SS cita esta série nem este tombamento</span><small>provável devolução antes de ir para a rede</small></>
-                  : <><strong>{x.codigos.join(", ") || "—"}</strong>
+                <td><strong>{x.status || "—"}</strong><span>vazamento {sim(x.vazamento)} · falha {sim(x.falha)}</span>
+                  {(x.obras || []).length ? <span>{(x.obras || []).length} obra{(x.obras || []).length > 1 ? "s" : ""} · {dinheiro(x.custo_obras || 0)} realizados</span> : null}
+                  <small>{x.op ? `OP ${x.op.op} · ${x.op.triagem} · ${x.op.status}` : "sem ordem de produção"}</small></td>
+                <td>{x.eventos.length === 0 && !(x.movimentacoes || []).length
+                  ? <><strong className="nq-forte">sem passagem registrada</strong><span>nenhuma base cita esta série, este tombamento nem este patrimônio</span><small>provável devolução antes de ir para a rede</small></>
+                  : <><strong>{x.codigos.join(", ") || (x.movimentacoes || []).length ? (x.codigos.join(", ") || "só na movimentação") : "—"}</strong>
+                      {(x.retirada_2026 || []).length
+                        ? <span className="nq-forte">queimou em 2026 · {(x.retirada_2026 || []).join(", ")}</span>
+                        : x.ano_ultima_retirada ? <span>última retirada em {x.ano_ultima_retirada}</span> : null}
+                      {(x.instalado_2026 || []).length && !(x.retirada_2026 || []).length
+                        ? <span>reinstalada em 2026 · {(x.instalado_2026 || []).join(", ")}</span> : null}
                       {x.eventos.filter((e) => e.base === "SS/OS").map((e, i) => <span key={i}>{e.data} · {e.papel} · {e.ss}{e.no1305 ? " · nas 1.305" : ""}</span>)}
-                      <small>achado por {x.achou_serie && x.achou_tomb ? "série e tombamento" : x.achou_serie ? "série" : "tombamento"}</small></>}
+                      {!x.eventos.length && (x.movimentacoes || []).length
+                        ? (x.movimentacoes || []).slice(0, 3).map((m, i) => <span key={i}>obra {m.obra} · {m.papel}{m.data ? ` · ${m.data}` : ""}{m.motivo ? ` · ${m.motivo}` : ""}</span>) : null}
+                      <small>achado por {[x.achou_serie_exata ? "série" : null, x.achou_serie_grafia ? "série (grafia)" : null,
+                        x.achou_tomb ? "tombamento" : null, x.achou_mov ? "movimentação" : null].filter(Boolean).join(" + ") || "—"}</small></>}
                 </td>
               </tr>)}</tbody>
             </table></div>
@@ -5549,7 +5629,8 @@ export default function Page() {
           </section>
           <section className="panel editorial-note wide"><span>O QUE ESTA ABA NÃO FAZ</span>
             <p>Não altera as 1.305 e não reclassifica ninguém. Das {R.total} peças, {R.no1305} tocam o indicador — e a maioria delas como <strong>peça instalada</strong>, isto é, a reposição que entrou no poste depois da queima, não o transformador que queimou. Confundir os dois papéis inverteria a leitura.</p>
-            <p>O relatório também não traz código operativo nem data de retirada. O código que aparece aqui foi <strong>deduzido</strong>: veio da SS em que a série ou o tombamento da peça foi registrado como retirado ou instalado. Onde a SS não registrou a série, a peça fica invisível para esta busca — e isso vale para {R.nenhuma.length} das {R.total}.</p>
+            <p>O relatório também não traz código operativo nem data de retirada. O código e a data que aparecem aqui foram <strong>deduzidos</strong>: vieram da SS em que a série, o tombamento ou o patrimônio da peça foi registrado. Onde nenhuma base registrou a peça, ela fica invisível para esta busca — e isso vale para {R.em_nenhuma_base} das {R.total}.</p>
+            <p><strong>Nota de método, registrada porque o erro já foi cometido:</strong> uma conferência feita só pelo número de série localizou {R.por_serie_exata} das {R.total} e concluiu daí quantas eram de 2026. Estava incompleta — o tombamento sozinho encontra mais {R.so_pelo_tombamento} peças, e a série da ITAM só casa com a grafia corrigida. A cobertura correta é a das quatro chaves juntas: {R.localizados} de {R.total}. O número de peças com queima em 2026 não mudou ({R.com_retirada_2026}), mas isso foi resultado da conferência, não podia ser presumido.</p>
           </section>
         </>;
       }
