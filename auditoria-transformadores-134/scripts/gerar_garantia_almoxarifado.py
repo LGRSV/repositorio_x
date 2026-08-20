@@ -164,6 +164,33 @@ def ler_movimentacao(caminho):
     return saida
 
 
+def ler_aic(caminho):
+    """O AIC: uma linha por obra, com o que foi orçado e o que foi realizado.
+
+    Entra aqui para responder a pergunta do dinheiro: cada substituição destas peças gerou
+    uma obra, e a obra tem custo. Se a garantia fosse reconhecida, parte desse custo seria
+    recuperável — por isso o valor precisa estar do lado da peça.
+    """
+    import openpyxl
+
+    ws = openpyxl.load_workbook(caminho, read_only=True, data_only=True).worksheets[0]
+    it = ws.iter_rows(values_only=True)
+    cols = [texto(c) for c in next(it)]
+    ix = {c: i for i, c in enumerate(cols)}
+    quer = ["NUM_OBRA", "TOTAL_REALIZADO", "VAL_TOTAL_ORCADO", "MO_REALIZADO", "MT_REALIZADO",
+            "NUM_PROJETO_SIGCO", "DSC_STATUS", "POLO", "DESCRICAO_OBRA"]
+    quer = [c for c in quer if c in ix]
+    fim = max(ix[c] for c in quer)
+    saida = {}
+    for r in it:
+        if len(r) <= fim:          # o arquivo termina com linhas curtas
+            continue
+        o = so_digitos(r[ix["NUM_OBRA"]])
+        if o and o not in saida:
+            saida[o] = {c: r[ix[c]] for c in quer}
+    return saida
+
+
 def ler_relatorio(caminho):
     import openpyxl
 
@@ -217,6 +244,7 @@ def main():
     p.add_argument("--ss-os", required=True, nargs="+", help="as partes da base SS/OS (.txt)")
     p.add_argument("--reformadora", required=True, help="ordens de produção da reformadora (.html)")
     p.add_argument("--movimentacao", help="planilha de movimentação por obra (.xlsx) — opcional")
+    p.add_argument("--aic", help="extração do AIC com o custo das obras (.xlsx) — opcional")
     p.add_argument("--saida", default=str(PUBLIC / "garantia-almoxarifado.json"))
     args = p.parse_args()
 
@@ -224,6 +252,7 @@ def main():
     si, SSB = ler_ss_os(args.ss_os)
     ri, OPS = ler_reformadora(args.reformadora)
     MOV = ler_movimentacao(args.movimentacao) if args.movimentacao else []
+    AIC = ler_aic(args.aic) if args.aic else {}
     coleta = json.loads((PUBLIC / "coleta-ativos.json").read_text(encoding="utf-8"))["por_ss"]
     no_indicador, classe_de, fluxo = conjunto_1305()
     if len(no_indicador) != 1305:
@@ -232,6 +261,13 @@ def main():
 
     def campo(linha, nome):
         return texto(linha[si[nome]]) if si.get(nome) is not None else ""
+
+    # SS -> obra: o elo que leva a peça até o custo no AIC
+    obra_da_ss = {}
+    for linha in SSB:
+        ss_, ob = campo(linha, "NUMERO_SS"), so_digitos(campo(linha, "NUM_OBRA"))
+        if ss_ and ob:
+            obra_da_ss.setdefault(ss_, ob)
 
     # Nomes de coluna do relatório variam em espaço no fim; resolve pelo começo do nome.
     def col(nome):
@@ -351,6 +387,49 @@ def main():
                     break
         return n
 
+    # ── o dinheiro: cada SS tem obra, cada obra tem custo ─────────────────────
+    # Somar linha a linha infla o valor, porque a mesma obra atende duas SS (a que retirou e
+    # a que instalou) e a mesma peça aparece nas duas. Tudo aqui é somado por OBRA DISTINTA.
+    def n_(v):
+        try:
+            return float(str(v).replace(",", "."))
+        except (TypeError, ValueError):
+            return 0.0
+
+    obras_todas, obras_1305 = {}, {}
+    for x in itens:
+        obras_x = set()
+        for e in x["eventos"]:
+            if e["base"] != "SS/OS":
+                continue
+            ob = obra_da_ss.get(e["ss"])
+            if not ob or ob not in AIC:
+                continue
+            obras_x.add(ob)
+            obras_todas[ob] = AIC[ob]
+            if e["no1305"]:
+                obras_1305[ob] = AIC[ob]
+        x["obras"] = sorted(obras_x)
+        x["custo_obras"] = round(sum(n_(AIC[o].get("TOTAL_REALIZADO")) for o in obras_x), 2)
+
+    # ── a peça encontrada pela OBRA, quando a SS não registrou a série ────────
+    # Caminho: a movimentação diz em que obra a peça se moveu; a base SS/OS diz que SS
+    # pertence àquela obra. Acha solicitação que não anotou série nem tombamento.
+    ss_da_obra = defaultdict(set)
+    for ss_, ob in obra_da_ss.items():
+        ss_da_obra[ob].add(ss_)
+    for x in itens:
+        ja = {e["ss"] for e in x["eventos"]}
+        achadas = []
+        for m in x.get("movimentacoes", []):
+            ob = so_digitos(m["obra"])
+            for ss_ in sorted(ss_da_obra.get(ob, ())):
+                if ss_ in ja:
+                    continue
+                ja.add(ss_)
+                achadas.append({"ss": ss_, "obra": ob, "no1305": ss_ in no_indicador})
+        x["via_obra"] = achadas
+
     # ── o ano em que a peça saiu do poste ─────────────────────────────────────
     # O relatório do almoxarifado não tem data nenhuma: ele diz que a peça voltou, não
     # quando ela falhou. Quem data é a SS que a retirou. Sem isto a lista parece "casos de
@@ -382,6 +461,24 @@ def main():
         "com_instalacao_2026": sum(1 for x in itens if x["instalado_2026"] and not x["retirada_2026"]),
         "anos_de_retirada": {a: sum(1 for x in itens if x["ano_ultima_retirada"] == a)
                              for a in sorted({x["ano_ultima_retirada"] for x in itens if x["ano_ultima_retirada"]})},
+        "ss_2026": len({e["ss"] for x in itens for e in x["eventos"]
+                        if e["base"] == "SS/OS" and ano_de(e) == "2026"}),
+        "ss_2026_no1305": len({e["ss"] for x in itens for e in x["eventos"]
+                               if e["base"] == "SS/OS" and ano_de(e) == "2026" and e["no1305"]}),
+        "pecas_com_ss_2026": sum(1 for x in itens if any(
+            e["base"] == "SS/OS" and ano_de(e) == "2026" for e in x["eventos"])),
+        "achadas_via_obra": len({a["ss"] for x in itens for a in x.get("via_obra", [])}),
+        "obras_todas": len(obras_todas),
+        "obras_1305": len(obras_1305),
+        "realizado_todas": round(sum(n_(v.get("TOTAL_REALIZADO")) for v in obras_todas.values()), 2),
+        "realizado_1305": round(sum(n_(v.get("TOTAL_REALIZADO")) for v in obras_1305.values()), 2),
+        "orcado_1305": round(sum(n_(v.get("VAL_TOTAL_ORCADO")) for v in obras_1305.values()), 2),
+        "mo_1305": round(sum(n_(v.get("MO_REALIZADO")) for v in obras_1305.values()), 2),
+        "mt_1305": round(sum(n_(v.get("MT_REALIZADO")) for v in obras_1305.values()), 2),
+        "status_1305": {k: sum(1 for v in obras_1305.values() if texto(v.get("DSC_STATUS")) == k)
+                        for k in sorted({texto(v.get("DSC_STATUS")) for v in obras_1305.values()})},
+        "polos_1305": {k: sum(1 for v in obras_1305.values() if texto(v.get("POLO")) == k)
+                       for k in sorted({texto(v.get("POLO")) for v in obras_1305.values()})},
         "so_serie": [x["controle"] for x in itens if x["achou_serie"] and not x["achou_tomb"]],
         "so_tombamento": [x["controle"] for x in itens if x["achou_tomb"] and not x["achou_serie"]],
         "ambas": [x["controle"] for x in itens if x["achou_serie"] and x["achou_tomb"]],
@@ -405,6 +502,12 @@ def main():
           f"tombamento {resumo['por_tombamento']} · movimentação {resumo['por_movimentacao']}")
     print(f"  só o tombamento acha: {resumo['so_pelo_tombamento']} · em base nenhuma: {resumo['em_nenhuma_base']}")
     print(f"  retirada em 2026: {resumo['com_retirada_2026']} · anos: {resumo['anos_de_retirada']}")
+    print(f"  SS de 2026 que citam alguma peça: {resumo['ss_2026']} ({resumo['ss_2026_no1305']} nas 1.305), "
+          f"envolvendo {resumo['pecas_com_ss_2026']} peças")
+    print(f"  achadas só pelo caminho da obra: {resumo['achadas_via_obra']} SS")
+    if AIC:
+        print(f"  obras: {resumo['obras_todas']} no total (R$ {resumo['realizado_todas']:,.2f}) · "
+              f"{resumo['obras_1305']} nas 1.305 (R$ {resumo['realizado_1305']:,.2f})")
     print(f"  série: SS/OS {resumo['por_serie_ssos']} · COLETA {resumo['por_serie_coleta']}")
     print(f"  tombamento: SS/OS {resumo['por_tomb_ssos']} · COLETA {resumo['por_tomb_coleta']}")
     print(f"  só série {len(resumo['so_serie'])} · só tombamento {len(resumo['so_tombamento'])} · ambas {len(resumo['ambas'])}")
