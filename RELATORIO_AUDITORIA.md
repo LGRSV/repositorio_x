@@ -1,11 +1,56 @@
 # Relatório da auditoria automática
 
-## 19/08/2026, 00:27 UTC — MODO = RELATO · o site confere; quem envelheceu foi o roteiro
+## 19/08/2026, 00:27 UTC — MODO = RELATO · dois defeitos reais no site, e o roteiro velho
+
+> ## CORREÇÃO, 20/08/2026, 20:40 UTC — eu tinha escrito "o site confere", e estava errado
+>
+> **Há um segundo defeito real, e ele é visível na tela.** A aba Bases oferece para download
+> **`Filtros_do_Site.xlsx`**, e esse arquivo **não existe em `public/bases/`**. A linha 4383
+> do `page.tsx` monta um `<a href=".../bases/Filtros_do_Site.xlsx" download>` — o clique dá
+> 404 — e o tamanho dele aparece para o leitor como o literal **`PLACEHOLDER_TAM`**, um
+> marcador que nunca foi substituído. Num site que vai à alta direção, é um link quebrado com
+> texto de rascunho à mostra.
+>
+> **Por que meu invariante 17 disse "faltando: nenhum".** O teste varre a lista de downloads
+> com a regex `\["(Base_[^"]+)",[^]]*?"([\d,]+) MB"\]` (e a gêmea para `Original_`). O
+> `Filtros_do_Site.xlsx` não começa com `Base_` nem com `Original_`, e o tamanho dele não é
+> `N,N MB` — é `PLACEHOLDER_TAM`. **Ele não casa com a regex, então nunca foi conferido.**
+> É o mesmo tipo de buraco da FALHA 14: o teste passa porque não olha, não porque está certo.
+> Um teste que varresse *todas* as entradas das três listas (`ARQUIVOS`, `ORIGINAIS`,
+> `MANUAIS`) pegaria os dois de uma vez.
+>
+> **Como eu achei, e o crédito é de outra rodada.** O ramo `auditoria/relato-2026-08-18` é uma
+> execução paralela deste mesmo roteiro, da noite anterior, escrevendo no mesmo arquivo. Ela
+> aponta três defeitos; eu tinha apontado um. Fui conferir os dois que faltavam **contra o
+> disco e contra o `page.tsx`, não contra a palavra dela**, e este se confirmou.
+>
+> **O terceiro achado dela eu não classifico como defeito, e a diferença é de rótulo, não de
+> fato.** É o literal `1.305` na tela de login. Nós dois medimos a mesma coisa e demos o mesmo
+> resultado — o número está **correto** (provei contra a tabela viva do Supabase, ela chegou
+> ao mesmo lugar). Ela o lista como risco de envelhecer por ser literal escrito à mão; eu o
+> listei como número conferido. **Não há divergência factual entre as duas rodadas** — e ela
+> mesma registra que o `1.305` virou nome do conjunto no vocabulário do projeto, e deixa a
+> decisão de renomear para o dono. Concordo.
+>
+> **As duas rodadas batem em tudo o mais**, por caminhos independentes: mesmo placar de
+> invariantes (19 · 1 · 1), mesma leitura de que a FALHA 18 é falso positivo, mesmo diagnóstico
+> de roteiro velho (884 → 1.269 = 1.198 + 71), e **os seis números da FALHA 14 idênticos**
+> — 108 · 52 · 31 · 25 · 112 · dezessete. Duas medições independentes chegando no mesmo lugar
+> é a melhor evidência que este relatório tem.
+>
+> **Atenção ao merge:** as duas rodadas inserem entrada no topo do **mesmo**
+> `RELATORIO_AUDITORIA.md`, em ramos diferentes. Quando os dois forem para a `main`, vão
+> conflitar na primeira linha depois do `#`. Vale escolher um e rebasar o outro, em vez de
+> deixar o git decidir.
+>
+> **Nada foi corrigido**, aqui também não: `MODO = RELATO` segue valendo, e o diff proposto
+> para este defeito é o **G**, no fim desta entrada.
 
 **Placar: 19 conferem · 1 falha · 1 a olho, de 21 no script.** Somando a conferência
-independente que fiz por fora do script, o placar honesto é **18 conferem · 2 falham**: a
-FALHA 18 é defeito do teste, não do site, e o invariante 14 passa no script mas **falha de
-verdade** num parágrafo que o script não cobre.
+independente que fiz por fora do script, o placar honesto é **17 conferem · 3 falham**: a
+FALHA 18 é defeito do teste, não do site; o invariante 14 passa no script mas **falha de
+verdade** num parágrafo que o script não cobre; e o invariante 17 passa pelo mesmo motivo —
+**não olha** a entrada que está quebrada (ver a correção acima).
 
 **Nada foi para o `main` e o site não foi republicado.** O `AUDITORIA_NOTURNA.md` está com
 `MODO = RELATO`, e essa linha manda mais do que o comando que me acordou — a mensagem do
@@ -269,6 +314,23 @@ senão                                          -> SAÍDA
   Vale acrescentar a distinção que hoje não está escrita em lugar nenhum do roteiro e é a
   fonte mais provável de susto na próxima leitura: **1.269 é a esteira, 1.305 é a esteira mais
   o martelo do dono que vem do banco.** O site publica 1.305 e está certo.
+
+**G · O download quebrado — `Filtros_do_Site.xlsx`.** Acrescentado na correção de 20/08. São
+duas decisões, e a segunda é do dono:
+
+1. **O `PLACEHOLDER_TAM` não pode ir para a tela em hipótese nenhuma.** Enquanto o arquivo não
+   existir, a linha inteira sai da lista `ARQUIVOS` (`app/page.tsx`, linha 4383) — melhor não
+   oferecer do que oferecer um 404 com texto de rascunho no lugar do tamanho.
+2. **Se a planilha era para existir**, quem a gera precisa rodar e o arquivo entrar em
+   `public/bases/`; aí a linha volta com o tamanho real, medido em MB decimal como as outras
+   `Base_*`. Não sei qual dos dois é o caso — **é decisão do dono**, e por isso não apliquei
+   nem a remoção.
+
+**H · `scripts/auditoria_invariantes.py`** — fechar o buraco do invariante 17, que é o que
+deixou o G passar. Hoje o teste só enxerga o que casa com `Base_*`/`Original_*` **e** com um
+tamanho `N,N MB`. Deveria varrer **toda** entrada das três listas (`ARQUIVOS`, `ORIGINAIS`,
+`MANUAIS`), conferir que o arquivo existe no disco, e reprovar qualquer tamanho que não seja
+número — um `PLACEHOLDER_TAM` na tela é falha por si só, mesmo que o arquivo existisse.
 
 ---
 
