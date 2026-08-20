@@ -114,8 +114,8 @@ E no bloco `leitura`: **"errada em 118 solicitações"** → hoje são **128**
 ### FALHA 18 — é o teste que está errado, não o site
 
 O script acusa "o contador do cabeçalho não usa `listadas.length`". **Usa.** Está na linha
-6054 do `page.tsx`. O que acontece é que existem **dois** `header-meta` e a regex do teste
-casa só com o primeiro (linha 6053, o ramo das abas de mês) e olha 200 caracteres à frente —
+6135 do `page.tsx`. O que acontece é que existem **dois** `header-meta` e a regex do teste
+casa só com o primeiro (linha 6134, o ramo das abas de mês) e olha 200 caracteres à frente —
 não alcança o ramo do recorte, que vem na linha seguinte.
 
 O ramo do mês usa o universo do próprio mês de propósito, e há comentário no código dizendo
@@ -159,11 +159,25 @@ o dono revisar o roteiro, essas quatro precisam ser reescritas com ele.
 `pnpm install --frozen-lockfile` + `pnpm run build:pages` **passam**. Como nenhuma correção
 foi aplicada, não há build de mudança para reportar.
 
-A auditoria começou em `65835e0` e o PR #112 entrou no `main` no meio dela, mexendo em
-`page.tsx` (+59 linhas) e `globals.css`. **Reexecutei os 21 invariantes contra o `main` novo
-(`d15c8e5`) e o resultado é idêntico:** 19 conferem, falha a 18, a 15 fica a olho. Nenhum
-arquivo de dado foi tocado por aquele PR, então todas as medições acima continuam válidas —
-só as linhas citadas do `page.tsx` andaram, e já estão atualizadas no texto.
+A auditoria começou em `65835e0` e o `main` andou duas vezes desde então, com os invariantes
+reexecutados contra cada estado novo — **resultado idêntico nas três medições:** 19 conferem,
+falha a 18, a 15 fica a olho.
+
+| Quando | O que entrou | Efeito nas medições |
+|---|---|---|
+| Durante a rodada | **PR #112** (`d15c8e5`) — `page.tsx` +59, `globals.css` | nenhum |
+| ~16h depois | **PR #115** (`9be6cbf`) — `page.tsx`, `globals.css`, `garantia-almoxarifado.json`, `gerar_garantia_almoxarifado.py` | nenhum |
+
+**`fluxo-1510.json`, `metodo.json`, `universo-ss.json` e `auditorias.json` não foram tocados
+por nenhum dos dois**, então a FALHA 14 e todos os números medidos acima continuam válidos
+palavra por palavra. O que mudou foram só as linhas citadas do `page.tsx` (6012/6013 →
+6053/6054 → 6134/6135), já atualizadas no texto.
+
+O PR #115 mexeu no dado da garantia do almoxarifado (`localizados` foi de 30 para 32, e o
+resumo ganhou campos novos). **Isso não cria drift no `metodo.json`:** os números daquele
+bloco — 597, 178, 36 e 45 — são cadeias de peça, análise diferente da do almoxarifado, e a
+aba de garantia lê o JSON em tempo de execução (`almox?.resumo.no1305`), sem literal escrito
+à mão. O ramo do relatório está mergeado com o `main` atual, sem conflito.
 
 ---
 
