@@ -47,6 +47,11 @@ type AlmoxItem = {
   movimentacoes?: { obra: string; pat: string; serie: string; mov: string; data: string;
                     marca: string; kva: string; motivo: string; chave: string; papel: string }[];
   ano_ultima_retirada?: string; retirada_2026?: string[]; instalado_2026?: string[]; toca_2026?: boolean;
+  /* A obra é o elo que leva a peça até o dinheiro: cada SS tem obra, cada obra tem custo no
+     AIC. E é também uma chave de busca — a movimentação diz em que obra a peça se moveu, e
+     daí se chega a SS que não anotaram série nem tombamento. */
+  obras?: string[]; custo_obras?: number;
+  via_obra?: { ss: string; obra: string; no1305: boolean }[];
 };
 type Almoxarifado = {
   gerado_em: string; fonte: string; colunas_originais: string[];
@@ -56,7 +61,11 @@ type Almoxarifado = {
     localizados_ssos: number; por_serie_exata: number; por_serie_grafia: number;
     por_tombamento: number; por_movimentacao: number; so_pelo_tombamento: number;
     so_pela_movimentacao: number; em_nenhuma_base: number; com_retirada_2026: number;
-    com_instalacao_2026: number; anos_de_retirada: Record<string, number> };
+    com_instalacao_2026: number; anos_de_retirada: Record<string, number>;
+    ss_2026: number; ss_2026_no1305: number; pecas_com_ss_2026: number; achadas_via_obra: number;
+    obras_todas: number; obras_1305: number; realizado_todas: number; realizado_1305: number;
+    orcado_1305: number; mo_1305: number; mt_1305: number;
+    status_1305: Record<string, number>; polos_1305: Record<string, number> };
   itens: AlmoxItem[];
 };
 
@@ -5522,6 +5531,8 @@ export default function Page() {
       if (modulo === "insight_almoxarifado") {
         if (!almox) return <section className="panel"><p className="fonte-detalhe">Carregando o controle do almoxarifado…</p></section>;
         const R = almox.resumo;
+        /* Reais no padrão brasileiro, sem centavos: os valores de obra são inteiros no AIC. */
+        const dinheiro = (v: number) => `R$ ${Math.round(v || 0).toLocaleString("pt-BR")}`;
         const ordem = (x: AlmoxItem) => x.no1305.length ? 0 : (x.eventos.length ? 1 : 2);
         const lista = [...almox.itens].sort((a, b) => ordem(a) - ordem(b) || a.controle.localeCompare(b.controle));
         const sim = (v: boolean) => v ? "sim" : "não";
@@ -5538,14 +5549,16 @@ export default function Page() {
                 <tr><td><strong>Série com a grafia corrigida</strong><span>só dígitos</span></td><td><strong>+{R.por_serie_grafia}</strong></td><td>SS/OS</td><td>A ITAM grava a série com letra na frente (<em>C250457</em>) e a SS/OS registra só o número. Esta chave só vale quando o <b>tombamento ou a marca confirmam junto</b> — sozinha ela casaria equipamentos de fabricantes diferentes que dividem o mesmo número.</td></tr>
                 <tr><td><strong>Tombamento</strong></td><td><strong>{R.por_tombamento} de {R.total}</strong></td><td>SS/OS e COLETA</td><td>Acha <b>{R.so_pelo_tombamento}</b> que a série sozinha não acharia. Na COLETA só existe para o retirado.</td></tr>
                 <tr><td><strong>Série ou patrimônio</strong><span>na movimentação por obra</span></td><td><strong>{R.por_movimentacao} de {R.total}</strong></td><td>movimentação</td><td>Terceira fonte, ligada à obra e não à solicitação. Confirma que a peça existiu mesmo quando nenhuma SS a menciona.</td></tr>
+                <tr><td><strong>A obra</strong><span>movimentação → obra → SS</span></td><td><b>+{R.achadas_via_obra} SS</b></td><td>movimentação e SS/OS</td><td>Caminho indireto: a movimentação diz em que <strong>obra</strong> a peça se moveu, e a base diz que SS pertence àquela obra. Alcança solicitação que <b>não anotou série nem tombamento</b> — nenhuma busca por número a encontraria.</td></tr>
                 <tr><td><strong>Controle</strong></td><td><strong>0</strong></td><td>—</td><td>Nem a SS/OS nem a COLETA guardam esse campo. Só a reformadora tem, e lá ele funciona.</td></tr>
               </tbody>
             </table></div>
             <p className="fonte-detalhe"><strong>Nenhuma chave sozinha dá conta.</strong> A série exata acha {R.por_serie_exata}; somando a grafia corrigida e o tombamento sobe para {R.localizados_ssos} na SS/OS, e com a movimentação chega a {R.localizados} de {R.total}. O tombamento sozinho salva {R.so_pelo_tombamento} peças que a busca por série perderia — e foi exatamente isso que uma primeira conferência, feita só pela série, deixou escapar.</p>
             <p className="fonte-detalhe">Cada chave é comparada só contra campo do mesmo tipo, nunca cruzada. Cruzar controle com tombamento produz casamento falso: são numerações independentes que colidem por acaso — aconteceu com dois controles nesta base, e os dois foram descartados.</p>
           </section>
-          <section className="panel"><div className="panel-title"><div><span>Quando a peça saiu da rede</span><h2>{R.com_retirada_2026} das {R.total} foram retiradas em 2026 — a maioria saiu em 2024</h2></div><small>o relatório do almoxarifado não tem data nenhuma</small></div>
+          <section className="panel"><div className="panel-title"><div><span>Quando a peça saiu da rede</span><h2>{R.ss_2026} SS de 2026 citam estas peças, {R.ss_2026_no1305} dentro das 1.305 — mas só {R.com_retirada_2026} são a peça QUEIMANDO</h2></div><small>o relatório do almoxarifado não tem data nenhuma</small></div>
             <p className="fonte-detalhe">Esta é a pergunta que o relatório <strong>não responde sozinho</strong>: ele diz que a peça voltou ao fabricante — com nota de retorno, romaneio e remessa — mas não diz quando ela falhou. Quem data é a SS que a retirou do poste. Sem esse cruzamento a lista parece um conjunto de casos recentes, e não é.</p>
+            <p className="fonte-detalhe"><strong>Dois números diferentes, e confundi-los inverte a leitura.</strong> As peças aparecem em <strong>{R.ss_2026} solicitações de 2026</strong> ({R.ss_2026_no1305} delas dentro das 1.305), envolvendo {R.pecas_com_ss_2026} das {R.total} peças — mas na quase totalidade dessas SS a peça entra como <em>instalada</em>, isto é, é a <strong>reposição</strong> que foi posta no poste e depois devolvida ao fabricante. Só em <strong>{R.com_retirada_2026}</strong> a peça aparece como <em>retirada</em>: essas são as que efetivamente queimaram em 2026.</p>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Ano da última retirada</th><th>Quantas peças</th><th>Leitura</th></tr></thead>
               <tbody>
@@ -5574,13 +5587,28 @@ export default function Page() {
                 <p className="fonte-detalhe">Nestas peças <strong>todas as chaves batem juntas</strong> — série, tombamento e movimentação apontam para o mesmo equipamento. É a confirmação mais forte que estas bases permitem, e não depende de casamento frouxo.</p></>;
             })()}
           </section>
+          <section className="panel"><div className="panel-title"><div><span>O que estas trocas custaram</span><h2>{R.obras_1305} obras dentro das 1.305, {dinheiro(R.realizado_1305)} já realizados e encerrados</h2></div><small>{R.obras_todas} obras no total · {dinheiro(R.realizado_todas)}</small></div>
+            <p className="fonte-detalhe">Cada substituição destas peças gerou uma <strong>obra</strong>, e a obra tem custo no AIC. O caminho é <strong>SS → NUM_OBRA → AIC</strong>. É aqui que a conversa de garantia deixa de ser sobre peça e passa a ser sobre dinheiro: <strong>se a garantia fosse reconhecida, parte deste custo seria recuperável</strong>.</p>
+            <div className="table-scroll"><table className="records-table">
+              <thead><tr><th>Recorte</th><th>Obras distintas</th><th>Realizado</th><th>Orçado</th><th>Composição</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Todas as obras tocadas pelas {R.total} peças</strong></td><td><strong>{R.obras_todas}</strong></td><td><strong>{dinheiro(R.realizado_todas)}</strong></td><td>—</td><td>inclui 2024 e 2025</td></tr>
+                <tr><td><strong>Só o que está dentro das 1.305</strong></td><td><strong>{R.obras_1305}</strong></td><td><strong>{dinheiro(R.realizado_1305)}</strong></td><td><strong>{dinheiro(R.orcado_1305)}</strong></td>
+                  <td>mão de obra {dinheiro(R.mo_1305)} · material {dinheiro(R.mt_1305)}<span>o material é {Math.round(R.mt_1305 / (R.mo_1305 + R.mt_1305) * 100)}% do custo</span></td></tr>
+              </tbody>
+            </table></div>
+            <p className="fonte-detalhe"><strong>Status destas obras:</strong> {Object.entries(R.status_1305).map(([k, v]) => `${v} em ${k.replace("ENCERRAMENTO:", "").toLowerCase()}`).join(" · ")}. <strong>Nenhuma aberta</strong> — já foram pagas e encerradas contabilmente. Polos: {Object.entries(R.polos_1305).map(([k, v]) => `${k.toLowerCase()} ${v}`).join(", ")}.</p>
+            <p className="fonte-detalhe"><strong>Cuidado ao somar, e é por isso que tudo aqui é por obra distinta:</strong> a mesma obra costuma atender duas SS — a que retirou e a que instalou — e a mesma peça aparece nas duas pontas. Somar linha a linha contaria o mesmo dinheiro duas vezes.</p>
+          </section>
           <section className="panel"><div className="panel-title"><div><span>Caso a caso</span><h2>Os {R.total} do controle do almoxarifado</h2></div><small>nota de retorno, romaneio, remessa e onde a peça esteve</small></div>
             <div className="table-scroll"><table className="records-table">
               <thead><tr><th>Equipamento</th><th>Documentos da devolução</th><th>Estado declarado</th><th>Onde esteve na rede</th></tr></thead>
               <tbody>{lista.map((x) => <tr key={x.controle}>
                 <td><strong>controle {x.controle}</strong><span>série {x.serie} · tomb {x.tombamento}</span><small>{x.marca} · {x.descricao}</small></td>
                 <td><strong>NF retorno {x.nf_retorno || "—"}</strong><span>romaneio {x.romaneio || "—"} · remessa {x.remessa || "—"}</span><small>DMA {x.dma || "—"} · fornecedor {x.fornecedor || "—"}</small></td>
-                <td><strong>{x.status || "—"}</strong><span>vazamento {sim(x.vazamento)} · falha {sim(x.falha)}</span><small>{x.op ? `OP ${x.op.op} · ${x.op.triagem} · ${x.op.status}` : "sem ordem de produção"}</small></td>
+                <td><strong>{x.status || "—"}</strong><span>vazamento {sim(x.vazamento)} · falha {sim(x.falha)}</span>
+                  {(x.obras || []).length ? <span>{(x.obras || []).length} obra{(x.obras || []).length > 1 ? "s" : ""} · {dinheiro(x.custo_obras || 0)} realizados</span> : null}
+                  <small>{x.op ? `OP ${x.op.op} · ${x.op.triagem} · ${x.op.status}` : "sem ordem de produção"}</small></td>
                 <td>{x.eventos.length === 0 && !(x.movimentacoes || []).length
                   ? <><strong className="nq-forte">sem passagem registrada</strong><span>nenhuma base cita esta série, este tombamento nem este patrimônio</span><small>provável devolução antes de ir para a rede</small></>
                   : <><strong>{x.codigos.join(", ") || (x.movimentacoes || []).length ? (x.codigos.join(", ") || "só na movimentação") : "—"}</strong>
