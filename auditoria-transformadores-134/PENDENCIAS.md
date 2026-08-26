@@ -49,11 +49,24 @@ e excluir os ativos dos 1.510 e de julho/agosto.
   separa 6 garantias de 2026 de 6 devoluções antigas — o grupo B do
   `Garantias_2026_NF_Retorno.xlsx`. Pedir ao almoxarifado junto com a data de entrada em
   estoque.
-- **FIS** — o cadastro com potência, marca e data de instalação por ativo. Sem ele não dá
-  para medir taxa de queima por marca nem por idade do parque. O que existe hoje
-  (`data__20260820`) só tem ID de instalação, código operativo e coordenada.
-- **Cobertura dos KML** — 176 alimentadores mapeados contra 721 citados na base SS/OS.
-  As análises por circuito valem só para os 176.
+- ~~**FIS** — o cadastro com potência, marca e data de instalação por ativo.~~
+  **ATENDIDO em 24/08/2026.** Ele subiu a extração oficial do parque:
+  `FIS_ETO_2026_07_E_TRANSFORMADORES_ID.csv`, 96.037 transformadores de julho/2026,
+  52 colunas. Lida por `scripts/gerar_cadastro_fis.py`, que grava o parque da Energisa
+  em `dados/fis-2026-07-energisa.json.gz` e o recorte da auditoria em
+  `public/cadastro-fis.json` (aba 13·1 do site). **O filtro de particular é a coluna
+  `PROPRIETARIO`, não o prefixo 56** — os dois discordam em 206 ativos, e seis dos
+  particulares têm prefixo 57. Fica aberto o que a extração não preenche: capacidade do
+  elo em 349 de 96.037 (para elo, a fonte boa continua sendo o KMZ da Rede de
+  Distribuição, com 53,6%), fabricante conhecido em 25,2% e tombamento em 104 registros.
+  Idade do parque ainda não dá para medir: `DATA_FABRICACAO` vem `01/01/2000` em
+  **67.927 dos 92.424** (73,5%), que é preenchimento padrão e não data real. Os 26,5%
+  restantes trazem data plausível e servem para um recorte, não para o parque.
+- ~~**Cobertura dos KML** — 176 alimentadores mapeados contra 721 citados na base SS/OS.~~
+  **ATENDIDO em 23/08/2026.** A árvore KMZ da Rede de Distribuição ETO (Drive, pasta
+  pública) cobre 111 subestações e ~721 alimentadores, com cinco camadas por circuito.
+  Baixados até agora só os 51 alimentadores dos casos de julho; o resto se baixa por
+  recorte com `scripts/kmz_fis.py` da skill.
 - **166 reguladores de tensão sem estudo de ajuste** na planilha de ajustes e controle
   (que só tem religador e relé de subestação), mais 668 religadores sem estudo registrado.
   Confirmar se existe outro controle para regulador antes de tratar como lacuna.

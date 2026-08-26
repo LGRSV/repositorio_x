@@ -100,3 +100,32 @@ python3 scripts/analise-mensal/kml_extrai.py <pasta com os KML> dados/kml-pontos
 
 Este arquivo **não** fica em `public/`, de propósito: ele não é lido pelo site em execução,
 e mandá-lo para o GitHub Pages engordaria cada publicação em 12 MB sem ninguém usar.
+
+## fis-2026-07-energisa.json.gz · fis-2026-07-particulares.json
+
+O cadastro FIS do parque, extração oficial de **julho/2026**
+(`FIS_ETO_2026_07_E_TRANSFORMADORES_ID.csv`, 96.037 transformadores, 52 colunas). O CSV
+cru tem 36 MB e não entra no repositório; o que fica aqui é o que
+`scripts/gerar_cadastro_fis.py` deriva dele:
+
+| arquivo | o que é |
+|---|---|
+| `fis-2026-07-energisa.json.gz` | os **92.424** transformadores da Energisa, por código operativo (6,7 MB comprimido, 81 MB abertos) |
+| `fis-2026-07-particulares.json` | só os **3.612** códigos com `PROPRIETARIO = Particular` |
+
+**Por que os dois estão separados.** A pergunta que mais se repete é "este ativo entra no
+indicador?", e ela se responde com a lista pequena. Quem só precisa dela não deve ter que
+abrir os 92 mil.
+
+**O filtro é a coluna `PROPRIETARIO`, não o prefixo 56 do código operativo.** Os dois
+discordam em 206 ativos: 30 têm prefixo 56 e são da Energisa, e 176 são particulares sem
+prefixo 56 — seis deles com prefixo **57**, que é o prefixo de 97,6% do indicador.
+
+Para usar: `base.ler_fis()`, `base.ler_particulares()` e `base.e_particular(codigo)` em
+`scripts/analise-mensal/base.py`. `e_particular` devolve `None` quando o código não está
+em cadastro nenhum — ausente não é o mesmo que da Energisa, e o caso precisa ser listado.
+
+**O que esta extração não preenche:** capacidade do elo em 349 dos 96.037 (para elo, use o
+KMZ da Rede de Distribuição, que preenche 53,6%); `DATA_FABRICACAO` vem `01/01/2000` em
+73,5% dos registros, então idade do parque não sai daqui; fabricante conhecido em 25,2% e
+tombamento em 104 registros.

@@ -53,6 +53,33 @@ type AlmoxItem = {
   obras?: string[]; custo_obras?: number;
   via_obra?: { ss: string; obra: string; no1305: boolean }[];
 };
+/* O cadastro FIS do parque, extração oficial de julho/2026 (public/cadastro-fis.json,
+   gerado por scripts/gerar_cadastro_fis.py). O filtro que separa o que é da distribuidora
+   do que não é vem da coluna PROPRIETARIO — não do prefixo 56 do código operativo, que
+   discorda dela em 206 ativos. */
+type FisAtivo = Record<string, string>;
+type CadastroFis = {
+  meta: { titulo: string; arquivo: string; linhas: number; filtro: string;
+          congelado: string; ressalvas: string[] };
+  resumo: {
+    total: number; energisa: number; particular: number;
+    prefixo: Record<string, number>; fases: Record<string, number>;
+    possui_chave_fusivel: Record<string, number>; tipo_unidade: Record<string, number>;
+    regional: Record<string, number>; potencia: Record<string, number>;
+    preenchimento: Record<string, number>;
+  };
+  particular: { total: number; codigos: string[]; sem_prefixo_56: string[];
+                prefixo_56_mas_energisa: string[] };
+  cruzamento: Record<string, {
+    arquivo: string; ativos: number; transformadores: number; no_cadastro: number;
+    trafos_fora_do_cadastro: string[]; outros_ativos: number;
+    particulares: Array<FisAtivo & { _codigo: string; _papel: string }>;
+  }>;
+  expurgo_indicado: Array<{ codigo: string; universo: string; papel: string;
+    municipio: string; potencia: string; spec: string; motivo: string }>;
+  por_ativo: Record<string, FisAtivo>;
+};
+
 type Almoxarifado = {
   gerado_em: string; fonte: string; colunas_originais: string[];
   resumo: { total: number; localizados: number; so_serie: string[]; so_tombamento: string[];
@@ -157,7 +184,8 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf";
+  | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf"
+  | "cadastro";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -2224,6 +2252,7 @@ export default function Page() {
      Não é base de SS — é base de PEÇA. O elo com a auditoria é o número de série e o
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
+  const [cadastro, setCadastro] = useState<CadastroFis | null>(null);
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
   /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
      variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
@@ -2554,6 +2583,7 @@ export default function Page() {
       aterr: ["aterramento.json", (d) => setAterr((d as { por_ss: Record<string, Aterramento> })?.por_ss || {}), () => setAterr({})],
       terceiros: ["terceiros.json", (d) => setTerceiros((d as { por_ss: Record<string, { n: number; fontes: { campo: string; valor: string }[] }> })?.por_ss || {}), () => setTerceiros({})],
       almox: ["garantia-almoxarifado.json", (d) => setAlmox(d as Almoxarifado), () => setAlmox(null)],
+      cadastro: ["cadastro-fis.json", (d) => setCadastro(d as CadastroFis), () => setCadastro(null)],
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
@@ -2587,6 +2617,7 @@ export default function Page() {
     mes_julho_conf: ["julho", "conf", "completo", "clima"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
+    cadastro: ["cadastro"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3608,6 +3639,9 @@ export default function Page() {
     mapa: [],
     regras: [],
     bases: [],
+    /* O cadastro do parque também não filtra a esteira: a aba lê o cadastro FIS, não os
+       registros das 1.510. Vazio de propósito, como a revisão. */
+    cadastro: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -3912,6 +3946,7 @@ export default function Page() {
       { id: "regras", rotulo: "Regras e método", codigo: "12" },
       { id: "revisao", rotulo: "Revisão da auditoria", codigo: "12·1", marca: revisao?.meta.mudam, tom: "cinza" },
       { id: "bases", rotulo: "Bases usadas", codigo: "13" },
+      { id: "cadastro", rotulo: "Cadastro do parque · FIS", codigo: "13·1", marca: cadastro?.expurgo_indicado.length, tom: "amarelo" },
     ]},
   ];
 
@@ -3957,6 +3992,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    cadastro: { olho: "Parque · julho/2026", titulo: "Cadastro do parque (FIS)", texto: "A extração oficial do cadastro de transformadores, usada aqui para uma pergunta só: o ativo é da distribuidora ou é particular? Particular não pertence ao indicador. Nada é recalculado — o cruzamento fica ao lado do caso." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
     mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
@@ -4431,6 +4467,79 @@ export default function Page() {
             entrou no acervo, que é o que fechou as 24 SS de borda do ano. */}
         <section className="panel editorial-note wide"><span>PEDIDOS EM ABERTO</span>
           <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações — destas, {br(conta((r) => r.pendente_siago === "SIM"))} têm obra com número e enquadramento e só esperam a extração do SIAGO.</p>
+        </section>
+      </>;
+    }
+
+    if (modulo === "cadastro") {
+      if (!cadastro) return <section className="panel"><p className="fonte-detalhe">Carregando o cadastro…</p></section>;
+      const c = cadastro;
+      const R = c.resumo;
+      const pct = (n: number) => `${br(n)} (${(100 * n / R.energisa).toFixed(1).replace(".", ",")}%)`;
+      const UNIV: Array<[string, string]> = [["1510", "1.510 · jan a jun"], ["julho", "Julho/2026"], ["agosto", "Agosto/2026"]];
+      return <>
+        <section className="panel"><div className="panel-title"><div><span>Extração oficial</span><h2>{c.meta.titulo}</h2></div><small>{br(c.meta.linhas)} linhas</small></div>
+          <div className="cartoes">
+            <div className="cartao"><b>{br(R.total)}</b><span>transformadores no cadastro</span></div>
+            <div className="cartao"><b>{br(R.energisa)}</b><span>da Energisa — o parque que o indicador mede</span></div>
+            <div className="cartao"><b>{br(R.particular)}</b><span>particulares — fora do indicador por natureza</span></div>
+          </div>
+          <p className="fonte-detalhe">{c.meta.filtro}. {c.meta.congelado}</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>O expurgo</span><h2>Particulares dentro dos universos da auditoria</h2></div><small>{c.expurgo_indicado.length === 0 ? "nenhum" : `${c.expurgo_indicado.length} indicado(s)`}</small></div>
+          {c.expurgo_indicado.length === 0
+            ? <p className="fonte-detalhe">Nenhum transformador particular aparece nos universos auditados.</p>
+            : <table className="tabela"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
+                <tbody>{c.expurgo_indicado.map((e) => <tr key={`${e.universo}-${e.codigo}`}>
+                  <td><code>{e.codigo}</code></td><td>{e.universo}</td>
+                  <td>{e.papel === "contado" ? <b>entra na conta</b> : "só no entorno"}</td>
+                  <td>{e.municipio}</td><td>{e.potencia} kVA</td><td><small>{e.spec}</small></td>
+                </tr>)}</tbody></table>}
+          <p className="fonte-detalhe">
+            &ldquo;Entra na conta&rdquo; é o ativo que está no universo auditado do período; &ldquo;só no entorno&rdquo;
+            veio da varredura ampliada e não soma em número nenhum — mas fica registrado aqui para
+            que, na hora de fechar o mês, ninguém o traga para dentro sem perceber.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Cobertura</span><h2>Cada universo contra o cadastro</h2></div><small>o cadastro é de julho</small></div>
+          <table className="tabela"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
+            <tbody>{UNIV.map(([k, rot]) => { const x = c.cruzamento[k]; if (!x) return null; return <tr key={k}>
+              <td>{rot}</td><td>{br(x.ativos)}</td><td>{br(x.transformadores)}</td><td>{br(x.no_cadastro)}</td>
+              <td>{x.trafos_fora_do_cadastro.length === 0 ? "—" : <span title={x.trafos_fora_do_cadastro.join(", ")}>{x.trafos_fora_do_cadastro.length}</span>}</td>
+              <td>{x.particulares.length || "—"}</td></tr>; })}</tbody></table>
+          <p className="fonte-detalhe">
+            A coluna &ldquo;Ativos&rdquo; conta tudo o que o arquivo do período cita, inclusive chave fusível,
+            poste e religador que aparecem na varredura do entorno. Só transformador é cobrado do
+            cadastro — o resto não está nele, e contá-lo como ausente seria inventar um problema.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>A armadilha</span><h2>Prefixo 56 não é o mesmo que particular</h2></div><small>discordam em {br(c.particular.sem_prefixo_56.length + c.particular.prefixo_56_mas_energisa.length)} ativos</small></div>
+          <div className="cartoes">
+            <div className="cartao"><b>{br(c.particular.sem_prefixo_56.length)}</b><span>particulares SEM prefixo 56 — o prefixo deixaria passar</span></div>
+            <div className="cartao"><b>{br(c.particular.prefixo_56_mas_energisa.length)}</b><span>com prefixo 56 e da Energisa — o prefixo excluiria à toa</span></div>
+          </div>
+          <p className="fonte-detalhe">
+            Seis dos particulares sem prefixo 56 têm prefixo <code>57</code>, que é justamente o
+            prefixo que responde por 97,6% do indicador. Por isso o filtro passou a ser a coluna
+            <code> PROPRIETARIO</code>, e não o código operativo.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Qualidade do dado</span><h2>O que esta extração preenche, e o que não</h2></div><small>sobre os {br(R.energisa)} da Energisa</small></div>
+          <table className="tabela"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
+            <tr><td>Coordenada</td><td>{pct(R.preenchimento.coordenada)}</td></tr>
+            <tr><td>Fabricante conhecido</td><td>{pct(R.preenchimento.fabricante_conhecido)}</td></tr>
+            <tr><td>Número de série não zerado</td><td>{pct(R.preenchimento.serie_nao_zerada)}</td></tr>
+            <tr><td>Capacidade do elo (lado carga)</td><td>{pct(R.preenchimento.elo_carga)}</td></tr>
+            <tr><td>Tombamento</td><td>{pct(R.preenchimento.tombamento)}</td></tr>
+          </tbody></table>
+        </section>
+
+        <section className="panel warning-note wide"><strong>Ressalvas desta leitura</strong>
+          {c.meta.ressalvas.map((r) => <p key={r}>· {r}</p>)}
         </section>
       </>;
     }
