@@ -56,12 +56,27 @@ e excluir os ativos dos 1.510 e de julho/agosto.
   em `dados/fis-2026-07-energisa.json.gz` e o recorte da auditoria em
   `public/cadastro-fis.json` (aba 13·1 do site). **O filtro de particular é a coluna
   `PROPRIETARIO`, não o prefixo 56** — os dois discordam em 206 ativos, e seis dos
-  particulares têm prefixo 57. Fica aberto o que a extração não preenche: capacidade do
-  elo em 349 de 96.037 (para elo, a fonte boa continua sendo o KMZ da Rede de
-  Distribuição, com 53,6%), fabricante conhecido em 25,2% e tombamento em 104 registros.
+  particulares têm prefixo 57.
+
+  O que a extração não preenche, **contado sobre os 92.424 da Energisa** (o arquivo
+  inteiro tem números um pouco maiores, e misturar as duas bases foi um erro da primeira
+  redação desta nota): capacidade do elo lado carga em **348** (0,38%) — para elo a fonte
+  boa continua sendo o KMZ da Rede de Distribuição, com 53,6%; fabricante conhecido em
+  **23.276** (25,2%); número de série não zerado em **25.574** (27,7%); tombamento em
+  **101** (0,11%). Coordenada, essa sim, em 100%.
+
   Idade do parque ainda não dá para medir: `DATA_FABRICACAO` vem `01/01/2000` em
   **67.927 dos 92.424** (73,5%), que é preenchimento padrão e não data real. Os 26,5%
   restantes trazem data plausível e servem para um recorte, não para o parque.
+
+  Defeitos de cadastro achados na conferência, que valem para qualquer regra baseada em
+  código: **um código operativo duplicado** (`5700339055`, Araguacema, 10 kVA — as duas
+  linhas diferem só em `CONJUNTO`, 16699 vs 16713); **50 códigos fora do padrão de 10
+  dígitos**, de 1 a 9 caracteres, entre eles `ETO281447`, `HM510096T`, `XX49331014` e um
+  que é literalmente o caractere `1`; e **155 códigos de prefixo alfabético** (`PA`, `GE`,
+  `T1`–`T4`, `AU`, `UC`), dos quais 149 são Particular — são entradas de consumidor e
+  subestações de cliente, incluindo quatro de 5 MVA e uma de 10 MVA, cadastradas como
+  "TD - Distribuição".
 - ~~**Cobertura dos KML** — 176 alimentadores mapeados contra 721 citados na base SS/OS.~~
   **ATENDIDO em 23/08/2026.** A árvore KMZ da Rede de Distribuição ETO (Drive, pasta
   pública) cobre 111 subestações e ~721 alimentadores, com cinco camadas por circuito.

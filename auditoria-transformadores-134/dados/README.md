@@ -125,7 +125,13 @@ Para usar: `base.ler_fis()`, `base.ler_particulares()` e `base.e_particular(codi
 `scripts/analise-mensal/base.py`. `e_particular` devolve `None` quando o código não está
 em cadastro nenhum — ausente não é o mesmo que da Energisa, e o caso precisa ser listado.
 
-**O que esta extração não preenche:** capacidade do elo em 349 dos 96.037 (para elo, use o
-KMZ da Rede de Distribuição, que preenche 53,6%); `DATA_FABRICACAO` vem `01/01/2000` em
-73,5% dos registros, então idade do parque não sai daqui; fabricante conhecido em 25,2% e
-tombamento em 104 registros.
+**O que esta extração não preenche**, contado sobre os 92.424 da Energisa: capacidade do
+elo lado carga em **348** (0,38%) — para elo, use o KMZ da Rede de Distribuição, que
+preenche 53,6%; fabricante conhecido em **23.276** (25,2%); série não zerada em **25.574**
+(27,7%); tombamento em **101** (0,11%). `DATA_FABRICACAO` vem `01/01/2000` em 67.927
+(73,5%), então idade do parque não sai daqui. Coordenada em 100%.
+
+**Defeitos de cadastro**, que quebram silenciosamente qualquer regra por prefixo: o código
+`5700339055` aparece duas vezes (difere só em `CONJUNTO`); 50 códigos estão fora do padrão
+de 10 dígitos; e 155 têm prefixo alfabético (`PA`, `GE`, `T1`–`T4`, `AU`, `UC`), quase
+todos particulares de grande porte cadastrados como distribuição.
