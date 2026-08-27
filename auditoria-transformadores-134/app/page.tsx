@@ -417,7 +417,7 @@ type Par = { label: string; value: number };
    no histórico para sempre. Quem precisa das senhas recebe fora do código. */
 /* O ESTÁGIO substituiu o `aprova` booleano.
    Booleano só sabia dizer "pode aprovar" ou "não pode", e o fluxo do dono tem ORDEM:
-   1 técnico abre, 2 Matheus Alves valida, 3 Mateus Gracia aprova. Sem ordem não dá para
+   1 o usuário abre, 2 Mateus Gracia analisa, 3 Matheus Alves libera o expurgo. Sem ordem não dá para
    saber se um pedido pulou etapa. Quem é estágio 1 abre pedido e não aprova nada; quem é
    2 ou 3 só age quando o pedido chega na vez dele.
    Decisão do dono em 12/08: o Danillo NÃO entra na cadeia — fica no estágio 1, como quem
@@ -430,8 +430,8 @@ type Usuario = {
 const SAL = "auditoria-134";
 
 const USUARIOS: Usuario[] = [
-  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Segundo estágio: valida o pedido do técnico antes de ir para a engenharia.", estagio: 2 },
-  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Terceiro estágio: aprovação oficial de engenharia, que fecha o expurgo.", estagio: 3 },
+  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Terceiro estágio: libera o expurgo. É a última assinatura.", estagio: 3 },
+  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Segundo estágio: análise de engenharia do pedido do usuário, antes da liberação.", estagio: 2 },
   { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação. Abre pedido de expurgo.", estagio: 1 },
@@ -472,8 +472,11 @@ type Expurgo = {
   quem_id: string; quem_nome: string; quem_papel: string; marcado_em: string;
 };
 
+/* A ORDEM DA ESTEIRA, ditada pelo dono: o usuário abre, Mateus Gracia analisa, e
+   Matheus Alves libera o expurgo — a última assinatura é a dele. Até 27/08 os dois
+   estavam trocados aqui. */
 const ESTAGIO_NOME: Record<number, string> = {
-  1: "técnico", 2: "Matheus Alves · supervisão", 3: "Mateus Gracia · engenharia",
+  1: "usuário", 2: "Mateus Gracia · engenharia", 3: "Matheus Alves · liberação do expurgo",
 };
 
 /* De quem é a vez. Devolve o estágio que precisa agir, ou 0 quando o pedido acabou.
