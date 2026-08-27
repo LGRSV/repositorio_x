@@ -53,6 +53,31 @@ type AlmoxItem = {
   obras?: string[]; custo_obras?: number;
   via_obra?: { ss: string; obra: string; no1305: boolean }[];
 };
+/* O universo somado de janeiro a JULHO — 1.582 SS (public/fluxo-1582.json, gerado por
+   scripts/gerar_fluxo_1582.py). É um arquivo à parte de propósito: o conjunto de jan–jun
+   está congelado e auditado, e scripts/auditoria_invariantes.py trava se o total dele
+   deixar de ser 1.510. Aqui os dois períodos se somam por cima, cada registro dizendo de
+   onde veio e se é prévia. */
+type Reg1582 = {
+  ss: string; os: string; obra: string; trafo: string; abertura: string; situacao: string;
+  criticidade: string; localidade: string; alimentador: string; origem: string; tipo_ss: string;
+  periodo: string; congelado: boolean; previa: boolean; categoria: string; decisao: string;
+  expurgo: string; gatilho: string; entra: string; decidido_por: string; clientes: string;
+  pot_ret: string; pot_inst: string; texto_ss: string; texto_os: string;
+};
+type Fluxo1582 = {
+  meta: { titulo: string; montado_de: string[]; o_que_e: string; o_que_nao_e: string;
+          julho_e_previa: string; ressalva_de_origem: string; lacunas_julho: string[];
+          fontes: string[] };
+  resumo: { total: number; jan_jun: number; julho: number; entram: number;
+            entram_jan_jun: number; entram_julho: number; pendentes_julho: number;
+            expurgados: number; em_revisao: number;
+            decisao: Record<string, number>;
+            categoria_jan_jun: Record<string, number>;
+            categoria_julho: Record<string, number> };
+  registros: Reg1582[];
+};
+
 /* O cadastro FIS do parque, extração oficial de julho/2026 (public/cadastro-fis.json,
    gerado por scripts/gerar_cadastro_fis.py). O filtro que separa o que é da distribuidora
    do que não é vem da coluna PROPRIETARIO — não do prefixo 56 do código operativo, que
@@ -185,7 +210,7 @@ type Modulo =
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
   | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf"
-  | "cadastro";
+  | "cadastro" | "janjul";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -2253,6 +2278,7 @@ export default function Page() {
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
   const [cadastro, setCadastro] = useState<CadastroFis | null>(null);
+  const [janjul, setJanjul] = useState<Fluxo1582 | null>(null);
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
   /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
      variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
@@ -2584,6 +2610,7 @@ export default function Page() {
       terceiros: ["terceiros.json", (d) => setTerceiros((d as { por_ss: Record<string, { n: number; fontes: { campo: string; valor: string }[] }> })?.por_ss || {}), () => setTerceiros({})],
       almox: ["garantia-almoxarifado.json", (d) => setAlmox(d as Almoxarifado), () => setAlmox(null)],
       cadastro: ["cadastro-fis.json", (d) => setCadastro(d as CadastroFis), () => setCadastro(null)],
+      janjul: ["fluxo-1582.json", (d) => setJanjul(d as Fluxo1582), () => setJanjul(null)],
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
@@ -2618,6 +2645,7 @@ export default function Page() {
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
     cadastro: ["cadastro"],
+    janjul: ["janjul"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3642,6 +3670,8 @@ export default function Page() {
     /* O cadastro do parque também não filtra a esteira: a aba lê o cadastro FIS, não os
        registros das 1.510. Vazio de propósito, como a revisão. */
     cadastro: [],
+    /* O universo de jan a jul tem lista própria: não recorta os registros das 1.510. */
+    janjul: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -3891,6 +3921,7 @@ export default function Page() {
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
+      { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
@@ -3992,6 +4023,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    janjul: { olho: "jan a jul/2026 · universo somado", titulo: "Janeiro a julho — 1.582 solicitações", texto: "As 1.510 de janeiro a junho mais as 72 de julho, num conjunto só. É o universo de solicitações, não o indicador: o 1.305 de janeiro a junho continua como estava, e julho entra em prévia — 55 dentro pela régua e 17 ainda pendentes de campo." },
     cadastro: { olho: "Parque · julho/2026", titulo: "Cadastro do parque (FIS)", texto: "A extração oficial do cadastro de transformadores, usada aqui para uma pergunta só: o ativo é da distribuidora ou é particular? Particular não pertence ao indicador. Nada é recalculado — o cruzamento fica ao lado do caso." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
@@ -4467,6 +4499,62 @@ export default function Page() {
             entrou no acervo, que é o que fechou as 24 SS de borda do ano. */}
         <section className="panel editorial-note wide"><span>PEDIDOS EM ABERTO</span>
           <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações — destas, {br(conta((r) => r.pendente_siago === "SIM"))} têm obra com número e enquadramento e só esperam a extração do SIAGO.</p>
+        </section>
+      </>;
+    }
+
+    if (modulo === "janjul") {
+      if (!janjul) return <section className="panel"><p className="fonte-detalhe">Carregando o conjunto de janeiro a julho…</p></section>;
+      const J = janjul; const R = J.resumo;
+      const cat = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1]);
+      return <>
+        <section className="panel"><div className="panel-title"><div><span>Universo somado</span><h2>{J.meta.titulo}</h2></div><small>{br(R.jan_jun)} + {br(R.julho)}</small></div>
+          <div className="cartoes">
+            <div className="cartao"><b>{br(R.total)}</b><span>solicitações de janeiro a julho</span></div>
+            <div className="cartao"><b>{br(R.entram)}</b><span>entram — {br(R.entram_jan_jun)} de jan–jun e {br(R.entram_julho)} de julho</span></div>
+            <div className="cartao"><b>{br(R.pendentes_julho)}</b><span>de julho ainda pendentes de campo</span></div>
+            <div className="cartao"><b>{br(R.expurgados)}</b><span>expurgados · {br(R.em_revisao)} em revisão</span></div>
+          </div>
+        </section>
+
+        <section className="panel warning-note wide"><strong>O que 1.582 é, e o que não é</strong>
+          <p>· {J.meta.o_que_e}</p>
+          <p>· {J.meta.o_que_nao_e}</p>
+          <p>· {J.meta.julho_e_previa}</p>
+          <p>· {J.meta.ressalva_de_origem}</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Lado a lado</span><h2>Como cada período se comporta</h2></div><small>o mesmo corte nos dois</small></div>
+          <table className="tabela"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>Janeiro a junho</td><td>{br(R.jan_jun)}</td><td>{br(R.entram_jan_jun)}</td><td>{br(R.jan_jun - R.entram_jan_jun)}</td><td><b>congelado</b> — decisão da esteira, já auditada</td></tr>
+              <tr><td>Julho</td><td>{br(R.julho)}</td><td>{br(R.entram_julho)}</td><td>{br(R.pendentes_julho)} pendentes</td><td><b>prévia</b> — decisão da régua, sem martelo do dono</td></tr>
+            </tbody></table>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Categorias</span><h2>Do que é feito cada período</h2></div><small>contagem por categoria</small></div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1rem" }}>
+            <div><h3>Janeiro a junho</h3>
+              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+                <tbody>{cat(R.categoria_jan_jun).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
+            <div><h3>Julho</h3>
+              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+                <tbody>{cat(R.categoria_julho).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
+          </div>
+          <p className="fonte-detalhe">As categorias de julho ainda descrevem a posição na régua (&ldquo;aguarda martelo&rdquo;), não uma classificação fechada como as de janeiro a junho. É por isso que os dois lados não usam o mesmo vocabulário.</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>As 72 de julho</span><h2>Uma por uma</h2></div><small>prévia</small></div>
+          <div style={{ overflowX: "auto" }}>
+          <table className="tabela"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
+            <tbody>{J.registros.filter((r) => r.periodo === "julho").map((r) => <tr key={r.ss}>
+              <td>{r.ss}</td><td><code>{r.trafo}</code></td><td>{r.abertura}</td><td>{r.localidade}</td>
+              <td>{r.origem}</td><td><b>{r.entra}</b></td><td><small>{r.categoria}</small></td>
+            </tr>)}</tbody></table></div>
+        </section>
+
+        <section className="panel editorial-note wide"><span>O QUE JULHO AINDA NÃO RESPONDE</span>
+          {J.meta.lacunas_julho.map((l) => <p key={l}>· {l}</p>)}
         </section>
       </>;
     }
