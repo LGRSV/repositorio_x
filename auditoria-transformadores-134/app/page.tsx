@@ -4508,13 +4508,13 @@ export default function Page() {
       const J = janjul; const R = J.resumo;
       const cat = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1]);
       return <>
-        <section className="panel"><div className="panel-title"><div><span>Universo somado</span><h2>{J.meta.titulo}</h2></div><small>{br(R.jan_jun)} + {br(R.julho)}</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(R.total)}</b><span>solicitações de janeiro a julho</span></div>
-            <div className="cartao"><b>{br(R.entram)}</b><span>entram — {br(R.entram_jan_jun)} de jan–jun e {br(R.entram_julho)} de julho</span></div>
-            <div className="cartao"><b>{br(R.pendentes_julho)}</b><span>de julho ainda pendentes de campo</span></div>
-            <div className="cartao"><b>{br(R.expurgados)}</b><span>expurgados · {br(R.em_revisao)} em revisão</span></div>
-          </div>
+        <section className="kpi-grid">
+          <Kpi rotulo="Universo jan a jul" valor={br(R.total)} nota={`${br(R.jan_jun)} de jan–jun + ${br(R.julho)} de julho`} tom="ink" />
+          <Kpi rotulo="Entram" valor={br(R.entram)} nota={`${br(R.entram_jan_jun)} de jan–jun e ${br(R.entram_julho)} de julho`} tom="green" />
+          <Kpi rotulo="Pendentes de campo" valor={br(R.pendentes_julho)} nota="todos de julho — decisão não tomada" tom="amber" />
+          <Kpi rotulo="Expurgados" valor={br(R.expurgados)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Em revisão" valor={br(R.em_revisao)} nota="segunda leitura pendente" tom="blue" />
+          <Kpi rotulo="Indicador jan–jun" valor="1.305" nota="1.225 queimados + 80 avariados · não recalculado" tom="ink" />
         </section>
 
         <section className="panel warning-note wide"><strong>O que 1.582 é, e o que não é</strong>
@@ -4525,7 +4525,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Lado a lado</span><h2>Como cada período se comporta</h2></div><small>o mesmo corte nos dois</small></div>
-          <table className="tabela"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
+          <table className="records-table"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
             <tbody>
               <tr><td>Janeiro a junho</td><td>{br(R.jan_jun)}</td><td>{br(R.entram_jan_jun)}</td><td>{br(R.jan_jun - R.entram_jan_jun)}</td><td><b>congelado</b> — decisão da esteira, já auditada</td></tr>
               <tr><td>Julho</td><td>{br(R.julho)}</td><td>{br(R.entram_julho)}</td><td>{br(R.pendentes_julho)} pendentes</td><td><b>prévia</b> — decisão da régua, sem martelo do dono</td></tr>
@@ -4533,20 +4533,20 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Categorias</span><h2>Do que é feito cada período</h2></div><small>contagem por categoria</small></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1rem" }}>
-            <div><h3>Janeiro a junho</h3>
-              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+          <div className="compare-grid">
+            <div><h4>Janeiro a junho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
                 <tbody>{cat(R.categoria_jan_jun).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
-            <div><h3>Julho</h3>
-              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+            <div><h4>Julho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
                 <tbody>{cat(R.categoria_julho).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
           </div>
           <p className="fonte-detalhe">As categorias de julho ainda descrevem a posição na régua (&ldquo;aguarda martelo&rdquo;), não uma classificação fechada como as de janeiro a junho. É por isso que os dois lados não usam o mesmo vocabulário.</p>
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>As 72 de julho</span><h2>Uma por uma</h2></div><small>prévia</small></div>
-          <div style={{ overflowX: "auto" }}>
-          <table className="tabela"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
             <tbody>{J.registros.filter((r) => r.periodo === "julho").map((r) => <tr key={r.ss}>
               <td>{r.ss}</td><td><code>{r.trafo}</code></td><td>{r.abertura}</td><td>{r.localidade}</td>
               <td>{r.origem}</td><td><b>{r.entra}</b></td><td><small>{r.categoria}</small></td>
@@ -4567,18 +4567,22 @@ export default function Page() {
       const UNIV: Array<[string, string]> = [["1510", "1.510 · jan a jun"], ["julho", "Julho/2026"], ["agosto", "Agosto/2026"]];
       return <>
         <section className="panel"><div className="panel-title"><div><span>Extração oficial</span><h2>{c.meta.titulo}</h2></div><small>{br(c.meta.linhas)} linhas</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(R.total)}</b><span>transformadores no cadastro</span></div>
-            <div className="cartao"><b>{br(R.energisa)}</b><span>da Energisa — o parque que o indicador mede</span></div>
-            <div className="cartao"><b>{br(R.particular)}</b><span>particulares — fora do indicador por natureza</span></div>
-          </div>
           <p className="fonte-detalhe">{c.meta.filtro}. {c.meta.congelado}</p>
+        </section>
+
+        <section className="kpi-grid">
+          <Kpi rotulo="Parque cadastrado" valor={br(R.total)} nota="transformadores na extração de julho" tom="ink" />
+          <Kpi rotulo="Da Energisa" valor={br(R.energisa)} nota="é este o parque que o indicador mede" tom="green" />
+          <Kpi rotulo="Particulares" valor={br(R.particular)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Expurgo indicado" valor={br(c.expurgo_indicado.length)} nota="particulares tocando os universos da auditoria" tom={c.expurgo_indicado.length ? "amber" : "green"} />
+          <Kpi rotulo="Particular sem prefixo 56" valor={br(c.particular.sem_prefixo_56.length)} nota="o prefixo sozinho deixaria passar" tom="amber" />
+          <Kpi rotulo="Prefixo 56 mas Energisa" valor={br(c.particular.prefixo_56_mas_energisa.length)} nota="o prefixo sozinho excluiria à toa" tom="blue" />
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>O expurgo</span><h2>Particulares dentro dos universos da auditoria</h2></div><small>{c.expurgo_indicado.length === 0 ? "nenhum" : `${c.expurgo_indicado.length} indicado(s)`}</small></div>
           {c.expurgo_indicado.length === 0
             ? <p className="fonte-detalhe">Nenhum transformador particular aparece nos universos auditados.</p>
-            : <table className="tabela"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
+            : <table className="records-table"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
                 <tbody>{c.expurgo_indicado.map((e) => <tr key={`${e.universo}-${e.codigo}`}>
                   <td><code>{e.codigo}</code></td><td>{e.universo}</td>
                   <td>{e.papel === "contado" ? <b>entra na conta</b> : "só no entorno"}</td>
@@ -4592,7 +4596,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Cobertura</span><h2>Cada universo contra o cadastro</h2></div><small>o cadastro é de julho</small></div>
-          <table className="tabela"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
+          <table className="records-table"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
             <tbody>{UNIV.map(([k, rot]) => { const x = c.cruzamento[k]; if (!x) return null; return <tr key={k}>
               <td>{rot}</td><td>{br(x.ativos)}</td><td>{br(x.transformadores)}</td><td>{br(x.no_cadastro)}</td>
               <td>{x.trafos_fora_do_cadastro.length === 0 ? "—" : <span title={x.trafos_fora_do_cadastro.join(", ")}>{x.trafos_fora_do_cadastro.length}</span>}</td>
@@ -4605,10 +4609,6 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>A armadilha</span><h2>Prefixo 56 não é o mesmo que particular</h2></div><small>discordam em {br(c.particular.sem_prefixo_56.length + c.particular.prefixo_56_mas_energisa.length)} ativos</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(c.particular.sem_prefixo_56.length)}</b><span>particulares SEM prefixo 56 — o prefixo deixaria passar</span></div>
-            <div className="cartao"><b>{br(c.particular.prefixo_56_mas_energisa.length)}</b><span>com prefixo 56 e da Energisa — o prefixo excluiria à toa</span></div>
-          </div>
           <p className="fonte-detalhe">
             Seis dos particulares sem prefixo 56 têm prefixo <code>57</code>, que é justamente o
             prefixo que responde por 97,6% do indicador. Por isso o filtro passou a ser a coluna
@@ -4617,7 +4617,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Qualidade do dado</span><h2>O que esta extração preenche, e o que não</h2></div><small>sobre os {br(R.energisa)} da Energisa</small></div>
-          <table className="tabela"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
+          <table className="records-table"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
             <tr><td>Coordenada</td><td>{pct(R.preenchimento.coordenada)}</td></tr>
             <tr><td>Fabricante conhecido</td><td>{pct(R.preenchimento.fabricante_conhecido)}</td></tr>
             <tr><td>Número de série não zerado</td><td>{pct(R.preenchimento.serie_nao_zerada)}</td></tr>
@@ -6326,9 +6326,15 @@ export default function Page() {
         {/* O cabeçalho dizia "Recorte 1.510" em qualquer aba, inclusive nas que abrem com 209
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
-        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
+        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. O mesmo
+            vale para o conjunto somado de jan a jul e para o cadastro do parque: as duas leem
+            outro arquivo, e mostrar "1.510" ali seria um número falando de outra lista. */}
         {modulo === "mes_agosto" || modulo === "mes_julho"
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
+          : modulo === "janjul"
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
+          : modulo === "cadastro"
+          ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
