@@ -417,7 +417,7 @@ type Par = { label: string; value: number };
    no histórico para sempre. Quem precisa das senhas recebe fora do código. */
 /* O ESTÁGIO substituiu o `aprova` booleano.
    Booleano só sabia dizer "pode aprovar" ou "não pode", e o fluxo do dono tem ORDEM:
-   1 técnico abre, 2 Matheus Alves valida, 3 Mateus Gracia aprova. Sem ordem não dá para
+   1 o usuário abre, 2 Mateus Gracia analisa, 3 Matheus Alves libera o expurgo. Sem ordem não dá para
    saber se um pedido pulou etapa. Quem é estágio 1 abre pedido e não aprova nada; quem é
    2 ou 3 só age quando o pedido chega na vez dele.
    Decisão do dono em 12/08: o Danillo NÃO entra na cadeia — fica no estágio 1, como quem
@@ -430,8 +430,8 @@ type Usuario = {
 const SAL = "auditoria-134";
 
 const USUARIOS: Usuario[] = [
-  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Segundo estágio: valida o pedido do técnico antes de ir para a engenharia.", estagio: 2 },
-  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Terceiro estágio: aprovação oficial de engenharia, que fecha o expurgo.", estagio: 3 },
+  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Terceiro estágio: libera o expurgo. É a última assinatura.", estagio: 3 },
+  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Segundo estágio: análise de engenharia do pedido do usuário, antes da liberação.", estagio: 2 },
   { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação. Abre pedido de expurgo.", estagio: 1 },
@@ -472,8 +472,11 @@ type Expurgo = {
   quem_id: string; quem_nome: string; quem_papel: string; marcado_em: string;
 };
 
+/* A ORDEM DA ESTEIRA, ditada pelo dono: o usuário abre, Mateus Gracia analisa, e
+   Matheus Alves libera o expurgo — a última assinatura é a dele. Até 27/08 os dois
+   estavam trocados aqui. */
 const ESTAGIO_NOME: Record<number, string> = {
-  1: "técnico", 2: "Matheus Alves · supervisão", 3: "Mateus Gracia · engenharia",
+  1: "usuário", 2: "Mateus Gracia · engenharia", 3: "Matheus Alves · liberação do expurgo",
 };
 
 /* De quem é a vez. Devolve o estágio que precisa agir, ou 0 quando o pedido acabou.
@@ -2646,6 +2649,8 @@ export default function Page() {
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
     cadastro: ["cadastro"],
     janjul: ["janjul"],
+    /* a visão geral anuncia o universo de jan a jul no topo, então precisa do arquivo */
+    visao: ["janjul"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3920,7 +3925,7 @@ export default function Page() {
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
-      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
+      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: janjul?.resumo.total ?? total, tom: "cinza" },
       { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
@@ -4005,7 +4010,7 @@ export default function Page() {
   const navAtual = oficina ? NAV_OFICINA : NAV;
 
   const TITULOS: Record<Modulo, { olho: string; titulo: string; texto: string }> = {
-    visao: { olho: "1.510 SS · jan a jun/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão." },
+    visao: { olho: "1.582 SS · jan a jul/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão. A esteira desenhada aqui é a de janeiro a junho — julho entra somado ao lado, em prévia, porque os 72 casos dele ainda não passaram pelas peneiras." },
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
@@ -4108,9 +4113,10 @@ export default function Page() {
       const restoCausas = porCausa.slice(5).reduce((a, [, v]) => a + v, 0);
       return <>
         <section className="scope-strip">
-          <div><span>Recorte</span><strong>{br(total)} SS · jan a jun/2026</strong></div>
+          <div><span>Recorte</span><strong>{janjul ? `${br(janjul.resumo.total)} SS · jan a jul/2026` : `${br(total)} SS · jan a jun/2026`}</strong></div>
           <div><span>Janela da interrupção</span><strong>{fluxo.meta.janelaHoras}h contra o intervalo inteiro</strong></div>
-          <div><span>Saída</span><strong>{br(conta((r) => r.decisao === "INCLUIR"))} incluir</strong></div>
+          <div><span>Saída</span><strong>{janjul ? `${br(janjul.resumo.entram)} incluir` : `${br(conta((r) => r.decisao === "INCLUIR"))} incluir`}</strong></div>
+          {janjul ? <div><span>Julho</span><strong>{br(janjul.resumo.julho)} em prévia · {br(janjul.resumo.pendentes_julho)} pendentes</strong></div> : null}
           {/* A regra inteira tinha oito linhas aqui em cima. Ele pediu para tirar o monte de
               texto: fica a frase que governa tudo, e o resto mora em Regras e método. */}
           <p>A exclusão acontece antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência. <button type="button" className="strip-link" onClick={() => irPara("regras")}>Regra inteira em Regras e método →</button></p>
@@ -4123,7 +4129,11 @@ export default function Page() {
             é exatamente esta, e é a forma que manda. Só o degrau dos retidos ele não citou, e ele
             precisa estar aqui: sem ele a conta não chega em 1.249. */}
         <section className="panel cascata-panel">
-          <div className="panel-title"><div><span>A conta inteira</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
+          {/* A cascata é o funil de JANEIRO A JUNHO e continua sendo. Os 72 de julho não têm
+              os campos das peneiras — não atravessaram estágio nenhum — então empurrá-los para
+              dentro deste desenho produziria degrau falso. O universo de jan a jul aparece no
+              topo da aba e na linha logo abaixo desta cascata. */}
+          <div className="panel-title"><div><span>A conta inteira · janeiro a junho</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
           <div className="cascata-simples">
             <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a junho de 2026"
               aoClicar={() => irPara("interrupcao", "todos")} />
@@ -4508,13 +4518,13 @@ export default function Page() {
       const J = janjul; const R = J.resumo;
       const cat = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1]);
       return <>
-        <section className="panel"><div className="panel-title"><div><span>Universo somado</span><h2>{J.meta.titulo}</h2></div><small>{br(R.jan_jun)} + {br(R.julho)}</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(R.total)}</b><span>solicitações de janeiro a julho</span></div>
-            <div className="cartao"><b>{br(R.entram)}</b><span>entram — {br(R.entram_jan_jun)} de jan–jun e {br(R.entram_julho)} de julho</span></div>
-            <div className="cartao"><b>{br(R.pendentes_julho)}</b><span>de julho ainda pendentes de campo</span></div>
-            <div className="cartao"><b>{br(R.expurgados)}</b><span>expurgados · {br(R.em_revisao)} em revisão</span></div>
-          </div>
+        <section className="kpi-grid">
+          <Kpi rotulo="Universo jan a jul" valor={br(R.total)} nota={`${br(R.jan_jun)} de jan–jun + ${br(R.julho)} de julho`} tom="ink" />
+          <Kpi rotulo="Entram" valor={br(R.entram)} nota={`${br(R.entram_jan_jun)} de jan–jun e ${br(R.entram_julho)} de julho`} tom="green" />
+          <Kpi rotulo="Pendentes de campo" valor={br(R.pendentes_julho)} nota="todos de julho — decisão não tomada" tom="amber" />
+          <Kpi rotulo="Expurgados" valor={br(R.expurgados)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Em revisão" valor={br(R.em_revisao)} nota="segunda leitura pendente" tom="blue" />
+          <Kpi rotulo="Indicador jan–jun" valor="1.305" nota="1.225 queimados + 80 avariados · não recalculado" tom="ink" />
         </section>
 
         <section className="panel warning-note wide"><strong>O que 1.582 é, e o que não é</strong>
@@ -4525,7 +4535,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Lado a lado</span><h2>Como cada período se comporta</h2></div><small>o mesmo corte nos dois</small></div>
-          <table className="tabela"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
+          <table className="records-table"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
             <tbody>
               <tr><td>Janeiro a junho</td><td>{br(R.jan_jun)}</td><td>{br(R.entram_jan_jun)}</td><td>{br(R.jan_jun - R.entram_jan_jun)}</td><td><b>congelado</b> — decisão da esteira, já auditada</td></tr>
               <tr><td>Julho</td><td>{br(R.julho)}</td><td>{br(R.entram_julho)}</td><td>{br(R.pendentes_julho)} pendentes</td><td><b>prévia</b> — decisão da régua, sem martelo do dono</td></tr>
@@ -4533,20 +4543,20 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Categorias</span><h2>Do que é feito cada período</h2></div><small>contagem por categoria</small></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1rem" }}>
-            <div><h3>Janeiro a junho</h3>
-              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+          <div className="compare-grid">
+            <div><h4>Janeiro a junho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
                 <tbody>{cat(R.categoria_jan_jun).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
-            <div><h3>Julho</h3>
-              <table className="tabela"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+            <div><h4>Julho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
                 <tbody>{cat(R.categoria_julho).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
           </div>
           <p className="fonte-detalhe">As categorias de julho ainda descrevem a posição na régua (&ldquo;aguarda martelo&rdquo;), não uma classificação fechada como as de janeiro a junho. É por isso que os dois lados não usam o mesmo vocabulário.</p>
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>As 72 de julho</span><h2>Uma por uma</h2></div><small>prévia</small></div>
-          <div style={{ overflowX: "auto" }}>
-          <table className="tabela"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
             <tbody>{J.registros.filter((r) => r.periodo === "julho").map((r) => <tr key={r.ss}>
               <td>{r.ss}</td><td><code>{r.trafo}</code></td><td>{r.abertura}</td><td>{r.localidade}</td>
               <td>{r.origem}</td><td><b>{r.entra}</b></td><td><small>{r.categoria}</small></td>
@@ -4567,18 +4577,22 @@ export default function Page() {
       const UNIV: Array<[string, string]> = [["1510", "1.510 · jan a jun"], ["julho", "Julho/2026"], ["agosto", "Agosto/2026"]];
       return <>
         <section className="panel"><div className="panel-title"><div><span>Extração oficial</span><h2>{c.meta.titulo}</h2></div><small>{br(c.meta.linhas)} linhas</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(R.total)}</b><span>transformadores no cadastro</span></div>
-            <div className="cartao"><b>{br(R.energisa)}</b><span>da Energisa — o parque que o indicador mede</span></div>
-            <div className="cartao"><b>{br(R.particular)}</b><span>particulares — fora do indicador por natureza</span></div>
-          </div>
           <p className="fonte-detalhe">{c.meta.filtro}. {c.meta.congelado}</p>
+        </section>
+
+        <section className="kpi-grid">
+          <Kpi rotulo="Parque cadastrado" valor={br(R.total)} nota="transformadores na extração de julho" tom="ink" />
+          <Kpi rotulo="Da Energisa" valor={br(R.energisa)} nota="é este o parque que o indicador mede" tom="green" />
+          <Kpi rotulo="Particulares" valor={br(R.particular)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Expurgo indicado" valor={br(c.expurgo_indicado.length)} nota="particulares tocando os universos da auditoria" tom={c.expurgo_indicado.length ? "amber" : "green"} />
+          <Kpi rotulo="Particular sem prefixo 56" valor={br(c.particular.sem_prefixo_56.length)} nota="o prefixo sozinho deixaria passar" tom="amber" />
+          <Kpi rotulo="Prefixo 56 mas Energisa" valor={br(c.particular.prefixo_56_mas_energisa.length)} nota="o prefixo sozinho excluiria à toa" tom="blue" />
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>O expurgo</span><h2>Particulares dentro dos universos da auditoria</h2></div><small>{c.expurgo_indicado.length === 0 ? "nenhum" : `${c.expurgo_indicado.length} indicado(s)`}</small></div>
           {c.expurgo_indicado.length === 0
             ? <p className="fonte-detalhe">Nenhum transformador particular aparece nos universos auditados.</p>
-            : <table className="tabela"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
+            : <table className="records-table"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
                 <tbody>{c.expurgo_indicado.map((e) => <tr key={`${e.universo}-${e.codigo}`}>
                   <td><code>{e.codigo}</code></td><td>{e.universo}</td>
                   <td>{e.papel === "contado" ? <b>entra na conta</b> : "só no entorno"}</td>
@@ -4592,7 +4606,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Cobertura</span><h2>Cada universo contra o cadastro</h2></div><small>o cadastro é de julho</small></div>
-          <table className="tabela"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
+          <table className="records-table"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
             <tbody>{UNIV.map(([k, rot]) => { const x = c.cruzamento[k]; if (!x) return null; return <tr key={k}>
               <td>{rot}</td><td>{br(x.ativos)}</td><td>{br(x.transformadores)}</td><td>{br(x.no_cadastro)}</td>
               <td>{x.trafos_fora_do_cadastro.length === 0 ? "—" : <span title={x.trafos_fora_do_cadastro.join(", ")}>{x.trafos_fora_do_cadastro.length}</span>}</td>
@@ -4605,10 +4619,6 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>A armadilha</span><h2>Prefixo 56 não é o mesmo que particular</h2></div><small>discordam em {br(c.particular.sem_prefixo_56.length + c.particular.prefixo_56_mas_energisa.length)} ativos</small></div>
-          <div className="cartoes">
-            <div className="cartao"><b>{br(c.particular.sem_prefixo_56.length)}</b><span>particulares SEM prefixo 56 — o prefixo deixaria passar</span></div>
-            <div className="cartao"><b>{br(c.particular.prefixo_56_mas_energisa.length)}</b><span>com prefixo 56 e da Energisa — o prefixo excluiria à toa</span></div>
-          </div>
           <p className="fonte-detalhe">
             Seis dos particulares sem prefixo 56 têm prefixo <code>57</code>, que é justamente o
             prefixo que responde por 97,6% do indicador. Por isso o filtro passou a ser a coluna
@@ -4617,7 +4627,7 @@ export default function Page() {
         </section>
 
         <section className="panel"><div className="panel-title"><div><span>Qualidade do dado</span><h2>O que esta extração preenche, e o que não</h2></div><small>sobre os {br(R.energisa)} da Energisa</small></div>
-          <table className="tabela"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
+          <table className="records-table"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
             <tr><td>Coordenada</td><td>{pct(R.preenchimento.coordenada)}</td></tr>
             <tr><td>Fabricante conhecido</td><td>{pct(R.preenchimento.fabricante_conhecido)}</td></tr>
             <tr><td>Número de série não zerado</td><td>{pct(R.preenchimento.serie_nao_zerada)}</td></tr>
@@ -6326,9 +6336,17 @@ export default function Page() {
         {/* O cabeçalho dizia "Recorte 1.510" em qualquer aba, inclusive nas que abrem com 209
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
-        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
+        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. O mesmo
+            vale para o conjunto somado de jan a jul e para o cadastro do parque: as duas leem
+            outro arquivo, e mostrar "1.510" ali seria um número falando de outra lista. */}
         {modulo === "mes_agosto" || modulo === "mes_julho"
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
+          : modulo === "janjul"
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
+          : modulo === "cadastro"
+          ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
+          : modulo === "visao" && janjul
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul.resumo.total)}</strong><small>{br(janjul.resumo.jan_jun)} de jan–jun + {br(janjul.resumo.julho)} de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
