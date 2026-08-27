@@ -21,6 +21,12 @@ toda vez. Cada função aqui embute uma lição que custou retrabalho:
 
   5. Transformador de serviço auxiliar (prefixo 51/57, alimentando religador 79
      ou regulador 58) NÃO é carga de cliente e fica fora do indicador.
+
+  6. Transformador PARTICULAR também fica fora — e o filtro é a coluna PROPRIETARIO
+     do cadastro FIS, não o prefixo 56 do código operativo. Os dois discordam em 206
+     ativos na extração de julho/2026, e seis dos particulares têm prefixo 57, que é
+     justamente o prefixo que responde por 97,6% do indicador. `ler_fis` abaixo carrega
+     o cadastro e `e_particular` responde a pergunta.
 """
 
 import os
@@ -508,3 +514,75 @@ def por_final(por_codigo, digitos=8):
         if len(so_num) >= digitos:
             saida.setdefault(so_num[-digitos:], []).extend(ocorrencias)
     return saida
+
+
+# ── cadastro FIS do parque ──────────────────────────────────────────────────
+# A extração oficial de julho/2026 tem 96.037 transformadores e 52 colunas. O parque da
+# Energisa fica gravado em dados/fis-2026-07-energisa.json.gz por
+# scripts/gerar_cadastro_fis.py; o CSV cru não entra no repositório (36 MB).
+#
+# O QUE ELE RESOLVE: proprietário, potência nominal, tensão, fases, tipo de ligação,
+# circuito, subestação, município, coordenada e se o ponto possui chave fusível.
+#
+# O QUE ELE NÃO RESOLVE, e é preciso saber antes de confiar:
+#   · capacidade do elo preenchida em 349 de 96.037 — para elo, use o KMZ da Rede de
+#     Distribuição, que preenche 53,6%
+#   · DATA_FABRICACAO vem 01/01/2000 em 73,5% dos registros: é preenchimento padrão,
+#     não data. Idade do parque não sai daqui.
+#   · fabricante conhecido em 25,2% e tombamento em 104 registros. Para identidade de
+#     equipamento, o almoxarifado continua sendo a fonte melhor.
+
+_DADOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "dados")
+FIS_GZ = os.path.join(_DADOS, "fis-2026-07-energisa.json.gz")
+FIS_PARTICULARES = os.path.join(_DADOS, "fis-2026-07-particulares.json")
+
+
+def ler_fis(caminho=None):
+    """Cadastro FIS do parque da Energisa: {codigo_operativo: {campos}}.
+
+    Só Energisa — o particular já foi separado na geração, justamente para que ninguém
+    precise lembrar do filtro depois.
+    """
+    import gzip
+    import json
+    with gzip.open(caminho or FIS_GZ, "rt", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def ler_particulares(caminho=None):
+    """Conjunto dos códigos operativos com PROPRIETARIO = Particular no FIS de 07/2026."""
+    import json
+    with open(caminho or FIS_PARTICULARES, encoding="utf-8") as fh:
+        return set(json.load(fh)["codigos"])
+
+
+_CACHE = {}
+
+
+def _codigos_energisa():
+    """Só as chaves do parque da Energisa, guardadas entre chamadas.
+
+    Existe para que `e_particular` consiga distinguir "é da Energisa" de "não está em
+    cadastro nenhum". A lista de particulares sozinha não separa esses dois casos, e
+    tratá-los igual é exatamente o tipo de silêncio que esta auditoria evita.
+    """
+    if "energisa" not in _CACHE:
+        _CACHE["energisa"] = set(ler_fis())
+    return _CACHE["energisa"]
+
+
+def e_particular(codigo, particulares=None, fis=None):
+    """True particular · False da Energisa · None fora de qualquer cadastro.
+
+    None não é detalhe: um código ausente do cadastro de julho pode ter sido trocado ou
+    retirado no caminho, e o certo é listá-lo, não assumir que é da distribuidora.
+    """
+    if fis is not None:
+        if codigo in fis:
+            return fis[codigo].get("PROPRIETARIO") == "Particular"
+        return None
+    if particulares is None:
+        particulares = ler_particulares()
+    if codigo in particulares:
+        return True
+    return False if codigo in _codigos_energisa() else None
