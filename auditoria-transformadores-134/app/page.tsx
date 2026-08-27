@@ -2646,6 +2646,8 @@ export default function Page() {
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
     cadastro: ["cadastro"],
     janjul: ["janjul"],
+    /* a visão geral anuncia o universo de jan a jul no topo, então precisa do arquivo */
+    visao: ["janjul"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3920,7 +3922,7 @@ export default function Page() {
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
-      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
+      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: janjul?.resumo.total ?? total, tom: "cinza" },
       { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
@@ -4005,7 +4007,7 @@ export default function Page() {
   const navAtual = oficina ? NAV_OFICINA : NAV;
 
   const TITULOS: Record<Modulo, { olho: string; titulo: string; texto: string }> = {
-    visao: { olho: "1.510 SS · jan a jun/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão." },
+    visao: { olho: "1.582 SS · jan a jul/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão. A esteira desenhada aqui é a de janeiro a junho — julho entra somado ao lado, em prévia, porque os 72 casos dele ainda não passaram pelas peneiras." },
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
@@ -4108,9 +4110,10 @@ export default function Page() {
       const restoCausas = porCausa.slice(5).reduce((a, [, v]) => a + v, 0);
       return <>
         <section className="scope-strip">
-          <div><span>Recorte</span><strong>{br(total)} SS · jan a jun/2026</strong></div>
+          <div><span>Recorte</span><strong>{janjul ? `${br(janjul.resumo.total)} SS · jan a jul/2026` : `${br(total)} SS · jan a jun/2026`}</strong></div>
           <div><span>Janela da interrupção</span><strong>{fluxo.meta.janelaHoras}h contra o intervalo inteiro</strong></div>
-          <div><span>Saída</span><strong>{br(conta((r) => r.decisao === "INCLUIR"))} incluir</strong></div>
+          <div><span>Saída</span><strong>{janjul ? `${br(janjul.resumo.entram)} incluir` : `${br(conta((r) => r.decisao === "INCLUIR"))} incluir`}</strong></div>
+          {janjul ? <div><span>Julho</span><strong>{br(janjul.resumo.julho)} em prévia · {br(janjul.resumo.pendentes_julho)} pendentes</strong></div> : null}
           {/* A regra inteira tinha oito linhas aqui em cima. Ele pediu para tirar o monte de
               texto: fica a frase que governa tudo, e o resto mora em Regras e método. */}
           <p>A exclusão acontece antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência. <button type="button" className="strip-link" onClick={() => irPara("regras")}>Regra inteira em Regras e método →</button></p>
@@ -4123,7 +4126,11 @@ export default function Page() {
             é exatamente esta, e é a forma que manda. Só o degrau dos retidos ele não citou, e ele
             precisa estar aqui: sem ele a conta não chega em 1.249. */}
         <section className="panel cascata-panel">
-          <div className="panel-title"><div><span>A conta inteira</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
+          {/* A cascata é o funil de JANEIRO A JUNHO e continua sendo. Os 72 de julho não têm
+              os campos das peneiras — não atravessaram estágio nenhum — então empurrá-los para
+              dentro deste desenho produziria degrau falso. O universo de jan a jul aparece no
+              topo da aba e na linha logo abaixo desta cascata. */}
+          <div className="panel-title"><div><span>A conta inteira · janeiro a junho</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
           <div className="cascata-simples">
             <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a junho de 2026"
               aoClicar={() => irPara("interrupcao", "todos")} />
@@ -6335,6 +6342,8 @@ export default function Page() {
           ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
           : modulo === "cadastro"
           ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
+          : modulo === "visao" && janjul
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul.resumo.total)}</strong><small>{br(janjul.resumo.jan_jun)} de jan–jun + {br(janjul.resumo.julho)} de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
