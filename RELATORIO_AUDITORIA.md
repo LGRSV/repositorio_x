@@ -71,6 +71,48 @@
 > `fluxo-1510.json` intactos. As duas citações deslocaram — o `1.305` foi da linha 763 para
 > a **784** e o `PLACEHOLDER_TAM` foi da 4362 para a **4383**, já corrigidos abaixo.
 > Invariantes, `conferir_numeros.py` e build: mesmo placar (`built in 11.26s`).
+>
+> **Reconferido às 19:48 UTC de 27/08, e desta vez a `main` mudou de tamanho.** O PR #116
+> ("Janeiro a julho: 1.582 no site, e o cadastro FIS do parque") entrou na `main` e trouxe a
+> maior mudança desde que este relatório existe: **um universo novo**. Chegaram
+> `public/fluxo-1582.json` (1.582 registros), `public/cadastro-fis.json`, dois scripts
+> geradores, uma base FIS de julho e um `PENDENCIAS.md`; `page.tsx` mexeu +199/−1.
+>
+> **Os três defeitos continuam de pé pela sexta vez.** As duas citações deslocaram bastante e
+> já estão corrigidas abaixo: o literal `1.305` foi da linha 784 para a **837** e o
+> `PLACEHOLDER_TAM` foi da 4383 para a **4451**. `Filtros_do_Site.xlsx` continua ausente de
+> `public/bases/`.
+>
+> **O dado antigo não foi tocado — e isso é verificável, não suposição.** `git diff` entre a
+> `main` velha e a nova não retorna uma linha sequer em `fluxo-1510.json` nem em
+> `metodo.json`. Os dois estão byte a byte idênticos, então **todos os números medidos neste
+> relatório seguem valendo sem remedição, e os seis números velhos do `metodo.json` (FALHA 14)
+> seguem velhos.**
+>
+> **Medi o dado novo do zero.** O `fluxo-1582.json` declara um resumo; conferi os sete itens
+> dele contra os 1.582 registros, um por um, e **os sete batem**: total 1.582; jan–jun 1.510;
+> julho 72; entram 1.324; expurgados 220; em revisão 21; pendentes de julho 17. O cruzamento
+> período × decisão fecha sem sobra — jan–jun dá 1.269 INCLUIR + 220 EXCLUIR + 21 REVISÃO, e
+> julho dá 55 INCLUIR + 17 PENDENTE. Os três primeiros números da fatia jan–jun são
+> **exatamente** os que este relatório mediu no `fluxo-1510.json` (SAÍDA 1.269 · EXCLUÍDA 220
+> · RETIDO 21), o que corrobora o arquivo novo contra o velho por um caminho independente.
+> A frase da tela `janjul` ("As 1.510 de janeiro a junho mais as 72 de julho... 55 dentro pela
+> régua e 17 ainda pendentes de campo") está **correta em todos os quatro números**.
+>
+> Registro um erro meu na primeira passada, para quem for repetir a medição: li o campo
+> `entra` como booleano e contei 1.582 "entram", o que acusaria divergência contra os 1.324
+> declarados. O campo é **string** — `'SIM'`, `'NÃO'`, `'REVISÃO'`, `'PENDENTE'` — e
+> `bool('NÃO')` é verdadeiro em Python. Medido como `entra == 'SIM'`: 1.269 + 55 = **1.324**,
+> igual ao declarado. **A divergência era do meu teste, não do dado.**
+>
+> Invariantes, `conferir_numeros.py` e build: mesmo lugar de sempre — 19 CONFERE · 1 FALHA
+> (a 18, falso positivo já explicado) · 1 A OLHO; `tudo bate: 6 frases conferidas + 6
+> invariantes`; `built in 11.05s`.
+>
+> **Uma consequência do #116 que vale marcar:** o `1.305` da linha 837 fica mais frágil a cada
+> universo novo. A tela de login agora anuncia "1.305 ... mais julho e agosto em prévia"
+> enquanto o site já trabalha com 1.582 no recorte jan–jul e 1.269 na barra lateral. Não muda
+> o diagnóstico da FALHA 15 nem a proposta de conserto — muda o custo de deixar como está.
 
 **Modo: `RELATO`.** O comando que me acordou pedia push. O `AUDITORIA_NOTURNA.md` diz
 `MODO = RELATO` e manda o arquivo valer mais do que o comando. **Obedeci o arquivo: nada foi
@@ -122,7 +164,7 @@ roteiro. Quem for atualizar o roteiro precisa reescrever a seção 6 com os valo
 | 12 | **CONFERE** | 0 ocorrências de `[ÃÂ][\x80-\xBF]` em `page.tsx`, `MapaAtivos.tsx`, `metodo.json` e em 12 campos de texto dos 1.510 registros |
 | 13 | **CONFERE** | 31 módulos distintos entre `NAV` (21 itens) e `NAV_OFICINA` (11 itens — `decisao` aparece nos dois); 31 chaves em `RECORTES`; 31 no tipo `Modulo`. 0 faltando nos dois sentidos |
 | 14 | **FALHA** | 6 números velhos no `metodo.json`. Detalhe abaixo |
-| 15 | **FALHA** | `page.tsx:784` renderiza "1.305 queimados e avariados" — o dado diz 1.269. Detalhe abaixo |
+| 15 | **FALHA** | `page.tsx:837` renderiza "1.305 queimados e avariados" — o dado diz 1.269. Detalhe abaixo |
 | 16 | **CONFERE** | `dataBR` converte aaaa-mm-dd→dd/mm/aaaa e preserva hora; 0 literais ISO renderizados; o histórico do ativo já vem em dd/mm/aaaa no JSON, então o `{x.d}` cru está certo |
 | 17 | **FALHA** | `Filtros_do_Site.xlsx` é oferecido para download, não existe em disco, e anuncia o tamanho como o literal `PLACEHOLDER_TAM`. Detalhe abaixo |
 
@@ -131,7 +173,7 @@ Invariantes extras do script do repositório: **18 FALHA** (falso positivo, prov
 
 ### FALHA 17 — o site oferece um arquivo que não existe
 
-`app/page.tsx:4383` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
+`app/page.tsx:4451` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
 o tamanho escrito como **`"PLACEHOLDER_TAM"`** — que é o que aparece na tela. O arquivo não
 está em `public/bases/`, não está no `.gitignore` e nunca foi commitado. O gerador existe
 (`scripts/gerar_planilha_filtros.py`) e nunca rodou para valer.
@@ -185,7 +227,7 @@ em 02/08 não voltou; estes são outros números, que o teste do repositório n�
 
 ### FALHA 15 — a tela de entrada anuncia 1.305, a barra lateral calcula 1.269
 
-`app/page.tsx:784`, na tela de login, antes de qualquer coisa:
+`app/page.tsx:837`, na tela de login, antes de qualquer coisa:
 
 > `1.305 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia`
 
@@ -202,7 +244,7 @@ Os percentuais que o `metodo.json` cita ao lado de "as 1.305" fecham com o conju
 várias estão dentro de frases que são ordem do dono — "Ordem dele: regras e método podem
 mudar, mas os 1.305 não", "os 1.305 não se movem", "não soma com as 1.305, que continuam
 congeladas". Renomear isso é mexer em decisão do dono, item 4 da lista do que eu não posso
-tocar. **Proponho corrigir só a linha 784**, que é a única afirmação puramente factual sobre
+tocar. **Proponho corrigir só a linha 837**, que é a única afirmação puramente factual sobre
 a contagem, e deixo as outras 16 para a palavra dele. Se o conjunto de 1.305
 existe de verdade e o `fluxo-1510.json` perdeu 36 casos, isso é maior que um número de texto e
 precisa dele.
@@ -245,7 +287,7 @@ igual ao `fluxo-1510.json`. **A planilha de download está sincronizada com o si
 
 - **Invariante 15 na íntegra.** Conferi todo o `NAV`/`NAV_OFICINA` (todos os 31 rótulos são
   calculados dos registros em tempo de execução — nenhum literal) e varri o `page.tsx` atrás
-  de literais com separador de milhar. Achei o de `:784`. Os outros 62 resultados da varredura
+  de literais com separador de milhar. Achei o de `:837`. Os outros 62 resultados da varredura
   são falsos positivos (`3600000`, trechos de prosa, `62.616` da base do TMAE). **Não há
   garantia automática de que não sobrou um literal em texto corrido** — o script do repositório
   também marca este como "A OLHO".
@@ -286,14 +328,14 @@ volta a somar 220"*)
 +São 83 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável, porque quem for defender o número precisa saber quais são.
 ```
 
-**4 — `app/page.tsx:784`** (commit próprio: *"a tela de entrada para de anunciar 1.305"*)
+**4 — `app/page.tsx:837`** (commit próprio: *"a tela de entrada para de anunciar 1.305"*)
 
 ```diff
 -      <small>1.305 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
 +      <small>1.269 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
 ```
 
-**5 — `app/page.tsx:4383`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
+**5 — `app/page.tsx:4451`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
 existe"*). Duas saídas, e **a escolha é do dono** — por isso não apliquei nem em `CORRIGE`
 sem a palavra dele:
 
