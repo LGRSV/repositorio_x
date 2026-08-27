@@ -2,11 +2,54 @@
 
 ## 19/08/2026, 00:27 UTC — MODO = RELATO · dois defeitos reais no site, e o roteiro velho
 
+> ## ATUALIZAÇÃO, 27/08/2026, 22:40 UTC — o site cresceu, e o buraco do teste cresceu junto
+>
+> O `main` andou muito desde a rodada: onze commits, PRs **#116, #118, #119 e #120**, saindo
+> de `9be6cbf` para `348c472`. O universo passou a ser **janeiro a julho — 1.582 SS**, com
+> duas telas novas (a de jan–jul e a do cadastro FIS do parque), três scripts geradores
+> novos, um verificador de tela em navegador de verdade (`verificar_site.mjs`) e um
+> `PENDENCIAS.md`. O ramo foi mergeado com o `main` novo, sem conflito.
+>
+> **Reexecutei os 21 invariantes contra o estado novo: resultado idêntico** — 19 conferem,
+> 1 falha (a 18, que é defeito do teste) e 1 a olho. **Nenhuma medição deste relatório
+> mudou.** O `fluxo-1510.json` não foi tocado por nenhum dos quatro PRs.
+>
+> **A FALHA 17 continua aberta, e o site foi republicado quatro vezes com ela.** O
+> `Filtros_do_Site.xlsx` segue oferecido para download sem existir em `public/bases/`, e o
+> `PLACEHOLDER_TAM` segue indo para a tela. A linha andou de **4383 para 4461** — corrijo
+> aqui a citação, que era o único número deste relatório que o `main` novo invalidou. O
+> invariante 17 continua dizendo "faltando: nenhum" pelo mesmo motivo de antes: não olha.
+>
+> **O vão de cobertura agora é maior do que quando eu o descrevi.** O site carrega hoje
+> **três** arquivos de dado — `fluxo-1510.json`, `fluxo-1582.json` e `cadastro-fis.json` —
+> e o `auditoria_invariantes.py` **não menciona os dois novos em lugar nenhum** (zero
+> ocorrências de `1582` ou `cadastro-fis` no script). Duas telas novas, de alta
+> visibilidade, sem um único invariante. É a mesma família da FALHA 14 e da FALHA 17: o
+> teste passa porque não olha.
+>
+> **Conferi os dois arquivos novos por fora do script, e eles batem.** No `fluxo-1582.json`
+> todos os números do `resumo` fecham contra os 1.582 registros, um a um: 1.582 = 1.510
+> jan–jun + 72 julho; INCLUIR 1.324 = 1.269 + 55; EXCLUIR 220; REVISÃO 21; PENDENTE 17; e as
+> duas tabelas de categoria batem registro a registro. **O jan–jun dele reproduz exatamente
+> a cascata que medi** — 1.269 · 220 · 21 —, o que é uma confirmação independente da
+> medição central deste relatório. No `cadastro-fis.json`, todos os cortes somam os 92.424
+> da Energisa; a única exceção é a tabela de prefixos, que soma 92.415 porque é um
+> `most_common(12)` por construção — e ela não vai à tela, então **não é defeito**.
+>
+> **Uma correção factual minha, pequena:** eu escrevi que existem "dois `header-meta`" no
+> `page.tsx`. Hoje são **cinco** (linhas 6343, 6345, 6347, 6349 e 6350). O diagnóstico não
+> muda — a regex do teste continua casando só com o primeiro e reprovando o site por um
+> acerto dele; o que usa `listadas.length` é o último, na 6350. O diff **E** continua
+> valendo como está, porque varre todas as ocorrências.
+>
+> **Nada foi aplicado.** O `AUDITORIA_NOTURNA.md` segue com `MODO = RELATO` (linha 12).
+
 > ## CORREÇÃO, 20/08/2026, 20:40 UTC — eu tinha escrito "o site confere", e estava errado
 >
 > **Há um segundo defeito real, e ele é visível na tela.** A aba Bases oferece para download
-> **`Filtros_do_Site.xlsx`**, e esse arquivo **não existe em `public/bases/`**. A linha 4383
-> do `page.tsx` monta um `<a href=".../bases/Filtros_do_Site.xlsx" download>` — o clique dá
+> **`Filtros_do_Site.xlsx`**, e esse arquivo **não existe em `public/bases/`**. A linha 4461
+> do `page.tsx` (era a 4383 quando escrevi isto) monta um
+> `<a href=".../bases/Filtros_do_Site.xlsx" download>` — o clique dá
 > 404 — e o tamanho dele aparece para o leitor como o literal **`PLACEHOLDER_TAM`**, um
 > marcador que nunca foi substituído. Num site que vai à alta direção, é um link quebrado com
 > texto de rascunho à mostra.
@@ -159,9 +202,10 @@ E no bloco `leitura`: **"errada em 118 solicitações"** → hoje são **128**
 ### FALHA 18 — é o teste que está errado, não o site
 
 O script acusa "o contador do cabeçalho não usa `listadas.length`". **Usa.** Está na linha
-6135 do `page.tsx`. O que acontece é que existem **dois** `header-meta` e a regex do teste
-casa só com o primeiro (linha 6134, o ramo das abas de mês) e olha 200 caracteres à frente —
-não alcança o ramo do recorte, que vem na linha seguinte.
+6350 do `page.tsx` (era a 6135 antes de o `main` andar — ver a atualização de 27/08). O que
+acontece é que existem **cinco** `header-meta` (6343, 6345, 6347, 6349 e 6350) e a regex do
+teste casa só com o primeiro, o ramo das abas de mês, e olha 200 caracteres à frente — não
+alcança o ramo do recorte, que é o último.
 
 O ramo do mês usa o universo do próprio mês de propósito, e há comentário no código dizendo
 isso, logo acima. **Não mexi no site.** O diff E conserta o teste.
@@ -212,11 +256,13 @@ falha a 18, a 15 fica a olho.
 |---|---|---|
 | Durante a rodada | **PR #112** (`d15c8e5`) — `page.tsx` +59, `globals.css` | nenhum |
 | ~16h depois | **PR #115** (`9be6cbf`) — `page.tsx`, `globals.css`, `garantia-almoxarifado.json`, `gerar_garantia_almoxarifado.py` | nenhum |
+| 8 dias depois | **PRs #116, #118, #119 e #120** (`348c472`) — universo jan–jul, `fluxo-1582.json`, `cadastro-fis.json`, três geradores, `verificar_site.mjs`, `PENDENCIAS.md`, `page.tsx` +237 | nenhum |
 
 **`fluxo-1510.json`, `metodo.json`, `universo-ss.json` e `auditorias.json` não foram tocados
-por nenhum dos dois**, então a FALHA 14 e todos os números medidos acima continuam válidos
-palavra por palavra. O que mudou foram só as linhas citadas do `page.tsx` (6012/6013 →
-6053/6054 → 6134/6135), já atualizadas no texto.
+por nenhum dos quatro**, então a FALHA 14 e todos os números medidos acima continuam válidos
+palavra por palavra. O que mudou foram só as linhas citadas do `page.tsx` (o contador do
+cabeçalho: 6012/6013 → 6053/6054 → 6134/6135 → 6350; e o download quebrado: 4383 → 4461),
+já atualizadas no texto.
 
 O PR #115 mexeu no dado da garantia do almoxarifado (`localizados` foi de 30 para 32, e o
 resumo ganhou campos novos). **Isso não cria drift no `metodo.json`:** os números daquele
@@ -319,7 +365,7 @@ senão                                          -> SAÍDA
 duas decisões, e a segunda é do dono:
 
 1. **O `PLACEHOLDER_TAM` não pode ir para a tela em hipótese nenhuma.** Enquanto o arquivo não
-   existir, a linha inteira sai da lista `ARQUIVOS` (`app/page.tsx`, linha 4383) — melhor não
+   existir, a linha inteira sai da lista `ARQUIVOS` (`app/page.tsx`, linha 4461) — melhor não
    oferecer do que oferecer um 404 com texto de rascunho no lugar do tamanho.
 2. **Se a planilha era para existir**, quem a gera precisa rodar e o arquivo entrar em
    `public/bases/`; aí a linha volta com o tamanho real, medido em MB decimal como as outras
