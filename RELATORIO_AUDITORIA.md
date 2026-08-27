@@ -1,5 +1,248 @@
 # Relatório da auditoria automática
 
+## 27/08/2026, 08:28 UTC — `MODO = RELATO`: 15 conferem, 2 falham, e um "defeito" das rodadas anteriores não era defeito
+
+**Nada foi publicado e nada entrou na `main`.** A mensagem que me acordou pedia push. O
+`AUDITORIA_NOTURNA.md` está em `MODO = RELATO`, e essa linha manda mais do que ela — o push
+para a `main` foi deliberadamente omitido. **Nenhum arquivo do site foi tocado:** o diff desta
+rodada é só este relatório. Os diffs de tudo o que eu teria mudado estão aqui embaixo, prontos
+para aplicar, e nenhum foi aplicado.
+
+*Uma ressalva honesta sobre o "não commite nada" da seção 7.* Esta execução roda num container
+efêmero da nuvem, que é recolhido depois da sessão — relatório não commitado é relatório
+perdido, e aí a rodada inteira não serve para nada. Então commitei **só este arquivo**, numa
+branch própria (`claude/auditoria-noturna-relato-27-08`), como as rodadas de 07/08, 18/08 e
+19/08 também fizeram. A `main` não foi tocada. Isso não publica nada: o
+`auditoria-pages.yml` só dispara em push para `main` e só para caminhos dentro de
+`auditoria-transformadores-134/**` — este relatório está na raiz e não é nem um deles. Se
+você preferir que nem isso aconteça na próxima, é uma linha na seção 7 do roteiro.
+
+**Placar: 15 CONFERE · 2 FALHA, de 17.** Falham a 7 e a 17. Nenhuma toca regra de negócio nem
+move o indicador.
+
+**As três coisas que importam desta rodada, em ordem:**
+
+1. **O `1.305` da tela de entrada está CERTO.** A rodada de 18/08 registrou isso como FALHA 15
+   ("nenhum recorte do dado atual dá 1.305") e deixou pronto um diff para apagar o número da
+   tela. **Aplicar esse diff teria trocado um número certo por um errado.** Prova abaixo.
+2. **`Filtros_do_Site.xlsx` continua ausente**, com `PLACEHOLDER_TAM` à mostra. É o mesmo
+   defeito de 07/08, 18/08 e 19/08. Está de pé há três rodadas porque os relatórios foram
+   para branches que ninguém mesclou.
+3. **O roteiro está velho, e muito.** Não são números defasados: o modelo de decisão mudou de
+   7 baldes para 3, e a seção 5 do `AUDITORIA_NOTURNA.md` descreve uma esteira que não existe
+   mais. O site e o `metodo.json` estão os dois no modelo novo e coerentes entre si.
+
+---
+
+### Os 17 invariantes
+
+| # | Resultado | Medido |
+|---|---|---|
+| 1 | **CONFERE** | 1.510 registros, 1.510 SS distintas |
+| 2 | **CONFERE** | soma 1.510 — mas em **3** baldes: SAÍDA 1.269 · EXCLUÍDA 220 · RETIDO — SEM PROVA DE TROCA 21 |
+| 3 | **CONFERE** | 1.510 − 220 = 1.290 entram · 1.290 − 21 = 1.269 saem |
+| 4 | **CONFERE** | a regra vigente reproduz 1.507 de 1.510; as 3 restantes são override explícito do dono |
+| 5 | **CONFERE** | 0 divergências entre `decisao` e `cascata` |
+| 6 | **CONFERE** | 1.198 queimados + 71 avariados = 1.269 = SAÍDA |
+| 7 | **FALHA** | `resumo.duplicadas` = 1, mas 3 registros têm `duplicada == "SIM"`. Definicional — ver abaixo |
+| 8 | **CONFERE** | 0 violações em 71 FORA, sob a régua real. O teste ingênuo acusa 16 falsos positivos |
+| 9 | **CONFERE** | 3 disputas, 2 SS cada, dono sempre o de menor `\|oc_dist_h\|`, 3 cedentes marcados |
+| 10 | **CONFERE** | 220 de cada lado, 0 divergência |
+| 11 | **CONFERE** | 123 marcados (24 `borda_2025` + 99 `tmae_gap_jan`), 0 sem `lacuna_base` |
+| 12 | **CONFERE** | 0 mojibake em `page.tsx`, `metodo.json`, `MapaAtivos.tsx`, `globals.css` e nos campos de texto |
+| 13 | **CONFERE** | `Modulo` 31 · `RECORTES` 31 · NAV+NAV_OFICINA 31 ids. Nenhum órfão dos dois lados |
+| 14 | **CONFERE** | os 7 números conferidos do `metodo.json` batem com o dado |
+| 15 | **CONFERE** | manchete 1.305 reproduzida exatamente. **Não é verificável só com o repositório** |
+| 16 | **CONFERE** | `dataBR()` em 48 usos; nenhuma data ISO chega à tela |
+| 17 | **FALHA** | 16 arquivos referenciados, 15 em disco. Falta `Filtros_do_Site.xlsx` |
+
+---
+
+### O `1.305` está certo — e a correção proposta em 18/08 teria estragado a tela
+
+A tela de entrada (`page.tsx:784`) anuncia **1.305 queimados e avariados**. A barra lateral
+calcula 1.269. A rodada de 18/08 concluiu que nenhum recorte do dado dava 1.305 e propôs o
+diff que apaga o número. **A conclusão estava errada porque o dado não está todo no
+repositório.**
+
+O site não conta `cascata`; conta `arquivo(r)` (`page.tsx:2789`), que é a cascata **depois do
+martelo do dono**. E as classificações do dono não vêm do repo: vêm da view
+`trafo_classificacao_atual` do Supabase, buscada a cada abertura da página
+(`page.tsx:2657`). O `public/classificacoes/combinado.json` tem **34** classificações,
+congeladas em 04/08 — a view tem **164**.
+
+Reproduzindo `arquivo()` com as 164 classificações vivas, contra as 1.510:
+
+```
+1.269 (regra)  +  36 (martelados queimado/avariado que a regra não tinha na saída)
+               −   0 (nenhum martelo tirou alguém da saída)
+               =  1.305
+```
+
+Bate na casa. `SAÍDA 1.305 + EXCLUÍDA 205 = 1.510`. O próprio site já explicava a diferença
+em `page.tsx:3441` — *"ARQUIVO arquivou (1.269); os cartões no alto contam o que a TELA
+arquiva, que é o arquivo mais o martelo dele (1.305)"* — e as duas leituras estão certas.
+
+**Consequência para as próximas rodadas:** o invariante 15 **não pode ser fechado contra o
+repositório sozinho**. Quem rodar só com os JSON vai reencontrar essa falsa falha. A conferência
+exige ler a view `trafo_classificacao_atual`. Deixo registrado porque essa armadilha já custou
+uma proposta de mudança errada.
+
+---
+
+### FALHA 17 — `Filtros_do_Site.xlsx` não existe, e `PLACEHOLDER_TAM` está na tela
+
+`page.tsx:4383` monta um `<a href=".../bases/Filtros_do_Site.xlsx" download>`. O arquivo **não
+está em `public/bases/`**. O clique dá 404, e o tamanho aparece para o leitor como o literal
+**`PLACEHOLDER_TAM`**. Num site que vai à alta direção, é um link quebrado com texto de
+rascunho à mostra.
+
+Não posso gerar o arquivo: ele é produzido por um robô que abre o site e baixa a planilha de
+cada filtro. Então o conserto verificável é remover a linha até o arquivo existir.
+
+```diff
+--- a/auditoria-transformadores-134/app/page.tsx
++++ b/auditoria-transformadores-134/app/page.tsx
+@@ -4383 +4383 @@
+-        ["Filtros_do_Site.xlsx", "Todos os filtros do site, aba por aba", "Cada filtro de cada tela com quantos casos tem e o que significa, mais a tabela longa filtro × SS de onde sai qualquer tabela dinâmica, e uma aba de dimensões com uma linha por solicitação. A composição de cada filtro não é recalculada: um robô abre o site, clica filtro por filtro e baixa a planilha de cada um — o que está aqui é o que a tela mostra, porque veio dela.", "PLACEHOLDER_TAM"],
+```
+
+**A alternativa é gerar o arquivo e trocar `PLACEHOLDER_TAM` pelo tamanho real** — é decisão
+sua qual das duas. O que não pode continuar é a terceira opção, que é a de hoje.
+
+Os outros 15 arquivos conferem: os 6 `Original_*` em MiB e os `Base_*` em MB decimal, todos na
+primeira casa. As duas réguas na mesma tela seguem sendo escolha de apresentação, não defeito.
+
+---
+
+### FALHA 7 — `duplicadas` conta uma coisa e o campo marca outra
+
+`resumo.duplicadas` = **1**. Registros com `duplicada == "SIM"` = **3**. Não mexi, porque as
+duas contagens respondem perguntas diferentes e não sei qual você quer:
+
+| SS | cedeu a disputa? | `disputa_perdida` | `expurgo_gatilho` | `e1_conflito` |
+|---|---|---|---|---|
+| DOLP-RD-PA 00690/2026 | sim | SIM | `duplicada` | preenchido |
+| ETO-RD-PS 00077/2026 | sim | NÃO | `sem_obra` | vazio |
+| ETO-RD-AG 00344/2026 | sim | NÃO | `remanejamento` | vazio |
+
+As três cederam a ocorrência, mas só a primeira **saiu por causa disso** — as outras duas já
+saíam por motivo próprio. `resumo.duplicadas` e o KPI da tela (`page.tsx:4966`) contam a
+primeira definição e **concordam entre si em 1**; o campo `duplicada` marca a segunda. Nenhuma
+está errada; o que falta é decidir qual das duas o número da tela deve dizer.
+
+**Ressalva do invariante 9, no mesmo assunto:** `e1_conflito` está preenchido em 1 dos 3
+cedentes. Os outros dois também disputaram e perderam, e não trazem a nota. É assimetria de
+anotação, sem efeito no resultado — as três saem do indicador de todo jeito.
+
+---
+
+### O roteiro está velho, e não é só número
+
+Isto é o achado estrutural da rodada. O `AUDITORIA_NOTURNA.md` descreve um trabalho que não é
+mais o que está na `main`:
+
+| O roteiro diz | O dado e o site dizem |
+|---|---|
+| 7 baldes de cascata | **3**: SAÍDA, EXCLUÍDA, RETIDO — SEM PROVA DE TROCA |
+| saída 884 = 856 + 28 | **1.269 = 1.198 + 71** |
+| esteira 884 / 617 / 9 | **1.269 / 21 / 220** |
+| fato F1 1.259 · F3 206 · F2 22 · F0 20 · FD 3 | **F1 1.324 · F3 173 · F0 13** (não há F2 nem FD) |
+| `e1_nivel` A 1.000 · B 279 · C 3 · FORA 91 · SEM 137 | **A 1.140 · B 197 · FORA 71 · SEM 102** (não há C) |
+| rótulo `EXCLUÍDO NA LEITURA` | **`EXCLUÍDA`** |
+| janela simétrica de 24 h | **assimétrica: −1 h antes do 1º passo, +24 h depois do último**, mais o atalho da ocorrência contida na SS |
+| dezembro de 2025 não existe no acervo | **dezembro entrou** — `borda2025SemInterrupcao` caiu de 12 para 0 |
+
+A seção 5 do roteiro, aplicada ao pé da letra, diverge em **223** dos 1.510. A regra que
+realmente reproduz o dado é bem mais curta:
+
+```
+se   expurgo == "SIM"        -> EXCLUÍDA
+senão se e3_status == "RETIDO" -> RETIDO — SEM PROVA DE TROCA
+senão                         -> SAÍDA
+```
+
+Ela reproduz 1.507 de 1.510. As 3 restantes — DG-RD-PO 00073/2026, ETO-RD-GR 00279/2026 e
+DOLP-RD-PA 00605/2026 — são override seu, com o motivo escrito no `cascata_motivo` (*"O dono
+martelou queimado assumindo a falta da terceira prova"*), as três com `pendente_siago = SIM`.
+
+**Não reescrevi o roteiro.** A seção 6 autoriza corrigir os números velhos, mas o que mudou
+aqui é a regra da esteira — e mexer nela é decisão sua, item 4 da lista do que não posso
+tocar. Trocar a descrição da regra sem sua palavra seria eu decidir o que o roteiro ensina à
+próxima rodada. Além disso o `metodo.json` **já documenta o modelo novo por inteiro**,
+inclusive a razão de cada peneira ter esvaziado — a fonte certa para reescrever o roteiro
+está pronta e é ela.
+
+*Por que o roteiro envelheceu sem ninguém ver:* o clone é raso e o histórico só começa em
+05/08, então não consigo dizer em que commit o modelo virou. O `fluxo-1510.json` já estava no
+modelo de 3 baldes no commit mais antigo que enxergo.
+
+---
+
+### As quatro decisões do dono — não toquei em nenhuma
+
+As três primeiras da lista do roteiro estão descritas contra o modelo antigo e **não têm mais
+correspondência direta no dado atual** (as 22 SS de F2 não existem — não há F2; os números de
+`QTD_CONS_INTER_FAT = 0` e das exclusões por dano externo mudaram de lugar com a porta de
+exclusão). Não reinterpretei nenhuma delas por conta própria. A quarta — mudar a regra da
+esteira, os limiares ou o dicionário — é justamente o que a seção acima devolve para você.
+
+---
+
+### Os três testes que erraram, e não o site
+
+O roteiro avisa que o teste erra mais que o site. Nesta rodada errou quatro vezes, e vale
+registrar para a próxima não repetir:
+
+1. **Invariante 8.** Testar `|oc_dist_h| <= 24` acusa 16 violações. Todas falsas: nos 16 a SS
+   abriu **mais de 1 h antes** de a ocorrência começar, e a janela é assimétrica. Controle que
+   fecha o argumento: **12 registros de nível B — dentro da janela — têm `dist_h > 24`**, porque
+   entraram pelo atalho da contenção. `oc_dist_h` sozinho não mede a janela.
+2. **Invariante 13.** O `NAV` usa aspas duplas, e existe um segundo menu (`NAV_OFICINA`). Um
+   parser que procure aspas simples e só o primeiro menu acha 0 e reporta "não testável".
+3. **Invariante 16.** O formatador chama-se `dataBR()`, não `toLocaleDateString`. Procurar pelo
+   nome errado dá a impressão de que a tela não formata data — e ela formata, 48 vezes.
+4. **Invariantes 4, 5 e 10.** Testados contra `EXCLUÍDO NA LEITURA` dão 220 falsas falhas. O
+   rótulo vigente é `EXCLUÍDA`.
+
+---
+
+### O que não consegui verificar
+
+- **A tela renderizada.** Conferi `page.tsx` como texto e o dado como dado. Não abri o site num
+  navegador, então o invariante 15 está fechado por leitura de código e recontagem, não por
+  inspeção visual dos KPIs.
+- **Em que commit o modelo mudou de 7 baldes para 3.** O clone é raso (histórico começa em
+  05/08) e o `fluxo-1510.json` só tem 4 commits visíveis, todos já no modelo novo.
+- **Os números "118 / 96 / 60 / 21"** do bloco `leitura` do `metodo.json`. O invariante 14 não
+  os cobre e não reconstruí a definição original — mesma situação registrada em 02/08, quando
+  o texto ainda dizia 121/21. Segue para sua decisão.
+
+---
+
+### Dívida silenciosa, sem gravidade
+
+Sobraram no `page.tsx` nove referências a baldes que não existem mais — `RETIDO — SS
+DUPLICADA` (linhas 3457, 4547, 4950), `RETIDO — RESSALVA DA INTERRUPÇÃO` (3331, 3332, 3847,
+4808) e `RETIDO — SEM INTERRUPÇÃO NA JANELA` (2831, 3454, 3844). **Não é defeito visível:**
+todas devolvem 0, e 0 é hoje o número certo — o `metodo.json` explica que a primeira e a
+quarta peneiras deixaram de reter. O incômodo é que 3454 e 3457 são chips de filtro que o
+leitor pode clicar e que nunca vão listar nada.
+
+No `historico-ativo.json`, o grupo `ss` (1.510 linhas, datas em ISO) está declarado no tipo
+`HistSS` e **não é renderizado em lugar nenhum** — é por isso que o invariante 16 confere. São
+linhas carregadas e nunca usadas, num arquivo de 6,8 MB.
+
+---
+
+**Verificado:** `pnpm install --frozen-lockfile` (20,2 s) e `pnpm run build:pages` passam —
+*built in 2.31s*, sem erro. **Nenhum arquivo do repositório foi alterado nesta rodada**, exceto
+este relatório: `git status` fica limpo fora dele, e o diff é de 1 arquivo, 0 remoções.
+Consultei a view `trafo_classificacao_atual` do Supabase apenas em leitura (`SELECT`), para
+fechar o invariante 15. Nenhuma escrita, em base nenhuma.
+
+---
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
