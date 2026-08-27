@@ -53,6 +53,58 @@ type AlmoxItem = {
   obras?: string[]; custo_obras?: number;
   via_obra?: { ss: string; obra: string; no1305: boolean }[];
 };
+/* O universo somado de janeiro a JULHO — 1.582 SS (public/fluxo-1582.json, gerado por
+   scripts/gerar_fluxo_1582.py). É um arquivo à parte de propósito: o conjunto de jan–jun
+   está congelado e auditado, e scripts/auditoria_invariantes.py trava se o total dele
+   deixar de ser 1.510. Aqui os dois períodos se somam por cima, cada registro dizendo de
+   onde veio e se é prévia. */
+type Reg1582 = {
+  ss: string; os: string; obra: string; trafo: string; abertura: string; situacao: string;
+  criticidade: string; localidade: string; alimentador: string; origem: string; tipo_ss: string;
+  periodo: string; congelado: boolean; previa: boolean; categoria: string; decisao: string;
+  expurgo: string; gatilho: string; entra: string; decidido_por: string; clientes: string;
+  pot_ret: string; pot_inst: string; texto_ss: string; texto_os: string;
+};
+type Fluxo1582 = {
+  meta: { titulo: string; montado_de: string[]; o_que_e: string; o_que_nao_e: string;
+          julho_e_previa: string; ressalva_de_origem: string; lacunas_julho: string[];
+          fontes: string[] };
+  resumo: { total: number; jan_jun: number; julho: number; entram: number;
+            entram_jan_jun: number; entram_julho: number; pendentes_julho: number;
+            expurgados: number; em_revisao: number;
+            decisao: Record<string, number>;
+            categoria_jan_jun: Record<string, number>;
+            categoria_julho: Record<string, number> };
+  registros: Reg1582[];
+};
+
+/* O cadastro FIS do parque, extração oficial de julho/2026 (public/cadastro-fis.json,
+   gerado por scripts/gerar_cadastro_fis.py). O filtro que separa o que é da distribuidora
+   do que não é vem da coluna PROPRIETARIO — não do prefixo 56 do código operativo, que
+   discorda dela em 206 ativos. */
+type FisAtivo = Record<string, string>;
+type CadastroFis = {
+  meta: { titulo: string; arquivo: string; linhas: number; filtro: string;
+          congelado: string; ressalvas: string[] };
+  resumo: {
+    total: number; energisa: number; particular: number;
+    prefixo: Record<string, number>; fases: Record<string, number>;
+    possui_chave_fusivel: Record<string, number>; tipo_unidade: Record<string, number>;
+    regional: Record<string, number>; potencia: Record<string, number>;
+    preenchimento: Record<string, number>;
+  };
+  particular: { total: number; codigos: string[]; sem_prefixo_56: string[];
+                prefixo_56_mas_energisa: string[] };
+  cruzamento: Record<string, {
+    arquivo: string; ativos: number; transformadores: number; no_cadastro: number;
+    trafos_fora_do_cadastro: string[]; outros_ativos: number;
+    particulares: Array<FisAtivo & { _codigo: string; _papel: string }>;
+  }>;
+  expurgo_indicado: Array<{ codigo: string; universo: string; papel: string;
+    municipio: string; potencia: string; spec: string; motivo: string }>;
+  por_ativo: Record<string, FisAtivo>;
+};
+
 type Almoxarifado = {
   gerado_em: string; fonte: string; colunas_originais: string[];
   resumo: { total: number; localizados: number; so_serie: string[]; so_tombamento: string[];
@@ -157,7 +209,8 @@ type Modulo =
   | "ativos" | "regras" | "revisao" | "bases" | "mapa"
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
-  | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf";
+  | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf"
+  | "cadastro" | "janjul";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -364,7 +417,7 @@ type Par = { label: string; value: number };
    no histórico para sempre. Quem precisa das senhas recebe fora do código. */
 /* O ESTÁGIO substituiu o `aprova` booleano.
    Booleano só sabia dizer "pode aprovar" ou "não pode", e o fluxo do dono tem ORDEM:
-   1 técnico abre, 2 Matheus Alves valida, 3 Mateus Gracia aprova. Sem ordem não dá para
+   1 o usuário abre, 2 Mateus Gracia analisa, 3 Matheus Alves libera o expurgo. Sem ordem não dá para
    saber se um pedido pulou etapa. Quem é estágio 1 abre pedido e não aprova nada; quem é
    2 ou 3 só age quando o pedido chega na vez dele.
    Decisão do dono em 12/08: o Danillo NÃO entra na cadeia — fica no estágio 1, como quem
@@ -377,8 +430,8 @@ type Usuario = {
 const SAL = "auditoria-134";
 
 const USUARIOS: Usuario[] = [
-  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Segundo estágio: valida o pedido do técnico antes de ir para a engenharia.", estagio: 2 },
-  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Terceiro estágio: aprovação oficial de engenharia, que fecha o expurgo.", estagio: 3 },
+  { id: "matheus-alves", nome: "Matheus Alves", papel: "Supervisor", iniciais: "MA", usuario: "matheus.alves", hash: "03d2b3ffd0fea8d534b554bdc7b6868a151003cfa76dddd453abff703b67fbb9", descricao: "Terceiro estágio: libera o expurgo. É a última assinatura.", estagio: 3 },
+  { id: "mateus-gracia", nome: "Mateus Gracia", papel: "Engenheiro", iniciais: "MG", usuario: "mateus.gracia", hash: "7ca95be240073123aaac942453bac6d478bf695570638c4d23c10e7fe89e148d", descricao: "Segundo estágio: análise de engenharia do pedido do usuário, antes da liberação.", estagio: 2 },
   { id: "ronnald", nome: "Ronnald", papel: "Técnico terceiro", iniciais: "RO", usuario: "ronnald", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "gustavo", nome: "Gustavo", papel: "Técnico terceiro", iniciais: "GU", usuario: "gustavo", hash: "b8bb01c4773eb6592865dea8244c5e90982fe010e7f58d9cceba0c361b093d35", descricao: "Registro técnico, evidências e solicitação de expurgo.", estagio: 1 },
   { id: "andressa", nome: "Andressa", papel: "Analista", iniciais: "AN", usuario: "andressa", hash: "5fc619008f470feb08827085f68a2d714f9cdbd49933ffc0f235383d71fb7118", descricao: "Análise de SS, OS, SIGCO e consolidação. Abre pedido de expurgo.", estagio: 1 },
@@ -419,8 +472,11 @@ type Expurgo = {
   quem_id: string; quem_nome: string; quem_papel: string; marcado_em: string;
 };
 
+/* A ORDEM DA ESTEIRA, ditada pelo dono: o usuário abre, Mateus Gracia analisa, e
+   Matheus Alves libera o expurgo — a última assinatura é a dele. Até 27/08 os dois
+   estavam trocados aqui. */
 const ESTAGIO_NOME: Record<number, string> = {
-  1: "técnico", 2: "Matheus Alves · supervisão", 3: "Mateus Gracia · engenharia",
+  1: "usuário", 2: "Mateus Gracia · engenharia", 3: "Matheus Alves · liberação do expurgo",
 };
 
 /* De quem é a vez. Devolve o estágio que precisa agir, ou 0 quando o pedido acabou.
@@ -2224,6 +2280,8 @@ export default function Page() {
      Não é base de SS — é base de PEÇA. O elo com a auditoria é o número de série e o
      tombamento; controle não existe nem na SS/OS nem na COLETA, só na reformadora. */
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
+  const [cadastro, setCadastro] = useState<CadastroFis | null>(null);
+  const [janjul, setJanjul] = useState<Fluxo1582 | null>(null);
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
   /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
      variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
@@ -2554,6 +2612,8 @@ export default function Page() {
       aterr: ["aterramento.json", (d) => setAterr((d as { por_ss: Record<string, Aterramento> })?.por_ss || {}), () => setAterr({})],
       terceiros: ["terceiros.json", (d) => setTerceiros((d as { por_ss: Record<string, { n: number; fontes: { campo: string; valor: string }[] }> })?.por_ss || {}), () => setTerceiros({})],
       almox: ["garantia-almoxarifado.json", (d) => setAlmox(d as Almoxarifado), () => setAlmox(null)],
+      cadastro: ["cadastro-fis.json", (d) => setCadastro(d as CadastroFis), () => setCadastro(null)],
+      janjul: ["fluxo-1582.json", (d) => setJanjul(d as Fluxo1582), () => setJanjul(null)],
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
@@ -2587,6 +2647,10 @@ export default function Page() {
     mes_julho_conf: ["julho", "conf", "completo", "clima"],
     interrupcao: ["passos"], insight_divide: ["passos", "tmae"],
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
+    cadastro: ["cadastro"],
+    janjul: ["janjul"],
+    /* a visão geral anuncia o universo de jan a jul no topo, então precisa do arquivo */
+    visao: ["janjul"],
   };
   useEffect(() => {
     (APOIO_DA_ABA[modulo] || []).forEach(pedirApoio);
@@ -3608,6 +3672,11 @@ export default function Page() {
     mapa: [],
     regras: [],
     bases: [],
+    /* O cadastro do parque também não filtra a esteira: a aba lê o cadastro FIS, não os
+       registros das 1.510. Vazio de propósito, como a revisão. */
+    cadastro: [],
+    /* O universo de jan a jul tem lista própria: não recorta os registros das 1.510. */
+    janjul: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -3856,7 +3925,8 @@ export default function Page() {
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
-      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
+      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: janjul?.resumo.total ?? total, tom: "cinza" },
+      { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
@@ -3912,6 +3982,7 @@ export default function Page() {
       { id: "regras", rotulo: "Regras e método", codigo: "12" },
       { id: "revisao", rotulo: "Revisão da auditoria", codigo: "12·1", marca: revisao?.meta.mudam, tom: "cinza" },
       { id: "bases", rotulo: "Bases usadas", codigo: "13" },
+      { id: "cadastro", rotulo: "Cadastro do parque · FIS", codigo: "13·1", marca: cadastro?.expurgo_indicado.length, tom: "amarelo" },
     ]},
   ];
 
@@ -3939,7 +4010,7 @@ export default function Page() {
   const navAtual = oficina ? NAV_OFICINA : NAV;
 
   const TITULOS: Record<Modulo, { olho: string; titulo: string; texto: string }> = {
-    visao: { olho: "1.510 SS · jan a jun/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão." },
+    visao: { olho: "1.582 SS · jan a jul/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão. A esteira desenhada aqui é a de janeiro a junho — julho entra somado ao lado, em prévia, porque os 72 casos dele ainda não passaram pelas peneiras." },
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
@@ -3957,6 +4028,8 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    janjul: { olho: "jan a jul/2026 · universo somado", titulo: "Janeiro a julho — 1.582 solicitações", texto: "As 1.510 de janeiro a junho mais as 72 de julho, num conjunto só. É o universo de solicitações, não o indicador: o 1.305 de janeiro a junho continua como estava, e julho entra em prévia — 55 dentro pela régua e 17 ainda pendentes de campo." },
+    cadastro: { olho: "Parque · julho/2026", titulo: "Cadastro do parque (FIS)", texto: "A extração oficial do cadastro de transformadores, usada aqui para uma pergunta só: o ativo é da distribuidora ou é particular? Particular não pertence ao indicador. Nada é recalculado — o cruzamento fica ao lado do caso." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
     mes_agosto: { olho: "Prévia · indicador separado", titulo: "Agosto de 2026", texto: "A análise do mês corrente, fora do fechamento de janeiro a junho. É indicador próprio: não soma com as 1.305, que continuam congeladas. Prévia — o que depende de informação de campo está marcado como pendente de decisão." },
     mes_julho: { olho: "Prévia · indicador separado", titulo: "Julho de 2026", texto: "As 72 solicitações de transformador que o infotrafo traz com abertura em julho, conferidas contra a Crítica do mês. Indicador próprio: não soma com as 1.305 nem com agosto. Prévia mais crua que a de agosto — aqui NINGUÉM bateu martelo ainda, e toda linha traz a assinatura da régua, não a de uma pessoa." },
@@ -4040,9 +4113,10 @@ export default function Page() {
       const restoCausas = porCausa.slice(5).reduce((a, [, v]) => a + v, 0);
       return <>
         <section className="scope-strip">
-          <div><span>Recorte</span><strong>{br(total)} SS · jan a jun/2026</strong></div>
+          <div><span>Recorte</span><strong>{janjul ? `${br(janjul.resumo.total)} SS · jan a jul/2026` : `${br(total)} SS · jan a jun/2026`}</strong></div>
           <div><span>Janela da interrupção</span><strong>{fluxo.meta.janelaHoras}h contra o intervalo inteiro</strong></div>
-          <div><span>Saída</span><strong>{br(conta((r) => r.decisao === "INCLUIR"))} incluir</strong></div>
+          <div><span>Saída</span><strong>{janjul ? `${br(janjul.resumo.entram)} incluir` : `${br(conta((r) => r.decisao === "INCLUIR"))} incluir`}</strong></div>
+          {janjul ? <div><span>Julho</span><strong>{br(janjul.resumo.julho)} em prévia · {br(janjul.resumo.pendentes_julho)} pendentes</strong></div> : null}
           {/* A regra inteira tinha oito linhas aqui em cima. Ele pediu para tirar o monte de
               texto: fica a frase que governa tudo, e o resto mora em Regras e método. */}
           <p>A exclusão acontece antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência. <button type="button" className="strip-link" onClick={() => irPara("regras")}>Regra inteira em Regras e método →</button></p>
@@ -4055,7 +4129,11 @@ export default function Page() {
             é exatamente esta, e é a forma que manda. Só o degrau dos retidos ele não citou, e ele
             precisa estar aqui: sem ele a conta não chega em 1.249. */}
         <section className="panel cascata-panel">
-          <div className="panel-title"><div><span>A conta inteira</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
+          {/* A cascata é o funil de JANEIRO A JUNHO e continua sendo. Os 72 de julho não têm
+              os campos das peneiras — não atravessaram estágio nenhum — então empurrá-los para
+              dentro deste desenho produziria degrau falso. O universo de jan a jul aparece no
+              topo da aba e na linha logo abaixo desta cascata. */}
+          <div className="panel-title"><div><span>A conta inteira · janeiro a junho</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
           <div className="cascata-simples">
             <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a junho de 2026"
               aoClicar={() => irPara("interrupcao", "todos")} />
@@ -4431,6 +4509,135 @@ export default function Page() {
             entrou no acervo, que é o que fechou as 24 SS de borda do ano. */}
         <section className="panel editorial-note wide"><span>PEDIDOS EM ABERTO</span>
           <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações — destas, {br(conta((r) => r.pendente_siago === "SIM"))} têm obra com número e enquadramento e só esperam a extração do SIAGO.</p>
+        </section>
+      </>;
+    }
+
+    if (modulo === "janjul") {
+      if (!janjul) return <section className="panel"><p className="fonte-detalhe">Carregando o conjunto de janeiro a julho…</p></section>;
+      const J = janjul; const R = J.resumo;
+      const cat = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1]);
+      return <>
+        <section className="kpi-grid">
+          <Kpi rotulo="Universo jan a jul" valor={br(R.total)} nota={`${br(R.jan_jun)} de jan–jun + ${br(R.julho)} de julho`} tom="ink" />
+          <Kpi rotulo="Entram" valor={br(R.entram)} nota={`${br(R.entram_jan_jun)} de jan–jun e ${br(R.entram_julho)} de julho`} tom="green" />
+          <Kpi rotulo="Pendentes de campo" valor={br(R.pendentes_julho)} nota="todos de julho — decisão não tomada" tom="amber" />
+          <Kpi rotulo="Expurgados" valor={br(R.expurgados)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Em revisão" valor={br(R.em_revisao)} nota="segunda leitura pendente" tom="blue" />
+          <Kpi rotulo="Indicador jan–jun" valor="1.305" nota="1.225 queimados + 80 avariados · não recalculado" tom="ink" />
+        </section>
+
+        <section className="panel warning-note wide"><strong>O que 1.582 é, e o que não é</strong>
+          <p>· {J.meta.o_que_e}</p>
+          <p>· {J.meta.o_que_nao_e}</p>
+          <p>· {J.meta.julho_e_previa}</p>
+          <p>· {J.meta.ressalva_de_origem}</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Lado a lado</span><h2>Como cada período se comporta</h2></div><small>o mesmo corte nos dois</small></div>
+          <table className="records-table"><thead><tr><th>Período</th><th>Solicitações</th><th>Entram</th><th>Fora / pendentes</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>Janeiro a junho</td><td>{br(R.jan_jun)}</td><td>{br(R.entram_jan_jun)}</td><td>{br(R.jan_jun - R.entram_jan_jun)}</td><td><b>congelado</b> — decisão da esteira, já auditada</td></tr>
+              <tr><td>Julho</td><td>{br(R.julho)}</td><td>{br(R.entram_julho)}</td><td>{br(R.pendentes_julho)} pendentes</td><td><b>prévia</b> — decisão da régua, sem martelo do dono</td></tr>
+            </tbody></table>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Categorias</span><h2>Do que é feito cada período</h2></div><small>contagem por categoria</small></div>
+          <div className="compare-grid">
+            <div><h4>Janeiro a junho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+                <tbody>{cat(R.categoria_jan_jun).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
+            <div><h4>Julho</h4>
+              <table className="records-table"><thead><tr><th>Categoria</th><th>Quantas</th></tr></thead>
+                <tbody>{cat(R.categoria_julho).map(([k, n]) => <tr key={k}><td>{k || "—"}</td><td>{br(n)}</td></tr>)}</tbody></table></div>
+          </div>
+          <p className="fonte-detalhe">As categorias de julho ainda descrevem a posição na régua (&ldquo;aguarda martelo&rdquo;), não uma classificação fechada como as de janeiro a junho. É por isso que os dois lados não usam o mesmo vocabulário.</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>As 72 de julho</span><h2>Uma por uma</h2></div><small>prévia</small></div>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>SS</th><th>Transformador</th><th>Abertura</th><th>Localidade</th><th>Origem</th><th>Entra</th><th>Categoria</th></tr></thead>
+            <tbody>{J.registros.filter((r) => r.periodo === "julho").map((r) => <tr key={r.ss}>
+              <td>{r.ss}</td><td><code>{r.trafo}</code></td><td>{r.abertura}</td><td>{r.localidade}</td>
+              <td>{r.origem}</td><td><b>{r.entra}</b></td><td><small>{r.categoria}</small></td>
+            </tr>)}</tbody></table></div>
+        </section>
+
+        <section className="panel editorial-note wide"><span>O QUE JULHO AINDA NÃO RESPONDE</span>
+          {J.meta.lacunas_julho.map((l) => <p key={l}>· {l}</p>)}
+        </section>
+      </>;
+    }
+
+    if (modulo === "cadastro") {
+      if (!cadastro) return <section className="panel"><p className="fonte-detalhe">Carregando o cadastro…</p></section>;
+      const c = cadastro;
+      const R = c.resumo;
+      const pct = (n: number) => `${br(n)} (${(100 * n / R.energisa).toFixed(1).replace(".", ",")}%)`;
+      const UNIV: Array<[string, string]> = [["1510", "1.510 · jan a jun"], ["julho", "Julho/2026"], ["agosto", "Agosto/2026"]];
+      return <>
+        <section className="panel"><div className="panel-title"><div><span>Extração oficial</span><h2>{c.meta.titulo}</h2></div><small>{br(c.meta.linhas)} linhas</small></div>
+          <p className="fonte-detalhe">{c.meta.filtro}. {c.meta.congelado}</p>
+        </section>
+
+        <section className="kpi-grid">
+          <Kpi rotulo="Parque cadastrado" valor={br(R.total)} nota="transformadores na extração de julho" tom="ink" />
+          <Kpi rotulo="Da Energisa" valor={br(R.energisa)} nota="é este o parque que o indicador mede" tom="green" />
+          <Kpi rotulo="Particulares" valor={br(R.particular)} nota="fora do indicador por natureza" tom="red" />
+          <Kpi rotulo="Expurgo indicado" valor={br(c.expurgo_indicado.length)} nota="particulares tocando os universos da auditoria" tom={c.expurgo_indicado.length ? "amber" : "green"} />
+          <Kpi rotulo="Particular sem prefixo 56" valor={br(c.particular.sem_prefixo_56.length)} nota="o prefixo sozinho deixaria passar" tom="amber" />
+          <Kpi rotulo="Prefixo 56 mas Energisa" valor={br(c.particular.prefixo_56_mas_energisa.length)} nota="o prefixo sozinho excluiria à toa" tom="blue" />
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>O expurgo</span><h2>Particulares dentro dos universos da auditoria</h2></div><small>{c.expurgo_indicado.length === 0 ? "nenhum" : `${c.expurgo_indicado.length} indicado(s)`}</small></div>
+          {c.expurgo_indicado.length === 0
+            ? <p className="fonte-detalhe">Nenhum transformador particular aparece nos universos auditados.</p>
+            : <table className="records-table"><thead><tr><th>Ativo</th><th>Universo</th><th>Papel</th><th>Município</th><th>Potência</th><th>Especificação</th></tr></thead>
+                <tbody>{c.expurgo_indicado.map((e) => <tr key={`${e.universo}-${e.codigo}`}>
+                  <td><code>{e.codigo}</code></td><td>{e.universo}</td>
+                  <td>{e.papel === "contado" ? <b>entra na conta</b> : "só no entorno"}</td>
+                  <td>{e.municipio}</td><td>{e.potencia} kVA</td><td><small>{e.spec}</small></td>
+                </tr>)}</tbody></table>}
+          <p className="fonte-detalhe">
+            &ldquo;Entra na conta&rdquo; é o ativo que está no universo auditado do período; &ldquo;só no entorno&rdquo;
+            veio da varredura ampliada e não soma em número nenhum — mas fica registrado aqui para
+            que, na hora de fechar o mês, ninguém o traga para dentro sem perceber.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Cobertura</span><h2>Cada universo contra o cadastro</h2></div><small>o cadastro é de julho</small></div>
+          <table className="records-table"><thead><tr><th>Universo</th><th>Ativos</th><th>Transformadores</th><th>No cadastro</th><th>Trafo ausente</th><th>Particular</th></tr></thead>
+            <tbody>{UNIV.map(([k, rot]) => { const x = c.cruzamento[k]; if (!x) return null; return <tr key={k}>
+              <td>{rot}</td><td>{br(x.ativos)}</td><td>{br(x.transformadores)}</td><td>{br(x.no_cadastro)}</td>
+              <td>{x.trafos_fora_do_cadastro.length === 0 ? "—" : <span title={x.trafos_fora_do_cadastro.join(", ")}>{x.trafos_fora_do_cadastro.length}</span>}</td>
+              <td>{x.particulares.length || "—"}</td></tr>; })}</tbody></table>
+          <p className="fonte-detalhe">
+            A coluna &ldquo;Ativos&rdquo; conta tudo o que o arquivo do período cita, inclusive chave fusível,
+            poste e religador que aparecem na varredura do entorno. Só transformador é cobrado do
+            cadastro — o resto não está nele, e contá-lo como ausente seria inventar um problema.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>A armadilha</span><h2>Prefixo 56 não é o mesmo que particular</h2></div><small>discordam em {br(c.particular.sem_prefixo_56.length + c.particular.prefixo_56_mas_energisa.length)} ativos</small></div>
+          <p className="fonte-detalhe">
+            Seis dos particulares sem prefixo 56 têm prefixo <code>57</code>, que é justamente o
+            prefixo que responde por 97,6% do indicador. Por isso o filtro passou a ser a coluna
+            <code> PROPRIETARIO</code>, e não o código operativo.
+          </p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Qualidade do dado</span><h2>O que esta extração preenche, e o que não</h2></div><small>sobre os {br(R.energisa)} da Energisa</small></div>
+          <table className="records-table"><thead><tr><th>Campo</th><th>Preenchido</th></tr></thead><tbody>
+            <tr><td>Coordenada</td><td>{pct(R.preenchimento.coordenada)}</td></tr>
+            <tr><td>Fabricante conhecido</td><td>{pct(R.preenchimento.fabricante_conhecido)}</td></tr>
+            <tr><td>Número de série não zerado</td><td>{pct(R.preenchimento.serie_nao_zerada)}</td></tr>
+            <tr><td>Capacidade do elo (lado carga)</td><td>{pct(R.preenchimento.elo_carga)}</td></tr>
+            <tr><td>Tombamento</td><td>{pct(R.preenchimento.tombamento)}</td></tr>
+          </tbody></table>
+        </section>
+
+        <section className="panel warning-note wide"><strong>Ressalvas desta leitura</strong>
+          {c.meta.ressalvas.map((r) => <p key={r}>· {r}</p>)}
         </section>
       </>;
     }
@@ -6129,9 +6336,17 @@ export default function Page() {
         {/* O cabeçalho dizia "Recorte 1.510" em qualquer aba, inclusive nas que abrem com 209
             ou 50 na tabela logo abaixo. Passa a contar o que está na tela, com o universo ao
             lado, para nunca mais haver dois números diferentes falando da mesma lista. */}
-        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. */}
+        {/* A aba do mês tem universo próprio; o recorte das 1.510 não fala sobre ela. O mesmo
+            vale para o conjunto somado de jan a jul e para o cadastro do parque: as duas leem
+            outro arquivo, e mostrar "1.510" ali seria um número falando de outra lista. */}
         {modulo === "mes_agosto" || modulo === "mes_julho"
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
+          : modulo === "janjul"
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
+          : modulo === "cadastro"
+          ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
+          : modulo === "visao" && janjul
+          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul.resumo.total)}</strong><small>{br(janjul.resumo.jan_jun)} de jan–jun + {br(janjul.resumo.julho)} de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
