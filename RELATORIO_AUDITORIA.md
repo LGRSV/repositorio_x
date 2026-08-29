@@ -1,5 +1,260 @@
 # Relatório da auditoria automática
 
+## 29/08/2026, 16:20 UTC — `MODO = RELATO`: o briefing envelheceu junto com o dado; 2 defeitos reais no site
+
+**Placar: 15 conferem · 3 falham · 1 a olho, de 19.** Rodei em `MODO = RELATO`, então **nada foi
+commitado e nada foi publicado** — o `AUDITORIA_NOTURNA.md` manda mais do que a mensagem que me
+acordou, e a mensagem pedia push. Os diffs de tudo o que eu teria mudado estão escritos abaixo,
+prontos para aplicar. O build passa no estado atual da `main`
+(`pnpm install --frozen-lockfile && pnpm run build:pages`, built in 5.69s). Rodado em `348c472`.
+
+*Sobre este arquivo:* vai commitado sozinho para o branch de inspeção
+`claude/auditoria-noturna-relato-29-08-1620`, que é o que as execuções anteriores em RELATO fizeram
+(`...-27-08`, `...-28-08`, `...-29-08`, `...-29-08-0821`). O branch não é `main`, então **não dispara
+o `auditoria-pages.yml` e não republica o site**. Nenhum arquivo do site entrou no commit.
+
+*Esta é a terceira execução de hoje* — houve uma às 00:24 e outra às 08:21 UTC, cada uma no seu
+branch. **Cheguei aos mesmos achados da rodada das 08:21 por caminho independente**, o que é uma
+boa notícia: mojibake nos mesmos 8 registros, o mesmo diagnóstico de que o roteiro descreve um site
+que não existe mais, e os mesmos totais medidos. O que esta rodada acrescenta: **mais 3 números
+errados no `metodo.json`** (11 no total, contra os 8 daquela), a constatação de que o parágrafo das
+famílias **não fecha nem contra si mesmo** (137 + 103 = 240 para uma porta de 220), e o diagnóstico
+dos **dois testes quebrados** no `scripts/auditoria_invariantes.py`, com o conserto de ambos.
+
+### O primeiro achado é o briefing, não o site
+
+**O dado se moveu muito desde que a seção 6 do `AUDITORIA_NOTURNA.md` foi escrita, e o roteiro não
+acompanhou.** Não é defeito do site: a esteira foi reestruturada por decisão registrada — a exclusão
+saiu de dentro da cascata e virou uma porta antes dela, e as peneiras 1, 2 e 4 viraram marcadores que
+não retêm ninguém. O que o roteiro descreve simplesmente não existe mais no formato descrito.
+
+| Seção 6 do roteiro | Medido hoje |
+|---|---|
+| Saída confirmada **884** = 856 queimados + 28 avariados | **1.269** = 1.198 queimados + 71 avariados |
+| Decisão da esteira INCLUIR 884 · REVISÃO 617 · EXCLUIR 9 | INCLUIR **1.269** · REVISÃO **21** · EXCLUIR **220** |
+| Fato F1 1.259 · F3 206 · F2 22 · F0 20 · FD 3 | F1 **1.324** · F3 **173** · F0 **13** (F2 e FD não existem mais) |
+| `e1_nivel` A 1.000 · B 279 · C 3 · FORA 91 · SEM 137 | A **1.140** · B **197** · FORA **71** · SEM **102** (C não existe mais) |
+| duplicadas 3 · `e1_conflito` em 7 | duplicadas **1** · `e1_conflito` em **1** |
+| janela corrigida 37 · `borda_2025` 24, 12 sem interrupção | janela corrigida **36** · `borda_2025` **24**, **0** sem interrupção |
+| Cascatas: 7 rótulos | **3 rótulos**: SAÍDA 1.269 · EXCLUÍDA 220 · RETIDO — SEM PROVA DE TROCA 21 |
+
+Continuam batendo exatamente: **decisão da matriz 1.262 / 184 / 64**, **leitura L1 1.451 · L2 53 ·
+L3 6**, `tmae_gap_jan` 99, atendimento recuperado por ocorrência 23, reclassificados de dano externo
+11, sem coordenada 1.
+
+A regra da esteira escrita na seção 5 também não roda mais: ela testa `duplicada == "SIM"`, e esse
+campo **não existe** no dado de hoje; e testa `expurgo` antes de tudo, quando quem manda hoje é
+`fora_da_esteira`. Aplicada ao pé da letra ela erra **223 dos 1.510** rótulos. Reescrita para o motor
+de hoje, erra **3** — e os 3 são vereditos do dono, não defeito (ver invariante 4).
+
+**Não reescrevi o roteiro.** A seção 5 é "a regra da esteira", que está na lista do que eu não posso
+tocar, e a seção 6 é o retrato contra o qual eu confiro — trocar os dois de uma vez é reescrever o
+meu próprio gabarito sozinho, de madrugada. Fica como a primeira decisão do dono desta rodada.
+
+### Os invariantes, um a um
+
+| # | Resultado | Medido |
+|---|---|---|
+| 1 · 1.510 registros, `ss` único | **CONFERE** | 1.510 registros, 1.510 ss distintos |
+| 2 · soma das cascatas = 1.510 | **CONFERE** | 1.269 + 220 + 21 = 1.510 |
+| 3 · a corrente fecha | **CONFERE** | 1.510 − 220 = 1.290 = `chega_e1` = `chega_e2` = `chega_e3`; 1.290 − 21 = 1.269 = SAÍDA |
+| 4 · a regra reproduz os 1.510 rótulos | **CONFERE** | 3 divergências, e as 3 são `veredito_do_dono = SIM` (obra fora do export que o dono mandou passar) |
+| 5 · decisão ⇔ cascata | **CONFERE** | 0 fora do casamento |
+| 6 · `confirmado` só na saída | **CONFERE** | 1.198 + 71 = 1.269 = SAÍDA; 0 preenchidos fora, 0 vazios dentro |
+| 7 · `resumo` bate com a recontagem | **CONFERE** | 7 blocos + 12 escalares + os 23 gatilhos de exclusão |
+| 8 · nenhum `FORA` dentro da janela | **CONFERE** | 0 violações recalculando dos horários crus |
+| 9 · disputa de ocorrência resolvida | **CONFERE** | 0 disputas de verdade, 1 perdedor marcado, e ele saiu pela exclusão |
+| 10 · porta de exclusão ⇔ EXCLUÍDA | **CONFERE** | 220 = 220, diferença simétrica 0 |
+| 11 · lacuna de base tem aviso no dossiê | **CONFERE** | 123 marcadas, 0 sem `lacuna_base` |
+| 12 · nenhum mojibake | **FALHA** | **8 registros**, em campos que aparecem na tela |
+| 13 · NAV = RECORTES = tipo `Modulo` | **CONFERE** | NAV 31, RECORTES 33, tipo 33; nenhum órfão |
+| 14 · números à mão no `metodo.json` | **FALHA** | **11 números** não batem, em 3 blocos |
+| 15 · números na interface | **A OLHO** | barra lateral, KPIs e caixa d'água são calculados; os 19 literais de `nota` que dá para amarrar ao dado batem |
+| 16 · datas em dd/mm/aaaa | **CONFERE** | `dataBR` converte; 0 datas ISO escritas direto na tela |
+| 17 · os 12 arquivos de base | **CONFERE** | 12 existem; `Base_*` batem em MB decimal (6/6), `Original_*` em MiB (6/6) |
+| A · a planilha de download bate com o JSON | **CONFERE** | 1.510 linhas, SAÍDA 1.269, 1.198 + 71 — igual ao `fluxo-1510.json` |
+| B · vereditos do dono aplicados | **CONFERE** | 57 vereditos, 0 divergências |
+
+Os invariantes A e B não estão no roteiro; vieram do
+`scripts/auditoria_invariantes.py`, que já os testava. Mantive.
+
+### FALHA 12 — mojibake em 8 dossiês, na tela
+
+Oito registros carregam texto com dupla codificação, e **os dois campos aparecem na tela**, no painel
+*ATENDIMENTO ACHADO PELO NÚMERO DA OCORRÊNCIA* do dossiê (`page.tsx:6792` e `6793`):
+
+| SS | Campo | Está gravado | Deveria ser |
+|---|---|---|---|
+| ETO-RD-AG 00003/2026 | `at2_sub` | `DEFEITO EM CONEXÃ\x83O` | `DEFEITO EM CONEXÃO` |
+| ETO-RD-AG 00214/2026 | `at2_sub` | `PROBLEMA EM RAMAL DE SERVIÃ\x87O` | `... DE SERVIÇO` |
+| ETO-RD-AG 00249/2026 | `at2_sub` | `DEFEITO EM CONEXÃ\x83O` | `DEFEITO EM CONEXÃO` |
+| DOLP-RD-PA 00429/2026 | `at2_sub` | `NÃ\x83O REGULARIZADO-CAUSA NÃ\x83O IDENTIFICADA` | `NÃO REGULARIZADO-CAUSA NÃO IDENTIFICADA` |
+| DOLP-RD-PA 00437/2026 | `at2_sub` | `DEFEITO EM CONEXÃ\x83O` | `DEFEITO EM CONEXÃO` |
+| DG-RD-PO 00333/2026 | `at2_obs` | `IntervenÃ§Ã£o gerada pelo PDA-Sigod...` | `Intervenção gerada pelo PDA-Sigod...` |
+| ETO-RD-AG 00545/2026 | `at2_sub` | `PROBLEMA EM RAMAL DE SERVIÃ\x87O` | `... DE SERVIÇO` |
+| ETO-RD-AG 00627/2026 | `at2_sub` | `DEFEITO EM CONEXÃ\x83O` | `DEFEITO EM CONEXÃO` |
+
+**Correção proposta** — só texto, nenhum número e nenhuma decisão mudam:
+
+```python
+# em auditoria-transformadores-134/, com fluxo-1510.json carregado como `f`
+for r in f["registros"]:
+    for campo in ("at2_sub", "at2_obs"):
+        v = r.get(campo)
+        if isinstance(v, str) and re.search(r"[ÃÂ][\x80-\xBF]", v):
+            r[campo] = v.encode("latin-1", "ignore").decode("utf-8", "ignore")
+```
+
+Por que o teste anterior não pegou: `scripts/auditoria_invariantes.py` varre uma lista fixa de dez
+campos de texto (`desc_ss`, `desc_os`, `narrativa`, …) e `at2_sub`/`at2_obs` não estão nela. O meu
+varreu **todos** os campos string de todos os registros. Vale trocar a lista fixa por varredura total.
+
+### FALHA 14 — 11 números do `metodo.json` não batem com o dado
+
+Este é o arquivo que a aba Método imprime literalmente, sem passar pelo dado. Cada linha abaixo foi
+medida do `fluxo-1510.json`; a coluna "medido" é reproduzível.
+
+| Onde | Escrito | Medido | Como medi |
+|---|---|---|---|
+| `cascata` §1 · família 1 | 137 | **108** | `expurgo_gatilho` em {`sem_interrupcao` 77, `fora_da_janela` 31} |
+| `cascata` §1 · sem rastro na Crítica | 47 | **52** | `censo_critica = AUSENTE` dentro da família 1 |
+| `cascata` §1 · defeito em outra data | 83 | **31** | `censo_critica = DEFEITO EM OUTRA DATA` dentro da família 1 |
+| `cascata` §1 · nem pelo teste do vizinho | 7 | **7 ✓** | `vizinho = "Nada encontrado…"` dentro da família 1 |
+| `cascata` §1 · família 2 | 103 | **112** | os demais 21 gatilhos de exclusão |
+| `cascata` §1 · categorias menores | 18 | **17** | categorias da família 2 além das 4 nomeadas |
+| `cascata` §4 · ressalva na saída | 76 | **83** | campo `ressalvas` preenchido em quem está na SAÍDA |
+| `cascata` tabela/2 · corroboram | 1.134 | **1.126** | `deslocamento = CORROBORA` entre as 1.290 da esteira |
+| `cascata` tabela/2 · sem registro | 135 | **132** | `deslocamento = SEM REGISTRO` entre as 1.290 (restam 32 sem classificação) |
+| `cascata` tabela/3 · só esperam o SIAGO | 18 | **19** | retidos na 3ª peneira com `pendente_siago = SIM` |
+| `cascata` tabela/4 · ressalva na saída | 76 | **83** | idem §4 |
+| `leitura` · categoria gravada errada | 118 | **128** | `categoria_gravada ≠ categoria_texto` |
+| `leitura` · queima com troca comprovada | 96 | **100** | dos anteriores, `categoria_texto = QUEIMADO` e `material_conferido = SIM` |
+| `leitura` · rótulo diz avariado | 60 | **57** | `categoria_gravada` dos 100 |
+| `leitura` · rótulo diz outros | 21 | **21 ✓** | idem |
+
+**O erro mais visível não depende de definição nenhuma:** o parágrafo diz que a porta tira 220 e
+que as duas famílias têm 137 e 103. **137 + 103 = 240.** A conta não fecha contra o próprio 220 que
+a frase acaba de escrever, três linhas acima. Medido, são 108 + 112 = 220.
+
+**Sobre o "118":** a definição está confirmada, não reconstruída. O relatório de 02/08 registra que
+`categoria_gravada ≠ categoria_texto` dava **118** na época, e foi esse número que entrou no
+`metodo.json`. A mesma consulta hoje dá **128** — o dado andou, a frase ficou. E o "21 dizem apenas
+outros" bate exatamente com a minha medição, o que confirma que estou usando o mesmo recorte que
+quem escreveu a frase.
+
+**Diff proposto** (`auditoria-transformadores-134/public/metodo.json`):
+
+```diff
+ bloco "cascata" · paragrafos[0]
+-A primeira, com 137 casos, é de quem não tem interrupção que sustente o caso: 47 cujo
+-código não aparece na Crítica em papel nenhum nos sete meses do acervo, 83 que aparecem
+-com defeito no próprio código mas em outra data, e 7 que não deixaram rastro em base
+-alguma, nem pelo teste do vizinho. A segunda, com 103 casos, é de quem tem causa ou
+-documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos,
+-7 tapes internos, e mais dezoito categorias menores, cada uma com o motivo escrito na linha.
++A primeira, com 108 casos, é de quem não tem interrupção que sustente o caso: 52 cujo
++código não aparece na Crítica em papel nenhum nos sete meses do acervo, 31 que aparecem
++com defeito no próprio código mas em outra data, e 25 que aparecem na Crítica sem nunca
++ter o defeito aberto neles; dentro dessa família, 7 não deixaram rastro em base alguma,
++nem pelo teste do vizinho. A segunda, com 112 casos, é de quem tem causa ou documento
++fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes
++internos, e mais dezessete categorias menores, cada uma com o motivo escrito na linha.
+
+ bloco "cascata" · paragrafos[3]
+-São 76 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável,
++São 83 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável,
+
+ bloco "cascata" · tabela.linhas[2][3]
+-0 — não retém: 1.134 corroboram, 135 sem registro
++0 — não retém: 1.126 corroboram, 132 sem registro e 32 sem classificação
+
+ bloco "cascata" · tabela.linhas[3][3]
+-21 sem prova de troca — e 18 deles só esperam a extração do SIAGO
++21 sem prova de troca — e 19 deles só esperam a extração do SIAGO
+
+ bloco "cascata" · tabela.linhas[4][3]
+-0 — a ressalva virou marcador: 76 chegam à saída com ela escrita
++0 — a ressalva virou marcador: 83 chegam à saída com ela escrita
+
+ bloco "leitura" · paragrafos[0]
+-ela está errada em 118 solicitações, e em 96 delas o texto descreve queima com troca
+-comprovada no material enquanto o rótulo gravado diz outra coisa — 60 dizem avariado,
+-21 dizem apenas outros.
++ela está errada em 128 solicitações, e em 100 delas o texto descreve queima com troca
++comprovada no material enquanto o rótulo gravado diz outra coisa — 57 dizem avariado,
++21 dizem apenas outros.
+```
+
+Duas ressalvas honestas sobre esse diff. **Primeira:** a linha 2 da tabela ganhou "e 32 sem
+classificação" porque 1.126 + 132 dá 1.258 e a linha fala de 1.290 — os 32 restantes têm
+`deslocamento` vazio e `e2_status = "—"`. Escrever só dois números ali deixaria a linha sem fechar,
+que é exatamente o defeito que estou corrigindo. **Segunda:** a família 1 não parte em três grupos
+disjuntos do jeito que a frase original sugeria — os 7 do teste do vizinho estão *dentro* dos outros
+grupos (5 em AUSENTE, 2 em DEFEITO EM OUTRA DATA), não ao lado deles. Por isso a reescrita move o 7
+para depois do ponto e vírgula. 52 + 31 + 25 = 108 fecha; a versão original não fechava.
+
+### A OLHO 15 — o que olhei e o que não dá para automatizar
+
+A barra lateral, os KPIs e a caixa d'água são calculados dos `registros` em tempo de execução: não
+podem divergir. O risco é o literal preso em texto de `nota`. São 19 com número; o único que dá para
+amarrar ao dado é o `"Estes 27 fecham sozinhos quando o SIAGO vier"` (`page.tsx:3602`), e ele
+**bate**: `pendente_siago = SIM` dá exatamente 27. Os outros 18 falam de bases externas (62.616
+linhas do TMAE, 7.007 passos da Crítica, 712 auxiliares no KML) que este repositório não contém —
+registro que não verifiquei em vez de dar por bom.
+
+### O que eu achei e NÃO toquei, por ser decisão do dono
+
+1. **O roteiro está desatualizado** — a tabela lá em cima. Mexer nele exige decidir se a seção 5
+   passa a descrever o motor de hoje, e regra da esteira é do dono.
+2. **`resumo.e4Alertas = 6`, mas o campo `e4_alertas` está preenchido em 82 registros da saída.**
+   Nenhum invariante cobre esse escalar e eu não consegui reconstruir a definição que dá 6 — pode ser
+   um recorte legítimo que eu não enxerguei. Reporto como dúvida e não mexo.
+3. **`metodo.json`, bloco `fato`: "1.022 abrem com o cliente já desligado".** Medindo SS cuja
+   abertura cai entre `oc_ini` e `oc_fim`, entre as que casam (A/B/C), dá **1.140**. A definição é
+   minha reconstrução, não uma que eu possa provar que é a mesma de quem escreveu — então **não
+   proponho troca**, só registro que provavelmente é drift do mesmo tipo.
+4. **Não consegui verificar**, por não estarem no repositório: "ancorar só na abertura perderia 61
+   casos", "alargar para 48 traria 16 casos", "densidade de 2,4 SS/hora entre 12 e 24h", e todos os
+   números de bases externas citados no bloco `mensal`. Dependem de reprocessar os arquivos crus.
+
+### Dois testes errados que eu conserto de graça
+
+O roteiro avisa que o teste erra mais que o site, e errou duas vezes hoje.
+
+**`scripts/auditoria_invariantes.py`, invariante 18 — FALHA que não existe.** Ele acusa "o contador
+do cabeçalho não usa `listadas.length`". Usa. O `page.tsx` tem **cinco** blocos `header-meta` numa
+cadeia de ternários, e o ramo padrão — o que vale para todas as abas de jan–jun — é o quinto
+(`page.tsx:6350`), justamente com `{br(listadas.length)}`. O teste faz `re.search`, que acha só o
+primeiro (o ramo dos meses avulsos), e olha 200 caracteres à frente. Nunca chegaria no quinto.
+
+```diff
+-cab = re.search(r'className="header-meta".{0,200}', page, re.S)
+-if not cab or "listadas.length" not in cab.group(0):
++cabs = [page[m.start():m.start() + 200] for m in re.finditer(r'className="header-meta"', page)]
++if not any("listadas.length" in c for c in cabs):
+```
+
+**Invariante 19 — FALHA de ambiente, não de dado.** Ele depende de `openpyxl`, que não está
+instalado aqui, e por isso reporta falha há rodadas sem nunca ter olhado a planilha. Li o
+`Base_Esteira_Completa.xlsx` com `zipfile` + `xml.etree`, ambos da biblioteca padrão: **1.510 linhas,
+SAÍDA 1.269, 1.198 queimados + 71 avariados — idêntico ao `fluxo-1510.json`.** A planilha está certa;
+o teste é que não conseguia abri-la. Trocar `openpyxl` pelo leitor de biblioteca padrão fecha o
+invariante sem instalar nada — e "nunca adicione dependência nova" continua valendo.
+
+*(O meu próprio script caiu na mesma armadilha do 18, por outro motivo: `.{0,220}` guloso engolia as
+ocorrências seguintes. Só descobri conferindo o `page.tsx` na mão, que é o que o roteiro manda fazer
+antes de acusar o site.)*
+
+### Por que não houve push
+
+`AUDITORIA_NOTURNA.md` está com `MODO = RELATO`, e a linha diz que ela manda mais do que a mensagem
+que iniciou a execução. A mensagem pedia push; o arquivo diz para não commitar. Obedeci o arquivo.
+Nada foi commitado, nada foi publicado, o site no ar está exatamente como estava. Os diffs acima são
+pequenos e todos de texto — nenhum toca dado de decisão. Para soltá-los, o dono troca a linha para
+`MODO = CORRIGE` e me acorda de novo.
+
+---
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
