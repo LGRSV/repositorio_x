@@ -1,6 +1,181 @@
 # Relatório da auditoria automática
 
-## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
+## 29/08/2026, 00:24 UTC — MODO RELATO: 6 defeitos de número no `metodo.json` e 3 SS que a terceira peneira reteve e a saída conta
+
+**Nada foi commitado e nada foi publicado.** O `AUDITORIA_NOTURNA.md` está em `MODO = RELATO`
+e o próprio arquivo manda mais do que o comando que me acordou — a mensagem que disparou esta
+execução pedia `push` para a `main`, e o push foi **deliberadamente omitido**. Tudo o que
+segue é proposta. A árvore de trabalho está limpa; o `HEAD` é `348c472`.
+
+*Duas divergências entre a mensagem que me acordou e o roteiro, resolvidas a favor do roteiro:*
+ela pedia push (o arquivo diz RELATO) e falava em "14 invariantes" (o arquivo lista **17**).
+Rodei os 17.
+
+**Placar dos 17 invariantes do roteiro: 6 conferem · 11 falham.** Mas o número sozinho engana,
+e a advertência do roteiro se confirmou de novo: **7 das 11 falhas são do roteiro, não do
+site.** O dado e a tela mudaram de modelo — a exclusão saiu de dentro da esteira e passou para
+antes dela — e a seção 6 do `AUDITORIA_NOTURNA.md` ainda descreve o modelo velho.
+
+**O script mantido no repositório (`scripts/auditoria_invariantes.py`, 21 invariantes) já foi
+migrado para o modelo novo e sai com 19 CONFERE · 1 FALHA · 1 A OLHO.** Ele é a referência
+mais confiável do que o roteiro nesta rodada. O `pnpm install --frozen-lockfile &&
+pnpm run build:pages` **passa** na `main` (built in 5.59s), sem nenhuma alteração minha.
+
+### O que mudou de verdade, e por que quase tudo "falhou"
+
+A esteira não retém mais por falta de interrupção: quem não tem interrupção que sustente o
+caso **sai pela porta, antes da esteira**, com o motivo escrito. O `cascata` tem hoje **três**
+rótulos, não os sete do roteiro, e `EXCLUÍDA` substituiu `EXCLUÍDO NA LEITURA`:
+
+```
+                        entram        param
+0 · Exclusão (porta)     1.510   220 fora do indicador
+1 · Interrupção          1.290     0
+2 · Deslocamento         1.290     0  (marcador)
+3 · SS e OS com material 1.290    21 sem prova de troca
+4 · Ressalva             1.269     0  (marcador)
+  = Saída                1.269 = 1.198 queimados + 71 avariados
+```
+
+Confere fechado: `1.510 − 220 = 1.290`; `1.290 − 21 = 1.269`. A seção 6 do roteiro (884 / 617 /
+9, F1 1.259, e1 A 1.000) descreve um estado que não existe mais em lugar nenhum do repositório.
+
+### Invariante a invariante
+
+| # | Resultado | Medido |
+|---|---|---|
+| 1 | **CONFERE** | 1.510 registros, 1.510 `ss` distintos |
+| 2 | falha **do roteiro** | os 7 rótulos somam 1.290; os 3 rótulos reais somam **1.510** |
+| 3 | falha **do roteiro** | a corrente do roteiro não se aplica; a atual fecha (acima) |
+| 4 | **falha real, 3 casos** | 223 divergências: 220 só de rótulo + **3 casos de verdade** |
+| 5 | falha **do roteiro** | as 220 são `EXCLUÍDA`/`EXCLUIR`; sob o rótulo atual, confere |
+| 6 | **CONFERE** | `confirmado` só em SAÍDA; 1.198 + 71 = 1.269 = SAÍDA |
+| 7 | dúvida | 17 de 18 blocos conferem; `resumo.duplicadas` = 1 e 3 registros têm `duplicada = SIM` |
+| 8 | falha **do teste** | ver abaixo — retratado, o site está certo |
+| 9 | falha **do roteiro** | 1 disputa perdida hoje, não 3; `e1_conflito` em 1, não em 7 |
+| 10 | falha **do roteiro** | `expurgo = SIM` (220) ≡ `EXCLUÍDA` (220); confere sob o rótulo atual |
+| 11 | **CONFERE** | 123 marcadas (24 `borda_2025` + 99 `tmae_gap_jan`), todas com `lacuna_base` |
+| 12 | **CONFERE** | zero mojibake em `page.tsx`, `metodo.json`, `MapaAtivos.tsx` e nos textos |
+| 13 | **CONFERE** | 33 módulos no NAV, 33 no tipo `Modulo`, todos com chave em `RECORTES` |
+| 14 | **FALHA — 6 números** | é de novo o invariante que mais falha; detalhado abaixo |
+| 15 | **falha parcial** | 140 × 132 na barra lateral e 3 chips que abrem vazios |
+| 16 | **CONFERE** | `dataBR` converte aaaa-mm-dd → dd/mm/aaaa; o histórico do ativo passa por ele; julho/agosto já vêm em BR |
+| 17 | **FALHA — 2 tamanhos** | `Bases_Gerais.xlsx` e `Base_Funis.xlsx` |
+
+**O invariante 8 eu retratei, e vale registrar porque quase virou defeito inventado.** Achei 16
+SS com `e1_nivel = FORA` e `oc_dist_h ≤ 24` — pelo texto do roteiro, casamentos perdidos. Uma
+delas, a `ETO-RD-GU 00058/2026`, tem interrupção no próprio transformador 18,98 h depois da
+abertura e está como F3. Parecia grave. **Não é:** a janela deixou de ser simétrica. Hoje vale
+de **1 h antes do primeiro passo até 24 h depois do último**, está escrito no `metodo.json` e é
+assim que o script do repositório testa. As 16 abriram de 1,13 h a 23,78 h *antes* de a
+ocorrência começar — fora da tolerância de 1 h para trás — e nenhuma tem `oc_contida_na_ss`.
+A `ETO-RD-GU 00012/2026`, que parecia idêntica e casou como B, casou pela regra da contenção
+(a ocorrência inteira cabe dentro do intervalo da SS). **O site está certo; o invariante 8 do
+roteiro está escrito contra a janela velha.** Limiar de janela é decisão do dono — não toquei.
+
+### FALHA 14 — os seis números do `metodo.json` que não saem do dado
+
+A aba Método imprime esse arquivo como está. O teste do repositório cobre as células de
+cabeçalho da tabela da cascata, mas **não cobre a prosa nem as notas no fim das células** — é
+exatamente onde estão os seis.
+
+| Onde | Diz | O dado diz |
+|---|---|---|
+| `cascata`, 1º parágrafo | as 220 se dividem em **137** + **103** | **108** + **112** (137 + 103 = 240, nem soma 220) |
+| `cascata`, 1º parágrafo | **47** ausentes · **83** em outra data · **7** sem rastro | **52** `AUSENTE` · **31** `DEFEITO EM OUTRA DATA` · **25** `SEM DEFEITO NELE` |
+| `cascata`, 1º parágrafo | "e mais **dezoito** categorias menores" | **17** categorias |
+| `cascata`, tabela linha 2 | "**1.134** corroboram, **135** sem registro" | **1.126** `CORROBORA` · **132** `SEM REGISTRO` · 32 sem o campo (soma 1.290; 1.134 + 135 = 1.269) |
+| `cascata`, tabela linha 3 | "**18** deles só esperam a extração do SIAGO" | **19** (`OBRA FORA DO EXPORT`); os outros 2 são `OBRA NAO GERADA` |
+| `cascata`, tabela linha 4 | "**76** chegam à saída com a ressalva escrita" | **83** SS em SAÍDA com `ressalvas` preenchida (81 se só as duas ressalvas citadas) |
+| `fato`, 1º parágrafo | "**1.022** abrem com o cliente já desligado" | **1.140** (nível A) · 1.137 (dentro de algum passo) · 1.201 (`abertura ≥ oc_ini`) |
+
+**A prova mais limpa de que é o Método que envelheceu, e não o dado:** a aba Bases descreve as
+**mesmas** grandezas e acerta todas — "os **108** que a Crítica não sustenta", "**31** têm
+defeito no próprio transformador em outra data", "**77** nunca tiveram defeito aberto neles",
+"**52** ... dos **25** que aparecem só como interrompidos ou manobrados". 108 = 31 + 77 e
+77 = 52 + 25, tudo batendo com o dado. **O site se contradiz entre duas abas, e o dado dá razão
+à aba Bases.** O "83" da prosa do Método é o mesmo 83 do roteiro velho (as `tmae_gap_jan` sem
+deslocamento) — parece drift, não recálculo.
+
+Não reescrevi nenhum deles: em RELATO não se commita. O `1.022` eu também não substituiria sem
+o dono confirmar a definição, porque três leituras razoáveis dão três números diferentes.
+
+### FALHA 15 — dois pontos na interface
+
+1. **140 × 132.** A barra lateral anuncia "Sem corroboração do TMAE **140**"
+   (`conta(r => r.deslocamento === "SEM REGISTRO")`, sobre as 1.510), mas o chip que ela abre
+   filtra `arquivo(r) !== "EXCLUÍDA" && deslocamento === "SEM REGISTRO"` e traz **132**. Os 8
+   de diferença são casos já excluídos na porta, que por definição não chegaram à peneira do
+   deslocamento. É o padrão que o próprio código diz querer evitar, em comentário: "quem clica
+   no cartão e cai numa lista menor que o cartão perde a confiança na tela".
+2. **Três chips que abrem sempre vazios**, sobrando do modelo antigo: `ret_fato`
+   (`cascata === "RETIDO — SEM INTERRUPÇÃO NA JANELA"`), `ret_dup` (`"RETIDO — SS DUPLICADA"`)
+   e "Retidos pela ressalva" (`"RETIDO — RESSALVA DA INTERRUPÇÃO"`) — três rótulos que não
+   existem mais no dado. O `parouNaInterrupcao` já foi migrado para o modelo novo e tem o
+   comentário explicando a migração; estes três ficaram para trás.
+
+### FALHA 17 — dois tamanhos, e um teste que não olha 4 dos 16 arquivos
+
+Todos os **16** arquivos referenciados existem em disco (o roteiro ainda fala em 12).
+
+- **`Bases_Gerais.xlsx`** anuncia **2,4 MB**. São 2.534.008 bytes: **2,5 MB** decimal — 2,4 é o
+  valor em **MiB**. As outras `Base_*` estão em MB decimal, então esta é a única fora da escala
+  da própria lista.
+- **`Base_Funis.xlsx`** anuncia **0,02 MB**; são 27.559 bytes = **0,03 MB** em qualquer escala.
+- O invariante 17 do script do repositório confere só **12** arquivos (6 `Base_*` + 6
+  `Original_*`) e não alcança `Bases_Gerais`, `Material_Pendente`, `Base_Esteira_Completa` nem
+  `Sem_Interrupcao_Critica` — por isso ele passa e estes dois escaparam.
+- `originais/Original_Reformadora_OPs.html` está em disco e não é referenciado na tela. Não é
+  defeito; fica anotado.
+
+### Para o dono decidir — não toquei
+
+1. **Três SS que a terceira peneira reteve e a saída conta.** `DG-RD-PO 00073/2026`,
+   `ETO-RD-GR 00279/2026` e `DOLP-RD-PA 00605/2026` têm `e3_status = RETIDO`,
+   `material_conferido = NAO`, `trafos_material = 0` e `e3_motivo = "OBRA FORA DO EXPORT DE
+   MATERIAL"` — a mesma configuração das 21 que ficam retidas como *sem prova de troca* — e
+   ainda assim estão em `SAÍDA`, confirmadas como QUEIMADO. É a única divergência de conteúdo
+   (não de rótulo) entre a regra da esteira e o dado. **Mexe no número da capa: 1.269 → 1.266.**
+   Por isso não encostei.
+2. **`resumo.duplicadas` = 1, campo `duplicada = SIM` em 3.** Só a `DOLP-RD-PA 00690/2026` tem
+   `disputa_perdida = SIM` e `e1_conflito` preenchido; as outras duas (`ETO-RD-PS 00077/2026` e
+   `ETO-RD-AG 00344/2026`) saíram por `sem_obra` e `remanejamento` e não perderam disputa
+   nenhuma. O KPI mostra 1 e é defensável — mas o bloco `correcoes` do `metodo.json` continua
+   dizendo "**São três casos** ... passaram a ser tratados como SS duplicada". Ou o texto ou o
+   campo está velho; qual dos dois é decisão de quem escreveu a regra.
+3. As quatro decisões que o roteiro protege (as 22 SS só com TMAE, as 89 com
+   `QTD_CONS_INTER_FAT = 0`, as 2 exclusões por dano externo, e regra/limiares/dicionário)
+   continuam intactas. Não achei argumento novo contra nenhuma.
+
+### Manutenção dos testes (proposta, não aplicada)
+
+- **Invariante 18 do script do repositório falha, e a falha é do teste.** Ele procura
+  `className="header-meta"` e exige `listadas.length` nos 200 caracteres seguintes, mas o
+  `page.tsx` tem hoje **cinco** blocos `header-meta` encadeados e o `re.search` só enxerga o
+  primeiro — o do mês, que legitimamente mostra o total do mês. O ramo geral (linha 6350) usa
+  `br(listadas.length)`, como o teste quer. Restringir a busca ao ramo padrão fecha a falha.
+- **Invariante 19 não roda sem `openpyxl`.** Instalei a biblioteca só nesta sessão (fora do
+  repositório, sem tocar em `package.json` nem no lockfile) e ele passa: **CONFERE**. Vale
+  registrar no roteiro que esse invariante exige `openpyxl`, senão ele aparece como falha em
+  toda execução limpa.
+- **A seção 6 do `AUDITORIA_NOTURNA.md` precisa ser reescrita inteira**, não só nos números: a
+  tabela das peneiras, a corrente, os blocos de fato/leitura/`e1_nivel` e os invariantes 2, 3,
+  4, 5, 8, 9 e 10 descrevem o modelo anterior. Enquanto ela não for atualizada, toda execução
+  vai abrir com 11 falhas, das quais 7 são ruído — e ruído dessa altura esconde as reais.
+  Não reescrevi por dois motivos: em RELATO não se commita, e boa parte do texto descreve a
+  **regra da esteira**, que o roteiro me proíbe de mexer.
+
+### O que não consegui verificar
+
+- **"perderia 61 casos legítimos"** (bloco `fato`) e os **"536 de 540"** (bloco `correcoes`):
+  exigem reprocessar o cruzamento a partir das bases cruas com a regra anterior. Fora do que dá
+  para provar contra o JSON.
+- **Invariante 15 na largura toda.** Conferi a barra lateral, a cascata da Visão geral e os
+  KPIs que saem de `arquivo()`/`conta()` — todos calculados dos `registros` em tempo de
+  execução. Não abri a tela nem percorri os KPIs das 33 abas um a um; o script do repositório
+  também marca este como "A OLHO", e continua sendo o buraco de cobertura mais largo dos 17.
+- **O "121 / 21"** do bloco da leitura segue sem reprodução, como na rodada de 02/08. Não
+  insisti: sem a definição original, trocar por um número medido seria inventar precisão.
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
 última em aberto — a FALHA 13 já tinha sido fechada no commit `cefdcf5`, que acrescentou
