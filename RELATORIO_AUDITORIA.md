@@ -1,5 +1,302 @@
 # Relatório da auditoria automática
 
+## 31/08/2026, 16:18 UTC — `MODO = RELATO`. O briefing envelheceu **e há 9 números velhos no ar**
+
+**Placar: 18 conferem · 2 falham · 1 a olho, de 21 conferências.** O build passa:
+`pnpm install --frozen-lockfile && pnpm run build:pages` → `built in 6.00s`.
+
+> **Correção do que escrevi primeiro nesta mesma rodada.** Fechei o invariante 14 como
+> CONFERE apoiado no `scripts/auditoria_invariantes.py`, e cheguei a escrever que **nenhum
+> defeito havia sido encontrado no site**. Estava errado, e o erro importa porque muda a
+> conclusão: **o teste 14 do script cobre só uma fração do `metodo.json`** — a tabela da
+> cascata, a frase do bloco `correcoes` e o resumo — e passa enquanto 9 números escritos à
+> mão em outros blocos do mesmo arquivo estão velhos. Conferi um a um contra o dado e
+> confirmei. O detalhe está em **FALHA 14**, abaixo. A rodada das 08:26 de hoje
+> (`origin/claude/auditoria-noturna-relato-31-08`) já tinha achado isso; reconferi por conta
+> própria em vez de repetir, e os números batem com os dela.
+
+**Nada foi commitado e nada foi para o ar.** O `AUDITORIA_NOTURNA.md` está em `MODO = RELATO`,
+e essa linha manda mais do que o comando que me acordou — o disparo desta noite pedia push
+explicitamente, e o push foi **deliberadamente omitido**. O único arquivo alterado no
+diretório de trabalho é este relatório.
+
+---
+
+### O achado que importa: o `AUDITORIA_NOTURNA.md` descreve um site que não existe mais
+
+O roteiro ainda descreve o mundo das **884 saídas**, com sete cascatas e a exclusão *dentro*
+da esteira. O dado de hoje tem **três** cascatas e a exclusão **antes** da esteira, numa porta
+que não é peneira. A mudança entrou no commit `65835e0` ("Rodada de verificação: 5 auditores,
+~405 conferências, 33 correções") e foi **decisão do dono** — o próprio `metodo.json` a
+registra: *"Foi regra do dono, e ela mudou o lugar dos casos, não o julgamento deles"*.
+
+O site acompanhou a mudança **na estrutura** — cascata, decisão, planilha e KPIs estão todos
+na regra nova. O que não acompanhou foi a **prosa escrita à mão** do `metodo.json` (FALHA 14)
+e o briefing inteiro. Medido em `public/fluxo-1510.json`:
+
+| Seção 6 do briefing | Diz | Hoje é |
+|---|---|---|
+| Saída confirmada | 884 | **1.269** |
+| — queimados / avariados | 856 / 28 | **1.198 / 71** |
+| Sem interrupção na janela | 206 | **0** |
+| SS duplicada | 3 | **0** |
+| Sem deslocamento | 299 | **0** |
+| Sem prova de troca | 41 | **21** |
+| Excluídos na leitura | 9 | **220** |
+| Ressalva da interrupção | 68 | **0** |
+| Decisão da esteira | 884 / 617 / 9 | **1.269 / 21 / 220** |
+| Fato | F1 1.259 · F3 206 · F2 22 · F0 20 · FD 3 | **F1 1.324 · F3 173 · F0 13** (F2 e FD não existem mais) |
+| Nível do casamento | A 1.000 · B 279 · C 3 · FORA 91 · SEM 137 | **A 1.140 · B 197 · FORA 71 · SEM 102** (C não existe mais) |
+| `e1_conflito` preenchido | 7 | **1** |
+
+**O que não mudou, e é o que dá confiança na leitura acima:** a decisão da **matriz** segue
+1.262 / 184 / 64, exatamente como o briefing diz, e a **leitura** segue L1 1.451 · L2 53 ·
+L3 6, idêntica. As marcas auxiliares também batem: `borda_2025` 24, `tmae_gap_jan` 99, sem
+coordenada 1. Ou seja: **o julgamento de cada caso não se mexeu — o que se mexeu foi onde o
+caso para**, que é precisamente o que o `metodo.json` afirma. Os dois lados da conta se
+confirmam.
+
+**A regra da seção 5 não roda mais.** Ela testa `duplicada == "SIM"`, e o campo `duplicada`
+**não existe** no registro de hoje. Aplicada à letra, ela erra **223 dos 1.510**: 220 por
+chamar de `EXCLUÍDO NA LEITURA` o que hoje se chama `EXCLUÍDA`, e 3 por mandar para "sem
+prova de troca" casos que o dono puxou para a saída no punho — os três (`DG-RD-PO 00073/2026`,
+`ETO-RD-GR 00279/2026`, `DOLP-RD-PA 00605/2026`) estão na lista `meta.vereditos_do_dono`, os
+três com `OBRA FORA DO EXPORT DE MATERIAL`. **Não é defeito: é veredito do dono, e a regra,
+por definição, não o prevê.** Os 57 vereditos do dono estão todos aplicados (invariante 20).
+
+---
+
+### Os invariantes, um a um
+
+Rodado com `python3 scripts/auditoria_invariantes.py` a partir de
+`auditoria-transformadores-134/`. O script é leitura pura.
+
+| # | Invariante | Resultado | Medido |
+|---|---|---|---|
+| 1 | 1.510 registros, `ss` único | CONFERE | 1.510 / 1.510 distintos |
+| 2 | a soma das cascatas dá 1.510 | CONFERE | 1.269 + 220 + 21 = 1.510 (são **três** cascatas hoje, não sete) |
+| 3 | a corrente fecha | CONFERE | 1.510 − 220 = 1.290 → 1.290 → 1.290 − 21 = 1.269, e bate com `chega_e1/e2/e3` gravados |
+| 4 | a esteira reproduz os rótulos | CONFERE | 0 divergências, com os 57 vereditos do dono contados à parte |
+| 5 | decisão ⇔ cascata | CONFERE | 0 fora do casamento (1.269 / 220 / 21) |
+| 6 | `confirmado` só na saída | CONFERE | 1.198 + 71 = 1.269 = SAÍDA, 0 preenchidos fora |
+| 7 | `resumo` bate com a recontagem | CONFERE | 7 blocos e 4 totais |
+| 8 | nenhum `FORA` dentro da janela | CONFERE | 0 violações |
+| 9 | disputa de ocorrência resolvida | CONFERE | 0 disputas reais, 1 perdedor, `e1_conflito` em 1 |
+| 10 | `expurgo` ⇔ cascata excluída | CONFERE | 220 e 220, diferença simétrica 0 |
+| 10·1 | uma SS ocupa um lugar só | CONFERE | 1.510 SS distintas, 0 repetidas na saída |
+| 11 | lacuna de base carrega aviso | CONFERE | 123 marcadas (24 + 99), 0 sem `lacuna_base` |
+| 12 | nenhum mojibake | CONFERE | 0 em `page.tsx`, `metodo.json` e nos textos dos registros |
+| 13 | NAV / RECORTES / tipo `Modulo` | CONFERE | NAV 17, RECORTES 33, tipo 33; nenhum faltando |
+| 14 | números à mão no `metodo.json` | **FALHA** | 9 números velhos; o script passa porque só olha 3 dos blocos |
+| 15 | números na interface | A OLHO | calculados dos registros em execução; 78 literais com milhar no `page.tsx`, **nenhum** deles um número antigo da esteira |
+| 16 | datas em dd/mm/aaaa | CONFERE | `dataBR` converte e preserva hora; 0 literais ISO na tela |
+| 17 | os 12 arquivos de base | CONFERE | nenhum faltando; `Base_*` em MB decimal, `Original_*` em MiB |
+| 18 | cada peneira seguida da aba de retidos | **FALHA (do teste)** | ver abaixo |
+| 19 | a planilha baixável conta a mesma história | CONFERE | 1.510 linhas, saída 1.269, 1.198 + 71 — igual ao JSON |
+| 20 | vereditos do dono aplicados | CONFERE | 57 vereditos, 0 divergências |
+
+### FALHA 14 — 9 números velhos na aba Método, e um teste que não os vê
+
+A aba Método imprime os blocos do `metodo.json` como estão: **nenhum destes passa pelo
+cálculo, e todos estão no ar agora.** Cada linha abaixo eu medi contra `fluxo-1510.json`.
+
+**Provados, com o valor certo conhecido — corrigíveis:**
+
+| Bloco | Está no ar | O dado diz |
+|---|---|---|
+| `cascata`, tabela linha 3 | "18 deles só esperam a extração do SIAGO" | **19** (`pendente_siago == SIM` entre os 21 retidos; os outros 2 são "NÃO") |
+| `cascata`, parágrafo 4 | "São 76 solicitações que chegam à saída com a ressalva" | **83** (`ressalvas` preenchido na SAÍDA) |
+| `correcoes` | "Corrigiu 37 casos" | **36** — é o que `resumo.janelaCorrigida` diz **no mesmo arquivo**: dois lugares publicados discordam entre si |
+
+**Contradição aritmética, visível a olho nu, valor certo desconhecido:**
+
+O primeiro parágrafo do bloco `cascata` diz que saem **220** pela porta e que elas "se dividem
+em duas famílias": a primeira com **137**, a segunda com **103**. **137 + 103 = 240**, vinte a
+mais do que os 220 que o mesmo parágrafo anuncia — e 220 é o número certo, conferido.
+
+O curioso é que o miolo do texto está **certo**: os quatro itens citados da segunda família
+batem exatamente com `expurgo_gatilho` — 30 furtos, 16 obras nunca geradas, 11 remanejamentos,
+7 tapes. É a **partição em duas famílias** que não se sustenta: por `expurgo_gatilho`, "sem
+lastro de interrupção" dá `sem_interrupcao` 77 + `fora_da_janela` 31 = **108**, não 137. O
+detalhamento da primeira família (47 + 83 + 7) fecha 137 internamente, mas nenhuma das três
+parcelas sai do dado. **Não mexi:** não sei qual dos números é o errado, e chutar aqui seria
+inventar. Precisa de quem escreveu o texto.
+
+**Derivados que envelheceram, mas cuja definição não é reconstruível — não reescrevi:**
+
+| Bloco | Está no ar | Eu medi |
+|---|---|---|
+| `leitura` | "errada em 118 solicitações" | **128** (`categoria_gravada ≠ categoria_texto`) |
+| `leitura` | "em 96 delas o texto descreve queima com troca comprovada" | 103 têm `categoria_texto = QUEIMADO`, mas o recorte "com troca comprovada" não é reproduzível |
+| `leitura` | "60 dizem avariado" | 21 têm `categoria_texto = AVARIADO` |
+| `cascata`, tabela linha 2 | "1.134 corroboram, 135 sem registro" | não reproduzi nem o par nem qualquer outro: por `tmae_corrobora` na esteira dá **955 corroboram / 335 sem registro** |
+
+O `1.134 / 135` também **contradiz a linha em que está**: soma 1.269, quando a própria linha
+diz que passam **1.290**.
+
+Sobre o `118`: ele era o valor medido em 02/08, quando o site foi atualizado para ele. O dado
+foi regerado em `65835e0` e a mesma conta hoje dá 128. **O número se move com o dado, o que
+prova que é derivado e está velho** — mas trocar 118 por 128 sem saber se responde à mesma
+pergunta seria inventar precisão. Segue para o dono.
+
+**O teste 14 precisa ser alargado.** Ele confere a tabela da cascata, a frase do bloco
+`correcoes` e o resumo — e passa com folga enquanto os blocos `leitura` e os parágrafos do
+`cascata` carregam 9 números velhos. **Um invariante que passa dando falsa segurança é pior
+do que um que falha**, e este passou para mim antes de eu conferir à mão. Vale ensinar a ele
+pelo menos os três casos provados acima, que têm valor certo conhecido.
+
+---
+
+**A FALHA 18 é erro do teste, e está provado.** O teste procura `className="header-meta"` com
+`re.search`, que devolve **a primeira** das **5** ocorrências no `page.tsx`, e exige
+`listadas.length` ali. As quatro primeiras (linhas 6343, 6345, 6347, 6349) são os cabeçalhos
+das abas de universo próprio — mês, jan–jul, cadastro do parque —, que por decisão explícita
+**não** devem falar das 1.510. A quinta (linha 6350) é o cabeçalho geral, e ela **usa**
+`listadas.length`. O site está certo; o teste olha para o lugar errado. Correção proposta, de
+uma linha, em `scripts/auditoria_invariantes.py`:
+
+```diff
+-cab = re.search(r'className="header-meta".{0,200}', page, re.S)
+-if not cab or "listadas.length" not in cab.group(0):
++cabs = [page[m.start():m.start() + 200]
++        for m in re.finditer(r'className="header-meta"', page)]
++if not any("listadas.length" in c for c in cabs):
+```
+
+**O invariante 19 falhou por falta de biblioteca, não por defeito.** `openpyxl` não estava
+instalado no contêiner. Instalado (`pip install openpyxl`, fora do repositório — **nenhuma
+dependência do site foi tocada e o `pnpm-lock.yaml` está intacto**), o invariante passa: a
+`Base_Esteira_Completa.xlsx` traz 1.510 linhas, saída 1.269, 1.198 queimados e 71 avariados,
+igual ao JSON. Vale registrar para a próxima rodada: **sem `openpyxl` este invariante não é
+testável**, e ele já pegou uma planilha desatualizada antes.
+
+---
+
+### Conferência extra: `fluxo-1510.json` × `fluxo-1582.json`
+
+O site passou a anunciar **1.582** na Visão geral, e o roteiro não menciona esse arquivo. Como
+os dois vivem na mesma tela, cruzei os dois por conta própria — **fecham em tudo**:
+
+- 1.582 registros, 1.582 `ss` distintos, e as 1.510 de jan–jun estão **contidas** nas 1.582.
+- 72 SS novas, todas de julho. `1.510 + 72 = 1.582`.
+- `decisao` recontada = `resumo.decisao` = INCLUIR 1.324 · EXCLUIR 220 · REVISÃO 21 · PENDENTE 17, somando 1.582.
+- O recorte de jan–jun dentro do 1.582 dá **1.269** INCLUIR, idêntico ao `fluxo-1510.json`.
+
+Nenhuma divergência entre os dois arquivos.
+
+---
+
+### Encontrado e **não** corrigido — decisão do dono
+
+**1. O `AUDITORIA_NOTURNA.md` precisa ser reescrito nas seções 1, 4, 5 e 6.** A seção 6 do
+próprio roteiro autoriza ("*se algum deles não bater, o dado mudou e o número aqui é que está
+velho — corrija este arquivo junto*"), mas isto vai além de trocar números: a **regra da
+esteira** da seção 5 e os **graus de prova** da seção 1 mudaram de forma, e mexer na regra da
+esteira é item 4 da lista do que não se toca. Em `RELATO` não aplico nada. Diff exato proposto:
+
+```diff
+--- a/AUDITORIA_NOTURNA.md
++++ b/AUDITORIA_NOTURNA.md
+@@ seção 1 — os graus de prova
+-| `F1` | Fato pleno | ... |
+-| `F0` | Fato com ressalva | ... |
+-| `F2` | Fato provável | A interrupção não casa, mas o atendimento registra equipe ... |
+-| `F3` | Sem interrupção na janela | ... |
+-| `FD` | SS duplicada | Tem interrupção na janela, mas divide o mesmo evento ... |
++| `F1` | Fato pleno | Interrupção aberta no próprio transformador, dentro da janela. 1.324 casos. |
++| `F0` | Fato com ressalva | Houve interrupção, mas é programada, preventiva, de equipamento
++  especial, ou com o defeito aberto em outro equipamento. 13 casos. |
++| `F3` | Sem interrupção na janela | Nem interrupção nem atendimento registram nada. 173 casos.
++  Não é prova de que não aconteceu — é ausência de lastro. |
++
++  Os graus `F2` (fato provável, só atendimento) e `FD` (SS duplicada) deixaram de ser usados:
++  o conjunto de ambos é vazio no dado de hoje.
+
+@@ seção 5 — a ordem das peneiras
+-se   expurgo == "SIM"                          -> EXCLUÍDO NA LEITURA
+-senão se duplicada == "SIM"                    -> RETIDO — SS DUPLICADA
+-senão se chega_e2 == "NÃO"                     -> RETIDO — SEM INTERRUPÇÃO NA JANELA
+-senão se chega_e3 == "NÃO"                     -> RETIDO — SEM DESLOCAMENTO
+-senão se e3_status == "RETIDO"                 -> RETIDO — SEM PROVA DE TROCA
+-senão se ressalvas_graves ou ressalvas_medias  -> RETIDO — RESSALVA DA INTERRUPÇÃO
+-senão                                          -> SAÍDA
++se   fora_da_esteira == "SIM"                  -> EXCLUÍDA
++senão se e3_status == "RETIDO"                 -> RETIDO — SEM PROVA DE TROCA
++senão                                          -> SAÍDA
++
++A exclusão vem ANTES da esteira e fora dela: é porta, não peneira. Peneira pergunta se o caso
++se sustenta; a porta pergunta se o caso é deste indicador. O campo `duplicada` não existe mais.
++As peneiras 1 (interrupção), 2 (deslocamento) e 4 (ressalva) não retêm ninguém hoje — viraram
++marcadores, por decisão registrada do dono. Os vereditos do dono (`meta.vereditos_do_dono`,
++57 casos) sobrepõem-se à regra e ficam contados à parte.
+
+@@ seção 6 — os números de agora
+-                        entram        param
+-1 · Interrupção          1.510   206 sem interrupção + 3 SS duplicada
+-2 · Deslocamento         1.301   299 sem deslocamento
+-3 · SS e OS com material 1.002    41 sem prova de troca + 9 excluídos na leitura
+-4 · Ressalva               952    68 ressalva da interrupção
+-  = Decisão final          884 saem
++                        entram        param
++0 · Exclusão (porta)     1.510   220 fora do indicador
++1 · Interrupção          1.290     0 (marcador)
++2 · Deslocamento         1.290     0 (marcador)
++3 · SS e OS com material 1.290    21 sem prova de troca
++4 · Ressalva             1.269     0 (marcador; 76 chegam à saída com a ressalva escrita)
++  = Decisão final        1.269 saem
+-1.510 − (206 + 3) = 1.301      1.301 − 299 = 1.002
+-1.002 − 41 − 9 = 952           952 − 68 = 884
++1.510 − 220 = 1.290            1.290 − 21 = 1.269
+-| Saída confirmada | **884** = 856 queimados + 28 avariados |
+-| Decisão da esteira | INCLUIR 884 · REVISÃO 617 · EXCLUIR 9 |
+-| Fato | F1 1.259 · F3 206 · F2 22 · F0 20 · FD 3 |
+-| Nível do casamento (`e1_nivel`) | A 1.000 · B 279 · C 3 · FORA 91 · SEM 137 |
++| Saída confirmada | **1.269** = 1.198 queimados + 71 avariados |
++| Decisão da esteira | INCLUIR 1.269 · REVISÃO 21 · EXCLUIR 220 |
++| Fato | F1 1.324 · F3 173 · F0 13 |
++| Nível do casamento (`e1_nivel`) | A 1.140 · B 197 · FORA 71 · SEM 102 |
+-Marcas e contagens auxiliares: ... `e1_conflito` preenchido em 7 ...
++Marcas e contagens auxiliares: ... `e1_conflito` preenchido em 1 ...
+   (borda_2025 24, tmae_gap_jan 99 e sem coordenada 1 seguem corretos)
+```
+
+Sugiro também acrescentar ao roteiro (a) que `openpyxl` é pré-requisito do invariante 19 e
+(b) uma linha sobre o `fluxo-1582.json`, hoje invisível para o roteiro embora esteja no ar.
+
+**2. A divergência de categoria está publicada em dois lugares com dois números, e nenhum
+bate.** A seção 3 do roteiro e `meta.lacunas` do `fluxo-1510.json` dizem **121 SS**; o bloco
+`leitura` do `metodo.json` diz **118**. A conta `categoria_gravada ≠ categoria_texto` dá
+**128** hoje e deu 118 em 02/08. Os detalhes estão na FALHA 14 acima — resumindo: o número é
+derivado, envelheceu, e a definição original não é reconstruível, então **não reescrevi
+nenhum dos dois**. O que dá para afirmar sem risco é que **121 e 118 não podem estar os dois
+certos**, e que o dado hoje não produz nem um nem outro.
+
+**3. Seguem no ar, sem gravidade e sem mudança:** a aba Bases anuncia as `Base_*` em MB
+decimal e as `Original_*` em MiB, duas réguas na mesma tela — escolha de apresentação, não
+defeito, já registrada em rodadas anteriores.
+
+### O que não consegui verificar
+
+- **Invariante 15**, a cobertura de campo por campo da tela, e a **cobertura de datas** do
+  invariante 16: ambos exigem abrir o site e olhar. O que dá para provar por código está
+  provado — os números da barra lateral, dos KPIs e da caixa d'água são calculados dos
+  registros em tempo de execução e não podem divergir por construção; `dataBR` converte e
+  preserva hora, e não há literal ISO escrito na tela. Varri ainda os 78 literais com milhar
+  do `page.tsx` atrás de número velho da esteira (884, 874, 617, 1.301, 1.002, 952, 856,
+  1.279): **zero ocorrências**. Os milhares que aparecem são 1.269, 1.510, 1.582 e outros
+  todos atuais. Isso não substitui o olho, mas fecha a porta pela qual o defeito costuma entrar.
+- **As 72 SS de julho** do `fluxo-1582.json` não têm invariante escrito no roteiro. Conferi a
+  consistência entre os dois arquivos (acima), mas as regras próprias de julho — as 17
+  `PENDENTE`, os rótulos "aguarda martelo" — não foram auditadas porque não há critério
+  escrito contra o qual conferi-las.
+- **As quatro decisões do dono** da lista do que não se toca (as 22 SS só com TMAE, as 89 com
+  `QTD_CONS_INTER_FAT = 0`, as 2 exclusões por dano externo e a regra da esteira) não foram
+  reexaminadas: a esteira mudou de forma desde que essa lista foi escrita, e dizer se elas
+  ainda existem no dado de hoje exige critério que o roteiro não dá mais.
+
+---
+
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
