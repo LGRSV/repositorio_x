@@ -1,5 +1,248 @@
 # Relatório da auditoria automática
 
+## 31/08/2026, 08:26 UTC — `MODO = RELATO`: o roteiro envelheceu, e há 9 números velhos na aba Método
+
+**Placar: 13 conferem · 3 falham · 1 a olho, de 17.** Nenhum arquivo foi alterado. Nenhum
+commit, nenhum push — a linha `MODO = RELATO` do `AUDITORIA_NOTURNA.md` manda mais do que o
+comando que me acordou, e o comando pedia push. **O push foi deliberadamente omitido.**
+
+Duas coisas antes dos detalhes, porque mudam a leitura de tudo o que vem depois.
+
+**1. O `AUDITORIA_NOTURNA.md` está descrevendo uma metodologia que não é mais a que está no
+ar.** O roteiro foi editado pela última vez em 05/08 e descreve a esteira de 02/08: sete
+rótulos de cascata, saída em 884, `F2` e `FD`, nível `C`, exclusão *dentro* da esteira. O dado
+publicado hoje faz o contrário — a exclusão é uma porta *antes* da esteira, são três rótulos de
+cascata e a saída é 1.269. Não é regressão nem arquivo corrompido: `fluxo-1510.json`,
+`metodo.json` e `page.tsx` estão coerentes entre si na regra nova, e o próprio `metodo.json`
+diz, com todas as letras, que a mudança **"foi regra do dono"**. Quem está velho é o roteiro.
+
+Por isso as FALHAS 3 e 4 abaixo **não são defeito do site**. E por isso **não reescrevi a seção
+6 do roteiro**: trocar os números de lá seria homologar sozinho uma troca de metodologia, e o
+roteiro lista "qualquer mudança na regra da esteira" como decisão do dono. Fica a proposta, no
+fim, para o dono aplicar quando quiser.
+
+**2. A FALHA 14 é a que está no ar agora.** São 9 números escritos à mão no `metodo.json` que
+não batem com o dado. A aba Método imprime esses blocos como estão — nenhum deles passa pelo
+cálculo. Um é uma contradição aritmética visível a olho nu.
+
+---
+
+### Os 17, um a um
+
+| # | Invariante | Resultado | Medido |
+|---|---|---|---|
+| 1 | 1.510 registros, `ss` único | CONFERE | 1.510 / 1.510 distintos |
+| 2 | a soma das cascatas dá 1.510 | CONFERE | 1.269 + 220 + 21 = 1.510 (3 rótulos, não 7) |
+| 3 | a corrente fecha nas quatro passagens | **FALHA** | pela fórmula do roteiro, não; ver abaixo |
+| 4 | a regra da esteira reproduz os rótulos | **FALHA** | 3 divergências, todas veredito do dono |
+| 5 | decisão e cascata são a mesma coisa | CONFERE | 0 fora do casamento · 1.269 / 220 / 21 |
+| 6 | `confirmado` só na saída | CONFERE | 1.198 + 71 = 1.269 = SAÍDA; 0 preenchidos fora |
+| 7 | `resumo` bate com a recontagem | CONFERE | 7 blocos e 7 totais recontados batem |
+| 8 | nenhum `FORA` dentro da janela | CONFERE | 71 FORA, 0 violações |
+| 9 | disputas de ocorrência resolvidas | CONFERE | 0 disputas reais; 3 SS apontam para ocorrência alheia |
+| 10 | `expurgo` = cascata de exclusão | CONFERE | 220 e 220, diferença simétrica 0 |
+| 11 | lacuna de base carrega aviso no dossiê | CONFERE | 123 marcadas (24 + 99), 0 sem `lacuna_base` |
+| 12 | nenhum mojibake | CONFERE | 0 em `page.tsx`, `metodo.json` e 14 campos de texto |
+| 13 | `NAV` ⊂ `RECORTES` e tipo `Modulo` | CONFERE | NAV 23 · RECORTES 33 · tipo 33; nada faltando |
+| 14 | números do `metodo.json` batem | **FALHA** | 9 divergências |
+| 15 | números da interface batem | A OLHO | calculados em tempo de execução; 78 literais de contexto |
+| 16 | datas em dd/mm/aaaa | CONFERE | `dataBR` presente, 0 literais ISO no `page.tsx` |
+| 17 | arquivos de base existem, tamanho bate | CONFERE | 13 referenciados, 0 faltando, 12 com tamanho certo |
+
+---
+
+### FALHA 14 — os 9 números velhos na aba Método
+
+Todos em `public/metodo.json`. **Nenhum foi corrigido**, porque o modo é RELATO.
+
+**Corrigíveis, com o valor provado contra o dado:**
+
+| Onde | Está no ar | O dado diz |
+|---|---|---|
+| `cascata`/tabela, linha 3, "Fica retido" | `18 deles só esperam a extração do SIAGO` | **19** (`pendente_siago == SIM` entre os 21 retidos) |
+| `cascata`/parágrafo 4 | `São 76 solicitações que chegam à saída com a ressalva` | **83** (é o que o filtro `ressalva` do próprio site conta: `Boolean(ressalvas)` sobre a saída) |
+| `cascata`/tabela, linha 2, "Fica retido" | `1.134 corroboram, 135 sem registro` | **1.126 e 132**, mais 32 sem o campo preenchido |
+
+O par `1.134 / 135` não sai de recorte nenhum: na esteira dá 1.126/132, na base inteira
+1.148/140, na saída 1.106/131. E ele contradiz a própria linha em que está — `1.134 + 135 =
+1.269`, quando a linha diz que passam **1.290**. Os 32 sem o campo preenchido estão todos na
+SAÍDA, e é por isso que 1.126 + 132 também não fecha 1.290.
+
+**Corrigíveis, com a definição não fechada — proponho o número mas peço confirmação:**
+
+| Onde | Está no ar | Eu medi |
+|---|---|---|
+| `leitura`/parágrafo 1 | `errada em 118 solicitações` | **128** (`categoria_gravada != categoria_texto`) |
+| `leitura`/parágrafo 1 | `em 96 delas o texto descreve queima com troca comprovada` | **100** |
+| `leitura`/parágrafo 1 | `60 dizem avariado` | **57** (o `21 dizem apenas outros` bate) |
+| `correcoes` | `Corrigiu 37 casos` | **36** — é o que `resumo.janelaCorrigida` diz no mesmo arquivo |
+
+Sobre o `118`: ele **era** o valor medido na rodada de 02/08, quando eu mesmo o apurei e o site
+foi atualizado para ele. O dado foi regerado em 18/08 (commit `65835e0`) e a mesma medição hoje
+dá 128. É evidência forte de que o número simplesmente envelheceu — mas como o `21 dizem apenas
+outros` bate exato e o `60` erra por três, a definição original não é idêntica à minha, e não
+troco um número por outro que talvez responda a outra pergunta.
+
+Sobre o `37`: não existe campo por registro que me deixe recontar a janela corrigida. O que
+posso provar é que **dois lugares publicados discordam entre si** — o texto diz 37 e o
+`resumo` do mesmo JSON diz 36.
+
+**Não corrigível por mim — contradição aritmética, valor certo desconhecido:**
+
+O primeiro parágrafo do bloco `cascata` diz que saem 220 solicitações e que elas "se dividem em
+duas famílias": **137 + 103 = 240**. Sobram 20. Não reproduzi 137 nem 103 em recorte algum:
+
+- por `expurgo_gatilho`: sem lastro de interrupção **108**, demais **112**;
+- por `censo_critica` entre os excluídos: AUSENTE **78** · DEFEITO EM OUTRA DATA **59** ·
+  DEFEITO NA JANELA **57** · SEM DEFEITO NELE **26**.
+
+O detalhamento da primeira família (`47` + `83` + `7`) fecha 137 internamente, mas nenhum dos
+três sai do dado. Como não sei qual dos números é o errado, **não mexi**. É o único achado
+desta rodada que precisa de quem gerou o texto para resolver.
+
+---
+
+### FALHA 3 e FALHA 4 — o roteiro, não o site
+
+**3.** A fórmula da seção 6 (`1510 − sem interrupção − duplicada == chega_e2`, e as outras três
+passagens) dá 1.510 onde `chega_e2` grava 1.290, porque os rótulos que ela subtrai não existem
+mais. A corrente que o dado de fato descreve fecha certinho:
+
+```
+1.510 − 220 excluídas = 1.290    (chega_e1 = chega_e2 = chega_e3 = 1.290)
+1.290 − 21 sem prova   = 1.269 = SAÍDA
+```
+
+**4.** A regra da seção 5 reproduz **1.507 dos 1.510** rótulos assim que se traduz
+`EXCLUÍDO NA LEITURA` para `EXCLUÍDA`, que é o nome que o dado usa. As 3 que sobram —
+`DG-RD-PO 00073/2026`, `ETO-RD-GR 00279/2026`, `DOLP-RD-PA 00605/2026` — têm
+`e3_status = RETIDO` e cascata `SAÍDA`, e as três carregam `veredito_do_dono = SIM`, com o
+mesmo motivo: *"Material não conferido: OBRA FORA DO EXPORT DE MATERIAL"*. São overrides
+explícitos do dono, e o roteiro ainda não descreve esse mecanismo — hoje há **57** vereditos no
+dado. Sem tradução de rótulo as divergências vão a 223, que é só o nome da exclusão.
+
+---
+
+### Dois testes meus que estavam errados, e um do repositório
+
+O roteiro avisa que 3 das 5 falhas das primeiras rodadas eram erro do teste. Nesta foram três
+de novo, e vale registrar para a próxima:
+
+1. **Invariante 8.** Escrevi `abs(oc_dist_h) <= 24` e achei 16 violações. A janela publicada
+   **não é simétrica**: vale de 1 hora antes do primeiro passo até 24 horas depois do último.
+   Recalculei a pertinência dos próprios carimbos de tempo: nos 16 casos a ocorrência começa de
+   **1,1 h a 23,8 h depois** da abertura da SS, ou seja, fora da tolerância de 1 hora para trás.
+   **O site está certo; meu teste é que era rígido demais.** 0 violações.
+2. **Invariante 9.** Contei como disputa toda ocorrência apontada por duas SS de nível A/B/C.
+   Quem saiu pela porta da exclusão nunca desceu o primeiro degrau e não reivindica prova
+   nenhuma. Com o filtro certo: **0 disputas reais**. As 3 ocorrências apontadas por duas SS
+   têm, em cada caso, pelo menos uma das duas já excluída.
+3. **Invariante 18 do `scripts/auditoria_invariantes.py`** (extra, não é do roteiro) acusa que
+   "o contador do cabeçalho não usa `listadas.length`". É **falso positivo**: o regex
+   `className="header-meta".{0,200}` casa só com a primeira das cinco ramificações do ternário
+   (a de `mes_agosto`, que legitimamente mostra o total do próprio mês). O contador do caso
+   geral usa `br(listadas.length)`, em `app/page.tsx:6350`. O teste é que precisa olhar a
+   ramificação padrão.
+
+Também registro que o `scripts/auditoria_invariantes.py` **deixou de testar o roteiro**: ele foi
+adaptado à metodologia nova (troca `EXCLUÍDO NA LEITURA` por `EXCLUÍDA`, reescreve a corrente,
+isenta os vereditos do dono). As adaptações são honestas e estão comentadas no código, mas o
+efeito é que ele responde CONFERE aos invariantes 3, 4 e 10 sem que ninguém perceba que o
+roteiro e o dado divergem. Por isso escrevi um script novo do zero nesta rodada, em vez de
+rodar o de lá.
+
+---
+
+### O que eu **não** verifiquei
+
+- **Invariante 15 (a olho).** Barra lateral, KPIs e caixa d'água são calculados dos `registros`
+  em tempo de execução e não podem divergir por construção. Restam 78 literais com milhar no
+  `page.tsx`, todos rótulos de contexto. Nenhum teste substitui abrir a tela.
+- **Invariante 16, cobertura campo a campo.** `dataBR` existe e converte, e não há literal ISO
+  no `page.tsx`; que *todo* campo de data passe por ele continua sendo verificação a olho.
+- **Invariante 19 do script do repositório** (a planilha de download contar a mesma história que
+  o JSON): **não deu para rodar, `openpyxl` não está instalado neste ambiente**. Como o dado
+  mudou em 18/08, essa é a verificação que eu mais gostaria de ter feito — a planilha
+  `Base_Esteira_Completa.xlsx` já ficou para trás uma vez, e um clique em "baixar a base" é o
+  jeito mais barato de o número da apresentação virar outro. **Fica como pendência.**
+- Os números históricos do bloco `correcoes` (`536 de 540`, `6.628` janelas, `62.616` linhas,
+  `34` casos, a densidade de `2,4`/`0,7` por hora) não são recomputáveis a partir do
+  `fluxo-1510.json`. Não entram no relatório como certos nem como errados.
+- `1.022` e `61` do bloco `fato`, e `26 deles abertos a menos de 6 horas`: sem campo por
+  registro para recontar.
+
+### O que eu **não** toquei
+
+As quatro decisões do dono seguem intactas, e nenhuma delas é mais legível no dado de hoje do
+que era: as 22 SS que passavam só com o TMAE viraram `F2 = 0` (a classe existe na
+documentação e está vazia no dado), as 89 retidas por `QTD_CONS_INTER_FAT = 0`, as 2 exclusões
+por dano externo e a regra da esteira. **Nenhum byte de `fluxo-1510.json`, `metodo.json`,
+`universo-ss.json`, `auditorias.json` ou `page.tsx` foi alterado** — `git status` está limpo.
+
+Rodei `pnpm install --frozen-lockfile && pnpm run build:pages` como sinal de saúde: **passa**
+(built in 5.65s). Não havia mudança a validar; serve só para dizer que a `main` compila hoje.
+
+### Observações sem gravidade
+
+- `Base_Funis.xlsx` anuncia `0,02 MB` e o arquivo tem 0,028 MB decimais (0,026 MiB) — truncado
+  em vez de arredondado na segunda casa. Está fora do formato que o teste de tamanho cobre.
+- O campo `duplicada` está `SIM` em 3 registros, mas `resumo.duplicadas` diz **1**, porque conta
+  `expurgo_gatilho == "duplicada"`. Os outros 2 saíram por `sem_obra` e `remanejamento`. Os dois
+  números estão certos cada um na sua definição; quem recontar pelo campo vai achar que o resumo
+  está errado.
+- A aba Bases segue com duas réguas na mesma tela: `Base_*` em MB decimal, `Original_*` em MiB.
+  Escolha de apresentação, como nas rodadas anteriores.
+
+### O diff que eu teria feito
+
+Um arquivo só, `public/metodo.json`, quatro edições — as três provadas mais a do `37`. As do
+bloco `leitura` e a do parágrafo das duas famílias **ficam de fora até o dono confirmar a
+definição**.
+
+```diff
+@@ blocos[id=cascata].tabela.linhas[2][3] @@
+-"0 — não retém: 1.134 corroboram, 135 sem registro"
++"0 — não retém: 1.126 corroboram, 132 sem registro, 32 sem o campo preenchido"
+
+@@ blocos[id=cascata].tabela.linhas[3][3] @@
+-"21 sem prova de troca — e 18 deles só esperam a extração do SIAGO"
++"21 sem prova de troca — e 19 deles só esperam a extração do SIAGO"
+
+@@ blocos[id=cascata].paragrafos[3] @@
+-São 76 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável,
++São 83 solicitações que chegam à saída com a ressalva escrita ao lado, filtrável,
+
+@@ blocos[id=correcoes].itens[-2] @@
+-Corrigiu 37 casos, 26 deles abertos a menos de 6 horas do religamento;
++Corrigiu 36 casos, 26 deles abertos a menos de 6 horas do religamento;
+```
+
+E, separadamente, a atualização da **seção 6 do `AUDITORIA_NOTURNA.md`** para o retrato de hoje
+— que eu deixo escrita aqui em vez de aplicar, porque homologa a metodologia nova:
+
+```
+                        entram        param
+0 · Exclusão (porta)     1.510   220 fora do indicador
+1 · Interrupção          1.290     0
+2 · Deslocamento         1.290     0 (marcador)
+3 · SS e OS com material 1.290    21 sem prova de troca
+4 · Ressalva             1.269     0 (marcador)
+  = Decisão final        1.269 saem
+
+Saída confirmada    1.269 = 1.198 queimados + 71 avariados
+Decisão da esteira  INCLUIR 1.269 · REVISÃO 21 · EXCLUIR 220
+Decisão da matriz   INCLUIR 1.262 · REVISÃO 184 · EXCLUIR 64   (não mudou)
+Fato                F1 1.324 · F3 173 · F0 13                  (F2 e FD vazios)
+Leitura             L1 1.451 · L2 53 · L3 6                    (não mudou)
+Nível (e1_nivel)    A 1.140 · B 197 · FORA 71 · SEM 102        (C vazio)
+```
+
+O script que rodei está em `scratchpad/conferir_17.py` desta sessão, fora do repositório. Ele
+testa os 17 como o roteiro os define e diz explicitamente quando o dado deixou de falar essa
+língua, em vez de afrouxar o teste.
+
+---
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
