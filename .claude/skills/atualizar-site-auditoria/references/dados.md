@@ -9,7 +9,7 @@ conferido contra o disco — a tabela abaixo é o resumo estável.
 | Arquivo | O que é | Estado |
 |---|---|---|
 | `fluxo-1510.json` | 1.510 SS de janeiro a junho de 2026 | **congelado** — entrada, nunca saída |
-| `fluxo-1582.json` | jan–jun + julho, somados por cima | derivado dos dois abaixo |
+| `fluxo-1582.json` | jan–jun (cópia fiel) + julho traduzido para as peneiras | **o que o site lê** — derivado dos dois vizinhos |
 | `julho-2026.json` | 72 do recorte de julho + 345 do entorno | prévia, decisão da régua |
 | `agosto-2026.json` | 27 do recorte de agosto + 59 do entorno | aberto e parcial |
 | `cadastro-fis.json` | cadastro FIS do parque, extração de julho | leitura ao lado do caso |
@@ -18,8 +18,20 @@ conferido contra o disco — a tabela abaixo é o resumo estável.
 ## O que 1.582 é
 
 Universo de **solicitações** de janeiro a julho: 1.510 + 72. **Não é o indicador.** O
-indicador de jan–jun continua 1.305. Entram 1.324 = 1.269 de jan–jun + 55 de julho, e 17
-de julho seguem pendentes de campo.
+indicador de jan–jun continua 1.305. A esteira inteira do site roda sobre ele:
+
+| Cascata | jan–jun | julho | total |
+|---|---|---|---|
+| SAÍDA (queimados e avariados) | 1.269 | 55 | 1.324 |
+| EXCLUÍDA (expurgos) | 220 | 0 | 220 |
+| RETIDO — SEM PROVA DE TROCA | 21 | 0 | 21 |
+| RETIDO — SEM INTERRUPÇÃO NA JANELA (prévia) | 0 | 15 | 15 |
+| RETIDO — RESSALVA DA INTERRUPÇÃO (prévia) | 0 | 2 | 2 |
+
+Julho: 55 casaram na Crítica sem ressalva → SAÍDA; 9 fora da janela + 6 ausentes → retidos
+na primeira peneira; 2 com ressalva (SS gêmea, cola e fita) → retidos na quarta. Nenhum
+expurgo em julho: nos 72 não há auxiliar nem particular. Sem TMAE e sem material do mês —
+`deslocamento="SEM REGISTRO"` (marcador) e `material_conferido="NAO"`, ditos assim.
 
 ## Entradas externas
 
@@ -37,8 +49,10 @@ roda em contêiner novo, sem preparo.
 
 ## Verificadores
 
-- `scripts/auditoria_invariantes.py` — prova que jan–jun continua com 1.510 e que as
-  cascatas fecham. Falha se alguém mexeu no congelado.
+- `scripts/auditoria_invariantes.py` — lê o `fluxo-1582.json`; prova que o subconjunto
+  jan–jun é o `fluxo-1510.json` campo a campo (invariante 0), que as cascatas fecham em
+  1.582 e que julho não expurga (21). O `metodo.json` e a planilha para download são
+  conferidos contra o jan–jun congelado.
 - `scripts/conferir_numeros.py` — confere os números publicados contra a origem.
 - `scripts/verificar_site.mjs` — abre o bundle num navegador, aba por aba, e reprova
   tela vazia, erro de console e número colado no texto (a assinatura de classe de CSS
