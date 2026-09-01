@@ -2,6 +2,52 @@
 
 ## 19/08/2026, 00:27 UTC — MODO = RELATO · dois defeitos reais no site, e o roteiro velho
 
+> ## ATUALIZAÇÃO, 01/09/2026, 23:55 UTC — o placar zerou as falhas, e os dois defeitos continuam lá
+>
+> O `main` andou para **`d1dd201`** (PR **#127**, "a esteira inteira passa a rodar em 1.582 SS,
+> com os expurgos"). Mexeu no `page.tsx`, no `fluxo-1582.json`, nos geradores, no
+> `verificar_site.mjs` e — o que mais importa aqui — **no próprio
+> `auditoria_invariantes.py`, que ganhou 137 linhas**. O ramo foi mergeado, sem conflito.
+>
+> **Reexecutei o script contra o estado novo: 22 conferem · 0 falham · 1 a olho, de 23.**
+> Duas coisas boas de verdade aconteceram, e uma preocupante.
+>
+> **Boa 1 — a FALHA 18 foi fechada na origem, e do jeito exato que o diff E propunha.** O
+> invariante 18 hoje varre **todas** as ocorrências de `header-meta` com `re.finditer` e
+> `any(...)`, em vez de só a primeira (linha 462). Além disso ele foi reescrito para algo
+> muito mais forte do que era: agora confere peneira por peneira contra a aba dos retidos
+> ("Interrupção: anuncia 15 e a aba 02·1 abre com 15") e fecha a conta em 258 retidos + 1.324
+> na saída = 1.582. **O diff E está aplicado; pode riscá-lo da lista.**
+>
+> **Boa 2 — o `fluxo-1582.json` deixou de ser um vão.** O script passou a cobri-lo, e ganhou
+> dois invariantes novos: o **0**, que trava o jan–jun contra o `fluxo-1510.json` "sem mudar
+> um caractere", e o **21**, que confere que julho desce a esteira como prévia e não expurga
+> ninguém. Os dois conferem. **Metade do vão que apontei em 27/08 foi fechada** — falta o
+> `cadastro-fis.json`, que segue com zero menções no script.
+>
+> **A preocupante: o placar agora diz zero falhas, e os dois defeitos reais continuam
+> exatamente onde estavam.** Conferi os dois à mão contra o estado novo:
+>
+> | Defeito | Estado hoje | O que o script diz |
+> |---|---|---|
+> | `Filtros_do_Site.xlsx` oferecido e ausente de `public/bases/`, com `PLACEHOLDER_TAM` na tela (linha **4492**, era 4461) | **aberto** | invariante 17: "faltando: nenhum" |
+> | Parágrafo da porta de exclusão no `metodo.json`: anuncia 220 e divide em **137 + 103 = 240** | **aberto** | invariante 14: "os números batem" |
+>
+> **Remedi a FALHA 14 de novo, do zero, contra o dado de hoje, e ela não mudou:** as 220
+> excluídas se partem em **108** sem interrupção que sustente o caso (`sem_interrupcao` 77 +
+> `fora_da_janela` 31) e **112** com causa ou documento fora do indicador (30 furtos, 16 obras
+> nunca geradas, 12 preventivos, 11 remanejamentos, 7 tapes, e o resto em categorias menores).
+> O texto continua dizendo 137 e 103 — dois números que nem batem com o dado nem somam o 220
+> que o próprio parágrafo anuncia. **O diff A continua válido palavra por palavra.**
+>
+> **Por que isso merece atenção.** Um placar de 19 · 1 · 1 convida a olhar. Um placar de
+> **22 · 0 · 1 convida a confiar** — e é justamente agora que o site tem um download que dá 404
+> com texto de rascunho à mostra e um parágrafo que se contradiz sozinho. A diferença entre o
+> placar do script e o estado real do site não diminuiu: ela ficou **invisível**. Os diffs
+> **A, B, C, D, F, G e H** seguem de pé; só o **E** saiu da lista.
+>
+> **Nada foi aplicado.** `MODO = RELATO` segue na linha 12 do `AUDITORIA_NOTURNA.md`.
+
 > ## ATUALIZAÇÃO, 27/08/2026, 22:40 UTC — o site cresceu, e o buraco do teste cresceu junto
 >
 > O `main` andou muito desde a rodada: onze commits, PRs **#116, #118, #119 e #120**, saindo
@@ -47,8 +93,8 @@
 > ## CORREÇÃO, 20/08/2026, 20:40 UTC — eu tinha escrito "o site confere", e estava errado
 >
 > **Há um segundo defeito real, e ele é visível na tela.** A aba Bases oferece para download
-> **`Filtros_do_Site.xlsx`**, e esse arquivo **não existe em `public/bases/`**. A linha 4461
-> do `page.tsx` (era a 4383 quando escrevi isto) monta um
+> **`Filtros_do_Site.xlsx`**, e esse arquivo **não existe em `public/bases/`**. A linha 4492
+> do `page.tsx` (era a 4383 quando escrevi isto, depois 4461) monta um
 > `<a href=".../bases/Filtros_do_Site.xlsx" download>` — o clique dá
 > 404 — e o tamanho dele aparece para o leitor como o literal **`PLACEHOLDER_TAM`**, um
 > marcador que nunca foi substituído. Num site que vai à alta direção, é um link quebrado com
@@ -199,9 +245,13 @@ E no bloco `leitura`: **"errada em 118 solicitações"** → hoje são **128**
 (`categoria_gravada ≠ categoria_texto`). Este é provável: o relatório de 02/08 registra que o
 118 saiu exatamente dessa fórmula, e a fórmula agora dá 128.
 
-### FALHA 18 — é o teste que está errado, não o site
+### FALHA 18 — é o teste que está errado, não o site  ·  **FECHADA em 01/09 pelo PR #127**
 
-O script acusa "o contador do cabeçalho não usa `listadas.length`". **Usa.** Está na linha
+> Esta seção fica como registro. O invariante 18 foi reescrito no `main` e hoje varre todas as
+> ocorrências de `header-meta`, exatamente como o diff E propunha — e ainda passou a conferir
+> peneira contra aba. **O diff E não precisa mais ser aplicado.**
+
+O script acusava "o contador do cabeçalho não usa `listadas.length`". **Usa.** Está na linha
 6350 do `page.tsx` (era a 6135 antes de o `main` andar — ver a atualização de 27/08). O que
 acontece é que existem **cinco** `header-meta` (6343, 6345, 6347, 6349 e 6350) e a regex do
 teste casa só com o primeiro, o ramo das abas de mês, e olha 200 caracteres à frente — não
@@ -320,7 +370,8 @@ aba de garantia lê o JSON em tempo de execução (`almox?.resumo.no1305`), sem 
 
 *(só o 118; o 96/60/21 fica como está até o dono fixar a definição — ver acima)*
 
-**E · `scripts/auditoria_invariantes.py`** — invariante 18, o contador do cabeçalho:
+**E · ~~`scripts/auditoria_invariantes.py`~~ — invariante 18, o contador do cabeçalho.
+✅ APLICADO no `main` pelo PR #127 (01/09). Fica aqui só como registro do que era:**
 
 ```diff
 -cab = re.search(r'className="header-meta".{0,200}', page, re.S)
