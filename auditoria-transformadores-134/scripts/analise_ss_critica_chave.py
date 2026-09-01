@@ -1,0 +1,385 @@
+"""SS de transformador de 2026 × Crítica, pelo trafo e — só se não achar — pela chave gêmea.
+
+Pedido do dono (01/09): "Pega a Base de SS OS Ano 2026, código operativo 42, 52, 53, 57, com
+data de abertura de janeiro a julho. Pesquise os ativos na Crítica da mesma forma que é feita
+no site. Adicione somente a procura pela chave do ativo (começa com 03 e os 8 últimos dígitos
+são iguais) caso não encontre pelo número operativo do transformador nas 3 colunas."
+
+O MÉTODO É O DO SITE, sem inventar nada:
+  · as três colunas de ativo da Crítica: COD_ELE_PROBLEMA, COD_ELE_INTERROMPIDO, COD_ELE_FECHADO;
+  · a ocorrência é o conjunto de passos com o mesmo NUM_SEQ_OPER_INIC_HDE, e a janela é medida
+    contra o intervalo inteiro dela — do primeiro passo aberto ao último fechado;
+  · casa quando a abertura da SS cai entre (início − 1 h) e (fim + 24 h);
+  · a chave gêmea só é procurada para quem não aparece pelo trafo em papel nenhum.
+
+O QUE ESTE SCRIPT NÃO É: não é a esteira. Não lê TMAE, material, texto. É uma leitura ao lado
+do caso, comparada no fim com o que o site decidiu para a mesma SS.
+
+Entradas:
+  public/bases/originais/Original_SS_TRAFOS_V4.xlsx (aba BASE GERAL) ou, se existir, a base
+    @ do ano (BASE_SS_OS*.txt) — passe pelo argumento --ss
+  Crítica: public/bases/originais/Original_Critica_Interrupcoes.zip (jan–jun) + qualquer
+    Critica*.txt extra (julho) em --critica-extra
+Saída: planilha .xlsx no caminho de --saida
+"""
+
+import argparse
+import collections
+import datetime as dt
+import os
+import re
+import sys
+import zipfile
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
+AQUI = os.path.dirname(os.path.abspath(__file__))
+RAIZ = os.path.join(AQUI, "..")
+PUB = os.path.join(RAIZ, "public")
+sys.path.insert(0, os.path.join(AQUI, "analise-mensal"))
+import base  # noqa: E402  — o mesmo leitor da base @ que o site usa para os meses
+
+PREFIXOS = ("42", "52", "53", "57")
+PAPEIS = ("COD_ELE_PROBLEMA", "COD_ELE_INTERROMPIDO", "COD_ELE_FECHADO")
+ANTES = dt.timedelta(hours=1)
+DEPOIS = dt.timedelta(hours=24)
+INICIO, FIM = dt.datetime(2026, 1, 1), dt.datetime(2026, 8, 1)
+
+txt = lambda v: "" if v is None else str(v).strip()
+
+
+def data(v):
+    if isinstance(v, dt.datetime):
+        return v
+    s = txt(v)
+    for f in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return dt.datetime.strptime(s[:19] if "T" not in s else s.replace("T", " ")[:19], f)
+        except ValueError:
+            continue
+    return None
+
+
+# ── SS ──────────────────────────────────────────────────────────────────────
+def ler_ss_v4(caminho):
+    wb = openpyxl.load_workbook(caminho, read_only=True)
+    ws = wb["BASE GERAL"]
+    rows = ws.iter_rows(values_only=True)
+    hdr = next(rows)
+    H = {h: i for i, h in enumerate(hdr) if h}
+    g = lambda r, k: txt(r[H[k]]) if k in H else ""
+    saida = []
+    for r in rows:
+        saida.append({
+            "ss": g(r, "NUMERO_SS"), "os": g(r, "NUMERO_OS"), "obra": g(r, "NUM_OBRA"),
+            "trafo": g(r, "NUM_TRAFO"), "abertura": data(r[H["DATA_ABERTURA_SS"]]),
+            "origem": g(r, "ORIGEM_SS"), "defeito": g(r, "DEFEITO_SS"), "tipo_ss": g(r, "TIPOSS"),
+            "situacao": g(r, "SITUACAO_SS"), "criticidade": g(r, "CRITICIDADE_SS"),
+            "localidade": g(r, "LOCALIDADE"), "alimentador": g(r, "ALIMENTADOR"),
+            "equipe": g(r, "COD_EQUIPE"), "pot_ret": g(r, "POTENCIA_RET"), "pot_inst": g(r, "POTENCIA_INST"),
+            "descricao": g(r, "DESCRIPTION")[:400],
+        })
+    return "Original_SS_TRAFOS_V4.xlsx · BASE GERAL", saida
+
+
+def ler_ss_arroba(*arquivos):
+    cab, regs = base.ler_ss_os(*arquivos)
+    g = base.indexar(cab)
+    saida = []
+    for r in regs:
+        saida.append({
+            "ss": g(r, "NUMERO_SS"), "os": g(r, "NUMERO_OS"), "obra": g(r, "NUM_OBRA"),
+            "trafo": g(r, "NUM_TRAFO"), "abertura": data(g(r, "DATA_ABERTURA_SS")),
+            "origem": g(r, "ORIGEM_SS"), "defeito": g(r, "DEFEITO_SS"), "tipo_ss": g(r, "TIPOSS"),
+            "situacao": g(r, "SITUACAO_SS"), "criticidade": g(r, "CRITICIDADE_SS"),
+            "localidade": g(r, "LOCALIDADE"), "alimentador": g(r, "ALIMENTADOR"),
+            "equipe": g(r, "COD_EQUIPE"), "pot_ret": g(r, "POTENCIA_RET"), "pot_inst": g(r, "POTENCIA_INST"),
+            "descricao": g(r, "DESCRIPTION")[:400],
+        })
+    return " + ".join(os.path.basename(a) for a in arquivos), saida
+
+
+# ── Crítica ────────────────────────────────────────────────────────────────
+def ler_critica_arquivo(nome, bruto):
+    """Devolve lista de dicts por passo. Latin-1, ';', cabeçalho pelo nome (janeiro troca a
+    ordem de duas colunas de índice; por nome isso não importa)."""
+    linhas = bruto.split("\n")
+    cab = [c.strip() for c in linhas[0].split(";")]
+    I = {c: n for n, c in enumerate(cab)}
+    for c in PAPEIS + ("NUM_SEQ_OPER_INIC_HDE", "DTA_ABERT", "DTA_FECH"):
+        if c not in I:
+            raise RuntimeError(f"{nome}: falta a coluna {c}")
+    passos = []
+    for l in linhas[1:]:
+        if not l.strip():
+            continue
+        c = l.split(";")
+        if len(c) < len(cab):
+            continue
+        passos.append({
+            "arquivo": nome, "oc": txt(c[I["NUM_SEQ_OPER_INIC_HDE"]]),
+            "ini": data(c[I["DTA_ABERT"]]), "fim": data(c[I["DTA_FECH"]]),
+            "problema": txt(c[I["COD_ELE_PROBLEMA"]]), "interrompido": txt(c[I["COD_ELE_INTERROMPIDO"]]),
+            "fechado": txt(c[I["COD_ELE_FECHADO"]]),
+            "causa": txt(c[I.get("DES_CAUSA_INTER_CAU", 0)]) if "DES_CAUSA_INTER_CAU" in I else "",
+            "subcausa": txt(c[I["DES_SUB_CAUSA_INTER_SCR"]]) if "DES_SUB_CAUSA_INTER_SCR" in I else "",
+            "clientes": txt(c[I["QTD_CONS_INTER_FAT"]]) if "QTD_CONS_INTER_FAT" in I else "",
+            "duracao": txt(c[I["DURACAO"]]) if "DURACAO" in I else "",
+            "obs": txt(c[I["OBSERVACAO"]]) if "OBSERVACAO" in I else "",
+        })
+    return passos
+
+
+def carregar_critica(zip_path, extras):
+    passos = []
+    with zipfile.ZipFile(zip_path) as z:
+        for info in sorted(z.infolist(), key=lambda i: i.filename):
+            bruto = z.read(info).decode("latin-1")
+            p = ler_critica_arquivo(info.filename, bruto)
+            print(f"  {info.filename}: {len(p)} passos")
+            passos += p
+    for e in extras:
+        with open(e, encoding="latin-1") as fh:
+            bruto = fh.read()
+        p = ler_critica_arquivo(os.path.basename(e), bruto)
+        print(f"  {os.path.basename(e)}: {len(p)} passos")
+        passos += p
+    # ocorrência = mesmo NUM_SEQ_OPER_INIC_HDE; a janela é do primeiro passo ao último
+    ocs = {}
+    por_codigo = collections.defaultdict(lambda: collections.defaultdict(set))  # codigo → oc → papéis
+    for p in passos:
+        o = ocs.setdefault(p["oc"], {"oc": p["oc"], "ini": p["ini"], "fim": p["fim"], "passos": 0,
+                                     "causa": p["causa"], "subcausa": p["subcausa"],
+                                     "clientes": p["clientes"], "duracao": p["duracao"],
+                                     "obs": p["obs"], "arquivo": p["arquivo"]})
+        o["passos"] += 1
+        if p["ini"] and (o["ini"] is None or p["ini"] < o["ini"]):
+            o["ini"] = p["ini"]
+        if p["fim"] and (o["fim"] is None or p["fim"] > o["fim"]):
+            o["fim"] = p["fim"]
+        if not o["obs"] and p["obs"]:
+            o["obs"] = p["obs"]
+        for papel in ("problema", "interrompido", "fechado"):
+            if p[papel]:
+                por_codigo[p[papel]][p["oc"]].add(papel)
+    return ocs, por_codigo
+
+
+def procurar(codigo, abertura, ocs, por_codigo):
+    """Devolve (status, melhor_ocorrencia, papeis, delta_h, n_ocorrencias)."""
+    achadas = por_codigo.get(codigo)
+    if not achadas:
+        return "AUSENTE", None, "", None, 0
+    melhor, melhor_d, melhor_pap, casou = None, None, "", False
+    for oc_id, papeis in achadas.items():
+        o = ocs[oc_id]
+        if not (o["ini"] and o["fim"] and abertura):
+            continue
+        if (o["ini"] - ANTES) <= abertura <= (o["fim"] + DEPOIS):
+            d = 0.0
+            if not casou or (melhor_d or 0) > 0:
+                melhor, melhor_d, melhor_pap, casou = o, d, "+".join(sorted(papeis)), True
+        elif not casou:
+            d = (o["ini"] - abertura).total_seconds() / 3600 if abertura < o["ini"] else (abertura - o["fim"]).total_seconds() / 3600
+            if melhor_d is None or d < melhor_d:
+                melhor, melhor_d, melhor_pap = o, d, "+".join(sorted(papeis))
+    if melhor is None:
+        return "AUSENTE", None, "", None, len(achadas)
+    return ("SIM" if casou else "fora da janela"), melhor, melhor_pap, (None if casou else round(melhor_d, 1)), len(achadas)
+
+
+# ── o site, para comparar ──────────────────────────────────────────────────
+def carregar_site():
+    import json
+    cam = os.path.join(PUB, "fluxo-1582.json")
+    if not os.path.exists(cam):
+        return {}
+    f = json.load(open(cam, encoding="utf-8"))
+    return {r["ss"]: r for r in f["registros"]}
+
+
+def principal():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ss", nargs="*", default=None, help="base @ do ano (BASE_SS_OS*.txt); sem ela usa a V4")
+    ap.add_argument("--critica-extra", nargs="*", default=[], help="Critica*.txt fora do zip (julho)")
+    ap.add_argument("--saida", default=os.path.join(RAIZ, "..", "SS_x_Critica_trafo_e_chave_2026.xlsx"))
+    a = ap.parse_args()
+
+    print("SS:")
+    if a.ss:
+        fonte_ss, ss = ler_ss_arroba(*a.ss)
+    else:
+        fonte_ss, ss = ler_ss_v4(os.path.join(PUB, "bases", "originais", "Original_SS_TRAFOS_V4.xlsx"))
+    print(f"  {fonte_ss}: {len(ss)} linhas")
+    total_base = len(ss)
+    fora_prefixo = collections.Counter(s["trafo"][:2] for s in ss if s["trafo"][:2] not in PREFIXOS)
+    ss = [s for s in ss if s["trafo"][:2] in PREFIXOS and re.fullmatch(r"\d{10}", s["trafo"])]
+    fora_data = [s for s in ss if not (s["abertura"] and INICIO <= s["abertura"] < FIM)]
+    ss = [s for s in ss if s["abertura"] and INICIO <= s["abertura"] < FIM]
+    # uma SS por linha: a mesma SS repetida na base conta uma vez
+    vistos, unicos = set(), []
+    for s in ss:
+        if s["ss"] not in vistos:
+            vistos.add(s["ss"]); unicos.append(s)
+    dup = len(ss) - len(unicos)
+    ss = unicos
+    print(f"  no recorte (prefixo {'/'.join(PREFIXOS)}, jan–jul): {len(ss)} · fora do prefixo {sum(fora_prefixo.values())} {dict(fora_prefixo)} · fora da data {len(fora_data)} · SS repetida {dup}")
+
+    print("Crítica:")
+    ocs, por_codigo = carregar_critica(os.path.join(PUB, "bases", "originais", "Original_Critica_Interrupcoes.zip"), a.critica_extra)
+    meses = sorted({o["ini"].strftime("%Y-%m") for o in ocs.values() if o["ini"]})
+    print(f"  {len(ocs)} ocorrências · meses cobertos: {', '.join(meses)}")
+    ultimo = max(o["fim"] for o in ocs.values() if o["fim"])
+    site = carregar_site()
+
+    linhas = []
+    for s in ss:
+        cod = s["trafo"]
+        chave = "03" + cod[2:]
+        st, o, pap, d, n = procurar(cod, s["abertura"], ocs, por_codigo)
+        via, st_chave, o_ch, pap_ch, d_ch, n_ch = "trafo", "", None, "", None, 0
+        if st == "AUSENTE":
+            st_chave, o_ch, pap_ch, d_ch, n_ch = procurar(chave, s["abertura"], ocs, por_codigo)
+            if st_chave != "AUSENTE":
+                via = "chave gêmea"
+        if via == "chave gêmea":
+            resultado = {"SIM": "CASOU PELA CHAVE GÊMEA", "fora da janela": "CHAVE GÊMEA FORA DA JANELA"}[st_chave]
+            o_mostra, pap_mostra, d_mostra = o_ch, pap_ch, d_ch
+        else:
+            resultado = {"SIM": "CASOU PELO TRAFO", "fora da janela": "TRAFO FORA DA JANELA", "AUSENTE": "AUSENTE — nem trafo nem chave"}[st]
+            o_mostra, pap_mostra, d_mostra = o, pap, d
+        # julho sem Crítica de julho: dizer isso em vez de fingir ausência
+        cobertura = "Crítica carregada" if s["abertura"] <= ultimo else "SEM CRÍTICA DESTE PERÍODO — não conferível"
+        r = site.get(s["ss"])
+        linhas.append({
+            "SS": s["ss"], "OS": s["os"], "Obra": s["obra"], "Transformador": cod, "Prefixo": cod[:2],
+            "Chave gêmea (03)": chave, "Abertura da SS": s["abertura"], "Mês": s["abertura"].strftime("%m/%Y"),
+            "Origem SS": s["origem"], "Defeito SS": s["defeito"], "Tipo SS": s["tipo_ss"], "Situação": s["situacao"],
+            "Criticidade": s["criticidade"], "Localidade": s["localidade"], "Alimentador": s["alimentador"],
+            "Equipe": s["equipe"], "kVA retirado": s["pot_ret"], "kVA instalado": s["pot_inst"],
+            "Cobertura da Crítica": cobertura,
+            "Resultado": resultado, "Encontrado por": via if resultado.startswith("CASOU") or "FORA" in resultado else "—",
+            "Ocorrências do trafo na Crítica": n, "Ocorrências da chave na Crítica": n_ch,
+            "Ocorrência": o_mostra["oc"] if o_mostra else "",
+            "Início da ocorrência": o_mostra["ini"] if o_mostra else None,
+            "Fim da ocorrência": o_mostra["fim"] if o_mostra else None,
+            "Passos": o_mostra["passos"] if o_mostra else "",
+            "Papel do ativo": pap_mostra, "Distância à janela (h)": d_mostra,
+            "Causa": o_mostra["causa"] if o_mostra else "", "Subcausa": o_mostra["subcausa"] if o_mostra else "",
+            "Clientes": o_mostra["clientes"] if o_mostra else "", "Duração (min)": o_mostra["duracao"] if o_mostra else "",
+            "Observação da Crítica": (o_mostra["obs"] if o_mostra else "")[:300],
+            "Site · cascata": txt(r.get("cascata")) if r else "não está no site",
+            "Site · Crítica": txt(r.get("censo_critica")) if r else "",
+            "Site · gatilho de exclusão": txt(r.get("expurgo_gatilho")) if r else "",
+            "Site · confirmado": txt(r.get("confirmado")) if r else "",
+            "Descrição da SS": s["descricao"],
+        })
+
+    # ── resumo ─────────────────────────────────────────────────────────────
+    conf = [l for l in linhas if l["Cobertura da Crítica"] == "Crítica carregada"]
+    nconf = [l for l in linhas if l not in conf]
+    res = collections.Counter(l["Resultado"] for l in conf)
+    por_mes = collections.defaultdict(collections.Counter)
+    for l in linhas:
+        por_mes[l["Mês"]][l["Resultado"] if l in conf else "não conferível (sem Crítica)"] += 1
+    por_pref = collections.defaultdict(collections.Counter)
+    for l in conf:
+        por_pref[l["Prefixo"]][l["Resultado"]] += 1
+    # o que a chave mudou em relação ao site
+    chave_casou = [l for l in conf if l["Resultado"] == "CASOU PELA CHAVE GÊMEA"]
+    chave_site_excl = [l for l in chave_casou if l["Site · cascata"] == "EXCLUÍDA" and l["Site · gatilho de exclusão"] in ("sem_interrupcao", "fora_da_janela")]
+
+    wb = openpyxl.Workbook()
+    ws = wb.active; ws.title = "Resumo"
+    neg = Font(bold=True)
+    def linha(*vals, bold=False):
+        ws.append(list(vals))
+        if bold:
+            for c in ws[ws.max_row]: c.font = neg
+    linha("SS de transformador de 2026 × Crítica — pelo trafo e, se ausente, pela chave gêmea", bold=True)
+    linha(f"Gerado em {dt.datetime.now():%d/%m/%Y %H:%M} · base de SS: {fonte_ss} · Crítica: {', '.join(meses)}")
+    linha("")
+    linha("Recorte", bold=True)
+    linha("Linhas na base de SS", total_base)
+    linha(f"Fora do prefixo {'/'.join(PREFIXOS)}", sum(fora_prefixo.values()), ", ".join(f"{k}={v}" for k, v in fora_prefixo.most_common()))
+    linha("Fora de janeiro a julho", len(fora_data))
+    linha("SS repetida na base (contada uma vez)", dup)
+    linha("SS no recorte", len(linhas), bold=True)
+    linha("  com Crítica carregada para o período", len(conf))
+    linha("  sem Crítica do período (julho: não conferível)", len(nconf))
+    linha("")
+    linha("Resultado — só as conferíveis", bold=True)
+    for k in ("CASOU PELO TRAFO", "TRAFO FORA DA JANELA", "CASOU PELA CHAVE GÊMEA", "CHAVE GÊMEA FORA DA JANELA", "AUSENTE — nem trafo nem chave"):
+        linha(k, res.get(k, 0), f"{res.get(k, 0) / max(1, len(conf)) * 100:.1f}%")
+    linha("")
+    linha("O que a chave gêmea acrescentou", bold=True)
+    linha("Casaram só pela chave (trafo ausente da Crítica)", len(chave_casou))
+    linha("  …e o site havia excluído por falta de interrupção", len(chave_site_excl))
+    linha("Ausentes pelo trafo que a chave também não achou", res.get("AUSENTE — nem trafo nem chave", 0))
+    linha("")
+    linha("Por mês", bold=True)
+    cats = ["CASOU PELO TRAFO", "TRAFO FORA DA JANELA", "CASOU PELA CHAVE GÊMEA", "CHAVE GÊMEA FORA DA JANELA", "AUSENTE — nem trafo nem chave", "não conferível (sem Crítica)"]
+    linha("Mês", *cats, "Total", bold=True)
+    for m in sorted(por_mes):
+        linha(m, *[por_mes[m].get(c, 0) for c in cats], sum(por_mes[m].values()))
+    linha("")
+    linha("Por prefixo (conferíveis)", bold=True)
+    linha("Prefixo", *cats[:5], "Total", bold=True)
+    for p in sorted(por_pref):
+        linha(p, *[por_pref[p].get(c, 0) for c in cats[:5]], sum(por_pref[p].values()))
+    linha("")
+    linha("Método", bold=True)
+    for t in [
+        "Três colunas da Crítica: COD_ELE_PROBLEMA, COD_ELE_INTERROMPIDO, COD_ELE_FECHADO.",
+        "Ocorrência = passos com o mesmo NUM_SEQ_OPER_INIC_HDE; janela medida do primeiro passo aberto ao último fechado.",
+        "Casa quando a abertura da SS cai entre (início − 1 h) e (fim + 24 h). Igual ao site.",
+        "Chave gêmea = '03' + 8 últimos dígitos do trafo. Procurada SÓ quando o trafo não aparece em papel nenhum.",
+        "Distância à janela: horas entre a abertura da SS e a borda mais próxima da ocorrência mais próxima, quando não casou.",
+        "Dezembro/2025 não está carregado: SS dos primeiros dias de janeiro podem ter ocorrência lá (o site tratou 24 casos assim).",
+        "Julho: sem a Crítica de julho carregada, as SS do mês ficam 'não conferíveis' — não é ausência.",
+        "Isto é leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; a coluna 'Site' mostra o que o site decidiu.",
+    ]:
+        linha(t)
+    ws.column_dimensions["A"].width = 58
+    for c in "BCDEFGH": ws.column_dimensions[c].width = 22
+
+    def aba(nome, dados):
+        w = wb.create_sheet(nome)
+        if not dados:
+            w.append(["nenhuma"]); return
+        cols = list(dados[0].keys())
+        w.append(cols)
+        for c in w[1]:
+            c.font = Font(bold=True, color="FFFFFF"); c.fill = PatternFill("solid", fgColor="1F3864")
+            c.alignment = Alignment(wrap_text=True, vertical="center")
+        for d in dados:
+            w.append([d[c] for c in cols])
+        for i, c in enumerate(cols, 1):
+            w.column_dimensions[get_column_letter(i)].width = min(48, max(12, len(c) + 2))
+        for row in w.iter_rows(min_row=2):
+            for c in row:
+                if isinstance(c.value, dt.datetime):
+                    c.number_format = "dd/mm/yyyy hh:mm"
+        w.freeze_panes = "B2"
+        w.auto_filter.ref = w.dimensions
+
+    aba("Todas as SS", linhas)
+    aba("Casaram pela chave", chave_casou)
+    aba("Ausentes", [l for l in conf if l["Resultado"].startswith("AUSENTE")])
+    aba("Fora da janela", [l for l in conf if "FORA DA JANELA" in l["Resultado"]])
+    aba("Não conferíveis", nconf)
+    aba("Divergem do site", [l for l in conf if (l["Resultado"].startswith("CASOU") and l["Site · cascata"] == "EXCLUÍDA" and l["Site · gatilho de exclusão"] in ("sem_interrupcao", "fora_da_janela"))
+                            or (l["Resultado"].startswith("AUSENTE") and l["Site · Crítica"] == "DEFEITO NA JANELA")])
+    os.makedirs(os.path.dirname(os.path.abspath(a.saida)), exist_ok=True)
+    wb.save(a.saida)
+    print(f"\n{a.saida}")
+    print(f"SS no recorte {len(linhas)} · conferíveis {len(conf)} · não conferíveis {len(nconf)}")
+    for k in cats[:5]:
+        print(f"  {k}: {res.get(k, 0)}")
+    print(f"  chave casou e o site excluía por falta de interrupção: {len(chave_site_excl)}")
+
+
+if __name__ == "__main__":
+    principal()
