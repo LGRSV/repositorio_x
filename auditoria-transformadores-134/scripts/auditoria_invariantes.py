@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Confere os 17 invariantes de AUDITORIA_NOTURNA.md contra o dado.
+"""Confere os invariantes de AUDITORIA_NOTURNA.md contra o dado.
+
+Desde que o site passou a rodar em janeiro a JULHO (fluxo-1582.json), a conferência tem dois
+universos: o TODO (N registros, hoje 1.582) para a soma das cascatas, a corrente das peneiras
+e o resumo; e o CONGELADO (os 1.510 de jan–jun) para tudo o que foi fechado ali — o
+metodo.json, a planilha para download e os vereditos do dono. O invariante 0 garante que o
+subconjunto jan–jun do fluxo-1582.json é o fluxo-1510.json sem mudar um caractere.
 
 Cada invariante reporta CONFERE, FALHA ou A OLHO (quando só pessoa consegue julgar).
 Nada aqui escreve no repositório: é leitura pura.
@@ -27,9 +33,13 @@ def relata(n, titulo, ok, detalhe):
         print(f"          {linha}")
 
 
-fluxo = json.load(open(os.path.join(PUB, "fluxo-1510.json")))
+fluxo = json.load(open(os.path.join(PUB, "fluxo-1582.json")))
 regs = fluxo["registros"]
 resumo = fluxo["resumo"]
+N = len(regs)
+congelado = json.load(open(os.path.join(PUB, "fluxo-1510.json")))
+regs_jj = [r for r in regs if r.get("periodo") != "julho"]
+regs_ju = [r for r in regs if r.get("periodo") == "julho"]
 metodo = json.load(open(os.path.join(PUB, "metodo.json")))
 page = open(os.path.join(RAIZ, "app", "page.tsx"), encoding="utf-8").read()
 
@@ -44,21 +54,40 @@ RESS = "RETIDO — RESSALVA DA INTERRUPÇÃO"
 SAIDA = "SAÍDA"
 
 print("=" * 78)
-print("AUDITORIA DOS INVARIANTES — fluxo-1510.json")
+print("AUDITORIA DOS INVARIANTES — fluxo-1582.json (jan–jul) · jan–jun congelado em fluxo-1510.json")
 print("=" * 78)
+
+# ------------------------------------------------------------- o congelado
+# O que jan–jun era, jan–jun continua sendo: cada registro do subconjunto é o mesmo do
+# fluxo-1510.json, campo a campo. Só as etiquetas de origem (periodo/congelado/previa) são novas.
+ETIQUETAS = {"periodo", "congelado", "previa"}
+dif0 = []
+por_ss0 = {r["ss"]: r for r in congelado["registros"]}
+for r in regs_jj:
+    o = por_ss0.get(r["ss"])
+    if o is None:
+        dif0.append(f"{r['ss']}: marcado jan–jun mas não existe no fluxo-1510.json"); continue
+    for k in set(o) | (set(r) - ETIQUETAS):
+        if o.get(k) != r.get(k):
+            dif0.append(f"{r['ss']}.{k}: congelado={str(o.get(k))[:40]!r} agora={str(r.get(k))[:40]!r}")
+            break
+relata(0, "o subconjunto jan–jun é o fluxo-1510.json sem mudar um caractere",
+       len(regs_jj) == 1510 == len(congelado["registros"]) and not dif0,
+       f"jan–jun={len(regs_jj)}  congelado={len(congelado['registros'])}  julho={len(regs_ju)}  "
+       f"registros diferentes={len(dif0)}" + ("" if not dif0 else "\n" + "\n".join(dif0[:6])))
 
 # ---------------------------------------------------------------- integridade
 n_ss = len({r["ss"] for r in regs})
-relata(1, "1.510 registros e ss único", len(regs) == 1510 and n_ss == 1510,
-       f"registros={len(regs)}  ss distintos={n_ss}")
+relata(1, "1.582 registros (1.510 + 72) e ss único", N == 1582 and n_ss == N and len(regs_ju) == 72,
+       f"registros={N}  ss distintos={n_ss}  jan–jun={len(regs_jj)}  julho={len(regs_ju)}")
 
 soma = sum(casc.values())
-relata(2, "a soma das cascatas dá 1.510", soma == 1510,
+relata(2, f"a soma das cascatas dá {N}", soma == N,
        "  ".join(f"{k}={v}" for k, v in casc.most_common()) + f"\nsoma={soma}")
 
 # A exclusão não é passagem da esteira: ela acontece antes, e quem sai por ela nunca entrou.
 # A corrente começa em 1.510 menos os excluídos, e é esse número que a primeira peneira recebe.
-entra = 1510 - C(EXCL)
+entra = N - C(EXCL)
 e2 = entra - C(SEM_INT)
 e3 = e2 - C(SEM_DES)
 e4 = e3 - C(SEM_PROVA)
@@ -68,7 +97,7 @@ g_e2 = sum(1 for r in regs if r["chega_e2"] == "SIM")
 g_e3 = sum(1 for r in regs if r["chega_e3"] == "SIM")
 ok3 = entra == g_e1 and e2 == g_e2 and e3 == g_e3 and fim == C(SAIDA)
 relata(3, "a corrente fecha nas quatro passagens", ok3,
-       f"1510 − {C(EXCL)} excluídas = {entra}     chega_e1 gravado = {g_e1}\n"
+       f"{N} − {C(EXCL)} excluídas = {entra}     chega_e1 gravado = {g_e1}\n"
        f"{entra} − {C(SEM_INT)} = {e2}            chega_e2 gravado = {g_e2}\n"
        f"{e2} − {C(SEM_DES)} = {e3}               chega_e3 gravado = {g_e3}\n"
        f"{e3} − {C(SEM_PROVA)} = {e4}\n"
@@ -95,7 +124,7 @@ def pela_regra(r):
 do_dono = [r for r in regs if r.get("veredito_do_dono") == "SIM"]
 divergem = [r for r in regs if pela_regra(r) != r["cascata"]
             and r.get("veredito_do_dono") != "SIM"]
-relata(4, "a regra da esteira reproduz os 1.510 rótulos", not divergem,
+relata(4, f"a regra da esteira reproduz os {N} rótulos", not divergem,
        f"divergências={len(divergem)} · vereditos do dono, fora da conta={len(do_dono)}"
        + ("" if not divergem else
        "\n" + "\n".join(f"{r['ss']}: regra={pela_regra(r)} gravado={r['cascata']}"
@@ -126,7 +155,7 @@ for bloco, campo in [("cascata", "cascata"), ("decisao", "decisao"),
         if recontado.get(k, 0) != v:
             div7.append(f"{bloco}.{k}: resumo={v} recontado={recontado.get(k, 0)}")
 for chave, valor in [("total", len(regs)), ("confirmadoTotal", C(SAIDA)),
-                     ("expurgos", C(EXCL)), ("entramNaEsteira", 1510 - C(EXCL)),
+                     ("expurgos", C(EXCL)), ("entramNaEsteira", N - C(EXCL)),
                      ("duplicadas", sum(1 for r in regs if r.get("expurgo_gatilho") == "duplicada"))]:
     if resumo.get(chave) != valor:
         div7.append(f"{chave}: resumo={resumo.get(chave)} medido={valor}")
@@ -265,7 +294,15 @@ def num(x):
     return f"{x:,}".replace(",", ".")
 
 
-# tabela da cascata
+# tabela da cascata — o metodo.json descreve a esteira FECHADA de jan–jun; a tabela é
+# conferida contra o subconjunto congelado, não contra o universo somado.
+casc_jj = Counter(r["cascata"] for r in regs_jj)
+CJ = lambda k: casc_jj.get(k, 0)
+entra_jj = 1510 - CJ(EXCL)
+e2_jj = entra_jj - CJ(SEM_INT)
+e3_jj = e2_jj - CJ(SEM_DES)
+e4_jj = e3_jj - CJ(SEM_PROVA)
+conf_jj = Counter(r["confirmado"] for r in regs_jj if str(r["confirmado"]).strip())
 tab = blocos["cascata"]["tabela"]["linhas"]
 # Antes só quatro células eram conferidas — e as que envelheceram foram justamente as que
 # ficavam de fora: "1.279 + 22" somando 1.301 quando a etapa recebia 1.300, o retido da
@@ -273,11 +310,11 @@ tab = blocos["cascata"]["tabela"]["linhas"]
 # Agora toda célula de número da tabela é conferida contra o dado.
 # A tabela ganhou a linha 0: a exclusão, que acontece antes da esteira e não é peneira.
 esperado_tab = [
-    (0, "Recebe", [1510]), (0, "Passa", [entra]), (0, "Fica retido", [C(EXCL)]),
-    (1, "Recebe", [entra]), (1, "Passa", [e2]), (1, "Fica retido", [C(SEM_INT)]),
-    (2, "Recebe", [e2]), (2, "Passa", [e3]), (2, "Fica retido", [C(SEM_DES)]),
-    (3, "Recebe", [e3]), (3, "Passa", [e4]), (3, "Fica retido", [C(SEM_PROVA)]),
-    (4, "Recebe", [e4]), (4, "Passa", [C(SAIDA)]), (4, "Fica retido", [C(RESS)]),
+    (0, "Recebe", [1510]), (0, "Passa", [entra_jj]), (0, "Fica retido", [CJ(EXCL)]),
+    (1, "Recebe", [entra_jj]), (1, "Passa", [e2_jj]), (1, "Fica retido", [CJ(SEM_INT)]),
+    (2, "Recebe", [e2_jj]), (2, "Passa", [e3_jj]), (2, "Fica retido", [CJ(SEM_DES)]),
+    (3, "Recebe", [e3_jj]), (3, "Passa", [e4_jj]), (3, "Fica retido", [CJ(SEM_PROVA)]),
+    (4, "Recebe", [e4_jj]), (4, "Passa", [CJ(SAIDA)]), (4, "Fica retido", [CJ(RESS)]),
 ]
 COL = {"Recebe": 1, "Passa": 2, "Fica retido": 3}
 for i, col, esperados in esperado_tab:
@@ -293,13 +330,13 @@ for i, col, esperados in esperado_tab:
 if len(tab) < 5:
     problemas.append(f"cascata: a tabela tem {len(tab)} linhas e a esteira tem 5 — a exclusão "
                      f"antes dela mais as quatro peneiras "
-                     f"(falta a ressalva, que retém {C(RESS)})")
+                     f"(falta a ressalva, que retém {CJ(RESS)})")
 
 # frase de resultado do bloco correcoes
 txt_cor = texto_do_bloco("correcoes")
-q = conf.get("QUEIMADO", 0)
-a = conf.get("AVARIADO", 0)
-for velho, novo, oque in [("874", num(C(SAIDA)), "confirmados"),
+q = conf_jj.get("QUEIMADO", 0)
+a = conf_jj.get("AVARIADO", 0)
+for velho, novo, oque in [("874", num(CJ(SAIDA)), "confirmados"),
                           ("848", num(q), "queimados"),
                           ("26 avariados", f"{a} avariados", "avariados")]:
     if velho in txt_cor:
@@ -311,12 +348,13 @@ if "ficou igual" in txt_cor and "874" in txt_cor:
 # totais do resumo do metodo
 txt_res = "\n".join(metodo["resumo"]["paragrafos"])
 mat = resumo["decisaoMatriz"]
-if num(mat["INCLUIR"]) in txt_res and num(C(SAIDA)) not in txt_res:
+mat = congelado["resumo"]["decisaoMatriz"]
+if num(mat["INCLUIR"]) in txt_res and num(CJ(SAIDA)) not in txt_res:
     problemas.append(f"resumo: usa os números da matriz ({num(mat['INCLUIR'])}/"
                      f"{mat['REVISÃO']}/{mat['EXCLUIR']}) sem dizer que são da matriz; "
-                     f"a esteira entrega {C(SAIDA)}/{sum(1 for r in regs if r['decisao']=='REVISÃO')}/{C(EXCL)}")
+                     f"a esteira entrega {CJ(SAIDA)}/{sum(1 for r in regs_jj if r['decisao']=='REVISÃO')}/{CJ(EXCL)}")
 
-relata(14, "todo número escrito à mão no metodo.json bate com o dado", not problemas,
+relata(14, "todo número escrito à mão no metodo.json bate com o dado (jan–jun congelado)", not problemas,
        "\n".join(problemas) if problemas else "os números do metodo.json batem")
 
 # 15 — números da interface: a barra lateral é calculada, então o risco é o literal solto
@@ -385,9 +423,11 @@ itens = re.findall(r'\{ id: "(\w+)", rotulo: "([^"]+)", codigo: "([^"]+)"([^}]*)
 ordem = [(i[0], i[2], re.search(r'recorte: "(\w+)"', i[3])) for i in itens]
 ordem = [(mod, cod, m.group(1) if m else None) for mod, cod, m in ordem]
 
-e2n, e3n = 1510 - C(SEM_INT) - C(DUP), 1510 - C(SEM_INT) - C(DUP) - C(SEM_DES)
 PARES = [
-    ("interrupcao", "semfato", "parados", C(SEM_INT) + C(DUP), "Interrupção"),
+    # a peneira 1 voltou a reter: os de julho que não casaram na Crítica do mês ficam
+    # parados aqui em prévia, e a aba deles é o recorte "retidos" — não "parados", que soma
+    # também as exclusões de jan–jun por falta de interrupção.
+    ("interrupcao", "semfato", "retidos", C(SEM_INT) + C(DUP), "Interrupção"),
     ("deslocamento", "semdesloc", "todos", C(SEM_DES), "Deslocamento"),
     ("ssos", "expurgos", "parados", C(SEM_PROVA), "Análise de SS e OS"),
     ("ressalva", "ressalva", "todos", C(RESS), "Ressalva da interrupção"),
@@ -417,18 +457,20 @@ for etapa, aba, rec, esperado, nome in PARES:
     ok18.append(f"{nome}: anuncia {esperado} e a aba {seguinte[1]} abre com {esperado}")
 
 # o contador do cabeçalho tem que falar da lista que está na tela, não do universo inteiro
-cab = re.search(r'className="header-meta".{0,200}', page, re.S)
-if not cab or "listadas.length" not in cab.group(0):
+# o cabeçalho tem variantes por aba (mês, jan–jul, cadastro); a que vale para a esteira é a
+# padrão, e ela precisa contar a lista na tela. Olha todas as ocorrências, não só a primeira.
+cabs = [page[m.start():m.start() + 200] for m in re.finditer(r'className="header-meta"', page)]
+if not any("listadas.length" in c for c in cabs):
     p18.append('o contador do cabeçalho não usa listadas.length: ele anuncia um número '
                'diferente do que a tabela abaixo mostra')
 
 soma_retidos = C(SEM_INT) + C(DUP) + C(SEM_DES) + C(SEM_PROVA) + C(EXCL) + C(RESS)
-if soma_retidos + C(SAIDA) != 1510:
+if soma_retidos + C(SAIDA) != N:
     p18.append(f"a soma dos retidos das abas ({soma_retidos}) mais a saída ({C(SAIDA)}) "
-               f"dá {soma_retidos + C(SAIDA)}, não 1.510")
+               f"dá {soma_retidos + C(SAIDA)}, não {N}")
 relata(18, "cada peneira é seguida pela aba de quem ela reteve, com o mesmo número",
        not p18,
-       ("\n".join(ok18) + f"\nnenhum caso órfão: {soma_retidos} retidos + {C(SAIDA)} na saída = 1.510"
+       ("\n".join(ok18) + f"\nnenhum caso órfão: {soma_retidos} retidos + {C(SAIDA)} na saída = {N}"
         if not p18 else "\n".join(p18)))
 
 # 19 — a planilha que o site oferece para download conta a mesma história que o JSON
@@ -452,17 +494,18 @@ try:
         xc[linha[icasc]] += 1
         if linha[iconf]:
             xf[linha[iconf]] += 1
-    if n19 != len(regs):
-        p19.append(f"a planilha tem {n19} linhas e o dado tem {len(regs)}")
-    for chave in set(casc) | set(xc):
-        if xc.get(chave, 0) != C(chave):
-            p19.append(f"cascata {chave!r}: planilha={xc.get(chave, 0)} dado={C(chave)}")
-    for chave in set(conf) | set(xf):
-        if xf.get(chave, 0) != conf.get(chave, 0):
-            p19.append(f"confirmado {chave!r}: planilha={xf.get(chave, 0)} dado={conf.get(chave, 0)}")
+    # a planilha é a do fechamento de jan–jun: compara com o subconjunto congelado
+    if n19 != len(regs_jj):
+        p19.append(f"a planilha tem {n19} linhas e o jan–jun congelado tem {len(regs_jj)}")
+    for chave in set(casc_jj) | set(xc):
+        if xc.get(chave, 0) != CJ(chave):
+            p19.append(f"cascata {chave!r}: planilha={xc.get(chave, 0)} dado={CJ(chave)}")
+    for chave in set(conf_jj) | set(xf):
+        if xf.get(chave, 0) != conf_jj.get(chave, 0):
+            p19.append(f"confirmado {chave!r}: planilha={xf.get(chave, 0)} dado={conf_jj.get(chave, 0)}")
     det19 = (f"{n19} linhas · saída {xc.get(SAIDA, 0)} · "
              f"{xf.get('QUEIMADO', 0)} queimados + {xf.get('AVARIADO', 0)} avariados — "
-             f"igual ao fluxo-1510.json" if not p19 else "\n".join(p19))
+             f"igual ao jan–jun congelado" if not p19 else "\n".join(p19))
 except ImportError:
     det19 = "openpyxl não instalado: não deu para abrir a planilha"
     p19 = ["openpyxl ausente"]
@@ -489,7 +532,21 @@ relata(20, "todo veredito do dono está aplicado no dado", not falta,
        f"vereditos={n_ver} · divergências={len(falta)}"
        + ("" if not falta else "\n" + "\n".join(falta[:8])))
 
-relata(19, "a planilha para download conta a mesma história que o dado", not p19, det19)
+relata(19, "a planilha para download conta a mesma história que o jan–jun congelado", not p19, det19)
+
+# 21 — julho é prévia e não expurga: nenhum registro de julho excluído, todos etiquetados
+p21 = []
+for r in regs_ju:
+    if r.get("cascata") == EXCL or r.get("expurgo") == "SIM":
+        p21.append(f"{r['ss']}: julho não pode expurgar sem martelo — cascata={r.get('cascata')}")
+    if r.get("previa") is not True or r.get("congelado") is not False:
+        p21.append(f"{r['ss']}: sem etiqueta de prévia")
+    if r.get("cascata") in (SEM_INT, RESS) and r.get("decisao") != "REVISÃO":
+        p21.append(f"{r['ss']}: retido em prévia precisa ser REVISÃO, é {r.get('decisao')}")
+casc_ju = Counter(r["cascata"] for r in regs_ju)
+relata(21, "julho desce a esteira como prévia: retém, não expurga", not p21,
+       "  ".join(f"{k}={v}" for k, v in casc_ju.most_common()) + f"\nexpurgos de julho={casc_ju.get(EXCL, 0)}"
+       + ("" if not p21 else "\n" + "\n".join(p21[:6])))
 
 # ---------------------------------------------------------------------- placar
 print("=" * 78)

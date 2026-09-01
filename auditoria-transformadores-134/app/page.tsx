@@ -2673,7 +2673,11 @@ export default function Page() {
   const carregarFluxo = () => {
     setErroCarga("");
     setDemorando(false);
-    fetch(assetUrl("fluxo-1510.json"))
+    /* O fluxo principal passou a ser o de janeiro a JULHO (public/fluxo-1582.json, gerado por
+       scripts/gerar_fluxo_1582.py): as 1.510 congeladas copiadas sem mudar um caractere, mais
+       os 72 de julho traduzidos para as mesmas peneiras. O fluxo-1510.json continua no
+       repositório como a fonte congelada que o invariante confere registro a registro. */
+    fetch(assetUrl("fluxo-1582.json"))
       .then((r) => {
         if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
         return r.json();
@@ -3571,6 +3575,12 @@ export default function Page() {
       // caso pendente de leitura, é o mesmo evento contado duas vezes — e foi para as exclusões.
       { id: "parados", rotulo: "Tudo que parou aqui", nota: "Todos os que a primeira peneira não admitiu: sem interrupção no próprio transformador dentro do intervalo da ocorrência nem nas 24 horas seguintes ao último passo, ou ausentes da Crítica em papel nenhum. Hoje eles saem do indicador em vez de ficar retidos — mas continuam sendo quem parou aqui, e é aqui que se lê por quê.", teste: (r) => parouNaInterrupcao(r) },
       { id: "todos", rotulo: "Sem interrupção na janela", nota: "Nem interrupção no próprio trafo nem atendimento do TMAE dentro da janela.", teste: (r) => parouNaInterrupcao(r) },
+      { id: "p_excluidas", rotulo: "Excluídas por falta de interrupção · jan–jun", nota: "As que saíram do indicador porque a Crítica não sustenta o caso: defeito em outra data ou ausência em papel nenhum, conferida linha a linha de dezembro/2025 a junho/2026. É o que a aba 07·1 anuncia.", teste: (r) => arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r) },
+      /* Julho fica RETIDO aqui, não excluído: a Crítica do mês é extração de 07/08 e ocorrência
+         só entra quando finaliza, e o dono não bateu martelo. É a fila que a peneira 1 anuncia. */
+      { id: "retidos", rotulo: "Retidos em prévia · julho", nota: "Os de julho que a primeira peneira não admitiu e que ficam parados — não excluídos — porque o mês é prévia: ausência na Crítica recente não é contraprova, e a SS aberta antes da ocorrência espera o martelo.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" },
+      { id: "retidos_fora", rotulo: "Retidos · ocorrência em outra data", nota: "Há ocorrência no ativo em julho, mas a abertura da SS não cai na janela dela — na maioria, a SS foi aberta antes da ocorrência. Em agosto o dono decidiu que SS aberta antes entra; aqui o critério espera a palavra dele.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.censo_critica) === "DEFEITO EM OUTRA DATA" },
+      { id: "retidos_ausente", rotulo: "Retidos · ausentes da Crítica de julho", nota: "O código não aparece na extração de 07/08/2026. Caso recente costuma aparecer na extração seguinte — por isso fica retido e não excluído.", teste: (r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.censo_critica) === "AUSENTE" },
       { id: "p_outra_data", rotulo: "Tem registro, mas em outra data", nota: "A Crítica registra defeito aberto neste transformador — só que fora do intervalo da ocorrência e das 24 horas seguintes ao último passo. A distância fica escrita em cada caso: 26 dias e 26 horas são coisas diferentes.", teste: (r) => texto(r.expurgo_gatilho) === "fora_da_janela" },
       { id: "p_ausente", rotulo: "Ausente da base de interrupções", nota: "Não há defeito aberto neste transformador que sustente o caso — e são dois jeitos de isso acontecer: o código não aparece na Crítica em papel nenhum nos sete meses, ou aparece só como interrompido e manobrado, nunca como o elemento onde o defeito foi aberto. Os dois foram somados por ordem dele, depois de ler os casos um a um.", teste: (r) => texto(r.expurgo_gatilho) === "sem_interrupcao" },
       { id: "vizinho", rotulo: "Vizinho encontrado", nota: "Existe ocorrência em outro ativo do mesmo alimentador ou localidade na janela.", teste: (r) => parouNaInterrupcao(r) && Boolean(texto(r.vizinho)) && !texto(r.vizinho).startsWith("Nada") },
@@ -3742,7 +3752,7 @@ export default function Page() {
       <span>{erroCarga}. O site está publicado — isto é a rede entre o seu aparelho e ele, ou a janela de alguns segundos logo depois de uma publicação.</span>
       <button type="button" className="loading-botao" onClick={() => carregarFluxo()}>Tentar de novo</button>
     </> : <>
-      <i /><span>Carregando as 1.510 solicitações…</span>
+      <i /><span>Carregando as 1.582 solicitações…</span>
       {demorando ? <>
         <span className="loading-demora">Está demorando mais que o normal. São 2 MB de dados — em sinal fraco isso leva um tempo.</span>
         <button type="button" className="loading-botao" onClick={() => carregarFluxo()}>Tentar de novo</button>
@@ -3910,6 +3920,7 @@ export default function Page() {
      exclusões, que acontecem antes dela e têm bloco próprio embaixo. */
   const excluidas = conta((r) => arquivo(r) === "EXCLUÍDA");
   const entramE1 = total - excluidas;
+  const paramE1 = conta((r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA");
   const entramE2 = conta((r) => arquivo(r) !== "EXCLUÍDA" && arquivo(r) !== "RETIDO — SEM INTERRUPÇÃO NA JANELA");
   const entramE3 = entramE2;
   const paramE3 = conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA");
@@ -3925,11 +3936,14 @@ export default function Page() {
        e a etapa dizia "param 209" enquanto a aba correspondente abria com 206 — os 3 restantes
        eram outra linha, noutro grupo. Quem lê a esteira agora desce sem procurar nada. */
     { grupo: "A esteira, de cima para baixo", itens: [
-      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: janjul?.resumo.total ?? total, tom: "cinza" },
+      { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
       { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
+      // Julho devolveu um retido à primeira peneira: quem não casou na Crítica do mês fica
+      // parado aqui em prévia, em vez de sair pela exclusão como em jan–jun.
+      { id: "semfato", rotulo: "Retidos na interrupção · julho", codigo: "02·1", param: paramE1, recorte: "retidos" },
 
       { id: "deslocamento", rotulo: "Deslocamento", codigo: "03", entram: entramE2, recorte: "todos" },
       { id: "semdesloc", rotulo: "Sem corroboração do TMAE", codigo: "03·1", marca: conta((r) => r.deslocamento === "SEM REGISTRO"), tom: "cinza", recorte: "todos" },
@@ -3949,7 +3963,9 @@ export default function Page() {
          abaixo de uma linha que dizia "a peneira 1 retém 0". As duas coisas eram verdade e
          juntas confundiam: quem parou na interrupção não está retido, está excluído. A aba
          mudou de grupo, não de conteúdo. */
-      { id: "semfato", rotulo: "…destas, sem interrupção que sustente", codigo: "07·1", marca: conta((r) => parouNaInterrupcao(r)), tom: "cinza", recorte: "parados" },
+      // Só as EXCLUÍDAS por falta de interrupção: os 15 de julho que pararam na mesma peneira
+      // ficam retidos, não excluídos, e têm a aba 02·1 dentro da esteira.
+      { id: "semfato", rotulo: "…destas, sem interrupção que sustente", codigo: "07·1", marca: conta((r) => arquivo(r) === "EXCLUÍDA" && parouNaInterrupcao(r)), tom: "cinza", recorte: "p_excluidas" },
       { id: "preventivos", rotulo: "Preventivos", codigo: "07·1", marca: preventivos, tom: "cinza", recorte: "todos" },
       { id: "obra", rotulo: "Obra e SIGCO", codigo: "08", marca: conta((r) => !texto(r.obra)), tom: "cinza", recorte: "todos" },
       { id: "ativos", rotulo: "Por transformador", codigo: "09" },
@@ -4010,7 +4026,7 @@ export default function Page() {
   const navAtual = oficina ? NAV_OFICINA : NAV;
 
   const TITULOS: Record<Modulo, { olho: string; titulo: string; texto: string }> = {
-    visao: { olho: "1.582 SS · jan a jul/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão. A esteira desenhada aqui é a de janeiro a junho — julho entra somado ao lado, em prévia, porque os 72 casos dele ainda não passaram pelas peneiras." },
+    visao: { olho: "1.582 SS · jan a jul/2026", titulo: "Visão geral", texto: "O caminho das solicitações pelas quatro peneiras, do fato de campo até a decisão. Janeiro a junho está congelado — o indicador 1.305 não foi recalculado. Julho desce a mesma esteira em prévia: 55 na saída pela régua e 17 retidos à espera da Crítica seguinte ou do martelo." },
     interrupcao: { olho: "Estágio 1 · o fato", titulo: "Interrupção", texto: "O cliente ficou sem energia? Quando, quantos e por qual causa. É a prova primária." },
     deslocamento: { olho: "Estágio 2 · corroboração", titulo: "Deslocamento", texto: "Alguém foi lá? Qual equipe, quanto tempo levou e o que registrou em campo." },
     ssos: { olho: "Estágio 3 · a leitura", titulo: "Análise de SS e OS", texto: "O que foi pedido, o que foi executado e o que o material comprova." },
@@ -4109,14 +4125,22 @@ export default function Page() {
       const naEsteira = total - excluidas;
       const retidos = conta((r) => String(arquivo(r)).startsWith("RETIDO"));
       const saidaFinal = conta((r) => arquivo(r) === "SAÍDA");
+      /* Os retidos têm duas naturezas agora. Os 21 de jan–jun pararam na terceira peneira por
+         falta de prova de troca. Os de julho pararam na primeira (fora da janela ou ausentes da
+         Crítica de julho) ou na quarta (ressalva) — e ficam retidos, não excluídos, porque o mês
+         é prévia: a Crítica seguinte ou o martelo do dono decidem. Um degrau para cada. */
+      const retidosProva = conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA");
+      const retidosJulho = retidos - retidosProva;
+      const deJulho = conta((r) => r.periodo === "julho");
       const porCausa = causasRank;
       const restoCausas = porCausa.slice(5).reduce((a, [, v]) => a + v, 0);
       return <>
         <section className="scope-strip">
-          <div><span>Recorte</span><strong>{janjul ? `${br(janjul.resumo.total)} SS · jan a jul/2026` : `${br(total)} SS · jan a jun/2026`}</strong></div>
+          <div><span>Recorte</span><strong>{br(total)} SS · jan a jul/2026</strong></div>
           <div><span>Janela da interrupção</span><strong>{fluxo.meta.janelaHoras}h contra o intervalo inteiro</strong></div>
-          <div><span>Saída</span><strong>{janjul ? `${br(janjul.resumo.entram)} incluir` : `${br(conta((r) => r.decisao === "INCLUIR"))} incluir`}</strong></div>
-          {janjul ? <div><span>Julho</span><strong>{br(janjul.resumo.julho)} em prévia · {br(janjul.resumo.pendentes_julho)} pendentes</strong></div> : null}
+          <div><span>Saída</span><strong>{br(saidaFinal)} queimados e avariados</strong></div>
+          <div><span>Julho</span><strong>{br(deJulho)} em prévia · {br(retidosJulho)} retidos</strong></div>
+          <div><span>Indicador jan–jun</span><strong>1.305 · congelado</strong></div>
           {/* A regra inteira tinha oito linhas aqui em cima. Ele pediu para tirar o monte de
               texto: fica a frase que governa tudo, e o resto mora em Regras e método. */}
           <p>A exclusão acontece antes da esteira e fora dela. Quem entra é medido caso a caso contra a própria ocorrência. <button type="button" className="strip-link" onClick={() => irPara("regras")}>Regra inteira em Regras e método →</button></p>
@@ -4129,13 +4153,13 @@ export default function Page() {
             é exatamente esta, e é a forma que manda. Só o degrau dos retidos ele não citou, e ele
             precisa estar aqui: sem ele a conta não chega em 1.249. */}
         <section className="panel cascata-panel">
-          {/* A cascata é o funil de JANEIRO A JUNHO e continua sendo. Os 72 de julho não têm
-              os campos das peneiras — não atravessaram estágio nenhum — então empurrá-los para
-              dentro deste desenho produziria degrau falso. O universo de jan a jul aparece no
-              topo da aba e na linha logo abaixo desta cascata. */}
-          <div className="panel-title"><div><span>A conta inteira · janeiro a junho</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista</small></div>
+          {/* A cascata é o funil de JANEIRO A JULHO. Os 72 de julho descem os mesmos degraus
+              com a tradução da régua do mês (scripts/gerar_fluxo_1582.py): quem casou na Crítica
+              sem ressalva sai pela ponta; quem não casou fica RETIDO num degrau próprio, dito
+              como prévia — não vira exclusão, porque o mês não tem martelo nem Crítica fechada. */}
+          <div className="panel-title"><div><span>A conta inteira · janeiro a julho</span><h2>De {br(total)} a {br(saidaFinal)}</h2></div><small>clique em qualquer número para abrir a lista · jan–jun congelado, julho em prévia</small></div>
           <div className="cascata-simples">
-            <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a junho de 2026"
+            <Degrau n={total} rotulo="solicitações de troca de transformador, janeiro a julho de 2026 (1.510 + 72)"
               aoClicar={() => irPara("interrupcao", "todos")} />
             <Degrau n={presasNaCritica} sinal="menos" rotulo="presas pela Crítica: sem interrupção que sustente o caso"
               aoClicar={() => irPara("semfato", "parados")}
@@ -4156,10 +4180,17 @@ export default function Page() {
                 n: v, sub: true, texto: (GATILHO_ROTULO[k] || k).toLowerCase(),
                 aoClicar: () => irPara("exclusoes", GATILHO_CHIP[k] || `g:${k}`),
               })).concat(restoCausas ? [{ n: restoCausas, sub: true, texto: `em outras ${porCausa.length - 5} categorias`, aoClicar: () => irPara("exclusoes", "outra_causa_resto") }] : [])} />
-            <Degrau n={retidos} sinal="menos" rotulo="sem prova de que o transformador foi trocado"
+            <Degrau n={retidosProva} sinal="menos" rotulo="sem prova de que o transformador foi trocado"
               aoClicar={() => irPara("expurgos", "parados")}
               porques={[
                 { n: conta((r) => arquivo(r) === "RETIDO — SEM PROVA DE TROCA" && r.pendente_siago === "SIM"), texto: "só esperam a extração do SIAGO — a obra existe", sub: true, aoClicar: () => irPara("expurgos", "siago_retido") },
+              ]} />
+            <Degrau n={retidosJulho} sinal="menos" rotulo="de julho, retidos em prévia: aguardam a Crítica seguinte ou o martelo"
+              aoClicar={() => irPara("semfato", "retidos")}
+              porques={[
+                { n: conta((r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.censo_critica) === "DEFEITO EM OUTRA DATA"), texto: "têm ocorrência no ativo, mas a SS não cai na janela dela", sub: true, aoClicar: () => irPara("semfato", "retidos_fora") },
+                { n: conta((r) => arquivo(r) === "RETIDO — SEM INTERRUPÇÃO NA JANELA" && texto(r.censo_critica) === "AUSENTE"), texto: "ausentes da Crítica de julho — extração recente, não é contraprova", sub: true, aoClicar: () => irPara("semfato", "retidos_ausente") },
+                { n: conta((r) => arquivo(r) === "RETIDO — RESSALVA DA INTERRUPÇÃO"), texto: "casaram na Crítica, mas com ressalva (SS gêmea, cola e fita)", sub: true, aoClicar: () => irPara("ressalva", "todos") },
               ]} />
             <Degrau n={saidaFinal} sinal="igual" forte rotulo="queimados e avariados"
               aoClicar={() => irPara("decisao", "saida")}
@@ -6345,8 +6376,6 @@ export default function Page() {
           ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
           : modulo === "cadastro"
           ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
-          : modulo === "visao" && janjul
-          ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul.resumo.total)}</strong><small>{br(janjul.resumo.jan_jun)} de jan–jun + {br(janjul.resumo.julho)} de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}
       </header>
       {painel()}
