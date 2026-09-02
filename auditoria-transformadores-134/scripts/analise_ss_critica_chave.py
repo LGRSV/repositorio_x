@@ -312,6 +312,7 @@ def principal():
             # "fora da janela" ou "ausente" medido só em jan–jun seria conclusão falsa. Só o casamento
             # real (ocorrência de junho que se estende até a abertura) vale.
             resultado = "SEM CRÍTICA — não conferível"
+            cobertura = "SEM CRÍTICA DESTE PERÍODO — não conferível"
             via = "—"
             o_mostra, pap_mostra, d_mostra = None, "", None
         r = site.get(s["ss"])
