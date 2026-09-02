@@ -30,6 +30,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
+TRAFO_PREF = ("57", "53", "52", "42", "51", "54", "56", "55")
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.join(AQUI, "..")
 PUB = os.path.join(RAIZ, "public")
@@ -117,18 +118,24 @@ def principal():
         cod = c["trafo"]
         f8 = cod[2:]
         alvos.append((re.compile(r"(?<!\d)" + re.escape(cod) + r"(?!\d)"), c, "código inteiro"))
-        alvos.append((re.compile(r"(?<!\d)\d{0,2}" + re.escape(f8) + r"(?!\d)"), c, "8 dígitos finais"))
+        # os 8 finais com prefixo de transformador (ou sem prefixo) falam do trafo; com prefixo
+        # 79/03/02/67/33/88 falam do religador ou da chave do mesmo ponto — outro equipamento.
+        alvos.append((re.compile(r"(?<!\d)(\d{0,2})" + re.escape(f8) + r"(?!\d)"), c, "8 dígitos finais"))
         rx_ss = regex_da_ss(c["ss"])
         if rx_ss:
             alvos.append((rx_ss, c, "número da SS"))
 
     # varrer só os passos com observação; para não passar 300 regex em 76 mil linhas à toa,
     # pré-filtra pelos 8 dígitos finais com busca de string
-    finais = {c["trafo"][2:]: c for c in casos}
+    # o mesmo transformador pode estar em duas SS (troca repetida): cada final aponta para
+    # TODAS as SS dele — a primeira versão guardava só a última e perdeu duas menções
+    finais = collections.defaultdict(list)
+    for c in casos:
+        finais[c["trafo"][2:]].append(c)
     achados = []
     for p in com_obs:
         obs = p["obs"]
-        candidatos = [c for f8, c in finais.items() if f8 in obs]
+        candidatos = [c for f8, cs in finais.items() if f8 in obs for c in cs]
         # números de SS: pré-filtro barato pelo "número/ano" e confirmação pela sigla no regex
         for c in casos:
             ps = padroes_da_ss(c["ss"])
@@ -139,12 +146,24 @@ def principal():
         for c in candidatos:
             tipos = []
             for rx, cc, tipo in alvos:
-                if cc is c and rx.search(obs):
+                if cc is not c:
+                    continue
+                if tipo == "8 dígitos finais":
+                    prefixos = {m8.group(1) for m8 in rx.finditer(obs)}
+                    if not prefixos:
+                        continue
+                    if any(pf in TRAFO_PREF or pf == "" or len(pf) < 2 for pf in prefixos):
+                        tipos.append("8 dígitos finais (trafo)")
+                    outros = sorted(pf for pf in prefixos if len(pf) == 2 and pf not in TRAFO_PREF)
+                    if outros:
+                        tipos.append("outro equipamento de mesmo final (" + "/".join(outros) + ")")
+                elif rx.search(obs):
                     tipos.append(tipo)
             if not tipos:
                 continue
-            if "código inteiro" in tipos and "8 dígitos finais" in tipos:
-                tipos.remove("8 dígitos finais")
+            if "código inteiro" in tipos and "8 dígitos finais (trafo)" in tipos:
+                tipos.remove("8 dígitos finais (trafo)")
+            fala_do_trafo = any(t in ("código inteiro", "8 dígitos finais (trafo)", "número da SS") for t in tipos)
             o = ocs[p["oc"]]
             ab = c["abertura"]
             na_janela = bool(o["ini"] and o["fim"] and ab and (o["ini"] - ANTES) <= ab <= (o["fim"] + DEPOIS))
@@ -157,7 +176,7 @@ def principal():
             trecho = obs[max(0, i - 120): i + 160]
             achados.append({
                 "Grupo": c["grupo"], "SS": c["ss"], "Transformador": c["trafo"], "Abertura da SS": ab,
-                "Como apareceu": " + ".join(tipos), "Ocorrência": p["oc"], "Arquivo": p["arquivo"],
+                "Como apareceu": " + ".join(tipos), "Fala do trafo": "SIM" if fala_do_trafo else "NÃO — outro equipamento", "Ocorrência": p["oc"], "Arquivo": p["arquivo"],
                 "Início da ocorrência": o["ini"], "Fim da ocorrência": o["fim"], "Passos": o["passos"],
                 "Na janela": "SIM" if na_janela else "NÃO", "Distância à janela (h)": None if dist is None else round(dist, 1),
                 "Elemento com problema": p["problema"], "Elemento interrompido": p["interrompido"], "Elemento fechado": p["fechado"],
@@ -172,13 +191,17 @@ def principal():
         por_ss[x["SS"]].append(x)
     resumo = []
     for c in casos:
-        xs = por_ss.get(c["ss"], [])
+        todos = por_ss.get(c["ss"], [])
+        xs = [x for x in todos if x["Fala do trafo"] == "SIM"]
+        so_outro = [x for x in todos if x["Fala do trafo"] != "SIM"]
         na = [x for x in xs if x["Na janela"] == "SIM"]
         resumo.append({
             "Grupo": c["grupo"], "SS": c["ss"], "Transformador": c["trafo"], "Abertura da SS": c["abertura"],
             "Localidade": c["localidade"], "Origem SS": c["origem"], "Resultado anterior": c["resultado"],
             "Menções na observação": len(xs), "…na janela": len(na),
-            "Veredito": ("MENCIONADO NA JANELA" if na else ("MENCIONADO FORA DA JANELA" if xs else "NÃO MENCIONADO")),
+            "Veredito": ("MENCIONADO NA JANELA" if na else ("MENCIONADO FORA DA JANELA" if xs else
+                         ("SÓ OUTRO EQUIPAMENTO DE MESMO FINAL" if so_outro else "NÃO MENCIONADO"))),
+            "Menções a outro equipamento de mesmo final": len(so_outro),
             "Ocorrências (na janela)": "; ".join(sorted({x["Ocorrência"] for x in na})),
             "Elemento com problema (na janela)": "; ".join(sorted({x["Elemento com problema"] for x in na if x["Elemento com problema"]})),
             "Primeiro trecho": (na or xs)[0]["Trecho da observação"] if xs else "",
@@ -224,7 +247,8 @@ def principal():
 
     aba("Por SS", resumo)
     aba("Achados", achados)
-    aba("Achados na janela", [x for x in achados if x["Na janela"] == "SIM"])
+    aba("Achados na janela", [x for x in achados if x["Na janela"] == "SIM" and x["Fala do trafo"] == "SIM"])
+    aba("Outro equipamento", [x for x in achados if x["Fala do trafo"] != "SIM"])
     wb.save(a.saida)
     print(a.saida)
     for (g, v), n in sorted(cont.items()):

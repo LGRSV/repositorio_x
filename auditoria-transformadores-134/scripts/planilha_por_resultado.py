@@ -26,7 +26,8 @@ ABAS = [
     ("JULHO", "Julho sem Crítica"),
 ]
 OBS_COLS = ["Observação · veredito", "Observação · menções", "Observação · na janela",
-            "Observação · ocorrências na janela", "Observação · elemento com problema", "Observação · trecho"]
+            "Observação · ocorrências na janela", "Observação · elemento com problema", "Observação · trecho",
+            "Observação · leitura do revisor"]
 
 
 def principal():
@@ -34,6 +35,7 @@ def principal():
     ap.add_argument("--ss", required=True, help="SS_x_Critica_trafo_e_chave_2026.xlsx")
     ap.add_argument("--obs", required=True, help="Ausentes_na_Observacao_da_Critica*.json")
     ap.add_argument("--saida", required=True)
+    ap.add_argument("--leitura", default=None, help="JSON SS → leitura humana/agente do trecho (opcional)")
     a = ap.parse_args()
 
     wb0 = openpyxl.load_workbook(a.ss, read_only=True)
@@ -44,6 +46,7 @@ def principal():
 
     obs = json.load(open(a.obs, encoding="utf-8"))
     por_ss = {r["SS"]: r for r in obs["resumo"]}
+    leitura = json.load(open(a.leitura, encoding="utf-8")) if a.leitura else {}
 
     for l in linhas:
         o = por_ss.get(l["SS"])
@@ -54,6 +57,7 @@ def principal():
             l["Observação · ocorrências na janela"] = o["Ocorrências (na janela)"]
             l["Observação · elemento com problema"] = o["Elemento com problema (na janela)"]
             l["Observação · trecho"] = o["Primeiro trecho"]
+            l["Observação · leitura do revisor"] = leitura.get(l["SS"], "")
         else:
             for c in OBS_COLS:
                 l[c] = "" if c not in ("Observação · menções", "Observação · na janela") else None
@@ -73,7 +77,7 @@ def principal():
     ws.append(["SS de transformador (42/52/53/57, jan–jul/2026) × Crítica — uma aba por resultado"]); ws["A1"].font = Font(bold=True)
     ws.append([f"Gerado em {dt.datetime.now():%d/%m/%Y %H:%M}"])
     ws.append([])
-    ws.append(["Resultado", "SS", "…mencionado na observação, na janela", "…mencionado fora da janela", "…não mencionado"])
+    ws.append(["Resultado", "SS", "…trafo mencionado na observação, na janela", "…mencionado fora da janela", "…não mencionado", "…só outro equipamento de mesmo final"])
     for c in ws[4]: c.font = Font(bold=True)
     grupos = collections.defaultdict(list)
     for l in linhas:
@@ -81,13 +85,15 @@ def principal():
     for chave, nome in ABAS:
         g = grupos.get(chave, [])
         v = collections.Counter(l["Observação · veredito"] for l in g)
-        ws.append([nome, len(g), v.get("MENCIONADO NA JANELA", 0), v.get("MENCIONADO FORA DA JANELA", 0), v.get("NÃO MENCIONADO", 0)])
+        ws.append([nome, len(g), v.get("MENCIONADO NA JANELA", 0), v.get("MENCIONADO FORA DA JANELA", 0), v.get("NÃO MENCIONADO", 0), v.get("SÓ OUTRO EQUIPAMENTO DE MESMO FINAL", 0)])
     ws.append(["Total", len(linhas)])
     ws.append([])
     for t in ["Método: três colunas de ativo da Crítica; ocorrência do primeiro passo ao último; casa se a abertura da SS está entre (início − 1h) e (fim + 24h).",
               "Chave gêmea = 03 + 8 dígitos finais, procurada só quando o trafo não aparece em papel nenhum.",
               "Observação: para ausentes e fora da janela, o código do trafo (inteiro ou 8 finais com qualquer prefixo) e o número da SS com a sigla da equipe foram procurados no texto OBSERVACAO de todos os passos.",
-              "Mencionado na observação não é o mesmo que ter defeito registrado: veja o elemento com problema e o trecho na linha.",
+              "Mencionado na observação não é o mesmo que ter defeito registrado: veja o elemento com problema, o trecho e a leitura do revisor na linha.",
+              "Os 8 dígitos finais com prefixo 79/03/02/67/33/88 apontam para religador ou chave do mesmo ponto, não para o trafo — contados à parte como 'outro equipamento'.",
+              "Número da SS só conta com a sigla da equipe junto (ENC-RD-PS 26 não é ETO-RD-AG 26).",
               "Dezembro/2025 não carregado (SS dos primeiros dias de janeiro podem ter ocorrência lá). Julho sem Crítica de julho: não conferível.",
               "Leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; as colunas 'Site' mostram o que o site decidiu."]:
         ws.append([t])
