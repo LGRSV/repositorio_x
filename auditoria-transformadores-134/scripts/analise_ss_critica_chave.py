@@ -205,6 +205,8 @@ def principal():
     ap.add_argument("--ss", nargs="*", default=None, help="base @ do ano (BASE_SS_OS*.txt); sem ela usa a V4")
     ap.add_argument("--critica-extra", nargs="*", default=[], help="Critica*.txt fora do zip (julho)")
     ap.add_argument("--saida", default=os.path.join(RAIZ, "..", "SS_x_Critica_trafo_e_chave_2026.xlsx"))
+    ap.add_argument("--julho-json", default=os.path.join(PUB, "julho-2026.json"),
+                    help="extração por SS da Crítica de julho guardada no site; '' para não usar")
     a = ap.parse_args()
 
     print("SS:")
@@ -213,6 +215,33 @@ def principal():
     else:
         fonte_ss, ss = ler_ss_v4(os.path.join(PUB, "bases", "originais", "Original_SS_TRAFOS_V4.xlsx"))
     print(f"  {fonte_ss}: {len(ss)} linhas")
+    # A Crítica bruta de julho (Critica__072026.txt) foi enviada em sessão anterior e se perdeu
+    # nos reinícios do contêiner. O que sobrou dela é a extração POR SS que o site guarda
+    # (julho-2026.json): para cada SS de julho, as ocorrências do próprio trafo nas três
+    # colunas, com a mesma janela. Serve para o resultado pelo trafo; não serve para a chave
+    # gêmea nem para a busca em observação, que precisam do arquivo inteiro.
+    julho_por_ss = {}
+    if a.julho_json and os.path.exists(a.julho_json):
+        import json as _json
+        jj = _json.load(open(a.julho_json, encoding="utf-8"))
+        for r in jj.get("registros", []) + jj.get("ampliado", []):
+            julho_por_ss.setdefault(r["ss"], r)
+        ja = {x["ss"] for x in ss}
+        novos = 0
+        for r in jj.get("registros", []):          # só o recorte oficial do mês, não o entorno
+            if r["ss"] in ja:
+                continue
+            ss.append({
+                "ss": txt(r["ss"]), "os": txt(r.get("os")), "obra": txt(r.get("obra")), "trafo": txt(r.get("trafo")),
+                "abertura": data(r.get("abertura")), "origem": txt(r.get("origem")), "defeito": txt(r.get("defeito")),
+                "tipo_ss": txt(r.get("tipo_ss")), "situacao": txt(r.get("situacao")), "criticidade": txt(r.get("criticidade")),
+                "localidade": txt(r.get("localidade")), "alimentador": txt(r.get("alimentador")), "equipe": r["ss"].split(" ")[0],
+                "pot_ret": txt(r.get("pot_ret")), "pot_inst": txt(r.get("pot_inst")), "descricao": txt(r.get("texto_ss"))[:400],
+                "fonte": "base @ de 11/08 via julho-2026.json",
+            })
+            novos += 1
+        print(f"  julho-2026.json: {len(julho_por_ss)} SS com extração da Crítica de julho · {novos} SS de julho acrescentadas à base")
+        fonte_ss += f" + julho-2026.json ({novos} SS de julho após o fim da V4)"
     total_base = len(ss)
     fora_prefixo = collections.Counter(s["trafo"][:2] for s in ss if s["trafo"][:2] not in PREFIXOS)
     ss = [s for s in ss if s["trafo"][:2] in PREFIXOS and re.fullmatch(r"\d{10}", s["trafo"])]
@@ -250,8 +279,31 @@ def principal():
         else:
             resultado = {"SIM": "CASOU PELO TRAFO", "fora da janela": "TRAFO FORA DA JANELA", "AUSENTE": "AUSENTE — nem trafo nem chave"}[st]
             o_mostra, pap_mostra, d_mostra = o, pap, d
-        # julho sem Crítica de julho: dizer isso em vez de fingir ausência
+        # julho sem Crítica bruta: usa a extração por SS do site, e diz isso
         cobertura = "Crítica carregada" if s["abertura"] <= ultimo else "SEM CRÍTICA DESTE PERÍODO — não conferível"
+        jr = julho_por_ss.get(s["ss"])
+        if s["abertura"] > ultimo and jr:
+            cobertura = "Crítica de julho · extração por SS de 07/08 (site) — chave gêmea e observação não conferíveis"
+            st_j = txt(jr.get("critica"))
+            ocs_j = jr.get("ocorrencias") or []
+            dentro = [o for o in ocs_j if o.get("na_janela")]
+            dentro.sort(key=lambda o: ("problema" not in txt(o.get("papeis")), abs(o.get("delta_inicio_h") or 0)))
+            perto = sorted(ocs_j, key=lambda o: abs(o.get("delta_inicio_h") or 9e9))
+            oj = (dentro or perto or [None])[0]
+            resultado = {"SIM": "CASOU PELO TRAFO", "fora da janela": "TRAFO FORA DA JANELA",
+                         "AUSENTE": "AUSENTE — nem trafo nem chave"}.get(st_j, "AUSENTE — nem trafo nem chave")
+            via = "trafo" if st_j in ("SIM", "fora da janela") else "—"
+            n = len(ocs_j); n_ch = None
+            if oj:
+                o_mostra = {"oc": "", "ini": data(oj.get("inicio")), "fim": data(oj.get("fim")), "passos": "",
+                            "causa": txt(oj.get("causa")), "subcausa": txt(oj.get("subcausa")),
+                            "clientes": txt(oj.get("clientes")), "duracao": txt(oj.get("duracao_min")), "obs": txt(oj.get("observacao"))}
+                pap_mostra = txt(oj.get("papeis"))
+                d_mostra = None if oj.get("na_janela") else (abs(oj.get("delta_inicio_h")) if oj.get("delta_inicio_h") is not None else None)
+            else:
+                o_mostra, pap_mostra, d_mostra = None, "", None
+            if resultado.startswith("AUSENTE"):
+                resultado = "AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)"
         r = site.get(s["ss"])
         linhas.append({
             "SS": s["ss"], "OS": s["os"], "Obra": s["obra"], "Transformador": cod, "Prefixo": cod[:2],
@@ -278,8 +330,9 @@ def principal():
         })
 
     # ── resumo ─────────────────────────────────────────────────────────────
-    conf = [l for l in linhas if l["Cobertura da Crítica"] == "Crítica carregada"]
-    nconf = [l for l in linhas if l not in conf]
+    conf = [l for l in linhas if l["Cobertura da Crítica"].startswith("Crítica")]
+    nconf = [l for l in linhas if not l["Cobertura da Crítica"].startswith("Crítica")]
+    julho_site = [l for l in conf if "extração por SS" in l["Cobertura da Crítica"]]
     res = collections.Counter(l["Resultado"] for l in conf)
     por_mes = collections.defaultdict(collections.Counter)
     for l in linhas:
@@ -308,10 +361,12 @@ def principal():
     linha("SS repetida na base (contada uma vez)", dup)
     linha("SS no recorte", len(linhas), bold=True)
     linha("  com Crítica carregada para o período", len(conf))
-    linha("  sem Crítica do período (julho: não conferível)", len(nconf))
+    linha("    …das quais julho, pela extração por SS de 07/08 guardada no site", len(julho_site))
+    linha("  sem Crítica do período (não conferível)", len(nconf))
     linha("")
     linha("Resultado — só as conferíveis", bold=True)
-    for k in ("CASOU PELO TRAFO", "TRAFO FORA DA JANELA", "CASOU PELA CHAVE GÊMEA", "CHAVE GÊMEA FORA DA JANELA", "AUSENTE — nem trafo nem chave"):
+    for k in ("CASOU PELO TRAFO", "TRAFO FORA DA JANELA", "CASOU PELA CHAVE GÊMEA", "CHAVE GÊMEA FORA DA JANELA",
+              "AUSENTE — nem trafo nem chave", "AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)"):
         linha(k, res.get(k, 0), f"{res.get(k, 0) / max(1, len(conf)) * 100:.1f}%")
     linha("")
     linha("O que a chave gêmea acrescentou", bold=True)
@@ -338,7 +393,7 @@ def principal():
         "Chave gêmea = '03' + 8 últimos dígitos do trafo. Procurada SÓ quando o trafo não aparece em papel nenhum.",
         "Distância à janela: horas entre a abertura da SS e a borda mais próxima da ocorrência mais próxima, quando não casou.",
         "Dezembro/2025 não está carregado: SS dos primeiros dias de janeiro podem ter ocorrência lá (o site tratou 24 casos assim).",
-        "Julho: sem a Crítica de julho carregada, as SS do mês ficam 'não conferíveis' — não é ausência.",
+        "Julho: a Crítica bruta de julho (Critica__072026.txt) se perdeu nos reinícios do contêiner. O resultado pelo trafo vem da extração por SS de 07/08 guardada no site (julho-2026.json), mesmo método; a chave gêmea e a busca em observação de julho ficam sem conferência até o arquivo ser reenviado.",
         "Isto é leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; a coluna 'Site' mostra o que o site decidiu.",
     ]:
         linha(t)
@@ -370,6 +425,7 @@ def principal():
     aba("Ausentes", [l for l in conf if l["Resultado"].startswith("AUSENTE")])
     aba("Fora da janela", [l for l in conf if "FORA DA JANELA" in l["Resultado"]])
     aba("Não conferíveis", nconf)
+    aba("Julho pela extração do site", julho_site)
     aba("Divergem do site", [l for l in conf if (l["Resultado"].startswith("CASOU") and l["Site · cascata"] == "EXCLUÍDA" and l["Site · gatilho de exclusão"] in ("sem_interrupcao", "fora_da_janela"))
                             or (l["Resultado"].startswith("AUSENTE") and l["Site · Crítica"] == "DEFEITO NA JANELA")])
     os.makedirs(os.path.dirname(os.path.abspath(a.saida)), exist_ok=True)

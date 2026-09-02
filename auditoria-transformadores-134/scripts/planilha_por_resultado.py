@@ -23,7 +23,8 @@ ABAS = [
     ("CASOU PELA CHAVE GÊMEA", "Casou pela chave gêmea"),
     ("CHAVE GÊMEA FORA DA JANELA", "Chave fora da janela"),
     ("AUSENTE — nem trafo nem chave", "Ausente de tudo"),
-    ("JULHO", "Julho sem Crítica"),
+    ("AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)", "Julho · ausente pelo trafo"),
+    ("SEM CRÍTICA", "Sem Crítica do período"),
 ]
 OBS_COLS = ["Observação · veredito", "Observação · menções", "Observação · na janela",
             "Observação · ocorrências na janela", "Observação · elemento com problema", "Observação · trecho",
@@ -62,7 +63,13 @@ def principal():
             for c in OBS_COLS:
                 l[c] = "" if c not in ("Observação · menções", "Observação · na janela") else None
             l["Observação · veredito"] = "não se aplica (casou nas colunas de ativo)" if str(l["Resultado"]).startswith("CASOU") else ""
-        l["Grupo"] = "JULHO" if l["Cobertura da Crítica"] != "Crítica carregada" else l["Resultado"]
+        julho_site = "extração por SS" in str(l["Cobertura da Crítica"])
+        if julho_site:
+            # a observação de julho não pôde ser varrida: a Crítica bruta do mês se perdeu
+            l["Observação · veredito"] = "não conferível — Crítica bruta de julho perdida" if not str(l["Resultado"]).startswith("CASOU") else "não se aplica (casou nas colunas de ativo)"
+            for c in OBS_COLS[1:]:
+                l[c] = None if c in ("Observação · menções", "Observação · na janela") else ""
+        l["Grupo"] = "SEM CRÍTICA" if not str(l["Cobertura da Crítica"]).startswith("Crítica") else l["Resultado"]
 
     ordem = ["SS", "OS", "Obra", "Transformador", "Prefixo", "Chave gêmea (03)", "Abertura da SS", "Mês",
              "Origem SS", "Defeito SS", "Tipo SS", "Situação", "Criticidade", "Localidade", "Alimentador", "Equipe",
@@ -88,13 +95,21 @@ def principal():
         ws.append([nome, len(g), v.get("MENCIONADO NA JANELA", 0), v.get("MENCIONADO FORA DA JANELA", 0), v.get("NÃO MENCIONADO", 0), v.get("SÓ OUTRO EQUIPAMENTO DE MESMO FINAL", 0)])
     ws.append(["Total", len(linhas)])
     ws.append([])
+    jul = [l for l in linhas if "extração por SS" in str(l["Cobertura da Crítica"])]
+    ws.append(["Julho pela extração por SS de 07/08 guardada no site (dentro dos totais acima)", len(jul)]); ws[ws.max_row][0].font = Font(bold=True)
+    for chave, nome in ABAS:
+        n = sum(1 for l in jul if l["Grupo"] == chave)
+        if n:
+            ws.append([f"  {nome}", n])
+    ws.append([])
     for t in ["Método: três colunas de ativo da Crítica; ocorrência do primeiro passo ao último; casa se a abertura da SS está entre (início − 1h) e (fim + 24h).",
               "Chave gêmea = 03 + 8 dígitos finais, procurada só quando o trafo não aparece em papel nenhum.",
               "Observação: para ausentes e fora da janela, o código do trafo (inteiro ou 8 finais com qualquer prefixo) e o número da SS com a sigla da equipe foram procurados no texto OBSERVACAO de todos os passos.",
               "Mencionado na observação não é o mesmo que ter defeito registrado: veja o elemento com problema, o trecho e a leitura do revisor na linha.",
               "Os 8 dígitos finais com prefixo 79/03/02/67/33/88 apontam para religador ou chave do mesmo ponto, não para o trafo — contados à parte como 'outro equipamento'.",
               "Número da SS só conta com a sigla da equipe junto (ENC-RD-PS 26 não é ETO-RD-AG 26).",
-              "Dezembro/2025 não carregado (SS dos primeiros dias de janeiro podem ter ocorrência lá). Julho sem Crítica de julho: não conferível.",
+              "Dezembro/2025 não carregado (SS dos primeiros dias de janeiro podem ter ocorrência lá).",
+              "Julho: a Crítica bruta (Critica__072026.txt) se perdeu nos reinícios do contêiner. O resultado pelo trafo vem da extração por SS de 07/08 guardada no site, mesmo método e mesma janela; a chave gêmea e a observação de julho ficam sem conferência até o arquivo ser reenviado.",
               "Leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; as colunas 'Site' mostram o que o site decidiu."]:
         ws.append([t])
     ws.column_dimensions["A"].width = 40
@@ -118,7 +133,10 @@ def principal():
             w.auto_filter.ref = w.dimensions
 
     for chave, nome in ABAS:
+        if chave == "SEM CRÍTICA" and not grupos.get(chave):
+            continue
         aba(nome, sorted(grupos.get(chave, []), key=lambda l: l["Abertura da SS"]))
+    aba("Julho (detalhe)", sorted(jul, key=lambda l: l["Abertura da SS"]))
     wb.save(a.saida)
     print(a.saida)
     for chave, nome in ABAS:
