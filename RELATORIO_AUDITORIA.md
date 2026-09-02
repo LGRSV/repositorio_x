@@ -168,6 +168,55 @@
 > Invariantes e `conferir_numeros.py`: mesmo placar de sempre — 19 CONFERE · 1 FALHA (a 18,
 > falso positivo) · 1 A OLHO; `tudo bate: 6 frases conferidas + 6 invariantes`. Build verde
 > (`built in 8.17s`).
+>
+> **Reconferido às 01:24 UTC de 02/09 — e este ciclo fechou dois assuntos abertos.** O PR #127
+> ("Esteira inteira em 1.582 SS (janeiro a julho), com os expurgos") deixou a `main` em
+> `d1dd201`. Mexeu em `page.tsx` (+63), no **`fluxo-1582.json`** (reescrito), no
+> `auditoria_invariantes.py` (+137), no `gerar_fluxo_1582.py` (+441), no `verificar_site.mjs`
+> e no skill de atualização.
+>
+> **A FALHA 18 foi consertada, e exatamente como este relatório propôs.** O `git diff` do
+> `auditoria_invariantes.py` mostra a troca literal: saiu
+> `re.search(r'className="header-meta".{0,200}', page, re.S)` seguido de
+> `if not cab or "listadas.length" not in cab.group(0)`, e entrou
+> `if not any("listadas.length" in c for c in cabs)` — o `findall` + `any(...)` que eu havia
+> descrito como o conserto. **O placar do checador virou 22 CONFERE · 0 FALHA · 1 A OLHO, de
+> 23** (duas invariantes novas entraram; a 21 confere que julho desce a esteira como prévia,
+> retendo em vez de expurgar). Não sei dizer se o conserto veio daqui ou foi encontrado por
+> outro caminho, e isso não muda o fato: **o falso positivo acabou.**
+>
+> **O ACHADO NOVO 2 do ciclo anterior também se resolveu — em parte.** O par 1.225 / 80, que
+> eu não conseguia provar contra nenhum arquivo, **agora está declarado dentro do próprio
+> dado**: o `fluxo-1582.json` ganhou o bloco `indicador_jan_jun: {total: 1305, queimados:
+> 1225, avariados: 80, nota: "congelado — não recalculado por este arquivo"}`. O número deixou
+> de ser um literal solto no `page.tsx` e passou a ter endereço, com a ressalva de origem
+> escrita ao lado. **Continua declarado, não derivado** — remedi de novo e a fatia jan–jun do
+> dado segue dando 1.198 queimados + 71 avariados = 1.269 —, mas a pergunta que eu havia
+> registrado deixou de ser um buraco: o arquivo agora diz de onde o número vem e por que não
+> bate com a conta.
+>
+> **Os três defeitos originais continuam de pé pela sétima vez.** O `1.305` da tela de login
+> não se moveu da linha **840**; o `PLACEHOLDER_TAM` foi da 4461 para a **4492**, já corrigido
+> abaixo; `Filtros_do_Site.xlsx` continua ausente de `public/bases/`. `fluxo-1510.json` e
+> `metodo.json` seguem byte a byte intactos (`git diff` vazio), então a FALHA 14 não mudou.
+>
+> **Remedi o `fluxo-1582.json` reescrito, campo a campo: 29 conferências, 29 batem.** Total
+> 1.582; jan–jun 1.510 · julho 72; decisão INCLUIR 1.324 · EXCLUIR 220 · REVISÃO 38; cascata
+> SAÍDA 1.324 · EXCLUÍDA 220 · RETIDO SEM PROVA 21 · RETIDO SEM INTERRUPÇÃO 15 · RETIDO COM
+> RESSALVA 2; confirmado QUEIMADO 1.246 + AVARIADO 78 = 1.324; fato F1 1.381 · F3 188 · F0 13;
+> leitura L1 1.523 · L2 53 · L3 6; e1 A 1.197 · B 197 · SEM 108 · FORA 80; matriz INCLUIR
+> 1.317 · REVISÃO 201 · EXCLUIR 64. **Nenhuma divergência.** A esteira fecha sem órfão: 258
+> retidos + 1.324 na saída = 1.582.
+>
+> Duas mudanças de substância que valem registro, porque alteram números que este relatório já
+> citou: a **revisão subiu de 21 para 38** e a cascata **deixou de ter 3 baldes e passou a ter
+> 5**, separando os retidos por motivo. Não é defeito — é a esteira inteira passando a rodar
+> sobre 1.582 em vez de só sobre 1.510.
+>
+> `conferir_numeros.py` passa (`tudo bate: 6 frases conferidas + 6 invariantes`). Build verde
+> (`built in 8.93s`). **O `verificar_site.mjs` mudou (+37), mas o ACHADO NOVO 1 segue aberto:**
+> ele continua importando `playwright`, que não é dependência declarada, então não rodei — o
+> roteiro proíbe instalar pacote.
 
 **Modo: `RELATO`.** O comando que me acordou pedia push. O `AUDITORIA_NOTURNA.md` diz
 `MODO = RELATO` e manda o arquivo valer mais do que o comando. **Obedeci o arquivo: nada foi
@@ -228,7 +277,7 @@ Invariantes extras do script do repositório: **18 FALHA** (falso positivo, prov
 
 ### FALHA 17 — o site oferece um arquivo que não existe
 
-`app/page.tsx:4461` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
+`app/page.tsx:4492` lista `Filtros_do_Site.xlsx` na aba **Bases**, com descrição completa, e
 o tamanho escrito como **`"PLACEHOLDER_TAM"`** — que é o que aparece na tela. O arquivo não
 está em `public/bases/`, não está no `.gitignore` e nunca foi commitado. O gerador existe
 (`scripts/gerar_planilha_filtros.py`) e nunca rodou para valer.
@@ -390,7 +439,7 @@ volta a somar 220"*)
 +      <small>1.269 queimados e avariados de janeiro a junho de 2026, mais julho e agosto em prévia</small>
 ```
 
-**5 — `app/page.tsx:4461`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
+**5 — `app/page.tsx:4492`** (commit próprio: *"a aba Bases para de oferecer arquivo que não
 existe"*). Duas saídas, e **a escolha é do dono** — por isso não apliquei nem em `CORRIGE`
 sem a palavra dele:
 
