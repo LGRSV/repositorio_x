@@ -168,27 +168,51 @@ def carregar_critica(zip_path, extras):
     return ocs, por_codigo
 
 
+ORDEM_PAPEL = {"problema": 0, "interrompido": 1, "fechado": 2}
+
+
+def papeis_texto(papeis):
+    """'problema+interrompido+fechado', sempre nesta ordem — julho vinha em outra e virava
+    balde separado em qualquer pivô por papel."""
+    return "+".join(sorted(set(papeis), key=lambda p: ORDEM_PAPEL.get(p, 9)))
+
+
+def distancia_a_janela(abertura, ini, fim):
+    """Horas que a abertura da SS ficou FORA da janela [ini − 1 h, fim + 24 h]; 0 dentro."""
+    if abertura < ini - ANTES:
+        return (ini - ANTES - abertura).total_seconds() / 3600
+    if abertura > fim + DEPOIS:
+        return (abertura - fim - DEPOIS).total_seconds() / 3600
+    return 0.0
+
+
 def procurar(codigo, abertura, ocs, por_codigo):
-    """Devolve (status, melhor_ocorrencia, papeis, delta_h, n_ocorrencias)."""
+    """Devolve (status, melhor_ocorrencia, papeis, delta_h, n_ocorrencias).
+
+    Entre as ocorrências que casam, a melhor é a em que o trafo é o elemento com PROBLEMA e,
+    empatando, a de início mais perto da abertura. Fora da janela, a de menor distância à
+    borda. Ocorrência sem DTA_FECH (ainda aberta na extração) usa o início como fim, em vez
+    de ser descartada — descartar podia mandar a busca para a chave gêmea sem motivo."""
     achadas = por_codigo.get(codigo)
-    if not achadas:
-        return "AUSENTE", None, "", None, 0
-    melhor, melhor_d, melhor_pap, casou = None, None, "", False
+    if not achadas or not abertura:
+        return "AUSENTE", None, "", None, len(achadas or {})
+    dentro, fora = [], []
     for oc_id, papeis in achadas.items():
         o = ocs[oc_id]
-        if not (o["ini"] and o["fim"] and abertura):
+        ini = o["ini"] or o["fim"]
+        fim = o["fim"] or o["ini"]
+        if not ini:
             continue
-        if (o["ini"] - ANTES) <= abertura <= (o["fim"] + DEPOIS):
-            d = 0.0
-            if not casou or (melhor_d or 0) > 0:
-                melhor, melhor_d, melhor_pap, casou = o, d, "+".join(sorted(papeis)), True
-        elif not casou:
-            d = (o["ini"] - abertura).total_seconds() / 3600 if abertura < o["ini"] else (abertura - o["fim"]).total_seconds() / 3600
-            if melhor_d is None or d < melhor_d:
-                melhor, melhor_d, melhor_pap = o, d, "+".join(sorted(papeis))
-    if melhor is None:
-        return "AUSENTE", None, "", None, len(achadas)
-    return ("SIM" if casou else "fora da janela"), melhor, melhor_pap, (None if casou else round(melhor_d, 1)), len(achadas)
+        d = distancia_a_janela(abertura, ini, fim)
+        chave_ordem = (0 if "problema" in papeis else 1, abs((abertura - ini).total_seconds()))
+        (dentro if d == 0 else fora).append((chave_ordem if d == 0 else (d,), o, papeis_texto(papeis)))
+    if dentro:
+        _, o, pap = min(dentro, key=lambda t: t[0])
+        return "SIM", o, pap, None, len(achadas)
+    if fora:
+        (d,), o, pap = min(fora, key=lambda t: t[0])
+        return "fora da janela", o, pap, round(d, 1), len(achadas)
+    return "AUSENTE", None, "", None, len(achadas)
 
 
 # ── o site, para comparar ──────────────────────────────────────────────────
@@ -245,6 +269,7 @@ def principal():
         fonte_ss += f" + julho-2026.json ({novos} SS de julho após o fim da V4)"
     total_base = len(ss)
     fora_prefixo = collections.Counter(s["trafo"][:2] for s in ss if s["trafo"][:2] not in PREFIXOS)
+    malformados = [s for s in ss if s["trafo"][:2] in PREFIXOS and not re.fullmatch(r"\d{10}", s["trafo"])]
     ss = [s for s in ss if s["trafo"][:2] in PREFIXOS and re.fullmatch(r"\d{10}", s["trafo"])]
     fora_data = [s for s in ss if not (s["abertura"] and INICIO <= s["abertura"] < FIM)]
     ss = [s for s in ss if s["abertura"] and INICIO <= s["abertura"] < FIM]
@@ -285,7 +310,7 @@ def principal():
         jr = julho_por_ss.get(s["ss"])
         # SS de julho: a Crítica jan–jun só alcança quem casou numa ocorrência de junho que se
         # estende até a abertura; para o resto, quem responde é a extração de julho por SS.
-        if jr and s["abertura"].month == 7 and (s["abertura"] > ultimo or st != "SIM"):
+        if jr and s["abertura"].month == 7 and (s["abertura"] > ultimo or st != "SIM") and not resultado.startswith("CASOU"):
             cobertura = "Crítica de julho · extração por SS de 07/08 (site) — chave gêmea e observação não conferíveis"
             st_j = txt(jr.get("critica"))
             ocs_j = jr.get("ocorrencias") or []
@@ -301,13 +326,14 @@ def principal():
                 o_mostra = {"oc": "", "ini": data(oj.get("inicio")), "fim": data(oj.get("fim")), "passos": "",
                             "causa": txt(oj.get("causa")), "subcausa": txt(oj.get("subcausa")),
                             "clientes": txt(oj.get("clientes")), "duracao": txt(oj.get("duracao_min")), "obs": txt(oj.get("observacao"))}
-                pap_mostra = txt(oj.get("papeis"))
-                d_mostra = None if oj.get("na_janela") else (abs(oj.get("delta_inicio_h")) if oj.get("delta_inicio_h") is not None else None)
+                pap_mostra = papeis_texto(txt(oj.get("papeis")).split("+"))
+                ini_j, fim_j = data(oj.get("inicio")), data(oj.get("fim"))
+                d_mostra = None if oj.get("na_janela") else (round(distancia_a_janela(s["abertura"], ini_j, fim_j or ini_j), 1) if ini_j else None)
             else:
                 o_mostra, pap_mostra, d_mostra = None, "", None
             if resultado.startswith("AUSENTE"):
                 resultado = "AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)"
-        elif s["abertura"].month == 7 and st != "SIM":
+        elif s["abertura"].month == 7 and st != "SIM" and not resultado.startswith("CASOU"):
             # SS de julho fora do julho-2026.json: a Crítica jan–jun não cobre a abertura dela, então
             # "fora da janela" ou "ausente" medido só em jan–jun seria conclusão falsa. Só o casamento
             # real (ocorrência de junho que se estende até a abertura) vale.
@@ -368,9 +394,12 @@ def principal():
     linha("Recorte", bold=True)
     linha("Linhas na base de SS", total_base)
     linha(f"Fora do prefixo {'/'.join(PREFIXOS)}", sum(fora_prefixo.values()), ", ".join(f"{k}={v}" for k, v in fora_prefixo.most_common()))
+    linha("Prefixo certo mas código malformado (não são 10 dígitos)", len(malformados), ", ".join(s["trafo"] for s in malformados[:6]))
     linha("Fora de janeiro a julho", len(fora_data))
     linha("SS repetida na base (contada uma vez)", dup)
     linha("SS no recorte", len(linhas), bold=True)
+    linha("  …das quais SS canceladas (ficam no recorte; filtre pela coluna Situação se quiser)", sum(1 for l in linhas if l["Situação"] == "SS CANCELADA"))
+    linha("  …das quais SS repassadas", sum(1 for l in linhas if l["Situação"] == "SS REPASSADA"))
     linha("  com Crítica carregada para o período", len(conf))
     linha("    …das quais julho, pela extração por SS de 07/08 guardada no site", len(julho_site))
     linha("  sem Crítica do período (não conferível)", len(nconf))
@@ -406,7 +435,8 @@ def principal():
         "Ocorrência = passos com o mesmo NUM_SEQ_OPER_INIC_HDE; janela medida do primeiro passo aberto ao último fechado.",
         "Casa quando a abertura da SS cai entre (início − 1 h) e (fim + 24 h). Igual ao site.",
         "Chave gêmea = '03' + 8 últimos dígitos do trafo. Procurada SÓ quando o trafo não aparece em papel nenhum.",
-        "Distância à janela: horas entre a abertura da SS e a borda mais próxima da ocorrência mais próxima, quando não casou.",
+        "Distância à janela: horas que a abertura da SS ficou fora da janela [início − 1 h, fim + 24 h] da ocorrência mais próxima, quando não casou.",
+        "Quando mais de uma ocorrência casa, a mostrada é a em que o trafo é o elemento com problema; empatando, a de início mais próximo da abertura.",
         "Dezembro/2025 não está carregado: SS dos primeiros dias de janeiro podem ter ocorrência lá (o site tratou 24 casos assim).",
         "Julho: a Crítica bruta de julho (Critica__072026.txt) se perdeu nos reinícios do contêiner. O resultado pelo trafo vem da extração por SS de 07/08 guardada no site (julho-2026.json), mesmo método; a chave gêmea e a busca em observação de julho ficam sem conferência até o arquivo ser reenviado.",
         "Isto é leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; a coluna 'Site' mostra o que o site decidiu.",
