@@ -39,18 +39,25 @@ Antes de usar uma classe, confirme que ela existe: `grep -n "^\.nome" app/global
 assets, a página abre em branco, e você conclui que quebrou tudo quando só serviu errado.
 `scripts/verificar_site.mjs` já serve no caminho certo.
 
-**4 · O cabeçalho tem um contador global das 1.510.** Aba que lê outro arquivo precisa de
-um caso próprio no `header-meta` de `app/page.tsx`, senão mostra "Recorte 1.510" numa tela
-que fala de outro universo — um número descrevendo outra lista.
+**4 · O cabeçalho tem um contador global do fluxo principal (1.582).** Aba que lê outro
+arquivo precisa de um caso próprio no `header-meta` de `app/page.tsx`, senão mostra
+"Recorte 1.582" numa tela que fala de outro universo — um número descrevendo outra lista.
 
 ## A invariante que não se negocia
 
 **O indicador fechado é congelado.** As 1.510 de janeiro a junho e o indicador 1.305
 (1.225 queimados + 80 avariados) são **entrada, nunca saída**. Nenhum gerador reescreve
 `fluxo-1510.json`. Quando um período novo precisa somar, ele soma **por cima**, em arquivo
-próprio — foi assim que nasceu o `fluxo-1582.json` (1.510 + 72 de julho). Editar o
-arquivo congelado quebraria `scripts/auditoria_invariantes.py`, que trava se o total
-deixar de ser 1.510, e é justamente essa trava que dá confiança ao número.
+próprio — é o `fluxo-1582.json` (1.510 + 72 de julho), que desde 01/09 é o arquivo que a
+esteira inteira do site lê (`app/page.tsx` faz `fetch("fluxo-1582.json")`). Ele carrega os
+1.510 copiados sem mudar um caractere e os 72 de julho traduzidos para as mesmas peneiras
+(`scripts/gerar_fluxo_1582.py` explica a tradução no cabeçalho). O invariante 0 de
+`scripts/auditoria_invariantes.py` compara o subconjunto jan–jun com o `fluxo-1510.json`
+registro a registro e trava se um campo mudou — é essa trava que dá confiança ao número.
+
+**Julho retém, não expurga.** Quem não casou na Crítica do mês fica RETIDO (decisão
+REVISÃO, `previa=true`), porque a extração é recente e o dono não bateu martelo. O
+invariante 21 falha se algum registro de julho aparecer como EXCLUÍDA.
 
 Mês aberto continua aberto: se a decisão veio da régua e não do dono, a tela diz isso.
 
