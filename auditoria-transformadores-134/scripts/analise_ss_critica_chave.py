@@ -283,7 +283,9 @@ def principal():
         # julho sem Crítica bruta: usa a extração por SS do site, e diz isso
         cobertura = "Crítica carregada" if s["abertura"] <= ultimo else "SEM CRÍTICA DESTE PERÍODO — não conferível"
         jr = julho_por_ss.get(s["ss"])
-        if s["abertura"] > ultimo and jr:
+        # SS de julho: a Crítica jan–jun só alcança quem casou numa ocorrência de junho que se
+        # estende até a abertura; para o resto, quem responde é a extração de julho por SS.
+        if jr and s["abertura"].month == 7 and (s["abertura"] > ultimo or st != "SIM"):
             cobertura = "Crítica de julho · extração por SS de 07/08 (site) — chave gêmea e observação não conferíveis"
             st_j = txt(jr.get("critica"))
             ocs_j = jr.get("ocorrencias") or []
@@ -305,6 +307,13 @@ def principal():
                 o_mostra, pap_mostra, d_mostra = None, "", None
             if resultado.startswith("AUSENTE"):
                 resultado = "AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)"
+        elif s["abertura"].month == 7 and st != "SIM":
+            # SS de julho fora do julho-2026.json: a Crítica jan–jun não cobre a abertura dela, então
+            # "fora da janela" ou "ausente" medido só em jan–jun seria conclusão falsa. Só o casamento
+            # real (ocorrência de junho que se estende até a abertura) vale.
+            resultado = "SEM CRÍTICA — não conferível"
+            via = "—"
+            o_mostra, pap_mostra, d_mostra = None, "", None
         r = site.get(s["ss"])
         linhas.append({
             "SS": s["ss"], "OS": s["os"], "Obra": s["obra"], "Transformador": cod, "Prefixo": cod[:2],
