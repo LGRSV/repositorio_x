@@ -96,7 +96,8 @@ def ler_ss_arroba(*arquivos):
             "situacao": g(r, "SITUACAO_SS"), "criticidade": g(r, "CRITICIDADE_SS"),
             "localidade": g(r, "LOCALIDADE"), "alimentador": g(r, "ALIMENTADOR"),
             "equipe": g(r, "COD_EQUIPE"), "pot_ret": g(r, "POTENCIA_RET"), "pot_inst": g(r, "POTENCIA_INST"),
-            "descricao": g(r, "DESCRIPTION")[:400],
+            "descricao": (g(r, "DESCRIPTION_SS") or g(r, "DESCRIPTION"))[:400],
+            "descricao_os": g(r, "DESCRICAO_OS")[:400],
         })
     return " + ".join(os.path.basename(a) for a in arquivos), saida
 
@@ -363,6 +364,10 @@ def principal():
     linha("  com Crítica carregada para o período", len(conf))
     linha("    …das quais julho, pela extração por SS de 07/08 guardada no site", len(julho_site))
     linha("  sem Crítica do período (não conferível)", len(nconf))
+    linha("")
+    linha("Por tipo de SS (recorte inteiro)", bold=True)
+    for k, v in collections.Counter(l["Tipo SS"] for l in linhas).most_common():
+        linha(k, v)
     linha("")
     linha("Resultado — só as conferíveis", bold=True)
     for k in ("CASOU PELO TRAFO", "TRAFO FORA DA JANELA", "CASOU PELA CHAVE GÊMEA", "CHAVE GÊMEA FORA DA JANELA",
