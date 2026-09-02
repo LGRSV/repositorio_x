@@ -1,5 +1,45 @@
 # Relatório da auditoria automática
 
+## 02/09/2026, 02:05 UTC — adendo: a base mudou para 1.582 e os quatro defeitos sobreviveram
+
+Reconferi tudo contra a `main` de agora (`d1dd201`, PR #127, *"Esteira inteira em 1.582 SS"*,
+mesclado em 01/09 às 21:51 UTC). **`MODO` continua `RELATO`** — nada foi para a `main` e nada
+foi publicado; este adendo é texto, na mesma branch do relatório.
+
+**O fluxo principal deixou de ser `fluxo-1510.json`: agora o site lê `fluxo-1582.json`**, com
+os 1.510 de jan–jun copiados sem alteração mais 72 de julho. Isso muda um dos quatro achados
+para pior e não resolve nenhum.
+
+| # | Defeito | Estado em `d1dd201` |
+|---|---|---|
+| 12 | 8 registros com mojibake | **agravado** — os mesmos 8 estão em `fluxo-1582.json` |
+| 14 | prosa do `metodo.json` | intacto — segue "220" dividido em 137 + 103 = **240** |
+| 15 | KPI "SS duplicada" abre a lista errada | intacto — `page.tsx:5204`, e nenhum chip `id: "duplicada"` |
+| 17 | `Filtros_do_Site.xlsx` oferecido e inexistente | intacto — e o tamanho sai literalmente como `PLACEHOLDER_TAM` |
+
+**A FALHA 12 mudou de gravidade.** Antes eu podia dizer que o mojibake estava no arquivo que
+o site lia; agora ele está no arquivo que o site passou a ler. Os oito registros — os mesmos
+`ETO-RD-AG 00003`, `00214`, `00249`, `00545`, `00627`, `DOLP-RD-PA 00429`, `00437` e
+`DG-RD-PO 00333` — foram copiados para `fluxo-1582.json` com a corrupção junto, porque a
+tradução de jan–jun é cópia byte a byte e o defeito já estava na origem. A correção proposta
+não muda: o round-trip `latin-1 → utf-8` nos campos `at2_sub`/`at2_obs`, **agora aplicado nos
+dois arquivos**.
+
+**E o ponto central do relatório ficou mais forte, não mais fraco.** O
+`scripts/auditoria_invariantes.py` foi reescrito pelo #127, ganhou dois universos e dois
+invariantes novos, e agora fecha em **22 CONFERE · 0 FALHA · 1 A OLHO, de 23**. Mesmo assim
+os quatro defeitos continuam de pé, exatamente pelos pontos cegos que este relatório localiza:
+lista fixa de campos (12), só as células da tabela e não a prosa (14), e nenhum teste que
+pergunte se o arquivo oferecido existe (17). Uma suíte verde não é prova de que o site está
+certo — é prova de que o site passa nos testes que existem.
+
+**Sobre este PR (#121):** a `main` andou, então trouxe ela para cá com um merge. Não houve
+conflito — o #127 não tocou `RELATORIO_AUDITORIA.md` nem `AUDITORIA_NOTURNA.md`. O diff segue
+sendo só documentação, fora dos caminhos que disparam o deploy: **mesclar este PR não
+republica o site.**
+
+---
+
 ## 28/08/2026, 00:22 UTC — `MODO = RELATO` · o roteiro envelheceu, o site não
 
 **Placar: 12 conferem · 4 falham · 1 a olho, de 17.** Nada foi para a `main`, nada foi
