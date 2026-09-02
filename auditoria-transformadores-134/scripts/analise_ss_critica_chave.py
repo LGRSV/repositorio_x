@@ -84,6 +84,53 @@ def ler_ss_v4(caminho):
     return "Original_SS_TRAFOS_V4.xlsx · BASE GERAL", saida
 
 
+def ler_ss_xlsx(caminho):
+    """A planilha de trabalho do dono (Trafo_v1_3.xlsx e sucessoras).
+
+    Aba BASE SS_OS: uma SS por linha, as 64 colunas da base @ mais a coluna A de marcação
+    ("INFOTRAFO", "ANALISE DE EXPURGOS" ou vazia). Linhas que só têm a coluna A preenchida
+    são a lista auxiliar do dono — a mesma SS aparece completa noutra linha — e ficam fora.
+    Aba Expurgos 309, quando existe: traz a CLASSIFICAÇÃO do expurgo por SS."""
+    wb = openpyxl.load_workbook(caminho, read_only=True)
+    ws = wb["BASE SS_OS"]
+    rows = ws.iter_rows(values_only=True)
+    hdr = list(next(rows))
+    H = {h: i for i, h in enumerate(hdr) if h}
+    g = lambda r, k: txt(r[H[k]]) if k in H and H[k] < len(r) else ""
+
+    classif = {}
+    if "Expurgos 309" in wb.sheetnames:
+        we = wb["Expurgos 309"]
+        rr = we.iter_rows(values_only=True)
+        he = list(next(rr))
+        HE = {h: i for i, h in enumerate(he) if h}
+        for r in rr:
+            ss_ = txt(r[HE["NUMERO_SS"]]) if "NUMERO_SS" in HE else ""
+            if ss_:
+                classif[ss_] = txt(r[HE["CLASSIFICAÇÃO"]]) if "CLASSIFICAÇÃO" in HE else ""
+
+    saida, so_marca = [], 0
+    for r in rows:
+        ss_ = g(r, "NUMERO_SS")
+        if not ss_:
+            so_marca += 1
+            continue
+        saida.append({
+            "ss": ss_, "os": g(r, "NUMERO_OS"), "obra": g(r, "NUM_OBRA"),
+            "trafo": g(r, "NUM_TRAFO"), "abertura": data(r[H["DATA_ABERTURA_SS"]]),
+            "origem": g(r, "ORIGEM_SS"), "defeito": g(r, "DEFEITO_SS"), "tipo_ss": g(r, "TIPOSS"),
+            "situacao": g(r, "SITUACAO_SS"), "criticidade": g(r, "CRITICIDADE_SS"),
+            "localidade": g(r, "LOCALIDADE"), "alimentador": g(r, "ALIMENTADOR"),
+            "equipe": g(r, "COD_EQUIPE"), "pot_ret": g(r, "POTENCIA_RET"), "pot_inst": g(r, "POTENCIA_INST"),
+            "descricao": g(r, "DESCRIPTION_SS")[:400], "descricao_os": g(r, "DESCRICAO_OS")[:400],
+            "marca": txt(r[0]),
+            "classificacao_expurgo": classif.get(ss_, ""),
+        })
+    print(f"  {os.path.basename(caminho)}: {len(saida)} SS com dados · {so_marca} linhas só com a marcação da coluna A"
+          f" · {len(classif)} classificações de expurgo")
+    return os.path.basename(caminho) + " · aba BASE SS_OS", saida
+
+
 def ler_ss_arroba(*arquivos):
     cab, regs = base.ler_ss_os(*arquivos)
     g = base.indexar(cab)
@@ -228,6 +275,7 @@ def carregar_site():
 def principal():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ss", nargs="*", default=None, help="base @ do ano (BASE_SS_OS*.txt); sem ela usa a V4")
+    ap.add_argument("--ss-xlsx", default=None, help="planilha de trabalho do dono (aba BASE SS_OS + Expurgos 309)")
     ap.add_argument("--critica-extra", nargs="*", default=[], help="Critica*.txt fora do zip (julho)")
     ap.add_argument("--saida", default=os.path.join(RAIZ, "..", "SS_x_Critica_trafo_e_chave_2026.xlsx"))
     ap.add_argument("--julho-json", default=os.path.join(PUB, "julho-2026.json"),
@@ -235,7 +283,9 @@ def principal():
     a = ap.parse_args()
 
     print("SS:")
-    if a.ss:
+    if a.ss_xlsx:
+        fonte_ss, ss = ler_ss_xlsx(a.ss_xlsx)
+    elif a.ss:
         fonte_ss, ss = ler_ss_arroba(*a.ss)
     else:
         fonte_ss, ss = ler_ss_v4(os.path.join(PUB, "bases", "originais", "Original_SS_TRAFOS_V4.xlsx"))
@@ -348,6 +398,7 @@ def principal():
             "Origem SS": s["origem"], "Defeito SS": s["defeito"], "Tipo SS": s["tipo_ss"], "Situação": s["situacao"],
             "Criticidade": s["criticidade"], "Localidade": s["localidade"], "Alimentador": s["alimentador"],
             "Equipe": s["equipe"], "kVA retirado": s["pot_ret"], "kVA instalado": s["pot_inst"],
+            "Marca do dono": s.get("marca", ""), "Classificação do expurgo": s.get("classificacao_expurgo", ""),
             "Cobertura da Crítica": cobertura,
             "Resultado": resultado, "Encontrado por": via if resultado.startswith("CASOU") or "FORA" in resultado else "—",
             "Ocorrências do trafo na Crítica": n, "Ocorrências da chave na Crítica": n_ch,
@@ -403,6 +454,20 @@ def principal():
     linha("  com Crítica carregada para o período", len(conf))
     linha("    …das quais julho, pela extração por SS de 07/08 guardada no site", len(julho_site))
     linha("  sem Crítica do período (não conferível)", len(nconf))
+    linha("")
+    linha("Por marcação do dono (coluna A) — recorte inteiro", bold=True)
+    linha("Marca", "SS", "casou pelo trafo", "fora da janela", "chave gêmea", "ausente", bold=True)
+    marcas = collections.defaultdict(collections.Counter)
+    for l in linhas:
+        marcas[l.get("Marca do dono") or "(sem marca)"][l["Resultado"][:24]] += 1
+    for k in sorted(marcas):
+        m = marcas[k]
+        linha(k, sum(m.values()), m.get("CASOU PELO TRAFO", 0), m.get("TRAFO FORA DA JANELA", 0),
+              m.get("CASOU PELA CHAVE GÊMEA", 0), m.get("AUSENTE — nem trafo nem ", 0) + m.get("AUSENTE pelo trafo — cha", 0))
+    linha("")
+    linha("Classificação do expurgo (aba Expurgos 309)", bold=True)
+    for k, v in collections.Counter(l.get("Classificação do expurgo") for l in linhas if l.get("Classificação do expurgo")).most_common():
+        linha(k, v)
     linha("")
     linha("Por tipo de SS (recorte inteiro)", bold=True)
     for k, v in collections.Counter(l["Tipo SS"] for l in linhas).most_common():

@@ -73,7 +73,8 @@ def principal():
 
     ordem = ["SS", "OS", "Obra", "Transformador", "Prefixo", "Chave gêmea (03)", "Abertura da SS", "Mês",
              "Origem SS", "Defeito SS", "Tipo SS", "Situação", "Criticidade", "Localidade", "Alimentador", "Equipe",
-             "kVA retirado", "kVA instalado", "Resultado", "Encontrado por", "Cobertura da Crítica"] + OBS_COLS + [
+             "kVA retirado", "kVA instalado", "Marca do dono", "Classificação do expurgo",
+             "Resultado", "Encontrado por", "Cobertura da Crítica"] + OBS_COLS + [
              "Ocorrências do trafo na Crítica", "Ocorrências da chave na Crítica", "Ocorrência", "Início da ocorrência",
              "Fim da ocorrência", "Passos", "Papel do ativo", "Distância à janela (h)", "Causa", "Subcausa", "Clientes",
              "Duração (min)", "Observação da Crítica", "Site · cascata", "Site · Crítica", "Site · gatilho de exclusão",
@@ -95,6 +96,19 @@ def principal():
         ws.append([nome, len(g), v.get("MENCIONADO NA JANELA", 0), v.get("MENCIONADO FORA DA JANELA", 0), v.get("NÃO MENCIONADO", 0), v.get("SÓ OUTRO EQUIPAMENTO DE MESMO FINAL", 0)])
     ws.append(["Total", len(linhas)])
     ws.append([])
+    if any(l.get("Marca do dono") for l in linhas):
+        ws.append(["Marcação do dono (coluna A da planilha de trabalho)"]); ws[ws.max_row][0].font = Font(bold=True)
+        ws.append(["Marca", "SS", "casou pelo trafo", "fora da janela", "chave gêmea", "ausente"])
+        for c in ws[ws.max_row]: c.font = Font(bold=True)
+        marcas = collections.defaultdict(collections.Counter)
+        for l in linhas:
+            marcas[l.get("Marca do dono") or "(sem marca)"][str(l["Resultado"])[:24]] += 1
+        for k in sorted(marcas):
+            m = marcas[k]
+            ws.append([k, sum(m.values()), m.get("CASOU PELO TRAFO", 0), m.get("TRAFO FORA DA JANELA", 0),
+                       m.get("CASOU PELA CHAVE GÊMEA", 0),
+                       m.get("AUSENTE — nem trafo nem ", 0) + m.get("AUSENTE pelo trafo — cha", 0)])
+        ws.append([])
     jul = [l for l in linhas if "extração por SS" in str(l["Cobertura da Crítica"])]
     ws.append(["Julho pela extração por SS de 07/08 guardada no site (dentro dos totais acima)", len(jul)]); ws[ws.max_row][0].font = Font(bold=True)
     for chave, nome in ABAS:
@@ -110,6 +124,7 @@ def principal():
               "Número da SS só conta com a sigla da equipe junto (ENC-RD-PS 26 não é ETO-RD-AG 26).",
               "Dezembro/2025 não carregado (SS dos primeiros dias de janeiro podem ter ocorrência lá).",
               "Julho: a Crítica bruta (Critica__072026.txt) se perdeu nos reinícios do contêiner. O resultado pelo trafo vem da extração por SS de 07/08 guardada no site, mesmo método e mesma janela; a chave gêmea e a observação de julho ficam sem conferência até o arquivo ser reenviado.",
+              "Marca do dono e Classificação do expurgo vêm da planilha de trabalho (coluna A da aba BASE SS_OS e aba Expurgos 309) — leitura dele, não deste script.",
               "Leitura ao lado do caso. Não mexe no 1.305 nem no 1.582; as colunas 'Site' mostram o que o site decidiu."]:
         ws.append([t])
     ws.column_dimensions["A"].width = 40
