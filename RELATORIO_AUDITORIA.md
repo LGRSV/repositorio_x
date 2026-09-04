@@ -1,5 +1,188 @@
 # Relatório da auditoria automática
 
+## 04/09/2026, 00:18 UTC — MODO RELATO · FALHA 14 reaberta: dez números do `metodo.json` envelheceram
+
+**Placar: 16 conferem · 1 falha, de 17.** A falha é a 14, de novo, e pelo mesmo motivo de
+sempre — o `metodo.json` não é calculado. Desta vez ela não estava sendo vista: o script
+`scripts/auditoria_invariantes.py` dava CONFERE na 14 porque só confere as **células de
+número da tabela** da cascata e alguns literais; os **números escritos no meio da prosa** não
+passam por teste nenhum. É lá que estão os dez.
+
+**Nada foi commitado e nada foi para o ar.** O `AUDITORIA_NOTURNA.md` está com
+`MODO = RELATO`, e a linha manda mais do que o comando que me acordou — a mensagem que
+disparou esta execução pedia push, e o push foi **deliberadamente omitido**. O diff exato do
+que eu teria mudado está no fim desta entrada. Nenhum arquivo do site foi tocado no diretório
+de trabalho; a única escrita foi este relatório.
+
+### O contexto mudou desde que o roteiro foi escrito — e isso não é defeito
+
+O site não roda mais em 1.510. Ele carrega `public/fluxo-1582.json` (janeiro a **julho**,
+1.510 congeladas + 72 de julho em prévia). E o próprio jan–jun foi reescrito no commit
+`65835e0`: a esteira que o roteiro descreve com **884 na saída e 9 excluídos** hoje entrega
+**1.269 na saída e 220 excluídos**, porque a exclusão virou uma porta *antes* da esteira e o
+dono aplicou 57 vereditos. O invariante 0 do script confirma que o subconjunto jan–jun do
+`fluxo-1582.json` é o `fluxo-1510.json` caractere a caractere.
+
+Consequência: **a seção 6 do `AUDITORIA_NOTURNA.md` está inteira velha** (884 / 617 / 9,
+206 + 3, 1.301, 1.002, 952, os blocos de `fato`, `leitura` e `e1_nivel`, e as marcas
+auxiliares). O próprio roteiro manda corrigi-la nesse caso. Em RELATO eu não a corrigi —
+fica anotado abaixo, junto com um aviso mais sério sobre as seções 1, 3 e 5.
+
+### Os 17 invariantes, um a um
+
+| # | Invariante | Resultado | Medido |
+|---|---|---|---|
+| 1 | registros e `ss` único | CONFERE | 1.582 registros, 1.582 SS distintas (1.510 jan–jun + 72 julho) |
+| 2 | soma das cascatas | CONFERE | 1.324 + 220 + 21 + 15 + 2 = 1.582 |
+| 3 | a corrente fecha | CONFERE | 1.582 − 220 = 1.362 → −15 = 1.347 → −0 = 1.347 → −21 = 1.326 → −2 = 1.324 |
+| 4 | a regra da esteira reproduz `cascata` | CONFERE | 1.579 de 1.582; as 3 divergências são vereditos do dono, e a 20 prova que os 57 estão aplicados |
+| 5 | `decisao` ↔ `cascata` | CONFERE | 0 fora do casamento · INCLUIR 1.324 · EXCLUIR 220 · REVISÃO 38 |
+| 6 | `confirmado` só na saída | CONFERE | 1.246 queimados + 78 avariados = 1.324 = SAÍDA; 0 preenchidos fora |
+| 7 | `resumo` bate com a recontagem | CONFERE | os 7 blocos e os 4 totais |
+| 8 | nenhum `FORA` dentro da janela | CONFERE | 0 violações |
+| 9 | disputa de ocorrência resolvida | CONFERE | 0 disputas hoje · 1 perdedor, excluído e marcado |
+| 10 | `EXCLUÍDA` ↔ `expurgo = SIM` | CONFERE | 220 / 220, diferença simétrica 0 |
+| 11 | lacuna de base tem aviso no dossiê | CONFERE | 123 marcadas (24 `borda_2025` + 99 `tmae_gap_jan`), 0 sem `lacuna_base` |
+| 12 | mojibake | CONFERE | 0 ocorrências de `[ÃÂ][\x80-\xBF]` em `page.tsx`, `metodo.json` e nos textos dos registros |
+| 13 | `NAV` ⊆ `RECORTES` ⊆ tipo `Modulo` | CONFERE | NAV 15 · RECORTES 33 · tipo 33 · nenhum faltando |
+| 14 | **números à mão no `metodo.json`** | **FALHA** | **10 números — detalhe abaixo** |
+| 15 | números da interface | CONFERE | são calculados dos registros; varri os 82 literais com milhar do `page.tsx` e **todos estão dentro de comentário** (ou são trecho de hash) |
+| 16 | datas em dd/mm/aaaa | CONFERE | `dataBR` converte e preserva hora; 0 literais ISO renderizados |
+| 17 | os 12 arquivos de base | CONFERE | 12/12 existem; `Base_*` batem em MB decimal, `Original_*` em MiB — a armadilha da unidade confirmada |
+
+O script traz ainda seis conferências que o roteiro não lista (0, 10·1, 18, 19, 20, 21) e
+**todas conferem**.
+
+> **Uma correção de ambiente, não de site:** o invariante 19 (a planilha de download conta a
+> mesma história que o dado) vinha saindo como FALHA só porque o `openpyxl` não estava
+> instalado no contêiner. Instalei com `pip` — é ferramenta de teste em Python, não encosta no
+> `pnpm-lock.yaml` — e ele passa: 1.510 linhas, saída 1.269, 1.198 queimados + 71 avariados,
+> igual ao congelado. **A planilha está certa.** Vale deixar o `openpyxl` no setup do
+> ambiente, senão a 19 volta a mentir na próxima rodada.
+
+### FALHA 14 — os dez números, com a medida ao lado
+
+Todos medidos no subconjunto **jan–jun** do `fluxo-1582.json`, que é o universo que o
+`metodo.json` diz descrever ("das 1.510 solicitações ... entre janeiro e junho de 2026").
+
+**a) Bloco `cascata`, 1º parágrafo — a divisão das 220 exclusões.** Este é o mais grave,
+porque **o parágrafo se contradiz sozinho**: ele diz que as 220 se dividem em duas famílias,
+uma de **137** e outra de **103**, e 137 + 103 = **240**. Não fecha com nenhuma definição.
+
+| O que a tela diz | O dado diz | Como medi |
+|---|---|---|
+| 1ª família, 137 casos | **108** | `expurgo_gatilho` ∈ {`sem_interrupcao`, `fora_da_janela`} |
+| 47 sem aparecer na Crítica | **52** | `censo_critica = AUSENTE` |
+| 83 com defeito em outra data | **31** | `censo_critica = DEFEITO EM OUTRA DATA` |
+| 7 sem rastro em base alguma | **25** | `censo_critica = SEM DEFEITO NELE` |
+| 2ª família, 103 casos | **112** | as 220 menos as 108 |
+| "mais dezoito categorias menores" | **dezessete** | 21 gatilhos na 2ª família, menos os 4 nomeados |
+
+Os textos do `censo_critica_porque` reproduzem palavra por palavra as três descrições do
+parágrafo, então o mapeamento não é chute. **Confirmados certos no mesmo parágrafo:** 220,
+30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes.
+
+**b) Bloco `cascata`, linha 2 da tabela (Deslocamento).** A célula diz `1.134 corroboram,
+135 sem registro`. A linha anuncia que a etapa recebe **1.290**, e 1.134 + 135 = 1.269 — nem
+na base que ela mesma declara nem na saída o par se reproduz. Medido nas 1.290 pelo campo
+`deslocamento`: **1.126 CORROBORA · 132 SEM REGISTRO · 32 sem classificação** (soma 1.290).
+
+**c) Bloco `cascata`, linha 3 da tabela.** "21 sem prova de troca — e **18** deles só esperam
+a extração do SIAGO". Os 21 estão certos; `pendente_siago = SIM` dá **19**, não 18.
+
+**d) Bloco `leitura`.** "A categoria gravada ... está errada em **118** solicitações, e em
+**96** delas o texto descreve queima com troca comprovada — **60** dizem avariado, 21 dizem
+apenas outros."
+
+- `categoria_gravada ≠ categoria_texto` dá **128**. Definição direta, sem margem: este número
+  está errado e ponto.
+- O recorte seguinte (texto `QUEIMADO` com `material_conferido = SIM`) dá **100**, com **57**
+  gravadas como AVARIADO e **21** como OUTROS. O "21 outros" bate exato, o que dá bastante
+  confiança de que a definição é essa; ainda assim o 96 → 100 e o 60 → 57 dependem dela, e
+  registro isso.
+
+*Nota de rodapé útil para a próxima rodada:* este "118 / 96 / 60 / 21" é o mesmo lugar que a
+entrada de 02/08 deixou em aberto como "121 / 21". Ele foi reescrito depois — e envelheceu
+outra vez na regeração seguinte do dado. Enquanto a prosa do `metodo.json` não entrar no
+teste, ela vai continuar envelhecendo em silêncio.
+
+### Uma dúvida que eu não converti em correção
+
+Bloco `cascata`, 4º parágrafo: "São **76** solicitações que chegam à saída com a ressalva
+escrita ao lado". Não consegui reproduzir 76 com nenhuma leitura honesta:
+
+- saída carregando uma das **duas ressalvas nomeadas** no parágrafo → **81** (73 "nenhum
+  cliente interrompido" + 6 "manobra sem programação prévia" + 2 com as duas)
+- saída carregando **qualquer** ressalva → **83** (os 81 mais 2 de "zero cliente registrado")
+
+Como o roteiro manda ("se a dúvida sobrar, reporte como dúvida e não mexa"), **não propus
+número novo aqui**. O dono diz qual é o recorte e aí vira correção de uma linha.
+
+### O que encontrei e é decisão do dono
+
+1. **A seção 6 do `AUDITORIA_NOTURNA.md` está velha por inteiro.** O roteiro manda corrigi-la
+   quando o dado se move ("o número aqui é que está velho — corrija este arquivo junto"). Em
+   RELATO não corrigi. É uma reescrita do bloco de números e da tabela que vem depois dele.
+2. **Mais sério: as seções 1, 3 e 5 do roteiro descrevem uma esteira que não existe mais.** A
+   regra da seção 5 cita `expurgo`, `duplicada`, e os rótulos `EXCLUÍDO NA LEITURA` e
+   `RETIDO — SS DUPLICADA`. No dado de hoje o campo `duplicada` **não existe** (virou
+   `expurgo_gatilho = "duplicada"`, 1 caso) e o rótulo é `EXCLUÍDA`. A regra ainda reproduz os
+   1.582 rótulos porque a porta de exclusão captura esses casos antes, mas o texto do roteiro
+   já não é o que o motor faz. Isso é **mudança na regra da esteira** — item 4 da lista do que
+   eu não posso tocar. Precisa da palavra do dono, não da minha.
+3. As quatro decisões congeladas (as 22 só com TMAE, as 89 com `QTD_CONS_INTER_FAT = 0`, as 2
+   exclusões por dano externo, e a regra da esteira) **não foram tocadas**, e nada no que eu
+   medi hoje dá argumento novo contra nenhuma delas.
+
+### O que eu não consegui verificar
+
+- **Os números históricos do bloco `correcoes`** (536 de 540, 6.628 janelas, 14 casos, 34
+  casos, 62.616 linhas, 37 corrigidos, 23 do TMAE, os 13/11/2 do dano externo). São afirmações
+  sobre estados **anteriores** do processamento e não há como reconstruí-los do JSON de hoje.
+  Deixei como estão. O que dá para conferir nesse bloco confere: "1.269 confirmados — 1.198
+  queimados e 71 avariados" bate exato.
+- **Os números do bloco `garantia` e da parte de agosto do bloco `mensal`** (597 cadeias, 178,
+  106 declaradas, 95 sem série, 370, 712 auxiliares no KML, 1.305, os percentuais). Saem de
+  bases que não estão no `fluxo-1582.json` — `material-obra.json`, o KML, as extrações de
+  agosto. Conferi só o que o fluxo alcança.
+- **A cobertura campo a campo do invariante 16.** O `dataBR` converte certo e não há literal
+  ISO renderizado, mas provar que *todo* campo de data da tela passa por ele exige olho humano
+  na interface rodando.
+
+### Sanidade
+
+`pnpm install --frozen-lockfile && pnpm run build:pages` **passa** (built in 6,01s), no estado
+atual da `main` e sem nenhuma alteração minha. Nenhuma dependência foi adicionada.
+
+### O diff exato que eu teria aplicado, se o modo fosse CORRIGE
+
+Um arquivo só, `auditoria-transformadores-134/public/metodo.json`, 4 linhas trocadas. Só texto
+de apresentação: nenhum dado, nenhuma regra, nenhum veredito. O JSON foi validado depois das
+substituições.
+
+```diff
+--- a/auditoria-transformadores-134/public/metodo.json
++++ b/auditoria-transformadores-134/public/metodo.json
+@@ bloco "leitura", paragrafos[0]
+-    "... A categoria gravada na base não decide nada: ela está errada em 118 solicitações, e em 96 delas o texto descreve queima com troca comprovada no material enquanto o rótulo gravado diz outra coisa — 60 dizem avariado, 21 dizem apenas outros."
++    "... A categoria gravada na base não decide nada: ela está errada em 128 solicitações, e em 100 delas o texto descreve queima com troca comprovada no material enquanto o rótulo gravado diz outra coisa — 57 dizem avariado, 21 dizem apenas outros."
+@@ bloco "cascata", paragrafos[0]
+-    "... A primeira, com 137 casos, é de quem não tem interrupção que sustente o caso: 47 cujo código não aparece na Crítica em papel nenhum nos sete meses do acervo, 83 que aparecem com defeito no próprio código mas em outra data, e 7 que não deixaram rastro em base alguma, nem pelo teste do vizinho. A segunda, com 103 casos, é de quem tem causa ou documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes internos, e mais dezoito categorias menores, cada uma com o motivo escrito na linha."
++    "... A primeira, com 108 casos, é de quem não tem interrupção que sustente o caso: 52 cujo código não aparece na Crítica em papel nenhum nos sete meses do acervo, 31 que aparecem com defeito no próprio código mas em outra data, e 25 que aparecem na Crítica mas nunca com o defeito aberto neles. A segunda, com 112 casos, é de quem tem causa ou documento fora do indicador — 30 furtos, 16 obras nunca geradas, 11 remanejamentos, 7 tapes internos, e mais dezessete categorias menores, cada uma com o motivo escrito na linha."
+@@ bloco "cascata", tabela linha "2 · Deslocamento (marcador)"
+-      "0 — não retém: 1.134 corroboram, 135 sem registro"
++      "0 — não retém: 1.126 corroboram, 132 sem registro, 32 sem classificação"
+@@ bloco "cascata", tabela linha "3 · SS e OS com material"
+-      "21 sem prova de troca — e 18 deles só esperam a extração do SIAGO"
++      "21 sem prova de troca — e 19 deles só esperam a extração do SIAGO"
+```
+
+**E uma sugestão de fôlego maior, para o dono decidir:** estender o invariante 14 para varrer
+*todo* número da prosa do `metodo.json`, não só as células da tabela. Foi exatamente o vão por
+onde estes dez passaram, e é o terceiro relatório seguido em que a 14 aparece.
+
+---
+
 ## 02/08/2026, 08:20 UTC — FALHA 14 fechada: os números do `metodo.json` passam a bater com o dado
 
 **Placar depois desta rodada: 16 conferem · 0 falham · 1 a olho, de 17.** A FALHA 14 era a
