@@ -721,9 +721,30 @@ const COLUNAS_JULHO: ColJulho[] = [
   { k: "texto_os", rot: "Texto da ordem de serviço", larg: 420, v: (x) => texto(x.texto_os) },
 ];
 
+/* A CATEGORIA DA EXTRAÇÃO. Um rótulo por SS, para a planilha poder ser separada em abas:
+   quem fica no indicador é rotulado pelo que foi (queimado, avariado), quem sai é rotulado
+   pelo motivo de sair (ausente da Crítica, furto, sem obra…) e quem está retido é rotulado
+   pelo que falta. O vocabulário NÃO mora aqui: vem de public/categorias-extracao.json, que
+   é o mesmo arquivo que scripts/gerar_planilha_categorias.py lê — se morasse nos dois
+   lugares, o rótulo da tela e o do Excel poderiam divergir sem ninguém perceber. */
+type MapaCategorias = {
+  porCascata: Record<string, Record<string, string>>;
+  porGatilho: Record<string, string>;
+  ordem: string[];
+  aba: Record<string, string>;
+};
+
+function rotularCategoria(r: Registro, mapa: MapaCategorias): string {
+  const cascata = texto(r.cascata).trim();
+  const porCascata = mapa.porCascata[cascata];
+  if (porCascata) return porCascata[texto(r.categoria_texto).trim().toUpperCase()] || porCascata["_"];
+  return mapa.porGatilho[texto(r.expurgo_gatilho).trim()] || "SEM CATEGORIA";
+}
+
 /* As colunas da planilha. Uma lista só, usada na tela, no CSV e no dossiê — se o número
    da caixa e a lista divergirem, é porque alguém criou uma segunda fonte de verdade. */
 const COLUNAS: Array<[string, string]> = [
+  ["Categoria da extração", "categoria_extracao"],
   ["SS", "ss"], ["OS", "os"], ["Obra", "obra"], ["Ativo", "trafo"],
   ["Decisão", "decisao"], ["Fato", "fato"], ["Leitura", "leitura"],
   ["Categoria pelo texto", "categoria_texto"], ["Categoria gravada", "categoria_gravada"],
@@ -2677,12 +2698,21 @@ export default function Page() {
        scripts/gerar_fluxo_1582.py): as 1.510 congeladas copiadas sem mudar um caractere, mais
        os 72 de julho traduzidos para as mesmas peneiras. O fluxo-1510.json continua no
        repositório como a fonte congelada que o invariante confere registro a registro. */
-    fetch(assetUrl("fluxo-1582.json"))
-      .then((r) => {
+    Promise.all([
+      fetch(assetUrl("fluxo-1582.json")).then((r) => {
         if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
         return r.json();
+      }),
+      /* o mapa de categorias é acessório: se ele falhar, o fluxo abre do mesmo jeito e só
+         a coluna "Categoria da extração" fica vazia — não é motivo para a tela não subir */
+      fetch(assetUrl("categorias-extracao.json"))
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+    ])
+      .then(([f, mapa]: [Fluxo, MapaCategorias | null]) => {
+        if (mapa) for (const r of f.registros) r.categoria_extracao = rotularCategoria(r, mapa);
+        setFluxo(f);
       })
-      .then(setFluxo)
       .catch((e) => { setFluxo(null); setErroCarga(String(e?.message || e)); });
   };
 
@@ -4491,6 +4521,8 @@ export default function Page() {
         ["Bases_Gerais.xlsx", "Bases gerais — tudo num arquivo, para pesquisa", "As seis bases da auditoria em abas de um mesmo arquivo, com filtro automático ligado e a primeira linha congelada: SS e OS, interrupções, atendimentos, obras e SIGCO, material item a item e a esteira completa. A coluna SS liga todas elas, então dá para cruzar duas bases sem sair de dentro. Cópia fiel: nada é recalculado nem resumido.", "2,4 MB"],
         ["Filtros_do_Site.xlsx", "Todos os filtros do site, aba por aba", "Cada filtro de cada tela com quantos casos tem e o que significa, mais a tabela longa filtro × SS de onde sai qualquer tabela dinâmica, e uma aba de dimensões com uma linha por solicitação. A composição de cada filtro não é recalculada: um robô abre o site, clica filtro por filtro e baixa a planilha de cada um — o que está aqui é o que a tela mostra, porque veio dela.", "PLACEHOLDER_TAM"],
         ["Material_Pendente.xlsx", "Material pendente — as obras a extrair", "As 61 solicitações que o export de material não responde, com a obra de cada uma. Quatro abas, e a que importa é \u201cObras a extrair\u201d: 32 obras que existem no cadastro e não estão no export, agrupadas por obra porque é assim que a extração se pede. As outras 29 não têm obra gerada — para essas não adianta pedir extração, e elas ficam numa aba à parte com o motivo escrito.", "0,03 MB"],
+        ["Base_Categorias.xlsx", "As 1.582 com a categoria, numa aba só", "A mesma extração do arquivo por abas, em uma tabela única: uma linha por SS, a categoria na primeira coluna e filtro automático ligado. É esta que se joga numa tabela dinâmica — a outra serve para ler categoria por categoria.", "0,7 MB"],
+        ["Base_Por_Categoria.xlsx", "As 1.582 separadas por categoria", "Uma aba por categoria e cada SS numa aba só: queimado e avariado são o indicador, e as demais abas são o que ficou de fora com o motivo no nome — ausente da Crítica, fora da janela, furto, abalroamento, sem obra passados 60 dias, remanejamento, preventivo, tape, obra sem transformador, erro de cadastro, trafo auxiliar. Os retidos têm abas próprias, porque retido não é excluído. O resumo traz o placar de cada categoria repartido em jan\u2013jun e julho.", "1,4 MB"],
         ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão, a causa confirmada, o gatilho da exclusão com a frase que a explica, o intervalo inteiro da ocorrência e o marcador de deslocamento.", "0,37 MB"],
       ];
       // as originais são o arquivo cru, sem filtro e sem recorte: é contra elas que qualquer
