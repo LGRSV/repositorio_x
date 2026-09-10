@@ -38,6 +38,8 @@ const ABAS = [
   ["Queimados e avariados", "1.324"],
   ["Exclusões", "220"],
   ["Janeiro a julho", "1.582"],
+  /* universo próprio de jan a ago: o cabeçalho tem de mostrar 227, não o recorte das 1.510 */
+  ["Expurgos por macro categoria", "227"],
   ["Cadastro do parque", "92.424"],
   ["Julho 2026", null],
   ["Agosto 2026", null],
@@ -86,8 +88,11 @@ for (const [rotulo, esperado] of ABAS) {
   const txt = await pg.evaluate(() => document.body.innerText);
   if (txt.trim().length < 200) { falhas.push(`aba abriu praticamente vazia: ${rotulo}`); continue; }
   if (esperado && !txt.includes(esperado)) { falhas.push(`aba ${rotulo}: não achei "${esperado}" na tela`); continue; }
-  /* o defeito das classes fantasma: número colado no texto, sem espaço */
-  const colado = /\d\.\d{3}[a-zA-Zà-ú]/.test(txt);
+  /* o defeito das classes fantasma: número colado no texto, sem espaço.
+     A unidade colada no número é escrita assim de propósito — "3.410h de distância" — e não
+     é classe faltando. Por isso h, m e km escapam: o que o teste procura é número grudado em
+     PALAVRA, do tipo "1.671solicitações", que é o que aparece quando o CSS não pega. */
+  const colado = /\d\.\d{3}(?!h\b|m\b|km\b|min\b)[a-zA-Zà-ú]/.test(txt);
   if (colado) falhas.push(`aba ${rotulo}: número colado no texto — provável classe de CSS inexistente`);
   else { ok += 1; console.log(`  ok  ${rotulo}`); }
 }
