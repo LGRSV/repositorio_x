@@ -92,6 +92,7 @@ type ExpurgosMacro = {
             novos_agosto: number };
   por_macro: Array<{ macro: string; nota: string; expurgo: number; retido: number; total: number;
                      motivos: Array<{ rotulo: string; expurgo: number; retido: number; total: number }> }>;
+  por_texto: Array<{ categoria: string; expurgo: number; retido: number; total: number }>;
   por_mes: Array<{ mes: string; expurgo: number; retido: number; total: number }>;
   registros: ExpurgoLinha[];
 };
@@ -4642,6 +4643,18 @@ export default function Page() {
             </tbody></table></div>
         </section>
 
+        {/* DUAS PERGUNTAS, DUAS COLUNAS. A macro diz por que a SS saiu; esta tabela diz o que o
+            equipamento era segundo o texto. Sem ela a lista parece dizer que 227 transformadores
+            não falharam — e 125 deles estão descritos como queimados no próprio texto. */}
+        <section className="panel"><div className="panel-title"><div><span>O outro lado</span><h2>O que o equipamento era, pelo texto</h2></div><small>sair da conta não é o mesmo que não ter falhado</small></div>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>Categoria pelo texto</th><th>Expurgo</th><th>Retido</th><th>Total</th></tr></thead>
+            <tbody>{E.por_texto.map((c) => <tr key={c.categoria}>
+              <td>{c.categoria}</td><td><b>{br(c.expurgo)}</b></td><td>{br(c.retido)}</td><td>{br(c.total)}</td>
+            </tr>)}</tbody></table></div>
+          <p className="fonte-detalhe">Onde a solicitação já está na esteira de janeiro a julho, o valor é o mesmo que a aba de Exclusões mostra — copiado de lá, não traduzido. Nas 46 de agosto e nas que a esteira não tem, ele sai da leitura do próprio texto, e a coluna <b>Fonte da categoria</b> na lista abaixo diz qual das duas origens deu o valor.</p>
+        </section>
+
         <section className="dashboard-columns">
           <article className="panel"><div className="panel-title"><div><span>Detalhe</span><h2>Motivo dentro da macro</h2></div><small>o gatilho que tirou a SS</small></div>
             <div className="table-scroll">
@@ -4659,9 +4672,10 @@ export default function Page() {
 
         <section className="panel"><div className="panel-title"><div><span>Uma por uma</span><h2>{macroSel || "Todas as macro categorias"}</h2></div><small>{br(lista.length)} solicitações</small></div>
           <div className="table-scroll">
-          <table className="records-table"><thead><tr><th>SS</th><th>Mês</th><th>Resultado</th><th>Motivo</th><th>Transformador</th><th>Equipe</th><th>Localidade</th><th>Origem da SS</th><th>Prova de troca</th><th>Crítica</th><th>Por que saiu</th></tr></thead>
+          <table className="records-table"><thead><tr><th>SS</th><th>Mês</th><th>Resultado</th><th>Categoria pelo texto</th><th>Fonte da categoria</th><th>Motivo</th><th>Transformador</th><th>Equipe</th><th>Localidade</th><th>Origem da SS</th><th>Prova de troca</th><th>Crítica</th><th>Por que saiu</th></tr></thead>
             <tbody>{lista.map((r) => <tr key={r.ss}>
               <td>{r.ss}</td><td>{r.mes}</td><td><b>{r.resultado === "EXPURGO" ? "expurgo" : "retido"}</b></td>
+              <td><b>{r.cat_texto}</b></td><td><small>{r.cat_texto_fonte}</small></td>
               <td>{r.rotulo}</td><td><code>{r.trafo}</code></td><td>{r.equipe}</td><td>{r.localidade}</td>
               <td>{r.origem_ss}</td><td>{r.prova_troca}</td><td><small>{r.cr_sub || r.cr_causa || "—"}</small></td>
               <td><small>{r.motivo}</small></td>

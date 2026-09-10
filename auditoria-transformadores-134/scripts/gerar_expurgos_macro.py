@@ -17,6 +17,15 @@ tipo de dúvida que cada saída levanta:
   · Sem documento — falta obra, OS ou material que comprove
   · Não houve troca — a equipe foi e não substituiu
 
+O QUE O EQUIPAMENTO ERA continua na coluna `cat_texto`, ao lado do motivo da saída. São duas
+perguntas diferentes e a primeira versão desta base só respondia a segunda: uma SS pode sair
+por não ter interrupção registrada E o texto dela descrever um transformador queimado. Apagar
+isso faria a lista parecer que 227 equipamentos não falharam, quando 125 deles estão descritos
+como queimados. Onde a SS já está na esteira das 1.582, o valor é copiado de lá sem tradução —
+`categoria_texto` — para a aba nova e a de Exclusões nunca discordarem; nas 46 restantes (as de
+agosto e as que a esteira não tem) ele sai da leitura do próprio texto, e a coluna
+`cat_texto_fonte` diz qual das duas origens deu o valor.
+
 EXPURGO E RETIDO SÃO COISAS DIFERENTES, e a coluna `resultado` separa. Retido não é
 expurgo: é caso sem martelo batido. Inconclusivo e "avaliar com o Matheus" ficam entre os
 retidos pelo mesmo motivo — quem não decidiu não excluiu.
@@ -59,7 +68,8 @@ NOTA_MACRO = {
     "Não houve troca": "a equipe foi ao local e o transformador não saiu do poste",
 }
 # as colunas que a tela usa; o resto (textos longos) fica no repositório, não no bundle
-CAMPOS = ["ss", "mes", "resultado", "macro", "rotulo", "gatilho", "categoria", "trafo",
+CAMPOS = ["ss", "mes", "resultado", "macro", "rotulo", "gatilho", "categoria",
+          "cat_texto", "cat_texto_fonte", "trafo",
           "os", "obra", "abertura", "tipo", "equipe", "localidade", "origem_ss",
           "defeito_ss", "ns_ret", "ns_inst", "prova_troca", "cr_causa", "cr_sub",
           "tm_causa", "tm_sub", "no_infotrafo", "origem_leitura", "motivo"]
@@ -92,6 +102,10 @@ def main():
             ],
         })
 
+    por_texto = [{"categoria": k, "expurgo": sum(1 for r in expurgo if r["cat_texto"] == k),
+                  "retido": sum(1 for r in retido if r["cat_texto"] == k), "total": v}
+                 for k, v in collections.Counter(r["cat_texto"] for r in registros).most_common()]
+
     por_mes = [{
         "mes": m,
         "expurgo": sum(1 for r in expurgo if r["mes"] == m),
@@ -123,6 +137,7 @@ def main():
                                 if str(r.get("origem_leitura", "")).startswith("Crítica")),
         },
         "por_macro": por_macro,
+        "por_texto": por_texto,
         "por_mes": por_mes,
         "registros": registros,
     }
