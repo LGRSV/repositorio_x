@@ -155,8 +155,15 @@ def main():
             return 0
 
     hoje = datetime.now().strftime('%Y-%m-%d')
-    slug = re.sub(r'[^a-z0-9-]+', '-', (a.slug or ('auto-' + a.motivo)).lower()).strip('-')
-    dest = raiz / 'contexto' / f'{hoje}_{slug}'
+    if a.auto and not a.slug:
+        # snapshot automático: uma pasta só, sempre sobrescrita; o histórico fica no git
+        slug = 'auto'
+        dest = raiz / 'contexto' / '_auto'
+        if dest.exists():
+            shutil.rmtree(dest)
+    else:
+        slug = re.sub(r'[^a-z0-9-]+', '-', a.slug.lower()).strip('-')
+        dest = raiz / 'contexto' / f'{hoje}_{slug}'
     (dest / 'arquivos').mkdir(parents=True, exist_ok=True)
 
     itens = inventariar(sp)
@@ -217,15 +224,20 @@ def main():
         shutil.copy2(a.contexto, dest / 'CONTEXTO.md')
     elif not (dest / 'CONTEXTO.md').exists():
         (dest / 'CONTEXTO.md').write_text(
-            f'# Contexto — {hoje} ({slug})\n\n'
-            '> Snapshot automático. O Claude ainda não escreveu a narrativa desta sessão.\n'
-            '> Rode `/salvar-contexto` para preencher: objetivo, estado, decisões, números, pendências, como retomar.\n')
+            f'# Contexto — snapshot automático de {datetime.now().strftime("%d/%m/%Y %H:%M")} (motivo: {a.motivo})\n\n'
+            '> Gerado pelo hook. O Claude ainda não escreveu a narrativa desta sessão; use o CONTEXTO.md\n'
+            '> do snapshot manual mais recente (contexto/INDICE.md) e trate os arquivos daqui como a versão mais nova.\n'
+            '> Rode `/salvar-contexto <slug>` para registrar: objetivo, estado, decisões, números, pendências, como retomar.\n')
 
     # índice geral: o mais recente primeiro
     idx = raiz / 'contexto' / 'INDICE.md'
-    pastas = sorted([p for p in (raiz / 'contexto').iterdir() if p.is_dir()], reverse=True)
+    pastas = sorted([p for p in (raiz / 'contexto').iterdir() if p.is_dir() and not p.name.startswith('_')], reverse=True)
     li = ['# Índice de contextos salvos', '', 'Mais recente primeiro. Cada pasta tem CONTEXTO.md (narrativa), '
-          'ARQUIVOS.md (inventário) e arquivos/ (cópias).', '']
+          'RESUMO.md, ARQUIVOS.md (inventário) e arquivos/ (cópias).', '']
+    auto = raiz / 'contexto' / '_auto' / 'CONTEXTO.md'
+    if auto.exists():
+        li.append(f'- [_auto](_auto/CONTEXTO.md) — {auto.read_text().splitlines()[0][2:]} '
+                  '(arquivos mais novos que o último snapshot manual)')
     for p in pastas:
         cab = ''
         c = p / 'CONTEXTO.md'
@@ -244,7 +256,8 @@ def main():
         if not a.auto:
             print(f'nada novo para salvar em {dest.relative_to(raiz)}')
         return 0
-    msg = f'Contexto salvo: {hoje} {slug} ({len(escolhidos)} arquivos, {humano(total)})'
+    msg = (f'Contexto automático ({a.motivo}): {len(escolhidos)} arquivos, {humano(total)}' if slug == 'auto'
+           else f'Contexto salvo: {hoje} {slug} ({len(escolhidos)} arquivos, {humano(total)})')
     git(raiz, 'commit', '-q', '-m', msg)
     if not a.sem_push:
         br = meta['branch']

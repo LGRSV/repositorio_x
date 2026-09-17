@@ -65,9 +65,10 @@ por ele custa tokens e falha. **Nunca suba xlsx/pptx/zip pelo conector**; suba t
 - `Stop` → `snapshot.py --auto --motivo stop`, no máximo a cada 20 min; só faz commit se
   algo mudou. Nunca bloqueia a sessão: qualquer erro sai em silêncio.
 
-Os snapshots automáticos criam `contexto/<data>_auto-<motivo>/` com um CONTEXTO.md
-provisório. Quando rodar o procedimento manual no mesmo dia, o índice passa a apontar
-para a pasta com a narrativa completa.
+Os snapshots automáticos vão sempre para `contexto/_auto/` (uma pasta só, sobrescrita a
+cada vez; as versões anteriores ficam no histórico do git). Ela tem um CONTEXTO.md
+provisório: a narrativa de verdade está na pasta datada do último `/salvar-contexto`, e
+os arquivos em `_auto/arquivos/` são os mais novos.
 
 ## Armadilhas já vistas
 
