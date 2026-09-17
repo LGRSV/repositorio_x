@@ -40,7 +40,7 @@ por ele custa tokens e falha. **Nunca suba xlsx/pptx/zip pelo conector**; suba t
    - localize a pasta com `search_files`: `title = 'Claude Code - Contextos' and mimeType = 'application/vnd.google-apps.folder'`; se não existir, crie;
    - dentro dela, uma subpasta por repositório (ex.: `repositorio_x`); crie se faltar;
    - suba `CONTEXTO.md` com `contentMimeType: text/markdown`, `disableConversionToGoogleType: true`,
-     título `<data>_<slug>_CONTEXTO.md`; suba também `ARQUIVOS.md` do snapshot;
+     título `<data>_<slug>_CONTEXTO.md`; suba também `RESUMO.md` do snapshot (curto; o `ARQUIVOS.md` completo fica só no git);
    - se o usuário quiser ler no Google Docs, suba uma segunda cópia com `text/plain` sem desabilitar a conversão.
 4. **Verifique**: `search_files` pelo título e `read_file_content`/tamanho retornado; confira
    que o `git log -1` mostra o commit e que `git status` está limpo.

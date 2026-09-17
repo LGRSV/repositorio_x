@@ -5,6 +5,7 @@ contêiner fecha. Gerados pela skill `salvar-contexto` (`.claude/skills/salvar-c
 
 - `INDICE.md` — lista as pastas, a mais recente primeiro.
 - `<data>_<slug>/CONTEXTO.md` — a narrativa: pedidos, estado, decisões, números, erros, pendências, como retomar.
+- `<data>_<slug>/RESUMO.md` — por pasta, e a lista do que não foi copiado.
 - `<data>_<slug>/ARQUIVOS.md` e `inventario.json` — tudo que existia no scratchpad, copiado ou não.
 - `<data>_<slug>/arquivos/` — cópias dos arquivos até 10 MB (limite de 120 MB por snapshot).
 

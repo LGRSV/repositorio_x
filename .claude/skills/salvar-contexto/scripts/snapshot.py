@@ -207,7 +207,7 @@ def main():
     for pasta in sorted(por_pasta):
         d = por_pasta[pasta]
         res.append(f'| {pasta} | {d["n"]} | {d["copiados"]} | {humano(d["bytes"])} |')
-    fora = [i for i in meta['arquivos'] if not i['copiado'] and i.get('motivo') != 'ignorado']
+    fora = [i for i in meta['arquivos'] if not i['copiado'] and (i.get('motivo') != 'ignorado' or i['bytes'] > 1 << 20)]
     res += ['', '## Não copiados (pedir ao usuário se precisar)', '']
     res += [f'- {i["caminho"]} ({humano(i["bytes"])}) — {i.get("motivo")}' for i in fora] or ['- nenhum']
     (dest / 'RESUMO.md').write_text('\n'.join(res) + '\n')
