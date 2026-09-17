@@ -1,11 +1,11 @@
 {
- "gerado_em": "2026-09-17T09:45:48",
+ "gerado_em": "2026-09-17T09:46:05",
  "sessao": "74dc9c64-5026-54ee-a81e-173d2f38a735",
  "sessao_remota": "cse_01RxofeRP7NcuPNAFpWh9sqt",
  "motivo": "manual",
  "scratchpad": "/tmp/claude-0/-home-user/74dc9c64-5026-54ee-a81e-173d2f38a735/scratchpad",
  "branch": "claude/site-trafos-queimados-review-eidois",
- "commit_base": "70b30b0",
+ "commit_base": "9ec7fd9",
  "copiados": 361,
  "bytes_copiados": 123435060,
  "total_arquivos": 466,

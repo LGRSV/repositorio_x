@@ -1,6 +1,6 @@
 # Resumo do snapshot 2026-09-17_auditoria-expurgos-trafos-rurais
 
-Gerado em 2026-09-17T09:45:48 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-queimados-review-eidois` · motivo: manual
+Gerado em 2026-09-17T09:46:05 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-queimados-review-eidois` · motivo: manual
 
 361 de 466 arquivos copiados (118 MB) para `contexto/2026-09-17_auditoria-expurgos-trafos-rurais/arquivos/`.
 
@@ -26,11 +26,31 @@ Gerado em 2026-09-17T09:45:48 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` 
 
 ## Não copiados (pedir ao usuário se precisar)
 
+- agente_B/crit.pkl (32 MB) — ignorado
+- agente_B/xlsx.pkl (2 MB) — ignorado
 - aux/32196f1a-TMAE_2026_Jan_Jun_Consolidado.txt (26 MB) — maior que 10 MB
+- aux/Original_TMAE_Atendimentos.zip (5 MB) — ignorado
 - aux/ssos.json (23 MB) — maior que 10 MB
 - aux/tmae.json (50 MB) — maior que 10 MB
 - crit/Critica-CHEIO_01-2026.txt (17 MB) — maior que 10 MB
 - crit/Critica-CHEIO_02-2026.txt (13 MB) — maior que 10 MB
 - crit/Critica-CHEIO_03-2026.txt (12 MB) — maior que 10 MB
+- jan_ago/crit/Critica-CHEIO_01-2026.txt (17 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_02-2026.txt (13 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_03-2026.txt (12 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_04-2026.txt (10 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_05-2026.txt (7 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_06-2026.txt (5 MB) — ignorado
+- jan_ago/crit/Critica-CHEIO_08-2026.txt (7 MB) — ignorado
+- jan_ago/crit_alvo.json (3 MB) — ignorado
 - jan_ago/fis/FIS_ETO_2026_07_E_TRANSFORMADORES_ID.csv (36 MB) — maior que 10 MB
 - novas/OS_STATUS_2026.xlsx (15 MB) — maior que 10 MB
+- p1a_Original_OS.zip (28 MB) — ignorado
+- p1b_Critica_Interrupcoes.zip (19 MB) — ignorado
+- p1c_originais_restante.zip (11 MB) — ignorado
+- p2_bases_tratadas.zip (7 MB) — ignorado
+- p3_dados_e_scripts.zip (10 MB) — ignorado
+- p4_site_json.zip (7 MB) — ignorado
+- p5_versoes_backup.zip (5 MB) — ignorado
+- p6_bases_novas_setembro.zip (19 MB) — ignorado
+- repositorio_x.zip (107 MB) — ignorado
