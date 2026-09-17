@@ -192,6 +192,26 @@ def main():
                       f'{"sim" if i["copiado"] else "não — " + i.get("motivo", "")} |')
     (dest / 'ARQUIVOS.md').write_text('\n'.join(linhas) + '\n')
 
+    # RESUMO.md: curto o bastante para subir ao Drive pelo conector
+    por_pasta = {}
+    for i in meta['arquivos']:
+        pasta = i['caminho'].split('/')[0] if '/' in i['caminho'] else '(raiz)'
+        d = por_pasta.setdefault(pasta, {'n': 0, 'copiados': 0, 'bytes': 0})
+        d['n'] += 1
+        d['copiados'] += 1 if i['copiado'] else 0
+        d['bytes'] += i['bytes'] if i['copiado'] else 0
+    res = [f'# Resumo do snapshot {dest.name}', '',
+           f'Gerado em {meta["gerado_em"]} · sessão `{meta["sessao"]}` · branch `{meta["branch"]}` · motivo: {a.motivo}', '',
+           f'{len(escolhidos)} de {len(itens)} arquivos copiados ({humano(total)}) para `contexto/{dest.name}/arquivos/`.', '',
+           '## Por pasta', '', '| pasta | arquivos | copiados | tamanho copiado |', '|---|---|---|---|']
+    for pasta in sorted(por_pasta):
+        d = por_pasta[pasta]
+        res.append(f'| {pasta} | {d["n"]} | {d["copiados"]} | {humano(d["bytes"])} |')
+    fora = [i for i in meta['arquivos'] if not i['copiado'] and i.get('motivo') != 'ignorado']
+    res += ['', '## Não copiados (pedir ao usuário se precisar)', '']
+    res += [f'- {i["caminho"]} ({humano(i["bytes"])}) — {i.get("motivo")}' for i in fora] or ['- nenhum']
+    (dest / 'RESUMO.md').write_text('\n'.join(res) + '\n')
+
     if a.contexto and Path(a.contexto).exists():
         shutil.copy2(a.contexto, dest / 'CONTEXTO.md')
     elif not (dest / 'CONTEXTO.md').exists():
