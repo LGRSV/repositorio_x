@@ -1,8 +1,8 @@
 # Resumo do snapshot 2026-09-17_auditoria-expurgos-trafos-rurais
 
-Gerado em 2026-09-17T09:46:05 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-queimados-review-eidois` · motivo: manual
+Gerado em 2026-09-17T09:47:19 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-queimados-review-eidois` · motivo: manual
 
-361 de 466 arquivos copiados (118 MB) para `contexto/2026-09-17_auditoria-expurgos-trafos-rurais/arquivos/`.
+361 de 466 arquivos copiados (115 MB) para `contexto/2026-09-17_auditoria-expurgos-trafos-rurais/arquivos/`.
 
 ## Por pasta
 
@@ -13,9 +13,9 @@ Gerado em 2026-09-17T09:46:05 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` 
 | agente_B | 10 | 7 | 1 MB |
 | art | 2 | 2 | 2 MB |
 | aux | 14 | 9 | 10 MB |
-| crit | 6 | 3 | 22 MB |
+| crit | 6 | 2 | 17 MB |
 | deck | 176 | 103 | 5 MB |
-| jan_ago | 124 | 113 | 38 MB |
+| jan_ago | 124 | 114 | 40 MB |
 | lote205 | 31 | 31 | 3 MB |
 | manual | 22 | 22 | 2 MB |
 | novas | 3 | 2 | 4 MB |
@@ -35,6 +35,7 @@ Gerado em 2026-09-17T09:46:05 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` 
 - crit/Critica-CHEIO_01-2026.txt (17 MB) — maior que 10 MB
 - crit/Critica-CHEIO_02-2026.txt (13 MB) — maior que 10 MB
 - crit/Critica-CHEIO_03-2026.txt (12 MB) — maior que 10 MB
+- crit/Critica-CHEIO_06-2026.txt (5 MB) — limite total do snapshot
 - jan_ago/crit/Critica-CHEIO_01-2026.txt (17 MB) — ignorado
 - jan_ago/crit/Critica-CHEIO_02-2026.txt (13 MB) — ignorado
 - jan_ago/crit/Critica-CHEIO_03-2026.txt (12 MB) — ignorado
@@ -42,7 +43,6 @@ Gerado em 2026-09-17T09:46:05 · sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` 
 - jan_ago/crit/Critica-CHEIO_05-2026.txt (7 MB) — ignorado
 - jan_ago/crit/Critica-CHEIO_06-2026.txt (5 MB) — ignorado
 - jan_ago/crit/Critica-CHEIO_08-2026.txt (7 MB) — ignorado
-- jan_ago/crit_alvo.json (3 MB) — ignorado
 - jan_ago/fis/FIS_ETO_2026_07_E_TRANSFORMADORES_ID.csv (36 MB) — maior que 10 MB
 - novas/OS_STATUS_2026.xlsx (15 MB) — maior que 10 MB
 - p1a_Original_OS.zip (28 MB) — ignorado

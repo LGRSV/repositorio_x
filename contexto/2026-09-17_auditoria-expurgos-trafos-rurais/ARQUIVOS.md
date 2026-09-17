@@ -1,12 +1,12 @@
-# Arquivos do scratchpad em 2026-09-17T09:46:05
+# Arquivos do scratchpad em 2026-09-17T09:47:19
 
 Sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-queimados-review-eidois` · motivo: manual
 
-361 de 466 arquivos copiados (118 MB). Os demais são zips, bases brutas acima de 10 MB ou pastas ignoradas; eles continuam listados aqui para se saber que existiram.
+361 de 466 arquivos copiados (115 MB). Os demais são zips, bases brutas acima de 10 MB ou pastas ignoradas; eles continuam listados aqui para se saber que existiram.
 
 | arquivo | tamanho | modificado | copiado |
 |---|---|---|---|
-| .ultimo_autosave | 0 B | 2026-09-17 09:45 | sim |
+| .ultimo_autosave | 0 B | 2026-09-17 09:46 | sim |
 | AIC_2026_12-09.xlsx | 2 MB | 2026-09-12 17:15 | sim |
 | Ausentes_na_Observacao_da_Critica.json | 324 KB | 2026-09-02 00:27 | sim |
 | Ausentes_na_Observacao_da_Critica.xlsx | 64 KB | 2026-09-02 00:27 | sim |
@@ -69,7 +69,7 @@ Sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-que
 | crit/Critica-CHEIO_03-2026.txt | 12 MB | 2026-09-01 23:48 | não — maior que 10 MB |
 | crit/Critica-CHEIO_04-2026.txt | 10 MB | 2026-09-01 23:48 | sim |
 | crit/Critica-CHEIO_05-2026.txt | 7 MB | 2026-09-01 23:48 | sim |
-| crit/Critica-CHEIO_06-2026.txt | 5 MB | 2026-09-01 23:48 | sim |
+| crit/Critica-CHEIO_06-2026.txt | 5 MB | 2026-09-01 23:48 | não — limite total do snapshot |
 | deck/chk/[Content_Types].xml | 6 KB | 2026-09-15 17:47 | não — ignorado |
 | deck/chk/_rels/.rels | 605 B | 2026-09-15 17:47 | não — ignorado |
 | deck/chk/docProps/app.xml | 2 KB | 2026-09-15 17:47 | não — ignorado |
@@ -324,7 +324,7 @@ Sessão `74dc9c64-5026-54ee-a81e-173d2f38a735` · branch `claude/site-trafos-que
 | jan_ago/crit/Critica-CHEIO_05-2026.txt | 7 MB | 2026-07-31 19:49 | não — ignorado |
 | jan_ago/crit/Critica-CHEIO_06-2026.txt | 5 MB | 2026-07-31 19:49 | não — ignorado |
 | jan_ago/crit/Critica-CHEIO_08-2026.txt | 7 MB | 2026-09-09 14:40 | não — ignorado |
-| jan_ago/crit_alvo.json | 3 MB | 2026-09-10 01:47 | não — ignorado |
+| jan_ago/crit_alvo.json | 3 MB | 2026-09-10 01:47 | sim |
 | jan_ago/dados_dinamica.json | 2 MB | 2026-09-10 01:23 | sim |
 | jan_ago/deck.js | 20 KB | 2026-09-09 15:19 | sim |
 | jan_ago/deck252.js | 20 KB | 2026-09-09 15:26 | sim |

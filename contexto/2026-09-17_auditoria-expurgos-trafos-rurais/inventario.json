@@ -1,19 +1,19 @@
 {
- "gerado_em": "2026-09-17T09:46:05",
+ "gerado_em": "2026-09-17T09:47:19",
  "sessao": "74dc9c64-5026-54ee-a81e-173d2f38a735",
  "sessao_remota": "cse_01RxofeRP7NcuPNAFpWh9sqt",
  "motivo": "manual",
  "scratchpad": "/tmp/claude-0/-home-user/74dc9c64-5026-54ee-a81e-173d2f38a735/scratchpad",
  "branch": "claude/site-trafos-queimados-review-eidois",
- "commit_base": "9ec7fd9",
+ "commit_base": "d097369",
  "copiados": 361,
- "bytes_copiados": 123435060,
+ "bytes_copiados": 120318070,
  "total_arquivos": 466,
  "arquivos": [
   {
    "caminho": ".ultimo_autosave",
    "bytes": 0,
-   "modificado": "2026-09-17 09:45",
+   "modificado": "2026-09-17 09:46",
    "ext": "",
    "ignorado": false,
    "copiado": true,
@@ -583,8 +583,8 @@
    "modificado": "2026-09-01 23:48",
    "ext": ".txt",
    "ignorado": false,
-   "copiado": true,
-   "sha": "de664a469dde"
+   "copiado": false,
+   "motivo": "limite total do snapshot"
   },
   {
    "caminho": "deck/chk/[Content_Types].xml",
@@ -2877,9 +2877,9 @@
    "bytes": 2646384,
    "modificado": "2026-09-10 01:47",
    "ext": ".json",
-   "ignorado": true,
-   "copiado": false,
-   "motivo": "ignorado"
+   "ignorado": false,
+   "copiado": true,
+   "sha": "34227c48d5e4"
   },
   {
    "caminho": "jan_ago/dados_dinamica.json",
