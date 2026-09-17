@@ -60,6 +60,21 @@ Leia antes de tocar em qualquer base. Cada item aqui já custou uma entrega erra
 - Julho de 2026 **não é comparável** aos outros meses: a Crítica de julho foi perdida; só
   sobrou o que está em `julho-2026.json` no site.
 
+## Formato e contagens confirmadas (17/09/2026)
+
+| base | onde | linhas de dados | observação |
+|---|---|---|---|
+| Crítica mensal | `crit/Critica-CHEIO_MM-2026.txt` | jan 20.099, fev 15.698, mar 14.678, abr 12.086, mai 7.690, jun 6.375, ago 7.474 | 64 colunas, `iso-8859-1`, separador `;` |
+| TMAE jan–jun | `aux/32196f1a-TMAE…txt` | 62.615 | 40 colunas |
+| TMAE jul / ago | uploads | 6.625 / 6.716 | 40 colunas |
+| FIS jul/2026 | `jan_ago/fis/…csv` | 96.036 | 52 colunas |
+| OS_STATUS_2026 | `novas/OS_STATUS_2026.xlsx` | 78.840, aba `Dados` | 30 colunas |
+| AIC 12/09 | `AIC_2026_12-09.xlsx` | 11.323, aba `Export` | 93 colunas |
+| Trafo.xlsx | upload `8cfc359b` | 3.601, aba **`BASE_SS_OS`** | a aba `BASE SS_OS` (1.694) é antiga; confundir as duas já aconteceu |
+| Base de Expurgos | upload `2a6cebeb` | 227, aba `Expurgos` | 30 colunas |
+
+`max_row` do openpyxl conta o cabeçalho. Se a contagem der um a mais que a tabela acima, é isso.
+
 ## Onde estão as bases
 
 `contexto/INDICE.md` aponta o último snapshot; dentro dele, `ARQUIVOS.md` lista **tudo que

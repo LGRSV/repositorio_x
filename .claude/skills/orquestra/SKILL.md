@@ -101,7 +101,10 @@ Você **não** repete a análise dos agentes. Você confere invariantes:
 2. **Ninguém em dois lugares?** Chaves duplicadas entre lotes.
 3. **Ninguém sumiu?** Itens de entrada sem linha de saída, e o motivo de cada um.
 4. **Caminho diferente dá o mesmo número?** É para isso que serve o conferente.
-5. **Contradição entre agentes é notícia**, não erro de arredondamento: investigue antes
+5. **Campo vazio é falha, não resultado.** Agente que devolve `null` numa contagem e diz
+   "catalogado" passou batido na primeira rodada deste projeto. Confira campo a campo antes
+   de aceitar, e redispare só o que falhou, com o erro citado no prompt.
+6. **Contradição entre agentes é notícia**, não erro de arredondamento: investigue antes
    de escolher um lado, e conte ao usuário que houve divergência.
 
 Só depois disso escreva a resposta. Divergência que você resolveu no meio do caminho entra

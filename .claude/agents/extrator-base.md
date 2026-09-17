@@ -19,6 +19,21 @@ Procedimento:
 4. Registre no próprio arquivo de saída um bloco `_meta` com: caminho de origem, linhas
    lidas, linhas escritas, colunas, valores vazios por coluna e a data da extração.
 
+**Campo vazio na saída é falha, não resultado.** Se você não conseguiu ler um arquivo,
+escreva `"erro"` com a mensagem real e diga isso nas 10 linhas de retorno. Nunca grave
+`null` em linhas ou colunas e termine dizendo que catalogou tudo — já aconteceu, e o
+orquestrador só descobriu porque conferiu os invariantes.
+
+Confira antes de terminar, sempre:
+- o `_meta` bate com o número de entradas escritas (contou 9 e escreveu 11 é erro);
+- `max_row` do openpyxl **inclui o cabeçalho**: subtraia 1 para ter linhas de dados;
+- a codificação: as bases da Crítica e da TMAE são `iso-8859-1`, não UTF-8;
+- **aba principal nunca por palpite**. Se houver abas de nome parecido, liste todas com as
+  contagens e escolha pela regra que o prompt deu; sem regra, pare e pergunte. Em
+  `Trafo.xlsx`, `BASE_SS_OS` (3.601 linhas) é a boa e `BASE SS_OS` (1.694) é a antiga.
+- arquivo grande pode estourar o tempo: leia em streaming e, se mesmo assim falhar, registre
+  o erro em vez de pular em silêncio.
+
 Nunca decida o que é "linha inválida" por conta própria: traga tudo e relate a contagem dos
 casos estranhos. Se houver chave duplicada, **não escolha em silêncio** — relate quantas e
 aplique a regra que o prompt mandou (nas bases SS/OS, ficar com a linha mais preenchida).
