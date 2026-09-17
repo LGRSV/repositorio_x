@@ -80,3 +80,10 @@ os arquivos em `_auto/arquivos/` são os mais novos.
   commita e faz push, então rode-o **antes** de terminar a resposta.
 - Um `CONTEXTO.md` que só diz "trabalhamos nas SS" não serve. Números verificados, com a
   fonte, e a lista de erros corrigidos são o que economiza horas na retomada.
+
+## Relação com a skill `orquestra`
+
+Quando o trabalho foi dividido entre agentes, o plano (`<scratchpad>/orquestra/plano.md`) e
+os JSONs de cada agente entram no snapshot como qualquer outro arquivo. Cite no CONTEXTO.md
+quais agentes rodaram e o que cada um concluiu: sem isso, a sessão seguinte não sabe que
+aquele JSON é resultado conferido e refaz o leque inteiro.
