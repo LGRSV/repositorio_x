@@ -142,6 +142,13 @@ não foi salvo é um leque que vai ser refeito.
   pergunta, não a resposta; peça o caminho alternativo de cálculo.
 - **O subagente não vê a conversa.** Tudo que ele precisa saber vai no prompt, incluindo o
   que o usuário já decidiu e o que já foi descartado.
+- **Explicação errada com número certo é sinal de palpite.** Um agente entregou 11.323
+  obras (certo) dizendo que removeu uma "linha de formatação Filtros" que não existe — era
+  só o cabeçalho. Outro disse que a aba homônima "não existia" enquanto a listava na própria
+  saída. Cobre o motivo, não só o número: onde o motivo é inventado, o número seguinte será.
+- **Nomeie a chave, não deixe o agente escolher.** Pedimos "duplicados na chave principal" e
+  o agente escolheu número de obra, perdendo as 1.444 SS repetidas que são a armadilha
+  conhecida da base. Chave é decisão de quem orquestra.
 - **Fuso e formato**: datas destas bases vêm como texto `dd/mm/aaaa hh:mm`. Diga isso no
   prompt ou cada agente decide um formato diferente.
 - **Agente novo só vale na próxima sessão** (veja a seção 3). Testar a orquestração no
