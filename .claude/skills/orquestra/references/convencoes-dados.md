@@ -64,16 +64,30 @@ Leia antes de tocar em qualquer base. Cada item aqui já custou uma entrega erra
 
 | base | onde | linhas de dados | observação |
 |---|---|---|---|
-| Crítica mensal | `crit/Critica-CHEIO_MM-2026.txt` | jan 20.099, fev 15.698, mar 14.678, abr 12.086, mai 7.690, jun 6.375, ago 7.474 | 64 colunas, `iso-8859-1`, separador `;` |
-| TMAE jan–jun | `aux/32196f1a-TMAE…txt` | 62.615 | 40 colunas |
-| TMAE jul / ago | uploads | 6.625 / 6.716 | 40 colunas |
-| FIS jul/2026 | `jan_ago/fis/…csv` | 96.036 | 52 colunas |
+| Crítica mensal | `crit/Critica-CHEIO_MM-2026.txt` | jan 20.099, fev 15.699, mar 14.679, abr 12.086, mai 7.691, jun 6.376, ago 7.475 | 64 colunas, `iso-8859-1`, separador `;` |
+| TMAE jan–jun | `aux/32196f1a-TMAE…txt` | 62.616 | 40 colunas |
+| TMAE jul / ago | uploads | 6.626 / 6.717 | 40 colunas |
+| FIS jul/2026 | `jan_ago/fis/…csv` | 96.037 | 52 colunas |
 | OS_STATUS_2026 | `novas/OS_STATUS_2026.xlsx` | 78.840, aba `Dados` | 30 colunas |
 | AIC 12/09 | `AIC_2026_12-09.xlsx` | 11.323, aba `Export` | 93 colunas |
 | Trafo.xlsx | upload `8cfc359b` | 3.601, aba **`BASE_SS_OS`** | a aba `BASE SS_OS` (1.694) é antiga; confundir as duas já aconteceu |
 | Base de Expurgos | upload `2a6cebeb` | 227, aba `Expurgos` | 30 colunas |
 
 `max_row` do openpyxl conta o cabeçalho. Se a contagem der um a mais que a tabela acima, é isso.
+As linhas acima já são **linhas de dados** (`wc -l` menos o cabeçalho); todos esses arquivos
+terminam com quebra de linha.
+
+### Três achados de 17/09 que mudam análise
+
+- **O arquivo mensal da Crítica não é estritamente do mês.** Em janeiro, o `DTA_ABERT` vai
+  de 01/01 a **10/02**. Filtrar por nome de arquivo e supor que é o mês inteiro duplica ou
+  perde ocorrências na virada; filtre pela data.
+- **A data da TMAE não é a data do atendimento.** `DTA_CMPT_TNT` (coluna 1) é a
+  **competência**, e por isso min e max caem sempre no dia 1º. Para tempo de atendimento use
+  as colunas de início e fim da operação, não a competência.
+- **O FIS tem data de fabricação impossível.** `DATA_FABRICACAO` varia de **1021** a **9999**
+  nos 96.037 registros. Qualquer conta de idade do transformador precisa descartar esses
+  extremos e dizer quantos foram descartados.
 
 ## Onde estão as bases
 
