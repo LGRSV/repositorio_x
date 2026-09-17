@@ -1,0 +1,1141 @@
+==========================================================================================
+[0] SS=ETO-RD-AG 00009/2026 OS=ENC-MPAG02  000003/2026 OBRA=662600030 TRAFO=5700328119
+abertura=2026-01-05 17:28 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=AVARIADO defeito=SOBRECARGA
+loc=SAO BENTO DO TOCANTINS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: Enviarequipe da manutenção para substiyuir trafo de 5 kva por um de 15 kva , na 13,8 kv Acesso bom
+--TEXTO_OS: Enviarequipe da manutenção para substiyuir trafo de 5 kva por um de 15 kva , na 13,8 kv Acesso bom
+
+
+TRAFO RETIRADO 
+
+POTÊNCIA; 05KVA 13.8KV
+DATA DE FAB; AGOSTO/2008
+MARCA; VIJAI
+Nº CITD; N/A
+Nº SÉRIE; 128834
+IMPEDÂNCIA; 2,48
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 15KVA 13.8KV
+DATA DE FAB; 09/2025
+MARCA; ITAM
+Nº CITD; 148493
+Nº SÉRIE; 289657
+IMPEDÂNCIA; 2,58
+MEDIÇÃO;  05,19/ 06,48 / 06,02
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "0", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "128834", "NS_INSTALADO": "289657", "TOMBAMENTO_RETIRADO": "N/A", "TOMBAMENTO_INSTALADO": "148493", "DATA_FABRICACAO_RETIRADO": "21/08/2008", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "preventivo", "confirmado": "", "motivo": "Fora do indicador: a SS está gravada no sistema como preventivo.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[1] SS=ETO-RD-AG 00026/2026 OS=ENC-MLAG01  000008/2026 OBRA=662600031 TRAFO=5713185081
+abertura=2026-01-08 21:39 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=AVARIADO defeito=BUCHA DANIFICADA
+loc=ITAGUATINS pot_ret=15 pot_inst=25 rural=RURAL
+--TEXTO_SS: TR 5713185081 FALTANDO FASE INTERNA, SAINDO SOMENTE FASE BPOT. 15KVA TENSÃO 13,8KV PARA-RAIO RUIMACESSO SOMENTE DE BARCO FICA NA ILHA EM ITAGUATINS 081OP01 SABE LOCAL
+--TEXTO_OS: OS PARA SUBSTITUICAO DE TRAFO QUEIMADO
+
+TR 5713185081 FALTANDO FASE INTERNA, SAINDO SOMENTE FASE B
+POT. 15KVA TENSÃO 13,8KV PARA-RAIO RUIM
+ACESSO SOMENTE DE BARCO FICA NA ILHA EM ITAGUATINS 081OP01 SABE LOCAL
+
+
+TRAFO RETIRADO
+
+POTÊNCIA; 15KVA 13.8KV
+DATA DE FAB; MARÇO/2015
+MARCA; TRAEL
+Nº CITD; 05019025
+Nº SÉRIE; 343246
+IMPEDÂNICA; 2,47
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 25KVA 13.8KV
+DATA DE FAB; 02/2025
+MARCA; ITAM
+Nº CITD; 145450
+Nº SÉRIE; Z.272832
+IMPEDÂNICA; 2,66
+MEDIÇÃO; 7,77 / 7,75 / 7,66
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Sim", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "BUCHA DANIFICADA", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "343246", "TOMBAMENTO_RETIRADO": "CITD 05019025", "TOMBAMENTO_INSTALADO": "145450", "DATA_FABRICACAO_RETIRADO": "05/03/2015", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "falta_fase", "confirmado": "", "motivo": "Fora do indicador: o texto declara falta de fase interna, e a troca foi executada como plano de medida com aumento de potência — o defeito existiu, mas a decisão foi de capacidade.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[2] SS=ETO-RD-GU 00069/2026 OS=DBM-MLDB03  000007/2026 OBRA=412600113 TRAFO=5701000052
+abertura=2026-01-14 12:19 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=FORMOSO DO ARAGUAIA pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: SEGUE SS PARA TROCA DE TRAFO QUEIMADO
+--TEXTO_OS: SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE FORMOSO
+
+INT: 20264080386368
+
+SS: ETO-RD-GU 69/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO:  15 KVA
+
+TRANSFORMADOR RETIRADO: 05 KVA
+
+MEDIÇÕES
+
+LOGO APÓS A TROCA 
+
+VAN: 203
+
+OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "203275", "TOMBAMENTO_RETIRADO": "007406", "TOMBAMENTO_INSTALADO": "149677", "DATA_FABRICACAO_RETIRADO": "16/01/2012", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264080386368", "inicio": "2026-01-13 16:04", "fim": "2026-01-14 19:25", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR SOBRECARGA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264079485820-1 Equipe 003 - 052OP08", "n_ocorrencias": "1"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[3] SS=ETO-RD-GU 00095/2026 OS=DBM-MLDB03  000011/2026 OBRA=412600117 TRAFO=5701544032
+abertura=2026-01-17 11:41 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=ARAGUACU pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: TRAFO 5701544032 QUEIMADO DE 15 KVA  ACESSO CAMIONETE TENSAO 19.9 KV PARA RAIO QUEIMADO
+--TEXTO_OS: SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE ARAGUAÇU
+
+INT: 20264085512527
+
+SS: ETO-RD-GU 95/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO:  15 KVA
+
+TRANSFORMADOR RETIRADO: 05 KVA
+
+MEDIÇÕES
+
+LOGO APÓS A TROCA 
+
+VAN: 213
+
+OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1.H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "176158", "NS_INSTALADO": "820258", "TOMBAMENTO_RETIRADO": "00", "TOMBAMENTO_INSTALADO": "149272", "DATA_FABRICACAO_RETIRADO": "15/09/2010", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264085578664", "inicio": "2026-01-17 07:35", "fim": "2026-01-17 19:40", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264085512527-1 Equipe 003 - 032OP01", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[4] SS=ETO-RD-AG 00096/2026 OS=ENC-MPAG02  000010/2026 OBRA=662600061 TRAFO=5720013039
+abertura=2026-01-24 13:08 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=VAZAMENTO DE ÓLEO
+loc=ARAGUATINS pot_ret=45 pot_inst=45 rural=RURAL
+--TEXTO_SS: trafo 5720013039 queimadopot 45kvatensão 34,5 kvacesso bompovoado boca da mata
+--TEXTO_OS: trafo 5720013039 queimado
+pot 45kva
+tensão 34,5 kv
+acesso bom
+povoado boca da mata
+
+TRAFO RETIRADO
+
+POTÊNCIA; 45kva 34,5KV
+DATA DE FAB; 08/2022
+MARCA; TRAEL
+Nº CITD; 141416
+Nº SÉRIE; 470965
+IMPEDÂNCIA; 4,10
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 45KVA 34,5KV
+DATA DE FAB; ABRIL/2025
+MARCA; ROMAGNOLE
+Nº CITD; 146102
+Nº SÉRIE; 1616974
+IMPEDÂNCIA; 3,73
+MEDIÇÃO; 9,81  / 9,83 / 9,78
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "VAZAMENTO DE OLEO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "470965", "NS_INSTALADO": "1616974", "TOMBAMENTO_RETIRADO": "141416", "TOMBAMENTO_INSTALADO": "146102", "DATA_FABRICACAO_RETIRADO": "18/08/2022", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264097138957", "inicio": "2026-01-23 13:32", "fim": "2026-01-24 23:42", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "VAZAMENTO DE OLEO / TANQUE DETERIORADO", "clientes": "8", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264094777172-1 Equipe 003 - 039OP03", "n_ocorrencias": "1"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[5] SS=ETO-RD-AR 00181/2026 OS=ENC-MLAR05  000074/2026 OBRA=612600123 TRAFO=5703422004
+abertura=2026-01-30 00:02 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=VAZAMENTO DE ÓLEO
+loc=ARAGUAINA pot_ret=75 pot_inst=45 rural=URBANO
+--TEXTO_SS: trafo queimado 5703422004 com vazamentoi de oleo e jumper danificadopot 112,5kvatensão 13,8kvpara-raio ruimacesso bomsetor lago sul
+--TEXTO_OS: ETO-RD-AR 181/2026
+TR:5703422004
+
+TRAFO RETIRADO
+POTÊNCIA : 75KVA
+TENSÃO :	 13,8KV
+Nº ENERGISA (CITD) : ILEGIVEL 
+Nº DE SÉRIE : 139255
+MARCA : VEGAN
+DATA FABRICAÇÃO : 11/2012
+IMPEDANCIA : 3,50
+POS. TAP : 01
+
+TRAFO INSTALADO
+POTÊNCIA : 45KVA
+TENSÃO :	 13,8KV
+Nº ENERGISA (CITD) : 143900
+Nº DE SÉRIE : 371478
+MARCA : CPFL SOLUÇÕES 
+DATA FABRICAÇÃO : 01/2016
+IMPEDANCIA : 3,59
+POS. TAP : 02
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "3H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "NS_RETIRADO": "139255", "NS_INSTALADO": "371478", "TOMBAMENTO_RETIRADO": "NT", "TOMBAMENTO_INSTALADO": "143900", "DATA_FABRICACAO_RETIRADO": "07/11/2012", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264108235327", "inicio": "2026-01-29 21:59", "fim": "2026-01-30 18:10", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "48", "obs": "Intv Auto PPF TR-5703422004", "n_ocorrencias": "3"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[6] SS=ETO-RD-GU 00148/2026 OS=DBM-MLDB03  000027/2026 OBRA=412600153 TRAFO=5710316076
+abertura=2026-01-30 15:46 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=DUERE pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: transformador e para raio queimado
+--TEXTO_OS: SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE ALIANÇA
+
+INT: 20264111901932
+
+SS: ETO-RD-GU 148/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO: 15 KVA
+
+TRANSFORMADOR RETIRADO: 15 KVA
+
+MEDIÇÕES
+
+LOGO APÓS A TROCA 
+
+VAN: 248
+
+VBN: 250
+
+OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "0,5H 0,5H 0,5H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "365233", "NS_INSTALADO": "799435", "TOMBAMENTO_RETIRADO": "00", "TOMBAMENTO_INSTALADO": "149086", "DATA_FABRICACAO_RETIRADO": "20/05/1999", "FABRICANTE_RETIRADO": "ENGENORTE"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264111901932", "inicio": "2026-01-30 07:39", "fim": "2026-01-31 11:14", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264109507590-1 Equipe 003 - 003OP07", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[7] SS=ETO-RD-AR 00209/2026 OS=ENC-MLAR05  000093/2026 OBRA=612600142 TRAFO=5700777016
+abertura=2026-02-02 13:17 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=AVARIADO defeito=ABALROADO
+loc=WANDERLANDIA pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: TROCA DO POSTE ID 63250681E DO TRAFO 570077701611/200 TROCA DE CABO DO VÃO DA CH 0300777016 ATÉ O TRAFO 5700777016. APROXIMADAMENTE VÃO DE 140MCABO: AA / 4TRAFO DE 15KVA , 34,5KVESTRUTURA U3/S3/S31 POSTE INCLINADO
+--TEXTO_OS: ETO-RD-AR 209/2026
+TR: 5700777016
+
+TRAFO RETIRADO
+POTÊNCIA : 15KVA
+TENSÃO :	 34,5KV
+Nº ENERGISA (CITD) : 130466
+Nº DE SÉRIE : 1408290
+MARCA : ITB
+DATA FABRICAÇÃO : 01/2022
+IMPEDANCIA : 3,06
+POS. TAP : 03
+
+TRAFO INSTALADO
+POTÊNCIA : 15KVA
+TENSÃO :	 34,5KV
+Nº ENERGISA (CITD) : 149173
+Nº DE SÉRIE : 820159
+MARCA : TRAEL
+DATA FABRICAÇÃO : 11/2025
+IMPEDANCIA : 3,0
+POS. TAP : 03
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "ABALROADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "NS_RETIRADO": "1408290", "NS_INSTALADO": "820159", "TOMBAMENTO_RETIRADO": "130466", "TOMBAMENTO_INSTALADO": "149173", "DATA_FABRICACAO_RETIRADO": "01/01/2022", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "abalroamento", "confirmado": "", "motivo": "Fora do indicador: a SS está gravada no sistema como abalroamento.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: ABALROADO
+==========================================================================================
+[8] SS=ETO-RD-DP 00093/2026 OS=ETO-MLDP02  000028/2026 OBRA=512600061 TRAFO=5764816091
+abertura=2026-02-04 07:27 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=
+loc=ALMAS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: Segundo informações da equipe de campo, o trafo AUXILIAR DO RELIGADOR  5764816091 de 15kVA na tensão 19.9kV e para raio estão queimados.
+--TEXTO_OS: Segundo informações da equipe de campo, o trafo AUXILIAR DO RELIGADOR  5764816091 de 15kVA na tensão 19.9kV e para raio estão queimados.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "0", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "0,5H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "NS_RETIRADO": "458600", "NS_INSTALADO": "820167", "TOMBAMENTO_RETIRADO": "144299", "TOMBAMENTO_INSTALADO": "149181", "DATA_FABRICACAO_RETIRADO": "15/02/2018", "FABRICANTE_RETIRADO": "N/A"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "auxiliar", "confirmado": "", "motivo": "Fora do indicador: é transformador auxiliar de religador ou regulador, não unidade de distribuição.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[9] SS=ENC-RD-PS 00200/2026 OS=ENC-LMPS01  000052/2026 OBRA=212600173 TRAFO=5700020008
+abertura=2026-02-06 08:15 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=BUCHA DANIFICADA
+loc=MIRANORTE pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: SEGUE SS PARA SUBSTITUIR TRAFO 5700020008 BUCHA SECUNDARIA DANIFICADA NA RDR DE MIRA NORTE
+--TEXTO_OS: SS ENC-RD-PS 200/2026
+TRAFO 5700020008 
+
+
+
+
+TRAFO RETIRADO
+POTÊNCIA : 5KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : ILEGIVEL
+Nº DE SÉRIE : 128278
+MARCA : VIJAI
+DATA FABRICAÇÃO : 10/2008
+IMPEDANCIA : 3.12
+POS. TAP : 03
+
+TRAFO INSTALADO'
+POTÊNCIA : 15KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : 149874
+Nº DE SÉRIE : C 297838
+MARCA : ITAM
+DATA FABRICAÇÃO : 12/2025
+IMPEDANCIA : 2.81
+POS. TAP : 03
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "BUCHA DANIFICADA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "NS_RETIRADO": "128278", "TOMBAMENTO_RETIRADO": "ilegível", "TOMBAMENTO_INSTALADO": "149874", "DATA_FABRICACAO_RETIRADO": "01/10/2008 10:37:32", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264118550318", "inicio": "2026-02-05 08:47", "fim": "2026-02-07 00:20", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264118333415-1 Equipe 003 - 008OP01", "n_ocorrencias": "1"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "AVARIADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[10] SS=DG-RD-PO 00181/2026 OS=DG-MLPO01  000040/2026 OBRA=312600174 TRAFO=5709780026
+abertura=2026-02-12 12:37 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=FURTADO
+loc=PONTE ALTA DO TOCANTINS pot_ret=45 pot_inst=45 rural=RURAL
+--TEXTO_SS: Boa tarde,Segue SS para substituiçaõ de trafo queiamdo
+--TEXTO_OS: medido_
+emergencial_
+
+
+Boa tarde,
+Segue SS para substituiçaõ de trafo queiamdo,  cobrando sobre aviso pedrini 14 a 16/02
+e dipsonibilidade equipe leve fou um dia antes subst o trafo porem o mesmo estava com defeito 
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "432537", "NS_INSTALADO": "736496", "TOMBAMENTO_RETIRADO": "025795", "TOMBAMENTO_INSTALADO": "144646", "DATA_FABRICACAO_RETIRADO": "01/07/2021 15:52:16", "FABRICANTE_RETIRADO": "ITAIPU"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264124744159", "inicio": "2026-02-11 16:48", "fim": "2026-02-14 13:45", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "MEIO AMBIENTE", "subcausa": "DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264123920753-1 Equipe 003 - 026OP02", "n_ocorrencias": "3"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[11] SS=ENC-RD-PS 00230/2026 OS=ENC-LMPS04  000036/2026 OBRA=212600211 TRAFO=5701302085
+abertura=2026-02-14 18:21 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=MONTE SANTO DO TOCANTINS pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: tr 5701302085 queimado15kva 19,9kv acesso caminhonete 013OP16
+--TEXTO_OS: SS ENC-RD-PS 230/2026
+tr 5701302085 
+
+
+TRAFO RETIRADO
+POTÊNCIA : 5KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : 005662
+Nº DE SÉRIE : 763545
+MARCA : ITB
+DATA FABRICAÇÃO : NOV/2011
+IMPEDANCIA : 3.31
+POS. TAP : 03
+
+TRAFO INSTALADO'
+POTÊNCIA : 15kVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : 110649
+Nº DE SÉRIE : 455441
+MARCA : TRAEL
+DATA FABRICAÇÃO : 01/2018
+IMPEDANCIA : 3.16
+POS. TAP : 03
+
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "NS_RETIRADO": "763545", "NS_INSTALADO": "455441", "TOMBAMENTO_RETIRADO": "005662", "TOMBAMENTO_INSTALADO": "110649", "DATA_FABRICACAO_RETIRADO": "01/11/2011 08:58:29", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264127959675", "inicio": "2026-02-14 09:58", "fim": "2026-02-16 17:39", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "TRAFO QUEIMADO 5701302085 15kva 19,9kv acesso caminhonete", "n_ocorrencias": "1"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[12] SS=ETO-RD-AR 00315/2026 OS=ENC-MLAR05  000118/2026 OBRA=612600195 TRAFO=5702058004
+abertura=2026-02-15 23:00 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=AVARIADO defeito=VAZAMENTO DE ÓLEO
+loc=ARAGUAINA pot_ret=30 pot_inst=30 rural=RURAL
+--TEXTO_SS: trafo faltanto fase interno secundaria 5702058004 e com vazamento de oleopot 30kvatensao 34,5kvacesso caminhonetefazenda sao paulo GRANJA
+--TEXTO_OS: ETO-RD-AR 315/2026
+TRAFO RETIRADO
+POTÊNCIA : 30 KVA
+TENSÃO :	 13.8 KV
+Nº ENERGISA (CITD) : P 12806
+Nº DE SÉRIE : 182492
+MARCA : ABB
+DATA FABRICAÇÃO : 11/01
+IMPEDANCIA : 3,87
+POS. TAP : 03
+
+TRAFO INSTALADO
+POTÊNCIA : 30 KVA
+TENSÃO :	 13.8 KV
+Nº ENERGISA (CITD) : 149607
+Nº DE SÉRIE : 138720
+MARCA : CPFL
+DATA FABRICAÇÃO : 2008
+IMPEDANCIA : 3,67
+POS. TAP : 04
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "NS_RETIRADO": "182492", "NS_INSTALADO": "138720", "TOMBAMENTO_RETIRADO": "P 12806", "TOMBAMENTO_INSTALADO": "149607", "DATA_FABRICACAO_RETIRADO": "30/11/2001", "FABRICANTE_RETIRADO": "ABB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264128231654", "inicio": "2026-02-15 16:48", "fim": "2026-02-15 22:43", "papel": "interrompido+fechado", "dist_h": "", "causa": "CONEXAO", "subcausa": "CONEXAO DANIFICADA RAMAL COM RD", "clientes": "1", "obs": "TRANSFORMADO COM VAZAMENTO DE OLHO NA BUCHA SEGUNDARI NAS FASE A,B,C SERA NECESARIO TROCA DOBMESMO", "n_ocorrencias": "2"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "sem_interrupcao", "confirmado": "", "motivo": "Fora do indicador: a Crítica nunca registrou defeito aberto neste transformador — em data nenhuma dos sete meses. O código aparece na base, mas só como interrompido ou manobrado, que é o que acontece ", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[13] SS=ETO-RD-GU 00232/2026 OS=DBM-MPDB08  000047/2026 OBRA=412600231 TRAFO=5700075036
+abertura=2026-02-18 18:51 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=ALVORADA pot_ret=75 pot_inst=75 rural=URBANO
+--TEXTO_SS: SEGUE SOLICITAÇÃO DE SERVIÇO PARA TROCA DE TRAFO QUEIMADO NA RDU DE ALVORADA
+--TEXTO_OS: SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE ALVORADA
+
+SS: ETO-RD-GU 232/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO:  75 KVA
+
+TRANSFORMADOR RETIRADO: 75 KVA
+
+MEDIÇÕES
+
+LOGO APÓS A TROCA 
+
+VAN: 218
+
+OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "108", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Sim", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "3H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "10021", "NS_INSTALADO": "334046", "TOMBAMENTO_RETIRADO": "000", "TOMBAMENTO_INSTALADO": "18273", "DATA_FABRICACAO_RETIRADO": "07/07/1997", "FABRICANTE_RETIRADO": "MACZ"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264130125578", "inicio": "2026-02-18 12:33", "fim": "2026-02-19 01:08", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "CAUSA NAO IDENTIFICADA", "subcausa": "CAUSA NAO IDENTIFICADA - ESPECIFICAR", "clientes": "100", "obs": "TRAF ABERTOTRAF ABERTOTRAF ABERTOIntv Auto PPF TR-5700075036", "n_ocorrencias": "5"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "obra_sem_transformador", "confirmado": "", "motivo": "Fora do indicador: obra encerrada e conferida no material, sem transformador movimentado.", "material": "SIM", "trafos_material": "0"}
+--DONO: 
+==========================================================================================
+[14] SS=DG-RD-PO 00205/2026 OS=DG-MPPO01  000055/2026 OBRA=312600165 TRAFO=5710033043
+abertura=2026-02-19 13:38 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=SILVANOPOLIS pot_ret=45 pot_inst=45 rural=RURAL
+--TEXTO_SS: SEGUE SS DE TRAFO 5710033043 QUEIMADO PARA E E ESTRURTURA DETERIORADA PARA DEVIDAS TRATATIVAS COM EQUIPE DE MANUTENÇÃO. MATERIAS: 1 TRAFO 45 KVA1 POSTE 10/3002 CRUZETAS 3 ISOLADORES BASTAO 34,5 KV
+--TEXTO_OS: medido_
+emergencial_
+
+
+substituição de trafo queimado e poste danificado rdr silvanopolis
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "3H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "481356", "NS_INSTALADO": "457248", "TOMBAMENTO_RETIRADO": "118126", "TOMBAMENTO_INSTALADO": "110862", "DATA_FABRICACAO_RETIRADO": "01/03/2018 10:48:40", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264131788837", "inicio": "2026-02-17 15:11", "fim": "2026-02-20 15:50", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "VAZAMENTO DE OLEO / TANQUE DETERIORADO", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264129258255-1 Equipe 003 - 043OP01", "n_ocorrencias": "5"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "AVARIADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[15] SS=ETO-RD-DP 00132/2026 OS=ETO-RD-DP  000326/2026 OBRA=512600095 TRAFO=5710013050
+abertura=2026-02-20 17:39 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=COMBINADO pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: FOI CONSTATAO TRAFO 5710013050 15KVA 19,9KV E PARA-RAIOS QUEIMADOS. POSTE  DO TRAFO DE MADEIRA DANIFICADO ID 42519528 ESTRUTURA  U3, S3. FAVOR DISPONIBILIZAR EQUIPE DE MANUTENÇÃO PARA DEVIDAS TRATATIVAS. SUBSTITUIR POSTE DE MADEIRA POR 10/300ATENDIDO PELA TAVARES
+--TEXTO_OS: TRANSFORMADOR SUBSTITUIDO PELA META
+
+POSTE RETIRADO MADEIRA
+
+POSTE INSTALADO: DT 11/600
+
+ATIVO: 190.02383983
+
+
+TRAFO RETIRADO 15KVA 19,9KV
+
+TRAFO INSTALADO: 15KVA 19,9KV
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "3", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "6152", "NS_INSTALADO": "572314", "TOMBAMENTO_RETIRADO": "0", "TOMBAMENTO_INSTALADO": "127382", "DATA_FABRICACAO_RETIRADO": "01/01/2026 14:48:11", "FABRICANTE_RETIRADO": "LFB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264133009415", "inicio": "2026-02-20 13:50", "fim": "2026-02-21 21:23", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "3", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264132843813-1 Equipe 003 - 050OP01", "n_ocorrencias": "1"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[16] SS=ETO-RD-GR 00278/2026 OS=ETO-RD-GR  000359/2026 OBRA=712600182 TRAFO=5700216064
+abertura=2026-02-23 20:17 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=AVARIADO defeito=BUCHA DANIFICADA
+loc=BRASILANDIA DO TOCANTINS pot_ret= pot_inst= rural=RURAL
+--TEXTO_SS: trafo 5700216064 com bucha danificada 15KVA 34,5KV para raio bom acesso livre. chacara firmeza - RDR BrasilandiaThiago Pires Moral - UC 3283572-0
+--TEXTO_OS: trafo 5700216064 com bucha danificada 15KVA 34,5KV para raio bom acesso livre. 
+chacara firmeza - RDR Brasilandia
+Thiago Pires Moral - UC 3283572-0
+--CAMPO: {"QTD_CLIENTES": "1", "PROVÁVEL_MOTIVO_DO_DEFEITO": "BUCHA DANIFICADA", "QUAL_ELO_INSTALADO_NO_LOCAL": "."}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264152703110", "inicio": "2026-03-01 18:21", "fim": "2026-03-01 20:29", "papel": "problema+interrompido+fechado", "dist_h": "141.1", "causa": "MEIO AMBIENTE", "subcausa": "DESCARGA ATMOSFERICA", "clientes": "1", "obs": "CODIGO INVALIDO:CH/5700216064- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264152669390-1 Equipe 003 - 023OP02", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "AVARIADO", "motivo": "O dono mandou mover: “mova eles de onde estão para queima e avaria”. a natureza sai do texto do próprio caso, que declara avariado; a crítica registra descarga atmosferica e a obra movimentou 1 transf", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[17] SS=ETO-RD-GR 00279/2026 OS=ETO-RD-GR  000374/2026 OBRA=712600198 TRAFO=5710240111
+abertura=2026-02-24 17:17 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=AVARIADO defeito=BUCHA DANIFICADA
+loc=BERNARDO SAYAO pot_ret= pot_inst= rural=RURAL
+--TEXTO_SS: Trafo com bucha secundaria danificada 5710240111 -  15KVA  - 13,8KV - acesso caminhonete - para raio OK. IND FAZENDA SAO SEBASTIAO, 232 - FAZ SAO SEBASTIAOADILSON PRADO DE CASTRO - uc 3232360RDR Colinas
+--TEXTO_OS: Trafo com bucha secundaria danificada 5710240111 -  15KVA  - 13,8KV - acesso caminhonete - para raio OK. 
+IND FAZENDA SAO SEBASTIAO, 232 - FAZ SAO SEBASTIAO
+ADILSON PRADO DE CASTRO - uc 3232360
+RDR Colinas
+--CAMPO: {"QTD_CLIENTES": "1", "PROVÁVEL_MOTIVO_DO_DEFEITO": "BUCHA DANIFICADA", "QUAL_ELO_INSTALADO_NO_LOCAL": "."}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264137433112", "inicio": "2026-02-24 09:23", "fim": "2026-02-25 14:25", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "0", "obs": "trafo queimado, aberto nota", "n_ocorrencias": "5"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "O dono martelou queimado e mandou marcar o zero: “queimado e classifica com zero clientes interrompidos”. a crítica registra a ocorrência 20264137433112 com defeito no próprio transformador e a ss abr", "material": "NAO", "trafos_material": "0"}
+--DONO: 
+==========================================================================================
+[18] SS=DG-RD-PO 00233/2026 OS=DG-MPDG01  000054/2026 OBRA=312600177 TRAFO=5702646001
+abertura=2026-03-03 08:09 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=
+loc=PORTO NACIONAL pot_ret=45 pot_inst=45 rural=URBANO
+--TEXTO_SS: segue nota trafo queimado de 45kVA paraio bom
+--TEXTO_OS: medido_
+emergencial_
+
+
+substituição de trafo queimado rdu porto
+obs: cobrando sobre aviso pedrini 21 a 23/02
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "2695", "NS_INSTALADO": "1597377", "TOMBAMENTO_RETIRADO": "ILEGIVEL", "TOMBAMENTO_INSTALADO": "144666", "DATA_FABRICACAO_RETIRADO": "01/01/1975 08:48:46", "FABRICANTE_RETIRADO": "PEG"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "sem_interrupcao", "confirmado": "", "motivo": "Fora do indicador: o ativo não existe na base de interrupção. Sem registro de interrupção não há evento a medir.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[19] SS=ETO-RD-AR 00425/2026 OS=ENC-MLAR01  000124/2026 OBRA=612600249 TRAFO=5700402060
+abertura=2026-03-05 09:50 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=
+loc=NOVA OLINDA pot_ret=10 pot_inst=15 rural=RURAL
+--TEXTO_SS: realizar melhoria de ateramento
+--TEXTO_OS: ETO-RD-AR 415/2026
+TRAFO 5700402060
+TRAFO RETIRADO
+POTÊNCIA : 10 KVA
+TENSÃO :	 13.8 KV
+Nº ENERGISA (CITD) : 37130
+Nº DE SÉRIE : 177002
+MARCA : TRAEL
+DATA FABRICAÇÃO : 01/2010
+IMPEDANCIA : 2,59
+POS. TAP : 03
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 13.8 KVA
+Nº ENERGISA (CITD) : 148823
+Nº DE SÉRIE : 249961
+MARCA : ITB
+DATA FABRICAÇÃO : 11/2025
+IMPEDANCIA : 2,49
+POS. TAP : 05
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "177002", "NS_INSTALADO": "249961", "TOMBAMENTO_RETIRADO": "37130", "TOMBAMENTO_INSTALADO": "148823", "DATA_FABRICACAO_RETIRADO": "01/01/2010", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[20] SS=ETO-RD-AG 00265/2026 OS=ETO-RD-AG  000243/2026 OBRA=662600167 TRAFO=5700326045
+abertura=2026-03-10 13:43 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=AUGUSTINOPOLIS pot_ret= pot_inst= rural=RURAL
+--TEXTO_SS: 5700326045 queimadopot 15kvatensão 19,9kvpara-raio bomacesso somente caminhonete
+--TEXTO_OS: 5700326045 queimado
+pot 15kva
+tensão 19,9kv
+para-raio bom
+acesso somente caminhonete
+--CAMPO: {}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264171150305", "inicio": "2026-03-09 16:20", "fim": "2026-03-10 17:35", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264168758394-1 Equipe 003 - 045OP04", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[21] SS=ETO-RD-AG 00271/2026 OS=ENC-MLAG01  000070/2026 OBRA=662600175 TRAFO=5700726039
+abertura=2026-03-12 21:42 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=ARAGUATINS pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: 5700726039 queimado para raio bomtensão 19,9kvpot 5 kvaacesso somente caminhonete20264174020425
+--TEXTO_OS: OS PARA SUBSTITUICAO DE TRAFO QUEIMADO
+
+5700726039 queimado para raio bom
+tensão 19,9kv
+pot 5 kva
+acesso somente caminhonete
+
+20264174020425
+
+
+TRAFO Nº 5700726039
+
+TRAFO RETIRADO 
+
+POTÊNCIA; 05KVA 34.5KV
+DATA DE FAB; SET/2010
+MARCA; ITB
+Nº CITD; 44357
+Nº SÉRIE; 696810
+POS. DO TAP; 4
+IMPEDÂNCIA; 3.22
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 15KVA 34.5KV
+DATA DE FAB; 10/2025
+MARCA; ITAM
+Nº CITD; 149754
+Nº SÉRIE; C.290315
+POS. DO TAP; 3º
+IMPEDÂNCIA; 3.22
+MEDIÇÃO; 19.70 / 19.68 /19.67
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Sim", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "0,5H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "696810", "TOMBAMENTO_RETIRADO": "44357", "TOMBAMENTO_INSTALADO": "149754", "DATA_FABRICACAO_RETIRADO": "11/09/2010", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264174020425", "inicio": "2026-03-12 07:34", "fim": "2026-03-14 10:30", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "MEIO AMBIENTE", "subcausa": "DESCARGA ATMOSFERICA", "clientes": "2", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264173768402-1 Equipe 003 - 039OP03", "n_ocorrencias": "5"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[22] SS=ETO-RD-GU 00334/2026 OS=ETO-RD-GU  000735/2026 OBRA=412600300 TRAFO=5701076032
+abertura=2026-03-16 18:05 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=ARAGUACU pot_ret=10 pot_inst=15 rural=RURAL
+--TEXTO_SS: segue nota para substituiçao de transformador queimado asseço livre
+--TEXTO_OS: ETO-RD-GU 334-2026
+
+LOCALIDADE: ARAGUAÇU
+
+EQUIPE: ENERGISA
+
+FOI FEITO A TROCA DO TRANSFORMADOR DE 10KVA POR 15KVA
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "68346", "NS_INSTALADO": "827991", "TOMBAMENTO_RETIRADO": "06", "TOMBAMENTO_INSTALADO": "150268", "DATA_FABRICACAO_RETIRADO": "01/11/2005 14:11:56", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264180690662", "inicio": "2026-03-15 19:18", "fim": "2026-03-17 18:00", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264178068024-1 Equipe 003 - 032OP02", "n_ocorrencias": "3"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[23] SS=ETO-RD-AR 00500/2026 OS=ENC-MLAR02  000059/2026 OBRA=612600299 TRAFO=5720044025
+abertura=2026-03-17 16:37 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=
+loc=ARAPOEMA pot_ret=25 pot_inst=25 rural=RURAL
+--TEXTO_SS: REALIZAR MELHORIA ATERRAMENTO
+--TEXTO_OS: ETO-RD-AR 466/2026
+TRAFO 5720044025
+TRAFO RETIRADO
+POTÊNCIA : 25 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : CI2706014008
+Nº DE SÉRIE : 342415
+MARCA : ROMAGNOLE
+DATA FABRICAÇÃO : 01/2002
+IMPEDANCIA : 3,1
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 25 KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : 145174
+Nº DE SÉRIE : Z271363
+MARCA : ITAM
+DATA FABRICAÇÃO : 02/2025
+IMPEDANCIA : 3,20
+POS. TAP : 05
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "342415", "TOMBAMENTO_RETIRADO": "CI2706014008", "TOMBAMENTO_INSTALADO": "145174", "DATA_FABRICACAO_RETIRADO": "01/01/2002 11:08:59", "FABRICANTE_RETIRADO": "ROMAGNOLE"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264174135495", "inicio": "2026-03-12 14:39", "fim": "2026-03-13 15:10", "papel": "problema+interrompido+fechado", "dist_h": "73.5", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264174012601-1 Equipe 003 - 025OP01", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[24] SS=ETO-RD-AG 00343/2026 OS=ETO-RD-AG  000302/2026 OBRA=662600212 TRAFO=5702090039
+abertura=2026-03-27 17:08 sit=SS ATENDIDA tipo=SOLICITAÇÃO DE SERVIÇO origem= defeito=
+loc=ARAGUATINS pot_ret=25 pot_inst=15 rural=RURAL
+--TEXTO_SS: Enviar equipe de manutenção para REMANEJAR trafo 5702090039 - de 25KVA-19.9KV POR TRAFO DE 15KVA-19.9KV
+--TEXTO_OS: Enviar equipe de manutenção para REMANEJAR trafo 5702090039 - de 25KVA-19.9KV POR TRAFO DE 15KVA-19.9KV
+
+OBS; TRAFO COM ERRO DE CADASTRO NO SISTEMA O MESMO ESTA DE 05KVA CONTUDO EM CAMPO SE ENCONTRAVA DE 25KVA, CONFORME DADOS DO TRANSFORMADOR ABAIXO. 
+
+
+TRAFO Nº 5702090039
+
+TRAFO RETRIADO 
+
+POTÊNCIA;  25KVA 34,5KV
+DATA DE FAB; 10/2013 - 02/2025
+MARCA; EST - TRAEL
+Nº CITD; 144811
+Nº SÉRIE; 18930
+POS. DO TAP; 3º
+IMPEDÂNCIA; 3,08
+
+TRAFO INSTALADO
+
+
+POTÊNCIA;  15KVA 34,5KV
+DATA DE FAB; 2/2026
+MARCA; TRAEL
+Nº CITD; 150182
+Nº SÉRIE; 827905
+POS. DO TAP; 3,0
+IMPEDÂNCIA; 3,0
+MEDIÇÃO;  20,51 / 20,65 / 20,53
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "18930", "NS_INSTALADO": "827905", "TOMBAMENTO_RETIRADO": "144811", "TOMBAMENTO_INSTALADO": "150182", "DATA_FABRICACAO_RETIRADO": "01/10/2013 09:18:34", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264182321829", "inicio": "2026-03-16 15:40", "fim": "2026-03-18 03:00", "papel": "problema+interrompido+fechado", "dist_h": "206.1", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264180621887-1 Equipe 003 - 039OP03", "n_ocorrencias": "2"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "remanejamento", "confirmado": "", "motivo": "Fora do indicador: o texto declara remanejamento: troca de potência ou mudança de poste, não falha.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[25] SS=ETO-RD-AR 00595/2026 OS=ENC-MLAR02  000073/2026 OBRA=612600348 TRAFO=5701428077
+abertura=2026-04-01 12:25 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=
+loc=GOIATINS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: Melhoria em posto transformação 5701428077
+--TEXTO_OS: ETO-RD-AR 514/2026
+TRAFO 5701428077
+TRAFO RETIRADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 06110646
+Nº DE SÉRIE : 455438
+MARCA : TRAEL
+DATA FABRICAÇÃO : 08/2017
+IMPEDANCIA : 2,92
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 150316
+Nº DE SÉRIE : 828039
+MARCA : TRAEL
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 3,0
+POS. TAP : 05  
+
+OBS. TRAFO RETIRADO EM CAMPO ESTAR NO SISTEMA DE 5 KVA POREM EM CAMPO ERA DE 15 KVA COM FORME BOOK INFORMADO PELA EQUIPE DE CAMPO, ERRO DE CADASTRO.
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "SN", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "455438", "NS_INSTALADO": "828039", "TOMBAMENTO_RETIRADO": "06110646", "TOMBAMENTO_INSTALADO": "150316", "DATA_FABRICACAO_RETIRADO": "01/08/2017 11:25:44", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264210073866", "inicio": "2026-03-28 19:50", "fim": "2026-03-30 09:30", "papel": "problema+interrompido+fechado", "dist_h": "26.9", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264208283743-1 Equipe 003 - 077OP01", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[26] SS=ETO-RD-AR 00603/2026 OS=ENC-MLAR02  000077/2026 OBRA=612600372 TRAFO=5710227004
+abertura=2026-04-02 03:07 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=QUEIMADO defeito=DESCARGA ATMOSFÉRICA
+loc=ARAGUAINA pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: 5710227004 QUEIMADOPOT 15 KVA19,9KVACESSO BOM PARA-RAIO QUEIMADO
+--TEXTO_OS: ETO-RD-AR 603/2026
+TRAFO 5710227004
+TRAFO RETIRADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : ILEGIVEL
+Nº DE SÉRIE : 315515
+MARCA : ITB
+DATA FABRICAÇÃO : 03/2025
+IMPEDANCIA : 3,16
+POS. TAP : 03
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 150213
+Nº DE SÉRIE : 827936
+MARCA : TRAEL
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 3,0
+POS. TAP : 05
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "S/N", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "315515", "NS_INSTALADO": "827936", "TOMBAMENTO_RETIRADO": "ILEGIVEL", "TOMBAMENTO_INSTALADO": "150213", "DATA_FABRICACAO_RETIRADO": "01/03/2005 08:18:04", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264247296716", "inicio": "2026-04-01 17:43", "fim": "2026-04-02 18:30", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264246079135-1 Equipe 003 - 004OP33", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[27] SS=ETO-RD-GU 00429/2026 OS=DBM-MLDB03  000075/2026 OBRA=412600345 TRAFO=5710235032
+abertura=2026-04-06 10:49 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=BUCHA DANIFICADA
+loc=NOVO PLANALTO pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: trafo 5710235032 queimado  de 15 kva rdr de araguaçu tensão 19.9 kv acesso livre  e poste quebrado id 42840335 10/300 cabo AA / 4.
+--TEXTO_OS: SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE ARAGUAÇU
+
+INT: 20264257975458
+
+SS: ETO-RD-GU 429/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO:  15 KVA
+
+TRANSFORMADOR RETIRADO: 15 KVA
+
+MEDIÇÕES
+
+LOGO APÓS A TROCA 
+
+VAN: 223
+
+VBN: 221
+
+OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "ABALROADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "0.5 h", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "536046", "NS_INSTALADO": "828113", "TOMBAMENTO_RETIRADO": "124350", "TOMBAMENTO_INSTALADO": "150390", "DATA_FABRICACAO_RETIRADO": "02/04/2020 17:45:42", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "CASOU PELA CHAVE GÊMEA", "ocorrencia": "20264257975458", "inicio": "2026-04-06 02:01", "fim": "2026-04-06 23:17", "papel": "interrompido", "dist_h": "", "causa": "POSTE DE AT", "subcausa": "QUEBRADO", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264255066668-1 Equipe 003 - 032OP02", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "fora_da_janela", "confirmado": "", "motivo": "Fora do indicador: a SS não cai na janela de nenhuma interrupção.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[28] SS=ETO-RD-AR 00690/2026 OS=ENC-MPAR01  000025/2026 OBRA=612600428 TRAFO=5766930077
+abertura=2026-04-16 12:36 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=AVARIADO defeito=VAZAMENTO DE ÓLEO
+loc=GOIATINS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: Boa tarde,Favor enviar manutenção para verificar trafo com vazamento de oleo no comutador de TAPTensão: 34,5Potencia: 15 kvaPara raio bomACESSO LIVREChacara Deus e Fiel
+--TEXTO_OS: ETO-RD-AR 690/2026
+TRAFO 5766930077
+TRAFO RETIRADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 148039
+Nº DE SÉRIE : C 287176
+MARCA : ITAM
+DATA FABRICAÇÃO : 09/2025
+IMPEDANCIA : 3,10
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 150228
+Nº DE SÉRIE : 827951
+MARCA : TRAEL
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 3,0
+POS. TAP : 05
+
+MEDIÇÃO 1: 15.32
+MEDIÇÃO 2: 14.39
+MEDIÇÃO 3: 11.16
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "NS_RETIRADO": "C 287176", "NS_INSTALADO": "827951", "TOMBAMENTO_RETIRADO": "827951", "TOMBAMENTO_INSTALADO": "150228", "DATA_FABRICACAO_RETIRADO": "27/09/2025", "FABRICANTE_RETIRADO": "ITAM"}
+--CRITICA: {"resultado": "AUSENTE — nem trafo nem chave", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "sem_interrupcao", "confirmado": "", "motivo": "Fora do indicador: o ativo não existe na base de interrupção. Sem registro de interrupção não há evento a medir.", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[29] SS=DOLP-RD-PA 00488/2026 OS=DLP-CTPA00  000076/2026 OBRA=112600523 TRAFO=5731651122
+abertura=2026-04-23 16:59 sit=SS ATENDIDA tipo=SOLICITAÇÃO DE SERVIÇO origem= defeito=VAZAMENTO DE ÓLEO
+loc=PALMAS pot_ret=150 pot_inst=150 rural=RURAL
+--TEXTO_SS: Topologia 31651 substituir Trafo devido esta com vazamento de óleo
+--TEXTO_OS: MEDIDO_
+
+EMERGENCIAL_
+
+Topologia 31651 substituir Trafo devido esta com vazamento de óleo 
+
+
+DADOS DO ATENDIMENTO: 
+EQUIPE: 833019
+ENCARREGADO: REGINALDO OLIVEIRA
+DATA: 24/04/2026
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "VAZAMENTO DE OLEO", "QUAL_ELO_INSTALADO_NO_LOCAL": "3H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "650536", "NS_INSTALADO": "1672875", "TOMBAMENTO_RETIRADO": "133112", "TOMBAMENTO_INSTALADO": "151557", "DATA_FABRICACAO_RETIRADO": "01/10/2022 06:44:15", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264323775805", "inicio": "2026-04-24 14:28", "fim": "2026-04-24 16:23", "papel": "problema+interrompido+fechado", "dist_h": "20.5", "causa": "TRANSFORMADOR", "subcausa": "VAZAMENTO DE OLEO / TANQUE DETERIORADO", "clientes": "0", "obs": "Abertura emergencial para torca de trafo com vazamento.", "n_ocorrencias": "3"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "preventivo", "confirmado": "", "motivo": "Fora do indicador: o dono mandou mover para preventivo: “mova do lugar de onde está e coloca no preventivo”. A SS não foi aberta pelo COI — foi aberta pelo COCM, ou seja, a equipe achou o defeito ante", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[30] SS=ETO-RD-AR 00766/2026 OS=ENC-MLAR02  000088/2026 OBRA=612600451 TRAFO=5710054159
+abertura=2026-04-29 10:04 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=
+loc=MURICILANDIA pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: fazer melhoria posto de tranformaçao no trafo  5710054159
+--TEXTO_OS: ETO-RD-AR 747/2026
+TRAFO 5710054159
+TRAFO RETIRADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 06112834
+Nº DE SÉRIE : 459998
+MARCA : TRAEL
+DATA FABRICAÇÃO : 03/2018
+IMPEDANCIA :3,10
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 149436
+Nº DE SÉRIE : 822871
+MARCA : TRAEL
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 3,0
+POS. TAP : 05
+TRAFO RETIRADO EM CAMPO E DE 15 KVA COM FORME BOOK E O RELATORIO DA EQUIPE DE CAMPO,.POREM NO SISTEMA E DE 10 KVA ERRO DE CADATRO
+
+MEDIÇÃO 1: 15.63
+MEDIÇÃO 2: 11.17
+MEDIÇÃO 3: 10.83
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "..", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "459998", "NS_INSTALADO": "822871", "TOMBAMENTO_RETIRADO": "06112834", "TOMBAMENTO_INSTALADO": "149436", "DATA_FABRICACAO_RETIRADO": "01/03/2018 15:23:20", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264330353767", "inicio": "2026-04-26 16:59", "fim": "2026-04-27 15:00", "papel": "problema+interrompido+fechado", "dist_h": "19.1", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264329928148-1 Equipe 003 - 040OP36", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[31] SS=ETO-RD-GR 00507/2026 OS=ENC-MLGR01  000120/2026 OBRA=712600344 TRAFO=5752935111
+abertura=2026-05-04 16:11 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=SOBRECARGA
+loc=PEQUIZEIRO pot_ret=112.5 pot_inst=112.5 rural=RURAL
+--TEXTO_SS: trafo 5752935111 queimado na RDU de Pequizeiro equipe 111op01
+--TEXTO_OS: TROCA DE TRAFO QUEIMADO 5752935111 ETO-RD-GR 507/2026 ZONA URBANA - PEQUIZEIRO 0111
+
+TRAFO RETIRADO
+POTÊNCIA : 112.5KVA
+TENSÃO : 34.5KV	
+Nº ENERGISA (CITD) : 139605
+Nº DE SÉRIE : 1541133
+MARCA : ROMAGNOLE
+DATA FABRICAÇÃO : 03/2024
+IMPEDANCIA : 3.94
+POS. TAP : 02
+
+TRAFO INSTALADO
+POTÊNCIA : 112.5KVA
+TENSÃO : 34.5KV	
+Nº ENERGISA (CITD) : 151246
+Nº DE SÉRIE : 1669348
+MARCA : ROMAGNOLE
+DATA FABRICAÇÃO : 03/2026
+IMPEDANCIA : 3.90
+POS. TAP : 02
+
+MEDIÇÃO 1: 00.17
+MEDIÇÃO 2: 00.15
+MEDIÇÃO 3: 00.10
+
+COORDENADA
+X: 727572
+Y: 9050319
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "16", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "1541133", "NS_INSTALADO": "1669348", "TOMBAMENTO_RETIRADO": "139605", "TOMBAMENTO_INSTALADO": "151246", "DATA_FABRICACAO_RETIRADO": "01/03/2009 00:00:00", "FABRICANTE_RETIRADO": "ROMAGNOLE"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264360030124", "inicio": "2026-05-04 13:37", "fim": "2026-05-04 23:21", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "16", "obs": "TRAFO COM POSSIVEL DEFEITOIntv Auto PPF CH-0300750111", "n_ocorrencias": "2"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[32] SS=ETO-RD-AG 00510/2026 OS=ETO-RD-AG  000434/2026 OBRA=662600313 TRAFO=5720022127
+abertura=2026-05-15 16:41 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem= defeito=
+loc=PALMEIRAS DO TOCANTINS pot_ret=15 pot_inst=25 rural=RURAL
+--TEXTO_SS: Constatado trafo 5720022127 de 15kVA na 19.9kV queimado; para-raios bom. Acesso bom.
+--TEXTO_OS: PLANO DE MEDIDA - Realizar substituição do trafo 5720022127 de 15 kVA para 25 kVA   - Direcionar serviço para projeto SIGCO 25983.
+
+
+TRAFO Nº 5720022127
+
+TRAFO INSTALADO
+
+POTÊNCIA; 15KVA 34,5KV
+DATA DE FAB; 12/2004 - 10/08/2023
+MARCA; INTEL - CPFL
+Nº CITD; 136145
+Nº SÉRIE; 178210
+POS. DO TAP; 4º
+IMPEDÃNCIA; 2,99
+
+TRAFO RETIRADO
+
+POTÊNCIA; 25KVA 34,5KV
+DATA DE FAB; 02/2026
+MARCA; ITAM
+Nº CITD; 151003
+Nº SÉRIE; Z.303123
+POS. DO TAP; 3º
+IMPEDÃNCIA; 2,86
+MEDIÇÃO; 6,03 / 06,09 / 06,15
+
+
+
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "0", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "SOBRECARGA", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "178210", "TOMBAMENTO_RETIRADO": "136145", "TOMBAMENTO_INSTALADO": "151003", "DATA_FABRICACAO_RETIRADO": "01/12/2004 13:33:57", "FABRICANTE_RETIRADO": "INTEL"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264400200613", "inicio": "2026-05-15 15:38", "fim": "2026-05-16 02:00", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "9", "obs": "Constatado trafo 5720022127 de 15kVA na 19.9kV queimado  para-raios bom. Acesso bom. Equipe 002FT01", "n_ocorrencias": "3"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: QUEIMADO
+==========================================================================================
+[33] SS=ETO-RD-AG 00545/2026 OS=ENC-MLAG01  000135/2026 OBRA=662600322 TRAFO=5700724045
+abertura=2026-05-22 15:23 sit=SS ATENDIDA tipo=AVISO DE ANOMALIA origem=AVARIADO defeito=VAZAMENTO DE ÓLEO
+loc=AUGUSTINOPOLIS pot_ret=25 pot_inst=25 rural=RURAL
+--TEXTO_SS: segue trafo 5700724045 com vazamento de oleo pot. 25 kva tensão 19,9kvpara-raio ruimacesso bom
+--TEXTO_OS: segue trafo 5700724045 com vazamento de oleo pot. 25 kva tensão 19,9kv
+para-raio ruim
+acesso bom
+
+
+TRAFO Nº 5700724045
+
+TRAFO RETIRADO
+
+POTÊNCIA; 25KVA 34,5KV
+DATA DE FAB;  NOV/2012
+MARCA; ITB
+Nº CITD; P.033175
+Nº SÉRIE; 806969
+POS. DO TAP;4º
+IMPEDÂNCIA; 2,78
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 25KVA 34,5KV
+DATA DE FAB;  20/02/2026
+MARCA; ITAM
+Nº CITD; 150991
+Nº SÉRIE; Z.303111
+POS. DO TAP; 3º
+IMPEDÂNCIA; 2,86
+MEDIÇÃO; 06,21 / 06,20 / 06,13
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "VAZAMENTO DE OLEO", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "806969", "TOMBAMENTO_RETIRADO": "P 033175", "TOMBAMENTO_INSTALADO": "150991", "DATA_FABRICACAO_RETIRADO": "10/11/2012", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264423463124", "inicio": "2026-05-22 10:42", "fim": "2026-05-22 15:30", "papel": "interrompido+fechado", "dist_h": "", "causa": "NIVEL DE TENSAO", "subcausa": "REGULARIZADO-PROBLEMA EM RAMAL DE SERVIÇO", "clientes": "1", "obs": "", "n_ocorrencias": "1"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "sem_interrupcao", "confirmado": "", "motivo": "Fora do indicador: a Crítica nunca registrou defeito aberto neste transformador — em data nenhuma dos sete meses. O código aparece na base, mas só como interrompido ou manobrado, que é o que acontece ", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[34] SS=ETO-RD-AG 00574/2026 OS=ENC-MPAG02  000089/2026 OBRA=662600362 TRAFO=5700269132
+abertura=2026-06-05 19:01 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=SOBRECARGA
+loc=SAMPAIO pot_ret=5 pot_inst=25 rural=RURAL
+--TEXTO_SS: TRAFO 5700269132 DE 10KVA A 19.9KV E PQRQ RAIO QUEIMADO LOCAL: PA SÃO LUCAS RDR DE AUGUSTINÓPOLISACESSO SÓ PARA CAMIONETA.
+--TEXTO_OS: TRAFO 5700269132 DE 10KVA A 19.9KV E PQRQ RAIO QUEIMADO
+ LOCAL: PA SÃO LUCAS RDR DE AUGUSTINÓPOLIS
+ACESSO SÓ PARA CAMIONETA.
+
+
+TRAFO Nº 5700269132
+
+TRAFO RETIRADO
+
+POTÊNCIA; 05KVA 34,5KV
+DATA DE FAB; 09/2010
+MARCA; VIJAI
+Nº CITD; N/A
+Nº SÉRIE; 178509
+POS. DO TAP; 3º
+IMPEDÂNCIA; 3,11
+
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 25KVA 34,5KV
+DATA DE FAB; 2019 REF; 29/01/2026
+MARCA; TRAEL - CPFL
+Nº CITD; 496858
+Nº SÉRIE; 127471
+POS. DO TAP; 3º
+IMPEDÂNCIA; 3,02
+MEDIÇÃO; 6,91 / 6,90/ 06,88
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Sim", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "DESCARGA ATMOSFERICA", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "NS_RETIRADO": "1785O9", "NS_INSTALADO": "496858", "TOMBAMENTO_RETIRADO": "N/A", "TOMBAMENTO_INSTALADO": "127471", "DATA_FABRICACAO_RETIRADO": "08/09/2010", "FABRICANTE_RETIRADO": "VIJAI"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264481062703", "inicio": "2026-06-05 08:59", "fim": "2026-06-06 13:50", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR DESCARGA ATMOSFERICA", "clientes": "1", "obs": "Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264480119038-1 Equipe 003 - 045OP04", "n_ocorrencias": "3"}
+--SITE: {"cascata": "SAÍDA", "gatilho": "", "confirmado": "QUEIMADO", "motivo": "Campo, texto e material convergem: interrupção no próprio transformador dentro da janela e troca comprovada no material", "material": "SIM", "trafos_material": "1.0"}
+--DONO: 
+==========================================================================================
+[35] SS=ENC-RD-PS 00582/2026 OS=ENC-MLGR03  000228/2026 OBRA=212600530 TRAFO=5710170055
+abertura=2026-06-17 10:28 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=NÃO IDENTIFICADO
+loc=ARAGUACEMA pot_ret=30 pot_inst=30 rural=RURAL
+--TEXTO_SS: segue ss para tratativa com equipe de manutençao o quanto antes substituir trafo 5710170055 queimado na rdr de araguacema trafo de 30 kva 34,5
+--TEXTO_OS: SS ENC-RD-PS 582/2026
+TRAFO 5710170055
+
+
+
+
+TRAFO RETIRADO
+POTÊNCIA : 30KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) : 126944
+Nº DE SÉRIE : 183092
+MARCA : ABB
+DATA FABRICAÇÃO : 2008
+IMPEDANCIA : 4.24
+POS. TAP : 02
+
+TRAFO INSTALADO'
+POTÊNCIA : 30KVA
+TENSÃO :	 34.5KV
+Nº ENERGISA (CITD) :144858
+Nº DE SÉRIE : 182684
+MARCA : ABB
+DATA FABRICAÇÃO : 10/2001
+IMPEDANCIA : 4.02
+POS. TAP : 02
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "0.5", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Sim", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Sim", "NS_RETIRADO": "183092", "NS_INSTALADO": "182684", "TOMBAMENTO_RETIRADO": "136944", "TOMBAMENTO_INSTALADO": "144858", "DATA_FABRICACAO_RETIRADO": "19/06/2008 16:50:37", "FABRICANTE_RETIRADO": "ABB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264526810286", "inicio": "2026-06-17 10:35", "fim": "2026-06-19 15:41", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR CAUSA NAO IDENTIFICADA", "clientes": "1", "obs": "trafo 5710170055 queimado", "n_ocorrencias": "4"}
+--SITE: {"cascata": "RETIDO — SEM PROVA DE TROCA", "gatilho": "", "confirmado": "", "motivo": "A obra 0212600530 existe, com descrição e enquadramento, mas não está no export de material que temos — não é ausência de prova, é ausência da extração. Basta o SIAGO para fechar.", "material": "NAO", "trafos_material": "0"}
+--DONO: 
+==========================================================================================
+[36] SS=ETO-RD-AR 01028/2026 OS=ENC-MLAR02  000114/2026 OBRA=612600628 TRAFO=5755060004
+abertura=2026-06-25 08:01 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=
+loc=ARAGUAINA pot_ret=25 pot_inst=25 rural=RURAL
+--TEXTO_SS: FAZER MELHORIA NO POSTO DE TRANSFORMAÇAO NO TRAFO 5755060004
+--TEXTO_OS: ETO-RD-AR 991/2026
+TRAFO  5755060004
+TRAFO RETIRADO
+POTÊNCIA : 25 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 137974
+Nº DE SÉRIE : Z241398
+MARCA : ITAM
+DATA FABRICAÇÃO : 09/2023
+IMPEDANCIA : 3,0
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 25 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 151010
+Nº DE SÉRIE : Z303130
+MARCA : ITAM
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 2,73
+POS. TAP : 05
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "Z241398", "TOMBAMENTO_RETIRADO": "137974", "TOMBAMENTO_INSTALADO": "151010", "DATA_FABRICACAO_RETIRADO": "01/10/2023 12:18:26", "FABRICANTE_RETIRADO": "ITAM"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "20264190455947", "inicio": "2026-03-21 10:26", "fim": "2026-03-21 10:27", "papel": "problema+interrompido+fechado", "dist_h": "2277.6", "causa": "MEIO AMBIENTE", "subcausa": "DESCARGA ATMOSFERICA", "clientes": "0", "obs": "TRAFO QUEIMADO ABERTO NOTA", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[37] SS=ETO-RD-GU 00685/2026 OS=DBM-MLDB04  000094/2026 OBRA=412600528 TRAFO=5700858029
+abertura=2026-06-29 21:50 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=ABALROADO
+loc=PALMEIROPOLIS pot_ret=5 pot_inst=15 rural=RURAL
+--TEXTO_SS: Segue nota para substuiçao de poste 10/300 ID 56140072 e transformador 5700858029 asseço livre trafo de 05kva tensao 34,5 kv
+--TEXTO_OS: Segue nota para substuiçao de poste 10/300 ID 56140072
+ e transformador 5700858029 asseço livre trafo de 05kva tensao 34,5 kv
+
+SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE SÃO SALVADOR
+
+INT: 20264571595148
+
+SS: ETO-RD-GU 685/2026
+
+ESPECIFICAÇÕES DO TRANSFORMADOR
+
+TRANSFORMADOR INSTALADO:  15 KVA
+
+TRANSFORMADOR RETIRADO: 05 KVA
+
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "ABALROADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "0.5H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "696358", "TOMBAMENTO_RETIRADO": "00", "TOMBAMENTO_INSTALADO": "150955", "DATA_FABRICACAO_RETIRADO": "01/02/2010", "FABRICANTE_RETIRADO": "ITB"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "20264572273568", "inicio": "2026-06-29 18:33", "fim": "2026-06-30 16:30", "papel": "problema+interrompido", "dist_h": "", "causa": "POSTE DE AT", "subcausa": "ABALROADO", "clientes": "1", "obs": "Foi constatado poste 10/300  abalroado , ID 56140072 e Trafo 5700858029 Danificado", "n_ocorrencias": "1"}
+--SITE: {"cascata": "EXCLUÍDA", "gatilho": "abalroamento", "confirmado": "", "motivo": "Fora do indicador: o dono mandou mover para abalroamento, e as quatro vozes concordam com ele: a Crítica registra causa POSTE DE AT e subcausa ABALROADO, o TMAE repete as duas, a SS foi gravada como A", "material": "SIM", "trafos_material": "1.0"}
+--DONO: ABALROADO
+==========================================================================================
+[38] SS=ETO-RD-AG 00702/2026 OS=ENC-MPAG02  000123/2026 OBRA=662600429 TRAFO=5710461039
+abertura=2026-07-10 18:13 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=QUEIMADO defeito=ABALROADO
+loc=ARAGUATINS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: por favor deslocar equipe da manutenção no trafo 5710461039 queimado 13,8 kv e 01- para raio e tem que leva 50 metros de cabo mutiplex bifasico 35mm
+--TEXTO_OS: por favor deslocar equipe da manutenção no trafo 5710461039 queimado 13,8 kv e 01- para raio e tem que leva 50 metros de cabo mutiplex bifasico 35mm
+
+OBS; SUBST 01 VÃO DE 45MT DE CABO 35MM MULTIPLEX BIFASICO POR CABO 35MM ENTRE OS PORTES ID-67020878 AO POSTE ID-45121584.
+
+
+TRAFO Nº 5710461039
+
+TRAFO RETIRADO 
+
+POTÊNCIA; 15KVA 13.8KV
+DATA DE FAB; 02/2005
+MARCA; TRAEL
+Nº CITD; 680615
+Nº SÉRIE; 53662
+POS. DO TAP; 3º
+IMPEDÂNCIA; 2,48
+
+TRAFO INSTALADO 
+
+POTÊNCIA; 15KVA 13.8KV
+DATA DE FAB; 01/2026
+MARCA; ITAM
+Nº CITD; 150637
+Nº SÉRIE; C.299686
+POS. DO TAP; 3º
+IMPEDÂNCIA; 2,38
+MEDIÇÃO; 1,08 / 0,96 / 1,12
+
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "1", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "BUCHA DANIFICADA", "QUAL_ELO_INSTALADO_NO_LOCAL": "2H", "TIPO_DE_BARRAMENTO": "COBRE", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "53662", "TOMBAMENTO_RETIRADO": "680615", "TOMBAMENTO_INSTALADO": "150637", "DATA_FABRICACAO_RETIRADO": "08/02/2005", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "CASOU PELO TRAFO", "ocorrencia": "", "inicio": "2026-07-10 18:22", "fim": "2026-07-11 01:40", "papel": "problema+interrompido+fechado", "dist_h": "", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR CURTO NA RD", "clientes": "1", "obs": "trafo 5710461039 queimado em campo", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: ABALROADO
+==========================================================================================
+[39] SS=ETO-RD-AR 01112/2026 OS=ENC-MLAR02  000153/2026 OBRA=612600684 TRAFO=5700129193
+abertura=2026-07-16 14:01 sit=SS ATENDIDA tipo=MELHORIA POSTO DE TRANSFORMAÇÃO origem= defeito=MAL FIXADO(A)/SOLTO(A)
+loc=CAMPOS LINDOS pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: FAZER MELHORIA DE ATERRAMENTO NO POSTO DE TRANFORMAÇAO NO TRAFO
+--TEXTO_OS: ETO-RD-AR 1085/2026
+TRAFO 5700129193
+TRAFO RETIRADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 06116920
+Nº DE SÉRIE : 473591
+MARCA : TRAEL
+DATA FABRICAÇÃO : 06/18
+IMPEDANCIA : 3,04
+POS. TAP : 05
+
+TRAFO INSTALADO
+POTÊNCIA : 15 KVA
+TENSÃO :	 34.5 KV
+Nº ENERGISA (CITD) : 150845
+Nº DE SÉRIE : C 303225
+MARCA : ITAM
+DATA FABRICAÇÃO : 02/2026
+IMPEDANCIA : 2,92
+POS. TAP : 05
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1H", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "NS_RETIRADO": "473591", "TOMBAMENTO_RETIRADO": "06116920", "TOMBAMENTO_INSTALADO": "150845", "DATA_FABRICACAO_RETIRADO": "21/06/2018", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "TRAFO FORA DA JANELA", "ocorrencia": "", "inicio": "2026-07-10 12:40", "fim": "2026-07-11 18:20", "papel": "problema+interrompido+fechado", "dist_h": "91.7", "causa": "TRANSFORMADOR", "subcausa": "QUEIMADO POR CAUSA NAO IDENTIFICADA", "clientes": "1", "obs": "trafo 5700129193 queimado causa não indentificada.", "n_ocorrencias": "1"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: MELHORIA NO POSTO DE TRANSFORMAÇÃO
+==========================================================================================
+[40] SS=DG-RD-PO 00482/2026 OS=DG-MPDG01  000121/2026 OBRA=312600380 TRAFO=5711214001
+abertura=2026-07-31 17:40 sit=SS ATENDIDA tipo=FORMS SUBST DE TRANSFORMADOR origem=AVARIADO defeito=VAZAMENTO DE ÓLEO
+loc=PORTO NACIONAL pot_ret=15 pot_inst=15 rural=RURAL
+--TEXTO_SS: SS PARA TROCAR TRAFO 5711214001 COM PROBLEMA DE TENSÃO E O TAP INTERNO.POTENCIA: 10KVA TENSÃO: 7.9ACESSO: LIVRE
+--TEXTO_OS: medido_
+emergencial_
+
+
+substituição de trafo queimado rdr porto
+--CAMPO: {"FEITO_COLA_E_FITA": "Não", "QTD_CLIENTES": "0", "ATERRAMENTO_ESTA_CONECTADO_AO_TANQUE_DO_TRAFO": "Sim", "EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO": "Não", "EXISTE_VEGETAÇÃO_TOCANDO_A_REDE_BT_OU_MT": "Não", "PARA_RAIOS_INSTALADO_SUBSTITUIDO": "Sim", "PROVÁVEL_MOTIVO_DO_DEFEITO": "NÃO IDENTIFICADO", "QUAL_ELO_INSTALADO_NO_LOCAL": "1h", "TIPO_DE_BARRAMENTO": "ALUMINIO", "TRAFO_INSTALADO_É_REFORMADO": "Não", "TRANSFORMADOR_RETIRADO_É_REFORMADO": "Não", "NS_RETIRADO": "53540", "NS_INSTALADO": "306279", "TOMBAMENTO_RETIRADO": "ilegivel", "TOMBAMENTO_INSTALADO": "152545", "DATA_FABRICACAO_RETIRADO": "01/02/2005 14:41:47", "FABRICANTE_RETIRADO": "TRAEL"}
+--CRITICA: {"resultado": "AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida)", "ocorrencia": "", "inicio": "", "fim": "", "papel": "", "dist_h": "", "causa": "", "subcausa": "", "clientes": "", "obs": "", "n_ocorrencias": "0"}
+--SITE: {"cascata": "não está no site", "gatilho": "", "confirmado": "", "motivo": "", "material": "", "trafos_material": ""}
+--DONO: 

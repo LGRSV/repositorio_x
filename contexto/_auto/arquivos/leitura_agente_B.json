@@ -1,0 +1,20 @@
+{
+ "DOLP-RD-PA 00124/2026": "TRAFO COM DEFEITO DECLARADO — 'trafo 5711933122 queimado que foi a causa do desarme da chave 303697059'; interrupção na janela registrada na chave 3303697059 com causa 'não identificada'.",
+ "ENC-RD-PS 00376/2026": "TRAFO COM DEFEITO DECLARADO — 'foi localizado trafo 5700368012 queimado' em duas ocorrências na janela, registradas contra 5700368084 e chave 0300802084; um dos códigos (012/084) está errado na Crítica, a SS corrobora 012.",
+ "DG-RD-PO 00178/2026": "TRAFO CITADO SEM DEFEITO — 'cabo partido na fase, próximo do trafo 5700861026': o trafo é referência de local; a interrupção ficou na chave 0300859026 (condutor AT partido). Não prova queima.",
+ "DOLP-RD-PA 00471/2026": "INCONCLUSIVO — a observação cita a SS (DOLP RD PA 471/2026), mas o texto é abertura da chave 4000057083 para troca de poste; o trafo não é citado.",
+ "ETO-RD-AG 00489/2026": "TRAFO COM DEFEITO DECLARADO, 27 h depois da SS — 'abertura da chave 0301347103 para substituição do trafo 5701350103 com bucha primária quebrada … ETO-RD-AG489/2026'; troca registrada na chave, fora da janela por 3 h.",
+ "DOLP-RD-PA 00521/2026": "DEFEITO DECLARADO no próprio trafo, 3,5 h depois da SS — 'vazamento de óleo e problemas na bucha'.",
+ "ETO-RD-AG 00399/2026": "DEFEITO DECLARADO no próprio trafo, 1,7 h depois da SS — 'Trafo 5710075081 de 15KVA queimado'.",
+ "ENC-RD-PS 00364/2026": "DEFEITO DECLARADO no próprio trafo, 18,5 h depois da SS — 'manutenção na bucha do trafo'.",
+ "DOLP-RD-PA 00458/2026": "DEFEITO DECLARADO no próprio trafo, 2,4 h depois da SS — 'vazamento de óleo grande proporção nota dolp rd pa 458/2026'.",
+ "DOLP-RD-PA 00247/2026": "DEFEITO DECLARADO no próprio trafo, 20 h depois da SS — 'ss247/2026 … trocar o trafo que está com vazamento de óleo'.",
+ "ETO-RD-GR 00039/2026": "DEFEITO DECLARADO no próprio trafo, 9 dias depois — 'trocar trafo com vazamento de óleo … SS: ETO-RD-GR 39/2026'.",
+ "ETO-RD-DP 00093/2026": "OUTRO EQUIPAMENTO — as menções são ao religador 7964816091 (mesmos 8 finais); o trafo queimado citado é outro (5700490091).",
+ "ETO-RD-GR 00324/2026": "OUTRO EQUIPAMENTO — 'CODIGO INVALIDO:TR/0300006034' é a chave de mesmos 8 finais, 240 h depois.",
+ "ENC-RD-PS 00103/2026": "INCONCLUSIVO — 'CODIGO INVALIDO:TR/5701988007' é o mesmo ponto (57 vs 53), 25 dias depois, sem defeito explícito.",
+ "ETO-RD-AR 00951/2026": "TRAFO CITADO SEM DEFEITO — 'não foi encontrada nenhuma anormalidade', 29 dias antes da SS.",
+ "ETO-RD-GR 00373/2026": "TRAFO CITADO SEM DEFEITO — 'abrir trafo … para isolar trecho': manobra programada, 301 h de distância.",
+ "ETO-RD-AR 00739/2026": "TRAFO COM DEFEITO DECLARADO — 'TRF 5743290004, com vazamento de óleo … tem que trocar com urgência', ocorrência 20264321235059 de 24/04 08:44–11:40, na janela; a UC está cadastrada no trafo 5703752004, por isso a ocorrência ficou em outro código. Achado pelo agente de reimplementação.",
+ "ETO-RD-GR 00405/2026": "TRAFO MENCIONADO FORA DA JANELA — 'CODIGO INVALIDO:CH/5700001112' 3 dias antes e 'abertura emergencial do trafo 5700001112 para corrigir vazamento de óleo' 40 dias depois da SS."
+}

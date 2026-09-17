@@ -9,6 +9,6 @@ contêiner fecha. Gerados pela skill `salvar-contexto` (`.claude/skills/salvar-c
 - `<data>_<slug>/ARQUIVOS.md` e `inventario.json` — tudo que existia no scratchpad, copiado ou não.
 - `<data>_<slug>/arquivos/` — cópias dos arquivos até 10 MB (limite de 120 MB por snapshot).
 
-Pastas `auto-stop` e `auto-compactacao` são snapshots automáticos dos hooks; a narrativa
-completa está na pasta com slug manual do mesmo dia. Uma cópia do CONTEXTO.md de cada
+`_auto/` é o snapshot automático dos hooks (antes de cada compactação e a cada 20 min de
+trabalho), sempre sobrescrito; a narrativa completa está na última pasta datada. Uma cópia do CONTEXTO.md de cada
 sessão também vai para o Google Drive, pasta "Claude Code - Contextos".
