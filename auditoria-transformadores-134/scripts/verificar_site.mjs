@@ -18,6 +18,7 @@
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 
 const RAIZ = resolve(import.meta.dirname, "..");
@@ -37,6 +38,8 @@ const ABAS = [
   ["Queimados e avariados", "1.324"],
   ["Exclusões", "220"],
   ["Janeiro a julho", "1.582"],
+  /* universo próprio de jan a ago: o cabeçalho tem de mostrar 227, não o recorte das 1.510 */
+  ["Expurgos por macro categoria", "227"],
   ["Cadastro do parque", "92.424"],
   ["Julho 2026", null],
   ["Agosto 2026", null],
@@ -85,8 +88,11 @@ for (const [rotulo, esperado] of ABAS) {
   const txt = await pg.evaluate(() => document.body.innerText);
   if (txt.trim().length < 200) { falhas.push(`aba abriu praticamente vazia: ${rotulo}`); continue; }
   if (esperado && !txt.includes(esperado)) { falhas.push(`aba ${rotulo}: não achei "${esperado}" na tela`); continue; }
-  /* o defeito das classes fantasma: número colado no texto, sem espaço */
-  const colado = /\d\.\d{3}[a-zA-Zà-ú]/.test(txt);
+  /* o defeito das classes fantasma: número colado no texto, sem espaço.
+     A unidade colada no número é escrita assim de propósito — "3.410h de distância" — e não
+     é classe faltando. Por isso h, m e km escapam: o que o teste procura é número grudado em
+     PALAVRA, do tipo "1.671solicitações", que é o que aparece quando o CSS não pega. */
+  const colado = /\d\.\d{3}(?!h\b|m\b|km\b|min\b)[a-zA-Zà-ú]/.test(txt);
   if (colado) falhas.push(`aba ${rotulo}: número colado no texto — provável classe de CSS inexistente`);
   else { ok += 1; console.log(`  ok  ${rotulo}`); }
 }
@@ -120,6 +126,40 @@ for (const [aba, ss] of CASOS) {
   if (/\bnull\b|undefined|NaN/.test(txt)) { falhas.push(`gaveta ${ss}: apareceu null/undefined/NaN na tela`); continue; }
   if (!/prévia de julho/i.test(txt)) { falhas.push(`gaveta ${ss}: não diz que é prévia de julho`); continue; }
   console.log(`  ok  gaveta ${ss} (${aba})`);
+}
+
+/* A CATEGORIA DA EXTRAÇÃO CHEGA NO ARQUIVO BAIXADO. O rótulo é calculado no navegador a
+   partir de public/categorias-extracao.json — se esse arquivo não subir junto com o build,
+   a coluna existe e sai vazia, e ninguém percebe olhando a tela. Então o teste baixa a
+   planilha de uma aba de verdade e lê a primeira coluna do arquivo. */
+{
+  await pg.goto(`http://127.0.0.1:${PORTA}${BASE}index.html`, { waitUntil: "networkidle", timeout: 90000 });
+  const aba = pg.locator("text=Queimados e avariados").locator("visible=true").first();
+  await aba.click({ timeout: 15000 }).catch(() => falhas.push("csv: não deu para abrir a aba"));
+  await pg.waitForTimeout(1500);
+  const botao = pg.locator("button.sheet-download").first();
+  if (!(await botao.count())) {
+    falhas.push("csv: botão de baixar planilha não encontrado");
+  } else {
+    const espera = pg.waitForEvent("download", { timeout: 30000 }).catch(() => null);
+    await botao.click({ timeout: 15000 }).catch(() => null);
+    const baixado = await espera;
+    if (!baixado) {
+      falhas.push("csv: o download não começou");
+    } else {
+      const caminho = await baixado.path();
+      const texto = readFileSync(caminho, "utf8").replace(/^\ufeff/, "");
+      const [cabecalho, ...linhas] = texto.split(/\r?\n/);
+      const primeira = cabecalho.split(";")[0];
+      if (primeira !== "Categoria da extração") {
+        falhas.push(`csv: a primeira coluna é "${primeira}", esperava "Categoria da extração"`);
+      } else {
+        const vazias = linhas.filter((l) => l.trim()).filter((l) => !l.split(";")[0].trim());
+        if (vazias.length) falhas.push(`csv: ${vazias.length} linhas sem categoria — o mapa não subiu no build`);
+        else console.log(`  ok  planilha baixada com a categoria em ${linhas.filter((l) => l.trim()).length} linhas`);
+      }
+    }
+  }
 }
 
 await navegador.close();

@@ -1,0 +1,412 @@
+[
+ {
+  "ss": "ETO-RD-AR 00011/2026",
+  "trafo": "5700876040",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Troca 5->15 kVA com série e tombamento dos dois lados e interrupção no próprio trafo por descarga na janela.",
+  "evidencia": "TRAFO RETIRADO POTÊNCIA : 5 KVA Nº DE SÉRIE : 125062 / TRAFO INSTALADO 15 KVA Nº DE SÉRIE : 455521 — Crítica: TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AG 00023/2026",
+  "trafo": "5700247131",
+  "classificacao": "ABALROAMENTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS e campo atribuem o vazamento à colisão no poste; falha não é do equipamento.",
+  "evidencia": "TR 5700247131 15 KVA COM VAZAMENTO DEVIDO ABALROAMENTO DO POSTE 19,9KV / PROVÁVEL_MOTIVO_DO_DEFEITO: ABALROADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GU 00067/2026",
+  "trafo": "5701640052",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo e para-raio queimados por descarga, com bucha BT estourada e interrupção casada no próprio trafo.",
+  "evidencia": "TRAFO E PARA RAIO QUEIMADOS TRAFO 15KVA 7,9KV ... BUCHA BT ESTOURADA POR DESCARGA ATIMOSFERICA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GU 00093/2026",
+  "trafo": "5700704021",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado na RDR de Paranã, substituído 5->15 kVA, com interrupção casada por descarga.",
+  "evidencia": "SEGUE SS DE TRAFO QUEIMADO NA RDR DE PARANÃ, TRAFO DE 5KVA NA REDE DE 19.9KV, PARA RAIO QUEIMADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ENC-RD-PS 00108/2026",
+  "trafo": "5700380046",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "baixa",
+  "justificativa": "Campo e OS registram trafo retirado com série/tombamento legíveis e queima por descarga — incompatível com furto; a prova de furto está só no enquadramento contábil da obra, que não consta nos dados.",
+  "evidencia": "TRAFO RETIRADO ... Nº ENERGISA (CITD) : 06114 Nº DE SÉRIE : 370550 MARCA : TOSHIBA / PROVÁVEL_MOTIVO_DO_DEFEITO: DESCARGA ATMOSFERICA",
+  "diverge_do_site": true
+ },
+ {
+  "ss": "DOLP-RD-PA 00155/2026",
+  "trafo": "5727386070",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo de 30 kVA e para-raios queimados, atendimento emergencial e troca com série/tombamento nos dois lados.",
+  "evidencia": "Segue ss de 01 trafo de 30 kvar e 03 para raios queimados ... trafo aberto queimado atendido na porta pela equipe 092op01",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GU 00146/2026",
+  "trafo": "5719098076",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado na RDR de Duerê com troca executada e interrupção casada por descarga atmosférica.",
+  "evidencia": "SEGUE SS DE TRAFO QUEIMADO NA RDR DE DUERE, TRAFO DE 15KVA NA REDE DE 19.9KV, PARA RAIO QUEIMADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00205/2026",
+  "trafo": "5700365016",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado e vazando óleo, motivo de campo sobrecarga, troca 5->15 kVA com séries e interrupção casada.",
+  "evidencia": "TRAFO QUEIMADO, VAZANDO ÓLEO ... PARA RAIO QUEIMADO / PROVÁVEL_MOTIVO_DO_DEFEITO: SOBRECARGA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GR 00177/2026",
+  "trafo": "5712496033",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Texto declara trafo e para-raio queimados e a Crítica casou pelo próprio trafo; falta formulário de campo, mas o material confirma 1 trafo.",
+  "evidencia": "trafo 5712496033 15kva e para raio queimado 19,9 acesso livre 048op02 — Crítica: TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00249/2026",
+  "trafo": "5710247159",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS aberta como melhoria em posto de transformação, com relatório/book de melhoria, e a interrupção do trafo está fora da janela.",
+  "evidencia": "--MELHORIA EM POSTO DE TRANSFORMAÇÃO PREENCHER RELATÓRIO E BOOK PARA MELHORIAS EM POSTO DE TRANSFORMAÇÃO QUE ESTA EM ANEXO.",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AG 00175/2026",
+  "trafo": "5700277134",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "SS aponta trafo de 5 kVA e para-raios queimados e a Crítica casou pelo próprio trafo; a OS só traz o plano de medida, sem formulário de campo.",
+  "evidencia": "Trafo de 5 kva na 19,9kv mais para raio de MT e BT queimados / PLANO DE MEDIDA - Realizar substituição do trafo 5700277134 de 5 kVA para 15 kVA.",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ENC-RD-PS 00224/2026",
+  "trafo": "5701175014",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Apesar de defeito_ss e do dono marcarem ABALROADO, nenhum texto cita colisão: campo aponta descarga atmosférica e a Crítica registra TR QUEIMADO.",
+  "evidencia": "PROVÁVEL_MOTIVO_DO_DEFEITO: DESCARGA ATMOSFERICA — Crítica obs: 'TR QUEIMADO' / SS: 'PARA RAIO DANIFICADO ACESSO PARA CAMINHONETE'",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GR 00235/2026",
+  "trafo": "5709375009",
+  "classificacao": "AVARIADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Bucha secundária e para-raio do trafo danificados por queda de árvore sobre a BT — dano ao próprio equipamento, sem furto nem abalroamento por veículo.",
+  "evidencia": "necessario substituir 50mt cabos BT Multiplex devido avore cair sobe rede BT danifcando cabo e bucha secundaria para raio tbm esta danificado",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AG 00196/2026",
+  "trafo": "5702229039",
+  "classificacao": "AVARIADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Vazamento de óleo com tanque deteriorado confirmado na Crítica pelo próprio trafo; substituição 10->15 kVA no plano de medida.",
+  "evidencia": "PLANO DE MEDIDA - Realizar substituição do trafo 5702229039 de 10 kVA para 15 kVA — Crítica: TRANSFORMADOR / VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AG 00203/2026",
+  "trafo": "5700046068",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado com troca 5->15 kVA documentada (séries e CITD) e interrupção casada por descarga.",
+  "evidencia": "tr 5700046068 queimado pot 5kva tensão 19.9kv para-raio ruim / NS_RETIRADO 460157 -> NS_INSTALADO 339870",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00343/2026",
+  "trafo": "5700760004",
+  "classificacao": "POSTE/REDE (não é o trafo)",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "A OS declara que o poste caiu e danificou o trafo; a SS é de melhoria de posto e a Crítica aponta conexão danificada, não falha do equipamento.",
+  "evidencia": "DEVIDO POSTE DANIFICADO ESTAR NO CHAO FOI DANIFICADO TRAFO TAMBEM ASSIM TEVE QUE FAZER SUBST TRAFO DE 25 KVA 34.5 KV",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GR 00265/2026",
+  "trafo": "5719933077",
+  "classificacao": "AVARIADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Vazamento de óleo no trafo com tanque deteriorado confirmado pela Crítica no próprio equipamento.",
+  "evidencia": "Trafo: 5719933077 vazamento de oleo ... Para raio: queimado — Crítica: TRANSFORMADOR / VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00375/2026",
+  "trafo": "5700584016",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "media",
+  "justificativa": "SS aberta e classificada pelo dono como melhoria de aterramento; a única menção a queima vem de ocorrência fora da janela.",
+  "evidencia": "REALIZAR MELHORIA DE ATERRAMENTO — tipo SS: MELHORIA POSTO DE TRANSFORMAÇÃO / Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00410/2026",
+  "trafo": "5700664060",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo e para-raios queimados com troca 10->15 kVA documentada e interrupção casada no próprio trafo.",
+  "evidencia": "TR-5700664060 Queimado para raios queimado potência 10kva tensão 13,8kv",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "DOLP-RD-PA 00317/2026",
+  "trafo": "5700082082",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Transformador queimado com troca comprovada (séries/tombamentos) e interrupção casada por descarga; a melhoria de malha foi serviço agregado.",
+  "evidencia": "Segue SS de transformador 5700082082 queimado Potencia 15 KVA — Crítica: TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ENC-RD-PS 00317/2026",
+  "trafo": "5700011086",
+  "classificacao": "ABALROAMENTO",
+  "decisao": "EXPURGAR",
+  "confianca": "baixa",
+  "justificativa": "defeito_ss e a classificação do dono dizem ABALROADO e a ocorrência casada é POSTE DE AT / ABALROADO com 1.096 clientes (evento de rede); o site conta como queimado por decisão posterior do dono — conflito não resolvido nos dados.",
+  "evidencia": "defeito_ss: ABALROADO / Crítica: POSTE DE AT / ABALROADO — 'CABO FORA DO ISOLADOR 6° ESTRUTURA APOS CHAVE 0301085084'",
+  "diverge_do_site": true
+ },
+ {
+  "ss": "ETO-RD-AR 00468/2026",
+  "trafo": "5301889004",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "baixa",
+  "justificativa": "Pelo mérito é queima: campo aponta descarga com vazamento e a troca está documentada; o site expurgou por ausência de interrupção (regra de janela), não por causa externa.",
+  "evidencia": "TRAFO RETIRADO 15 KVA Nº DE SÉRIE : 141362 -> INSTALADO Nº DE SÉRIE : 826192 / PROVÁVEL_MOTIVO_DO_DEFEITO: DESCARGA ATMOSFERICA",
+  "diverge_do_site": true
+ },
+ {
+  "ss": "ETO-RD-GU 00330/2026",
+  "trafo": "5700841148",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Check list de trafo queimado por descarga, troca executada com séries e tombamentos e interrupção casada no próprio trafo.",
+  "evidencia": "*CHECK LIST TRAFO QUEIMADO* Trafo: 5700841148 Potência: 5 kva ... Para raios: Queimado Causa: Descarga Atmosferica",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00499/2026",
+  "trafo": "5701543077",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria de aterramento, assim classificada pelo dono, com a ocorrência do trafo fora da janela.",
+  "evidencia": "MELHORIA DE ATERRAMENTO — tipo SS: MELHORIA POSTO DE TRANSFORMAÇÃO / Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AG 00339/2026",
+  "trafo": "5700002210",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo de 25 kVA queimado com para-raio queimado, troca documentada e interrupção casada pelo próprio trafo.",
+  "evidencia": "Substitui trafo 5700002210 queimado potência 25kva tensão 34,5kv acesso livre para-raio queimado — Crítica obs: 'TRAFO QUEIMADO'",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00594/2026",
+  "trafo": "5710138077",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS aberta como melhoria de posto de transformação e não há qualquer interrupção associada ao trafo.",
+  "evidencia": "Mlehoria posto transformação 5710138077 — tipo SS: MELHORIA POSTO DE TRANSFORMAÇÃO / Crítica: AUSENTE — nem trafo nem chave",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00599/2026",
+  "trafo": "5700214080",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria no posto, com troca 10->15 kVA e ocorrência do trafo fora da janela da SS.",
+  "evidencia": "Realizar mehoria no trafo 5700214080 — tipo SS: MELHORIA POSTO DE TRANSFORMAÇÃO / Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00612/2026",
+  "trafo": "5701399019",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado com troca 10->15 kVA documentada (séries/CITD) e interrupção casada por descarga no próprio trafo.",
+  "evidencia": "trafo 5701399019 queimado / PROVÁVEL_MOTIVO_DO_DEFEITO: DESCARGA ATMOSFERICA — Crítica: TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00676/2026",
+  "trafo": "5710157004",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria de aterramento classificada pelo dono como melhoria de posto; interrupção do trafo fora da janela.",
+  "evidencia": "REALIZAR MELHORIA DE ATERRAMENTO NO TRAFO 5710157004 — Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "DOLP-RD-PA 00479/2026",
+  "trafo": "5706792122",
+  "classificacao": "PREVENTIVO/PROGRAMADO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "Troca planejada de 112,5 para 150 kVA com reforço de saída BT — aumento de capacidade, não falha do equipamento.",
+  "evidencia": "Topologia 06792 trocar transformador de 112,5 kVA para 150 KVA. Fazer saída com CABO 120MM e dupla os perfurantes da BT.",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00763/2026",
+  "trafo": "5710235080",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "baixa",
+  "justificativa": "É a SS corretiva que aponta o trafo certo queimado, com troca comprovada; a Crítica não casa provavelmente porque a interrupção ficou registrada na SS 751/2026 — verificar duplicidade com ela antes de contar.",
+  "evidencia": "NOTA ABERTA PARA CORREÇÃO DA SS 751/2026 POIS O TRAFO QUE ESTAVA QUEIMADO E O 5710235080",
+  "diverge_do_site": true
+ },
+ {
+  "ss": "ETO-RD-AG 00475/2026",
+  "trafo": "5700859081",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "SS e OS declaram trafo queimado e a Crítica casou pelo próprio trafo (vazamento/tanque deteriorado); falta formulário de campo.",
+  "evidencia": "Trafo 5700859081 queimado Potencia: 15 KVA Tensão: 34,5 KV Para raio: Queimado — Crítica: TRANSFORMADOR / VAZAMENTO DE OLEO / TANQUE DETERIORADO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "DOLP-RD-PA 00551/2026",
+  "trafo": "5721237122",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Trafo de 150 kVA queimado com desarme de disjuntor e troca comprovada por séries; o campo marca vandalismo, que não é furto nem abalroamento e não afasta a queima.",
+  "evidencia": "Desarme DJ 434r100 proteção atuada sim, ICC 4710,00 ... Causa trafo queimado / PROVÁVEL_MOTIVO_DO_DEFEITO: VANDALISMO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00897/2026",
+  "trafo": "5724871053",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria de aterramento no posto, classificada assim pelo dono, com ocorrência do trafo fora da janela.",
+  "evidencia": "fazer melhoria de aterramento no posto de transformaçao no trafo 5724871053 — Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-DP 00363/2026",
+  "trafo": "5700268028",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "media",
+  "justificativa": "Transformador queimado com interrupção casada e troca comprovada pelo formulário de campo (série e tombamento dos dois lados), suprindo a prova de material que faltava ao site.",
+  "evidencia": "transformador queimado acesso livre / TRAFO SUBSTITUIDO PELA TAVARES — NS_RETIRADO 574203 -> NS_INSTALADO 1540535",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 00986/2026",
+  "trafo": "5766833004",
+  "classificacao": "PREVENTIVO/PROGRAMADO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "Serviço de instalação de P600 e remanejamento de UCs com aumento de 75 para 112,5 kVA; a abertura foi para transferir cargas, não por falha.",
+  "evidencia": "Instalar P600 no trafo 5766833004 e ajudar na abertura para remanejamentos de UC´s do trafo — Crítica obs: 'ABERTURA EMERGENCIAL PARA ABRIR S4 E TRANSFERIR CARGAS'",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 01027/2026",
+  "trafo": "5701380004",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria no posto de transformação, classificada assim pelo dono, com ocorrência fora da janela.",
+  "evidencia": "fazer melhoria poste de transformaçao no trafo 5701380004 — tipo SS: MELHORIA POSTO DE TRANSFORMAÇÃO",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-GU 00684/2026",
+  "trafo": "5758389021",
+  "classificacao": "ABALROAMENTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "A própria SS diz que a queda da estrutura (poste quebrado) danificou o transformador; campo e dono registram ABALROADO.",
+  "evidencia": "obs. com a queda da estrutura veio a danificar o transformador . provalvel motivo briga de boi. / PROVÁVEL_MOTIVO_DO_DEFEITO: ABALROADO",
+  "diverge_do_site": true
+ },
+ {
+  "ss": "ETO-RD-GU 00696/2026",
+  "trafo": "5710509094",
+  "classificacao": "ABALROAMENTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "Substituição decorrente de poste abalroado, confirmada pelo campo e pela Crítica (POSTE DE AT / ABALROADO).",
+  "evidencia": "Segue Solicitação de Serviço para substituição de transformador que teve o poste abalroado.",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 01109/2026",
+  "trafo": "5700968080",
+  "classificacao": "QUEIMADO",
+  "decisao": "MANTER",
+  "confianca": "alta",
+  "justificativa": "Trafo queimado e com vazamento de óleo, troca 5->15 kVA documentada e interrupção casada no próprio trafo.",
+  "evidencia": "Enviar equipe da manutenção para substituir trafo 5700968080 queimado e com vazamento de oleo — Crítica obs: 'trafo queimado aberto nota'",
+  "diverge_do_site": false
+ },
+ {
+  "ss": "ETO-RD-AR 01186/2026",
+  "trafo": "5710093040",
+  "classificacao": "MELHORIA DE POSTO",
+  "decisao": "EXPURGAR",
+  "confianca": "alta",
+  "justificativa": "SS de melhoria de aterramento no posto de transformação, classificada assim pelo dono, com ocorrência fora da janela.",
+  "evidencia": "FAZER MELHORIA DE ATERRAMENTO NO POSTO DE TRANSFORMAÇAO NO TRAFO 5710093040 — Crítica: TRAFO FORA DA JANELA",
+  "diverge_do_site": false
+ }
+]

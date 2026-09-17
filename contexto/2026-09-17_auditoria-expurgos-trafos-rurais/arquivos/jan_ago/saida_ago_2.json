@@ -1,0 +1,262 @@
+[
+ {
+  "ss": "DG-RD-PO 00484/2026",
+  "trafo": "5720245035",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS e OS convergem: trafo queimado em Monte do Carmo, atendimento emergencial. O formulário traz série e tombamento de retirado e instalado, confirmando troca física. A crítica casou pelo trafo com ocorrência no mesmo dia e a observação do despacho registra teste recusado e trafo queimado (a causa lançada como ventos fortes é da ocorrência, não descaracteriza a queima).",
+  "evidencia": "texto_os: 'medido_ emergencial_ substituição de trafo queimado rdr monte do carmo' | crítica obs: 'O MESMO FOI FEITO O TESTE E NAO ACEITO TRAFO QUEIMADO'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-AR 01201/2026",
+  "trafo": "5700408058",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "A SS descreve trafo queimado com defeito interno em unidade nova e a observação da interrupção casada diz literalmente 'TRAFO QUEIMADO'. A OS não narra o motivo, mas registra retirado e instalado com série e CITD distintos, provando a troca. Confiança média porque origem_ss veio como AVARIADO e a subcausa da ocorrência é falha de bucha de AT — de todo modo, queimado e avariado contam igual no indicador.",
+  "evidencia": "texto_ss: 'TR 7900408058 QUEIMADO NA RDU DE SANTA FE...TRAFO NOVO DEFEITO INTERNO' | crítica obs: 'TRAFO QUEIMADO.'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DG-RD-PO 00490/2026",
+  "trafo": "5710272035",
+  "classificacao": "AVARIADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "Falha do próprio equipamento sem confirmação de queima de enrolamento: muito vazamento de óleo e tanque trincado, com o formulário marcando vazamento e a crítica classificando a ocorrência como vazamento de óleo / tanque deteriorado. A OS confirma que a equipe foi ao local e o trafo não funcionou. Confiança média porque a SS também cita marca de curto na carcaça, o que admitiria leitura de queima.",
+  "evidencia": "texto_ss: 'TR 5710272035 15KVA COM MUITO VAZAMENTO DE OLEO E MARCA DE CURTO NA CARCARÇA , EQUPE INFORMOU QUE MESMO ESTA COM TRINCA' | EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO: Sim",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-DP 00492/2026",
+  "trafo": "5700439074",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS aponta trafo queimado sem sair tensão na bucha secundária; a OS confirma a troca efetiva pela empreiteira, com retirado e instalado. A crítica casou pelo trafo e classificou a ocorrência como queimado por causa não identificada. Formulário com série e tombamento dos dois lados.",
+  "evidencia": "texto_os: 'TRANFORMADOR SUBSTITUIDO PELA TAVARES, 15KVA/19,9KV MINERAL, RETIRADO E INSTALADO' | crítica subcausa: 'QUEIMADO POR CAUSA NAO IDENTIFICADA'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00808/2026",
+  "trafo": "5712246001",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "A SS relata trafo e para-raios queimados e a interrupção casada é exatamente a INT citada na SS, classificada como transformador queimado por causa não identificada. O texto da OS é cópia literal da SS acrescida dos dados de atendimento, ou seja, não existe relato próprio do executante — a ausência de narrativa não permite concluir que não houve troca; a OS registra baixa para consumo de material e a SS está atendida. Formulário zerado (00) nos dois lados, por isso a troca não tem comprovação documental.",
+  "evidencia": "texto_ss: 'Segue SS de TR 5712246001 15KVA/19.9KV e para-raios queimados.' | crítica subcausa: 'QUEIMADO POR CAUSA NAO IDENTIFICADA' (ocorrência 20264747494174, a mesma citada na SS)",
+  "prova_de_troca": "nenhuma"
+ },
+ {
+  "ss": "ETO-RD-AR 01225/2026",
+  "trafo": "5720186077",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS de transformador e para-raio queimados em Goiatins e OS do executante com o quadro completo de retirado (ITB, série 978259, 2015) e instalado (ITAM, série C303245, 2026), o que prova a troca física. O defeito de execução foi lançado como sobrecarga, causa de queima. Trafo ausente da crítica, o que é apenas falta de registro de interrupção e não desmente a falha.",
+  "evidencia": "texto_ss: 'TRANSFORMADOR QUEIMADO, PARA RAIO QUEIMADO.' | defeito_execucao: SOBRECARGA",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-GR 00792/2026",
+  "trafo": "5710514087",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "A OS do executante intitula troca de trafo queimado e a crítica casou pelo trafo com subcausa queimado por descarga atmosférica, com observação dizendo que o equipamento estava queimado e vazando óleo. O aumento de 112,5 para 150 kVA acompanhou a emergência, não é remanejamento: nenhum texto descreve mudança de posto ou adequação programada.",
+  "evidencia": "texto_os: 'TROCA DE TRAFO QUEIMADO 5710514087' | crítica obs: 'Trafo 5710514087 queimado e vazando oleo'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DG-RD-PO 00497/2026",
+  "trafo": "5720924001",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "Teste a vazio feito em campo e o equipamento não aceitou carga; SS e OS descrevem trafo de 112,5 kVA queimado na RDU de Porto Nacional. A crítica casou pelo trafo com subcausa queimado por causa não identificada e reproduz o mesmo relato. Séries de retirado e instalado distintas no formulário.",
+  "evidencia": "texto_ss: 'feito teste avazio as 02:01 o mesmo nao aceitou trafo de 112,5 queimado' | crítica subcausa: 'QUEIMADO POR CAUSA NAO IDENTIFICADA'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-AG 00839/2026",
+  "trafo": "5700003109",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "SS de trafo queimado e OS com o quadro completo de retirado (TRAEL 2010, série 175606) e instalado (ROMAGNOLE 2025, série 1613781), além das medições pós-instalação — troca física comprovada. Confiança média porque a interrupção casada foi classificada como árvore na rede (meio ambiente), o que atribui a causa a agente externo mas não afasta a queima do equipamento relatada na SS e no defeito de bucha danificada.",
+  "evidencia": "texto_ss: 'Trafo 5700003109 queimado Potencia: 150 KVA' | crítica subcausa: 'ARVORE DE PEQUENO/ MEDIO PORTE NA REDE / NA FAIXA'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-AR 01249/2026",
+  "trafo": "5729034004",
+  "classificacao": "AVARIADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "Falha do próprio equipamento sem queima: vazamento de óleo, confirmado pelo formulário e pela subcausa da ocorrência (vazamento de óleo / tanque deteriorado). A OS traz retirado e instalado com série e CITD, provando a troca. A ocorrência ficou fora da janela por pouco (26,7 h), o que é limitação de janela, não prova contrária.",
+  "evidencia": "texto_ss: 'SEGUE SS DE TRAFO 5729034004 COM VAZAMENTO DE OLEO' | EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO: Sim",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00840/2026",
+  "trafo": "5729529271",
+  "classificacao": "AVARIADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "Bucha secundária danificada por ponto quente — falha do próprio equipamento sem queima de enrolamento, o que caracteriza avaria. Origem e defeito registrados como avariado / bucha danificada, crítica casada com subcausa falha de bucha de BT, e formulário com série e tombamento de retirado e instalado.",
+  "evidencia": "crítica obs: 'Bucha secundaria danificada devido ponto quente equipe 271op04 e 271op01' | crítica subcausa: 'FALHA BUCHA DE BT'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-DP 00501/2026",
+  "trafo": "5700577150",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "A SS constata o trafo de 75 kVA queimado com barramento danificado, penalizando 21 clientes, e a OS confirma que a empreiteira retirou o de 75 kVA e instalou um de 150 kVA. A mudança de potência veio junto com a emergência e nenhum texto descreve remanejamento ou melhoria programada. Confiança média porque o executante não repete o motivo e a ocorrência casada está fora da janela (43,8 h) e é de conexão/jumper, não do trafo.",
+  "evidencia": "texto_ss: 'FOI CONSTATADO TRAFO 5700577150 75KVA EM CAMPO, 34,5KV QUEIMADO E BARRAMENTO DANIFICDO' | texto_os: 'atendida pela wc trafo de 150kva da 34,9kv oleo vegetal, retirado um de 75 kva mineral'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DG-RD-PO 00501/2026",
+  "trafo": "5720755001",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "SS constata o trafo queimado com chave fusível danificada e a OS do executante conclui substituição de trafo queimado; formulário com série e tombamento dos dois lados. Confiança média porque a observação da ocorrência casada atribui o evento a porta-fusível danificado por árvore sobre a rede, sem mencionar queima do transformador.",
+  "evidencia": "texto_ss: 'Constatado trafo 5720755001 de 25kVA na 19.9kV queimado e chave fusível danificada.' | crítica obs: 'Constatado trafo 5720755001 com porta fusível danificado e aberto, causa árvore sobre a rede'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00857/2026",
+  "trafo": "5702075001",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "SS de trafo queimado de 10 kVA com para-raio danificado; a interrupção casou pelo trafo e cobre todo o período até o término da OS. O texto da OS é cópia literal da SS mais os dados de atendimento, portanto não há relato do executante — isso impede afirmar que não houve troca, mas também deixa o caso sem descrição própria. Formulário zerado, sem série nem tombamento.",
+  "evidencia": "texto_ss: 'segue nota de trafo queimado, trafo 5702075001, trafo de 10kva, tensao 13800 / 440 V, para raio danificado' | crítica: CASOU PELO TRAFO, ocorrência 20264792224538",
+  "prova_de_troca": "nenhuma"
+ },
+ {
+  "ss": "ETO-RD-GR 00814/2026",
+  "trafo": "5700666015",
+  "classificacao": "AVARIADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "A SS abriu como queimado, mas o executante classificou na OS como trafo avariado, o formulário aponta vazamento de óleo como provável motivo e a crítica casada traz subcausa vazamento de óleo / tanque deteriorado. Prevalece a conclusão da OS: falha do próprio equipamento por vazamento, sem queima de enrolamento. Potência mantida em 112,5 kVA, com série e CITD dos dois lados.",
+  "evidencia": "texto_os: 'TROCA DE TRAFO AVARIADO 5700666015' | PROVÁVEL_MOTIVO_DO_DEFEITO: VAZAMENTO DE OLEO",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00870/2026",
+  "trafo": "5741138092",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "Trafo e para-raios queimados em Novo Acordo, com provável motivo lançado como descarga atmosférica e interrupção casada pelo trafo. Embora a OS repita o texto da SS, o formulário traz série e tombamento de retirado (TRAEL 2020, 533175) e instalado (830213 / 151858), o que comprova a troca física.",
+  "evidencia": "texto_ss: 'TR-5741138092 Queimado para raios queimado potência 15kva' | PROVÁVEL_MOTIVO_DO_DEFEITO: DESCARGA ATMOSFERICA",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ENC-RD-PS 00713/2026",
+  "trafo": "5710120055",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "A SS é telegráfica, mas a origem é queimado e a observação da ocorrência casada diz expressamente que o trafo estava queimado, com subcausa queimado por causa não identificada. A OS traz o quadro de retirado (30 kVA, série 1232340) e instalado (45 kVA, série 1635873). A diferença de potência acompanha a emergência e não há qualquer descrição de remanejamento.",
+  "evidencia": "crítica obs: 'trafo 5710120055 queimado nota aberta ENC-RD-PS 713/2026' | crítica subcausa: 'QUEIMADO POR CAUSA NAO IDENTIFICADA'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DG-RD-PO 00514/2026",
+  "trafo": "5728502026",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "SS constata trafo e para-raios queimados e a OS conclui substituição de trafo queimado, com série e tombamento dos dois lados. Confiança média porque o formulário marca vazamento de óleo e a ocorrência casada tem subcausa vazamento de óleo / tanque deteriorado — evidência que puxaria para avariado. Qualquer dos dois vereditos conta no indicador.",
+  "evidencia": "texto_ss: 'Constatado trafo 5728502026 de 15kVA na 19.9kV e para-raios queimados.' | EQUIPAMENTO_APRESENTA_VAZAMENTO_DE_OLEO: Sim",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ENC-RD-PS 00720/2026",
+  "trafo": "5700558086",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS pede substituição de trafo queimado na rural de Marianópolis e a observação da ocorrência casada confirma o trafo queimado, com subcausa sobretensão. A OS traz retirado (5 kVA, ITB, série 691030) e instalado (15 kVA, série 316882, reformado). O ajuste de potência é consequência do estoque de emergência, não há relato de remanejamento.",
+  "evidencia": "crítica obs: 'trafo 5700558086 queimado' | crítica subcausa: 'SOBRETENSAO'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ENC-RD-PS 00730/2026",
+  "trafo": "5700056149",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "A observação da ocorrência casada afirma que o trafo estava queimado e a subcausa é queimado por causa não identificada; a OS traz retirado e instalado com série e CITD. Confiança média porque a potência saltou de 45 para 150 kVA num equipamento de abril de 2025 e nenhum texto explica o salto — poderia haver componente de melhoria de posto embutida na emergência, mas nada no relato descreve remanejamento.",
+  "evidencia": "crítica obs: 'trafo 5700056149 queimado' | OS: 'TRAFO RETIRADO POTÊNCIA : 45KVA ... TRAFO INSTALADO POTÊNCIA : 150KVA'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "ETO-RD-GR 00844/2026",
+  "trafo": "5701018078",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "A OS do executante intitula troca de trafo queimado e traz retirado (5 kVA, ITB 2011) e instalado (15 kVA, reformado) com séries e medições. Confiança média porque o formulário registra vazamento de óleo como provável motivo e a crítica casou com subcausa vazamento de óleo / tanque deteriorado, o que admitiria classificar como avariado — em ambos os casos conta no indicador.",
+  "evidencia": "texto_os: 'TROCA DE TRAFO QUEIMADO 5701018078' | PROVÁVEL_MOTIVO_DO_DEFEITO: VAZAMENTO DE OLEO",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DG-RD-PO 00525/2026",
+  "trafo": "5720239035",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS de trafo queimado no P.A. São Francisco de Assis com para-raios queimados, OS concluindo substituição de trafo queimado e observação da ocorrência casada confirmando a constatação em campo, inclusive com muito vazamento de óleo. Potência mantida em 30 kVA e formulário com série e tombamento dos dois lados.",
+  "evidencia": "crítica obs: 'CONSTATADO TRAFO QUEIMADO PELA EQUIPE 059OP16. FOI ABERTO NOTA PARA SUBSTITUIÇÃO DO MESMO. TRAFO COM MUITO VAZAMENTO DE ÓLEO.'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00910/2026",
+  "trafo": "5703033122",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "média",
+  "justificativa": "Nota de trafo queimado com interrupção casada classificada como transformador queimado por causa não identificada. A OS é cópia literal da SS mais os dados de atendimento, sem relato próprio do executante, e o formulário está zerado. Confiança média também pela divergência de numeração apontada em campo (5766744059 x 5703033122), que precisa de conferência cadastral para o caso não ser contado no trafo errado.",
+  "evidencia": "texto_ss: 'Segue nota de trafo queimado, em campo a equipe 059op20 fala que a numeração correto do trafo é 5766744059, porem no mapa é o 5703033122' | crítica subcausa: 'QUEIMADO POR CAUSA NAO IDENTIFICADA'",
+  "prova_de_troca": "nenhuma"
+ },
+ {
+  "ss": "ETO-RD-DP 00529/2026",
+  "trafo": "5701503038",
+  "classificacao": "QUEIMADO",
+  "conta_no_indicador": true,
+  "confianca": "alta",
+  "justificativa": "SS de trafo de 5 kVA queimado na rural de Taguatinga; a OS confirma a execução pela empreiteira e o formulário traz série de retirado (202655, VIJAI 2011) e instalado (304467 / CITD 149648). A crítica casou pelo trafo com subcausa queimado por sobrecarga, consistente com o defeito de execução lançado.",
+  "evidencia": "crítica subcausa: 'QUEIMADO POR SOBRECARGA' | texto_os: 'substituido pela tavares'",
+  "prova_de_troca": "série"
+ },
+ {
+  "ss": "DOLP-RD-PA 00914/2026",
+  "trafo": "5700108122",
+  "classificacao": "INCONCLUSIVO",
+  "conta_no_indicador": false,
+  "confianca": "baixa",
+  "justificativa": "O pedido é expressamente de substituição de poste, e a medição de fase baixa na saída da bucha (169 V contra 219 e 216) foi anotada como observação; o sistema registrou origem avariado e defeito de bucha danificada, mas a ocorrência casada é de ventos fortes (meio ambiente), coerente com problema de poste/rede. A OS é cópia literal da SS mais os dados de atendimento, ou seja, não há relato do executante, e o formulário está todo zerado, sem série nem tombamento. Sem elemento que separe avaria interna do transformador de problema de poste, não dá para afirmar nem que houve avaria contável nem que o trafo foi trocado.",
+  "evidencia": "texto_ss: 'SEGUE SS PARA SUBSTITUIÇÃO DE POSTE. EQUIPE ESTEVE NO LOCAL E FEZ TODAS AS AS VERIFICAÇÕES, TRAFO ESTA COM FASE BAIXA NA SAÍDA DA BUCHA NA FASE C. FASE A 219 FASE B 216 E FASE C 169.' | crítica subcausa: 'VENTOS FORTES'",
+  "prova_de_troca": "nenhuma"
+ },
+ {
+  "ss": "ETO-RD-GU 00853/2026",
+  "trafo": "5700020047",
+  "classificacao": "MELHORIA DE POSTO",
+  "conta_no_indicador": false,
+  "confianca": "média",
+  "justificativa": "A SS abriu como trafo queimado, mas o relato da ocorrência casada mostra que o que queimou foi o elo (5H trocado por 8H) por sobrecarga, penalizando 179 clientes, e a OS do executante não fala em queima do transformador: descreve a troca de 112,5 por 150 kVA como substituição autorizada pela gestão. O conjunto descreve adequação de potência de um posto sobrecarregado, não falha do equipamento. Houve troca física (séries 9685850 retirado e 1697622 instalado), mas ela não conta no indicador. Confiança média pela divergência entre a abertura da SS e a conclusão da OS.",
+  "evidencia": "crítica obs: 'Queima de elo no TR 5700020047 Fase ABC Elo Retirado 5H Elo Instalado 8H ... Causa Sobrecarga' | texto_os: 'OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.'",
+  "prova_de_troca": "série"
+ }
+]

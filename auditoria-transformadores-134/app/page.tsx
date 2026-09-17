@@ -82,6 +82,21 @@ type Fluxo1582 = {
    gerado por scripts/gerar_cadastro_fis.py). O filtro que separa o que é da distribuidora
    do que não é vem da coluna PROPRIETARIO — não do prefixo 56 do código operativo, que
    discorda dela em 206 ativos. */
+/* A macro categoria dos expurgos de janeiro a AGOSTO (public/expurgos-macro.json, gerado
+   por scripts/gerar_expurgos_macro.py). Universo próprio — 1.671 SS de substituição de
+   transformador —, que corre AO LADO da esteira das 1.582 e não recalcula o 1.305. */
+type ExpurgoLinha = Record<string, string>;
+type ExpurgosMacro = {
+  meta: { titulo: string; universo: number; recorte: string; fontes: string[]; aviso: string };
+  resumo: { universo: number; contam: number; fora: number; expurgo: number; retido: number;
+            novos_agosto: number };
+  por_macro: Array<{ macro: string; nota: string; expurgo: number; retido: number; total: number;
+                     motivos: Array<{ rotulo: string; expurgo: number; retido: number; total: number }> }>;
+  por_texto: Array<{ categoria: string; expurgo: number; retido: number; total: number }>;
+  por_mes: Array<{ mes: string; expurgo: number; retido: number; total: number }>;
+  registros: ExpurgoLinha[];
+};
+
 type FisAtivo = Record<string, string>;
 type CadastroFis = {
   meta: { titulo: string; arquivo: string; linhas: number; filtro: string;
@@ -210,7 +225,7 @@ type Modulo =
   | "insight_valor" | "insight_garantia" | "insight_material" | "insight_divide" | "insight_tempos"
   | "insight_revisao" | "insight_aterramento" | "insight_reincidencia" | "insight_naoqueimado"
   | "insight_almoxarifado" | "mes_agosto" | "mes_julho" | "mes_julho_conf"
-  | "cadastro" | "janjul";
+  | "cadastro" | "janjul" | "expurgos_macro";
 
 type Registro = Record<string, string | number | boolean | null>;
 
@@ -721,9 +736,30 @@ const COLUNAS_JULHO: ColJulho[] = [
   { k: "texto_os", rot: "Texto da ordem de serviço", larg: 420, v: (x) => texto(x.texto_os) },
 ];
 
+/* A CATEGORIA DA EXTRAÇÃO. Um rótulo por SS, para a planilha poder ser separada em abas:
+   quem fica no indicador é rotulado pelo que foi (queimado, avariado), quem sai é rotulado
+   pelo motivo de sair (ausente da Crítica, furto, sem obra…) e quem está retido é rotulado
+   pelo que falta. O vocabulário NÃO mora aqui: vem de public/categorias-extracao.json, que
+   é o mesmo arquivo que scripts/gerar_planilha_categorias.py lê — se morasse nos dois
+   lugares, o rótulo da tela e o do Excel poderiam divergir sem ninguém perceber. */
+type MapaCategorias = {
+  porCascata: Record<string, Record<string, string>>;
+  porGatilho: Record<string, string>;
+  ordem: string[];
+  aba: Record<string, string>;
+};
+
+function rotularCategoria(r: Registro, mapa: MapaCategorias): string {
+  const cascata = texto(r.cascata).trim();
+  const porCascata = mapa.porCascata[cascata];
+  if (porCascata) return porCascata[texto(r.categoria_texto).trim().toUpperCase()] || porCascata["_"];
+  return mapa.porGatilho[texto(r.expurgo_gatilho).trim()] || "SEM CATEGORIA";
+}
+
 /* As colunas da planilha. Uma lista só, usada na tela, no CSV e no dossiê — se o número
    da caixa e a lista divergirem, é porque alguém criou uma segunda fonte de verdade. */
 const COLUNAS: Array<[string, string]> = [
+  ["Categoria da extração", "categoria_extracao"],
   ["SS", "ss"], ["OS", "os"], ["Obra", "obra"], ["Ativo", "trafo"],
   ["Decisão", "decisao"], ["Fato", "fato"], ["Leitura", "leitura"],
   ["Categoria pelo texto", "categoria_texto"], ["Categoria gravada", "categoria_gravada"],
@@ -2282,6 +2318,9 @@ export default function Page() {
   const [almox, setAlmox] = useState<Almoxarifado | null>(null);
   const [cadastro, setCadastro] = useState<CadastroFis | null>(null);
   const [janjul, setJanjul] = useState<Fluxo1582 | null>(null);
+  const [expmacro, setExpmacro] = useState<ExpurgosMacro | null>(null);
+  /* qual macro categoria está aberta na aba de expurgos; vazio mostra todas */
+  const [macroSel, setMacroSel] = useState<string>("");
   /* A análise do mês corrente. Arquivo próprio, indicador próprio. */
   /* Um mês por aba, cada um com o seu JSON. Guardados num dicionário e não em duas
      variáveis porque o mês que vem entra sem mexer em mais nada: gera o JSON, põe a
@@ -2614,6 +2653,7 @@ export default function Page() {
       almox: ["garantia-almoxarifado.json", (d) => setAlmox(d as Almoxarifado), () => setAlmox(null)],
       cadastro: ["cadastro-fis.json", (d) => setCadastro(d as CadastroFis), () => setCadastro(null)],
       janjul: ["fluxo-1582.json", (d) => setJanjul(d as Fluxo1582), () => setJanjul(null)],
+      expmacro: ["expurgos-macro.json", (d) => setExpmacro(d as ExpurgosMacro), () => setExpmacro(null)],
       julho: ["julho-2026.json", (d) => setMeses((m) => ({ ...m, julho: d as Mes })), () => setMeses((m) => ({ ...m, julho: null }))],
       agosto: ["agosto-2026.json", (d) => setMeses((m) => ({ ...m, agosto: d as Mes })), () => setMeses((m) => ({ ...m, agosto: null }))],
       conf: ["julho-conferencia.json", (d) => setConf(d as Conferencia), () => setConf(null)],
@@ -2649,6 +2689,7 @@ export default function Page() {
     ativos: ["coleta", "historico", "solo"], bases: ["material"],
     cadastro: ["cadastro"],
     janjul: ["janjul"],
+    expurgos_macro: ["expmacro"],
     /* a visão geral anuncia o universo de jan a jul no topo, então precisa do arquivo */
     visao: ["janjul"],
   };
@@ -2677,12 +2718,21 @@ export default function Page() {
        scripts/gerar_fluxo_1582.py): as 1.510 congeladas copiadas sem mudar um caractere, mais
        os 72 de julho traduzidos para as mesmas peneiras. O fluxo-1510.json continua no
        repositório como a fonte congelada que o invariante confere registro a registro. */
-    fetch(assetUrl("fluxo-1582.json"))
-      .then((r) => {
+    Promise.all([
+      fetch(assetUrl("fluxo-1582.json")).then((r) => {
         if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
         return r.json();
+      }),
+      /* o mapa de categorias é acessório: se ele falhar, o fluxo abre do mesmo jeito e só
+         a coluna "Categoria da extração" fica vazia — não é motivo para a tela não subir */
+      fetch(assetUrl("categorias-extracao.json"))
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+    ])
+      .then(([f, mapa]: [Fluxo, MapaCategorias | null]) => {
+        if (mapa) for (const r of f.registros) r.categoria_extracao = rotularCategoria(r, mapa);
+        setFluxo(f);
       })
-      .then(setFluxo)
       .catch((e) => { setFluxo(null); setErroCarga(String(e?.message || e)); });
   };
 
@@ -3687,6 +3737,8 @@ export default function Page() {
     cadastro: [],
     /* O universo de jan a jul tem lista própria: não recorta os registros das 1.510. */
     janjul: [],
+    /* chips próprios, montados do expurgos-macro.json — não filtram a esteira */
+    expurgos_macro: [],
   };
 
   const recortesDoModulo = RECORTES[modulo] || [];
@@ -3938,6 +3990,9 @@ export default function Page() {
     { grupo: "A esteira, de cima para baixo", itens: [
       { id: "visao", rotulo: "Visão geral", codigo: "01", marca: total, tom: "cinza" },
       { id: "janjul", rotulo: "Janeiro a julho · 1.582", codigo: "01·1", marca: janjul?.resumo.total, tom: "amarelo" },
+      /* Universo próprio, de jan a AGOSTO. Fica junto do 1.582 porque as duas abas falam de
+         conjuntos que não são o recorte das 1.510 — quem lê encontra as duas no mesmo lugar. */
+      { id: "expurgos_macro", rotulo: "Expurgos por macro categoria · jan a ago", codigo: "01·2", marca: expmacro?.resumo.expurgo, tom: "amarelo" },
       // Só o número que ENTRA. O retido já tem linha própria logo abaixo, e o mesmo número
       // aparecendo duas vezes na mesma barra confunde mais do que informa.
       { id: "interrupcao", rotulo: "Interrupção", codigo: "02", entram: entramE1, recorte: "todos" },
@@ -4044,6 +4099,7 @@ export default function Page() {
     regras: { olho: "Método", titulo: "Regras e método", texto: "Como a decisão é tomada, o que foi corrigido no caminho e o que ficou em aberto." },
     revisao: { olho: "Segunda leitura", titulo: "Revisão da auditoria", texto: "Cada solicitação relida caso a caso, fora da esteira. O que se confirma, o que muda de categoria e o efeito de cada escolha sobre o número final." },
     bases: { olho: "Procedência", titulo: "Bases usadas", texto: "De onde vem cada número e o que cada base não consegue responder." },
+    expurgos_macro: { olho: "jan a ago/2026 · universo próprio", titulo: "Expurgos por macro categoria", texto: "As 276 SS que ficam fora do indicador de janeiro a agosto, agrupadas pelo tipo de dúvida que cada saída levanta: 227 expurgos e 49 retidos. Retido não é expurgo — é caso sem martelo batido, que volta assim que a prova aparecer. Universo de 1.671 solicitações de substituição de transformador; o indicador congelado de 1.305 não é tocado." },
     janjul: { olho: "jan a jul/2026 · universo somado", titulo: "Janeiro a julho — 1.582 solicitações", texto: "As 1.510 de janeiro a junho mais as 72 de julho, num conjunto só. É o universo de solicitações, não o indicador: o 1.305 de janeiro a junho continua como estava, e julho entra em prévia — 55 dentro pela régua e 17 ainda pendentes de campo." },
     cadastro: { olho: "Parque · julho/2026", titulo: "Cadastro do parque (FIS)", texto: "A extração oficial do cadastro de transformadores, usada aqui para uma pergunta só: o ativo é da distribuidora ou é particular? Particular não pertence ao indicador. Nada é recalculado — o cruzamento fica ao lado do caso." },
     insight_tempos: { olho: "Insight · não move ninguém", titulo: "Tempos: as três bases no mesmo eixo", texto: "A Crítica, o TMAE e a SS desenhadas uma embaixo da outra, dividindo o mesmo eixo de tempo. A ordem dos eventos e a distância entre eles se leem de relance — e é assim que aparece o que uma tabela de datas esconde." },
@@ -4491,6 +4547,8 @@ export default function Page() {
         ["Bases_Gerais.xlsx", "Bases gerais — tudo num arquivo, para pesquisa", "As seis bases da auditoria em abas de um mesmo arquivo, com filtro automático ligado e a primeira linha congelada: SS e OS, interrupções, atendimentos, obras e SIGCO, material item a item e a esteira completa. A coluna SS liga todas elas, então dá para cruzar duas bases sem sair de dentro. Cópia fiel: nada é recalculado nem resumido.", "2,4 MB"],
         ["Filtros_do_Site.xlsx", "Todos os filtros do site, aba por aba", "Cada filtro de cada tela com quantos casos tem e o que significa, mais a tabela longa filtro × SS de onde sai qualquer tabela dinâmica, e uma aba de dimensões com uma linha por solicitação. A composição de cada filtro não é recalculada: um robô abre o site, clica filtro por filtro e baixa a planilha de cada um — o que está aqui é o que a tela mostra, porque veio dela.", "PLACEHOLDER_TAM"],
         ["Material_Pendente.xlsx", "Material pendente — as obras a extrair", "As 61 solicitações que o export de material não responde, com a obra de cada uma. Quatro abas, e a que importa é \u201cObras a extrair\u201d: 32 obras que existem no cadastro e não estão no export, agrupadas por obra porque é assim que a extração se pede. As outras 29 não têm obra gerada — para essas não adianta pedir extração, e elas ficam numa aba à parte com o motivo escrito.", "0,03 MB"],
+        ["Base_Categorias.xlsx", "As 1.582 com a categoria, numa aba só", "A mesma extração do arquivo por abas, em uma tabela única: uma linha por SS, a categoria na primeira coluna e filtro automático ligado. É esta que se joga numa tabela dinâmica — a outra serve para ler categoria por categoria.", "0,7 MB"],
+        ["Base_Por_Categoria.xlsx", "As 1.582 separadas por categoria", "Uma aba por categoria e cada SS numa aba só: queimado e avariado são o indicador, e as demais abas são o que ficou de fora com o motivo no nome — ausente da Crítica, fora da janela, furto, abalroamento, sem obra passados 60 dias, remanejamento, preventivo, tape, obra sem transformador, erro de cadastro, trafo auxiliar. Os retidos têm abas próprias, porque retido não é excluído. O resumo traz o placar de cada categoria repartido em jan\u2013jun e julho.", "1,4 MB"],
         ["Base_Esteira_Completa.xlsx", "Esteira completa", "Uma linha por SS com a posição na esteira, o motivo, a decisão, a causa confirmada, o gatilho da exclusão com a frase que a explica, o intervalo inteiro da ocorrência e o marcador de deslocamento.", "0,37 MB"],
       ];
       // as originais são o arquivo cru, sem filtro e sem recorte: é contra elas que qualquer
@@ -4540,6 +4598,92 @@ export default function Page() {
             entrou no acervo, que é o que fechou as 24 SS de borda do ano. */}
         <section className="panel editorial-note wide"><span>PEDIDOS EM ABERTO</span>
           <p>· Export de material das obras que ficaram de fora, hoje {br(conta((r) => r.material_conferido !== "SIM"))} solicitações — destas, {br(conta((r) => r.pendente_siago === "SIM"))} têm obra com número e enquadramento e só esperam a extração do SIAGO.</p>
+        </section>
+      </>;
+    }
+
+    if (modulo === "expurgos_macro") {
+      if (!expmacro) return <section className="panel"><p className="fonte-detalhe">Carregando os expurgos de janeiro a agosto…</p></section>;
+      const E = expmacro; const R = E.resumo;
+      /* Um tom por macro categoria, para o olho reconhecer o grupo antes de ler o rótulo.
+         Em aberto é âmbar porque é o único grupo que pode voltar ao indicador. */
+      const TOM_MACRO: Record<string, "red" | "amber" | "blue" | "ink" | "green"> = {
+        "Sem interrupção comprovada": "red",
+        "Causa externa ao transformador": "ink",
+        "Troca sem falha": "blue",
+        "Em aberto": "amber",
+        "Sem documento": "blue",
+        "Não houve troca": "green",
+      };
+      const lista = E.registros.filter((r) => !macroSel || r.macro === macroSel);
+      return <>
+        <section className="kpi-grid">
+          <Kpi rotulo="Expurgos" valor={br(R.expurgo)} nota="fora do indicador com motivo fechado" tom="red" aoClicar={() => setMacroSel("")} />
+          <Kpi rotulo="Retidos" valor={br(R.retido)} nota="não contam hoje e podem voltar com a prova" tom="amber" aoClicar={() => setMacroSel("Em aberto")} />
+          <Kpi rotulo="Fora do indicador" valor={br(R.fora)} nota={`de ${br(R.universo)} solicitações de substituição`} tom="ink" />
+          <Kpi rotulo="Contam" valor={br(R.contam)} nota="queimados e avariados de janeiro a agosto" tom="green" />
+          <Kpi rotulo="Novos com agosto" valor={br(R.novos_agosto)} nota="entraram com a Crítica e o TMAE do mês" tom="blue" />
+        </section>
+
+        <section className="panel warning-note wide"><strong>Este número não é o indicador</strong>
+          <p>· {E.meta.aviso}</p>
+          <p>· Recorte: {E.meta.recorte}.</p>
+          <p>· Expurgo e retido não são a mesma coisa. O expurgo tem motivo fechado; o retido espera prova e volta se ela aparecer. Somar os dois num número só apagaria essa diferença.</p>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Macro categoria</span><h2>Por que cada SS ficou fora</h2></div><small>clique para filtrar a lista</small></div>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>Macro categoria</th><th>Expurgo</th><th>Retido</th><th>Total</th><th>O que quer dizer</th></tr></thead>
+            <tbody>
+              {E.por_macro.map((m) => <tr key={m.macro} onClick={() => setMacroSel(macroSel === m.macro ? "" : m.macro)} style={{ cursor: "pointer", fontWeight: macroSel === m.macro ? 600 : undefined }}>
+                <td>{m.macro}</td><td><b>{br(m.expurgo)}</b></td><td>{br(m.retido)}</td><td>{br(m.total)}</td>
+                <td><small>{m.nota}</small></td>
+              </tr>)}
+              <tr><td><b>Total</b></td><td><b>{br(R.expurgo)}</b></td><td><b>{br(R.retido)}</b></td><td><b>{br(R.fora)}</b></td><td /></tr>
+            </tbody></table></div>
+        </section>
+
+        {/* DUAS PERGUNTAS, DUAS COLUNAS. A macro diz por que a SS saiu; esta tabela diz o que o
+            equipamento era segundo o texto. Sem ela a lista parece dizer que 227 transformadores
+            não falharam — e 125 deles estão descritos como queimados no próprio texto. */}
+        <section className="panel"><div className="panel-title"><div><span>O outro lado</span><h2>O que o equipamento era, pelo texto</h2></div><small>sair da conta não é o mesmo que não ter falhado</small></div>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>Categoria pelo texto</th><th>Expurgo</th><th>Retido</th><th>Total</th></tr></thead>
+            <tbody>{E.por_texto.map((c) => <tr key={c.categoria}>
+              <td>{c.categoria}</td><td><b>{br(c.expurgo)}</b></td><td>{br(c.retido)}</td><td>{br(c.total)}</td>
+            </tr>)}</tbody></table></div>
+          <p className="fonte-detalhe">Onde a solicitação já está na esteira de janeiro a julho, o valor é o mesmo que a aba de Exclusões mostra — copiado de lá, não traduzido. Nas 46 de agosto e nas que a esteira não tem, ele sai da leitura do próprio texto, e a coluna <b>Fonte da categoria</b> na lista abaixo diz qual das duas origens deu o valor.</p>
+        </section>
+
+        <section className="dashboard-columns">
+          <article className="panel"><div className="panel-title"><div><span>Detalhe</span><h2>Motivo dentro da macro</h2></div><small>o gatilho que tirou a SS</small></div>
+            <div className="table-scroll">
+            <table className="records-table"><thead><tr><th>Macro</th><th>Motivo</th><th>Expurgo</th><th>Retido</th></tr></thead>
+              <tbody>{E.por_macro.flatMap((m) => m.motivos.map((g) => <tr key={m.macro + g.rotulo}>
+                <td><small>{m.macro}</small></td><td>{g.rotulo}</td><td>{br(g.expurgo)}</td><td>{br(g.retido)}</td>
+              </tr>))}</tbody></table></div>
+          </article>
+          <article className="panel"><div className="panel-title"><div><span>No tempo</span><h2>Mês a mês</h2></div><small>abertura da SS</small></div>
+            <table className="records-table"><thead><tr><th>Mês</th><th>Expurgo</th><th>Retido</th><th>Total</th></tr></thead>
+              <tbody>{E.por_mes.map((m) => <tr key={m.mes}><td>{m.mes}</td><td>{br(m.expurgo)}</td><td>{br(m.retido)}</td><td>{br(m.total)}</td></tr>)}</tbody></table>
+            <p className="fonte-detalhe">Agosto é o único mês com Crítica e TMAE do próprio mês aplicados nesta rodada. Julho segue sem a Crítica bruta.</p>
+          </article>
+        </section>
+
+        <section className="panel"><div className="panel-title"><div><span>Uma por uma</span><h2>{macroSel || "Todas as macro categorias"}</h2></div><small>{br(lista.length)} solicitações</small></div>
+          <div className="table-scroll">
+          <table className="records-table"><thead><tr><th>SS</th><th>Mês</th><th>Resultado</th><th>Categoria pelo texto</th><th>Fonte da categoria</th><th>Motivo</th><th>Transformador</th><th>Equipe</th><th>Localidade</th><th>Origem da SS</th><th>Prova de troca</th><th>Crítica</th><th>Por que saiu</th></tr></thead>
+            <tbody>{lista.map((r) => <tr key={r.ss}>
+              <td>{r.ss}</td><td>{r.mes}</td><td><b>{r.resultado === "EXPURGO" ? "expurgo" : "retido"}</b></td>
+              <td><b>{r.cat_texto}</b></td><td><small>{r.cat_texto_fonte}</small></td>
+              <td>{r.rotulo}</td><td><code>{r.trafo}</code></td><td>{r.equipe}</td><td>{r.localidade}</td>
+              <td>{r.origem_ss}</td><td>{r.prova_troca}</td><td><small>{r.cr_sub || r.cr_causa || "—"}</small></td>
+              <td><small>{r.motivo}</small></td>
+            </tr>)}</tbody></table></div>
+        </section>
+
+        <section className="panel editorial-note wide"><span>DE ONDE SAIU CADA COLUNA</span>
+          {E.meta.fontes.map((f) => <p key={f}>· {f}</p>)}
         </section>
       </>;
     }
@@ -6374,6 +6518,8 @@ export default function Page() {
           ? <div className="header-meta"><span>{mes?.titulo || "Mês"}</span><strong>{br(mes?.resumo.entram ?? 0)}</strong><small>de {br(mes?.resumo.no_recorte ?? 0)} no recorte do mês</small></div>
           : modulo === "janjul"
           ? <div className="header-meta"><span>Universo jan a jul</span><strong>{br(janjul?.resumo.total ?? 0)}</strong><small>{br(janjul?.resumo.jan_jun ?? 0)} + {br(janjul?.resumo.julho ?? 0)} solicitações</small></div>
+          : modulo === "expurgos_macro"
+          ? <div className="header-meta"><span>Fora do indicador · jan a ago</span><strong>{br(expmacro?.resumo.expurgo ?? 0)}</strong><small>expurgos + {br(expmacro?.resumo.retido ?? 0)} retidos, de {br(expmacro?.resumo.universo ?? 0)}</small></div>
           : modulo === "cadastro"
           ? <div className="header-meta"><span>Parque · Energisa</span><strong>{br(cadastro?.resumo.energisa ?? 0)}</strong><small>de {br(cadastro?.resumo.total ?? 0)} no cadastro de julho</small></div>
           : <div className="header-meta"><span>Recorte</span><strong>{br(listadas.length)}</strong><small>de {br(total)} solicitações</small></div>}

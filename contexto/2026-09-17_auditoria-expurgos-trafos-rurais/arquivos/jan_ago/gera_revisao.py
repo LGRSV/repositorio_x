@@ -1,0 +1,116 @@
+# -*- coding: utf-8 -*-
+import json, os
+base = "/tmp/claude-0/-home-user/74dc9c64-5026-54ee-a81e-173d2f38a735/scratchpad/jan_ago"
+ent = json.load(open(os.path.join(base, "ineditos_10.json"), encoding="utf-8"))
+
+R = [
+{
+ "ss":"ETO-RD-DP 00106/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"média",
+ "concorda_com_o_veredito": True,
+ "justificativa":"Vazamento de óleo é avaria real do equipamento, mas nada indica substituição. O texto da OS é cópia literal do texto da SS (só muda espaçamento), portanto NÃO existe relato do executante: a conclusão de 'não houve troca' vem da AUSÊNCIA de relato, não de um relato que diga que não houve. O que sustenta a decisão é o campo ESQUEMA: 'MC - EQUIPAMENTOS'. Na base inteira (423 registros), os 400 de ESQUEMA 'MC - SUBSTITUIÇÃO DE TRANSFORMADOR' têm NS_RETIRADO preenchido em 91% dos casos; os 12 de 'MC - EQUIPAMENTOS' têm 0% — nenhum é troca. Somado a isso, série, tombamento e potência retirada/instalada estão em branco nos dois lados, a OS foi executada por equipe de manutenção leve (ETO-MLDP01) e o próprio texto diz que o trafo permaneceu energizado. Confiança média e não alta justamente porque não há relato do executante.",
+ "evidencia":"ESQUEMA = 'MC - EQUIPAMENTOS'; NS_RETIRADO, NS_INSTALADO, TOMBAMENTO_RETIRADO, TOMBAMENTO_INSTALADO, POTENCIA_RET e POTENCIA_INST todos em branco. Texto: 'TRAFO COM VAZAMENTO DE OLEO 5743641027 DE 15 KVA DA 19.9. ACESSO LIVRE. POSSUI 01 CLIENTE. FICOU FECHADO NORMAL.' — idêntico na SS e na OS.",
+ "o_que_o_veredito_anterior_perdeu":"Não registrou que a OS é cópia literal da SS (logo o 'sem troca' foi inferido de ausência de relato) e não citou as colunas de série/tombamento/potência nem o ESQUEMA 'MC - EQUIPAMENTOS', que é o que de fato sustenta a decisão. Também não descartou explicitamente a crítica: a ocorrência casada é de 01/01/2026, 770 h antes da SS, causa MEIO AMBIENTE/DESCARGA ATMOSFÉRICA — não tem relação com este serviço e não pode ser usada nem a favor nem contra."
+},
+{
+ "ss":"ETO-RD-PS 00098/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"A classificação está certa e a confiança deveria ser maior do que a atribuída. O defeito da SS entrou como 'VAZAMENTO DE ÓLEO', mas o campo DEFEITO da execução foi fechado como 'COLA E FITA' — ou seja, a própria base documenta positivamente que o serviço executado foi reparo por colagem, não substituição. Isso não é ausência de relato: é registro afirmativo de reparo. Confirmam: série, tombamento e potência em branco nos dois lados; ESQUEMA 'MC - EQUIPAMENTOS' (0 de 12 com troca na base); criticidade PROGRAMÁVEL com prazo até 03/2027; texto dizendo que a equipe encontrou o trafo fechado, com tensão normal, apenas vazando; e ausência total da crítica (nenhuma interrupção associada).",
+ "evidencia":"DEFEITO = 'COLA E FITA' (contra DEFEITO_SS = 'VAZAMENTO DE ÓLEO'). Texto da OS: 'EQUIPE 075OP03 ESTEVE NO LOCAL MESMO FECHADNO EM CAMPO TENSAO NORMAL POREM COM VAZAMENTO DE OLEO'.",
+ "o_que_o_veredito_anterior_perdeu":"Leu o DEFEITO_SS e não percebeu que o campo DEFEITO da execução mudou para 'COLA E FITA' — é a prova documental direta de reparo sem troca. Por isso a confiança deveria ser alta, e não média; a decisão em si estava correta."
+},
+{
+ "ss":"ETO-RD-AG 00201/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"Bucha secundária danificada é avaria real, mas a OS acrescenta ao texto da SS uma observação do executante que diz exatamente o que foi feito: somente colagem das buchas. Não é cópia da SS — há relato próprio, e o relato afirma reparo. Série, tombamento e potência em branco nos dois lados, ESQUEMA 'MC - EQUIPAMENTOS' (nenhuma troca nesse esquema em toda a base) e NUM_INT = '00' (nenhuma intervenção real registrada). Sem ocorrência na base de interrupção.",
+ "evidencia":"Texto da OS: 'OBS; FOI SOLICITADO PARA EQUIPE DE MANUTENÇÃO FAZER SOMENTE A COLAGEM DAS BUCHAS.' — trecho ausente da SS.",
+ "o_que_o_veredito_anterior_perdeu":"Nada quanto à conclusão. Registro apenas uma ressalva que o veredito não explicitou: a frase é uma solicitação ('foi solicitado ... fazer somente a colagem'), não a descrição do que foi executado; ela só se sustenta como prova de não-troca porque nenhum campo de série, tombamento ou potência foi preenchido e o esquema não é o de substituição."
+},
+{
+ "ss":"ETO-RD-GR 00497/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"Aqui existe relato próprio do executante e ele é afirmativo: as equipes fizeram apenas abertura, sinalização, retirada dos porta-fusíveis, teste com detector de tensão e aterramento — serviço de isolamento, nenhuma substituição. É o caso oposto ao da cópia literal: a conclusão vem de um relato que diz o que houve, e o que houve não inclui troca. A própria SS pede 'verificar possibilidade de reparo no trafo'. Série, tombamento e potência em branco; ESQUEMA 'MC - EQUIPAMENTOS'.",
+ "evidencia":"Texto da OS: 'Equipe ETO LMGR02 Realizou somente a abertura, sinalizou, retirou os porta fusiveis e a equipe LMGR03 realizou o texte com detector de tensao e o aterramento'.",
+ "o_que_o_veredito_anterior_perdeu":"Nada quanto à conclusão. Vale só marcar duas coisas que o veredito não disse: (1) este é o caso de relato afirmativo, e não de ausência de relato — por isso a confiança alta é legítima aqui; (2) a ocorrência da crítica está a 2.583 h de distância, é de causa CONEXÃO com observação 'DEFEITO NO CONECTOR DA FASE NO PADRAO', ou seja, não é falha do trafo e não pertence a este caso."
+},
+{
+ "ss":"ETO-RD-AR 00927/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"A OS tem texto próprio, totalmente diferente da SS, e descreve o serviço executado: melhoria de aterramento e colagem na bucha secundária. Reparo, não substituição. Série, tombamento e potência em branco nos dois lados; ESQUEMA 'MC - EQUIPAMENTOS'. A ocorrência da crítica está a 3.262 h (janeiro) da SS (maio) e é de descarga atmosférica — não tem relação com este serviço.",
+ "evidencia":"Texto da OS: 'FEITO MELHORIA DE ATERRAMENTO E COLAGEM NA BUCHA SECUNDARIA DO TRAFO 5720086004.'",
+ "o_que_o_veredito_anterior_perdeu":"Não notou duas coisas. Primeiro, o campo ORIGEM da execução foi fechado como 'SOBRECARGA PREVENTIVA' enquanto a ORIGEM_SS é 'AVARIADO' — divergência de preenchimento que não muda o resultado (o relato é explícito), mas mostra que os campos de origem/defeito desta base não são confiáveis isoladamente. Segundo, e mais importante como alerta metodológico: a OS afirma que houve melhoria de aterramento, e mesmo assim o campo FEZ_MELHORIA_DE_ATERRAMENTO está vazio na base — prova de que campo em branco neste conjunto não é prova de que o serviço não ocorreu. Por isso o 'em branco' só vale como evidência quando acompanhado de relato ou do esquema de serviço."
+},
+{
+ "ss":"ETO-CADTOC 00151/2026",
+ "classificacao":"POSTE/REDE (não é o trafo)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"Não há falha de transformador nenhuma. A SS é de cadastro (as-built) de trecho de MT e de duas chaves, e a OS confirma: post parcial realizado para cadastrar as chaves 8865477122 e 8864449122. O trafo 5706098059 aparece só como ativo-âncora do registro. É o único dos dez casos em que os campos ORIGEM_SS, DEFEITO_SS, ORIGEM e DEFEITO estão TODOS ausentes — não é registro de defeito. TIPOSS = 'SOLICITAÇÃO DE SERVIÇO', órgão solicitante COCM (cadastro), sem NUM_INT.",
+ "evidencia":"Texto da OS: 'POST PARCIAL REALIZADO PARA CADASTRAR AS CHAVES 8865477122 e 8864449122.'; nenhum campo ORIGEM/DEFEITO preenchido na base.",
+ "o_que_o_veredito_anterior_perdeu":"Não usou a crítica, que reforça o veredito: a ocorrência a 41 h é 'DISTRIBUICAO PROGRAMADA / OBRA MELHORIA NIVEL DE TENSAO/AJUSTE TAP', 200 clientes, com observação de campo 'RETIRADA DE POSTE 15,19 + LANÇAMENTO DE CONDUTOR 185MM DO POSTE 20 AO 31 + MONTAGEM DE CHAVE FACA NO POSTE 31' — obra de rede programada, que é justamente o que este cadastro está documentando. Não muda a classificação; eleva a base dela de 'o texto não fala de trafo' para 'a obra de rede está identificada'."
+},
+{
+ "ss":"ETO-RD-DP 00410/2026",
+ "classificacao":"INCONCLUSIVO",
+ "conta_no_indicador": False,
+ "confianca":"baixa",
+ "concorda_com_o_veredito": True,
+ "justificativa":"É o único caso do lote em que o texto da OS é cópia EXATA da SS, caractere por caractere — não existe uma linha sequer de relato do executante. Some-se: ORIGEM_SS, DEFEITO_SS, ORIGEM e DEFEITO todos vazios (o registro nunca foi classificado), série/tombamento/potência vazios, sem NUM_INT, e abertura 07/07 10:22 com término 07/07 11:30 — 68 minutos numa SS EMERGENCIAL. O próprio texto declara a natureza do documento: 'Segue SS aberta para tratativas com equipe de MANUTENÇÃO'. Ou seja, é uma SS de encaminhamento, fechada administrativamente; o vazamento de óleo pode ser avaria real e o desfecho pode estar em outra SS/OS. Julho não foi carregado na crítica, então não há como conferir interrupção — isso é ausência de conferência, não ausência de falha. Não dá para afirmar nem troca nem não-troca: INCONCLUSIVO é a leitura honesta.",
+ "evidencia":"texto_ss_completo == texto_os_completo, literalmente: 'Segue SS aberta para tratativas com equipe de MANUTENÇÃO ! Tranformador 5762230101 com vazamento de oleo , RDU de PORTO ALEGRE .'; DATA_ABERTURA_SS 2026-07-07 10:22:33 e DATA_TERMINO_SS 2026-07-07 11:30:29; crítica = 'SEM CRÍTICA — julho não carregado'.",
+ "o_que_o_veredito_anterior_perdeu":"Chegou ao resultado certo sem apresentar o que o justifica. Faltou: (1) o intervalo de 68 minutos entre abertura e término, incompatível com execução de campo em SS emergencial; (2) a ausência TOTAL de ORIGEM e DEFEITO, que distingue este caso dos demais (nem sequer foi classificado como avaria); (3) o fato de o ESQUEMA ser 'MC - EQUIPAMENTOS' — esquema em que nenhum dos 12 registros da base tem troca —, o que empurra para 'nada foi substituído sob esta SS', embora não permita concluir sobre o destino final do trafo."
+},
+{
+ "ss":"ETO-RD-AR 01265/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"A OS tem texto próprio e diz o que a equipe foi fazer: colagem na chave seletora do trafo por causa do vazamento. Reparo, não substituição. Série, tombamento e potência em branco; ESQUEMA 'MC - EQUIPAMENTOS'. A crítica casou pelo trafo com distância 0,0 h, mas a interrupção (37 clientes) não é falha do transformador: causa 'CONEXÃO/JUMPER', subcausa 'CABOS LIGACAO DO TRAFO COM RD DE BT' e observação de campo 'FOI VERIFICADO E ENCONTRADO PIRASTIQUE FASE B ROMPIDO'. Bate com o pedido da própria SS ('OBS: SUBSTITUIR CABO DE LIGAÇÃO DO TRAFO A REDE BT (PIRASTIK)'). O que foi substituído foi o pirastique, não o trafo.",
+ "evidencia":"Texto da OS: 'EQUIPE ACIONADA PARA REALIZAR COLAGEM NA CHAVE SELETORA DO TRAFO, DEVIDO AO MESMO ESTA COM GRANDE VAZAMENTO DE OLEO'; observação da crítica: 'FOI VERIFICADO E ENCONTRADO PIRASTIQUE FASE B ROMPIDO'.",
+ "o_que_o_veredito_anterior_perdeu":"Não explorou a crítica, que é o ponto mais forte do caso: a ocorrência está a 0,0 h e poderia ser lida à primeira vista como falha do trafo, mas causa, subcausa e observação de campo convergem para rompimento do cabo de ligação (pirastique). Ou seja, além de não ter havido troca, a interrupção de 37 clientes também não é atribuível ao equipamento. Também não registrou a divergência ORIGEM_SS 'AVARIADO' × ORIGEM da execução 'SOBRECARGA PREVENTIVA'."
+},
+{
+ "ss":"ETO-RD-GR 00171/2026",
+ "classificacao":"QUEIMADO",
+ "conta_no_indicador": True,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"Falha do próprio equipamento, com interrupção. A SS é aberta como ORIGEM_SS = 'QUEIMADO' e TIPOSS = 'FORMS SUBST DE TRANSFORMADOR', o texto diz que o trafo e o para-raios queimaram, e a crítica casou pelo trafo com distância 0,0 h e causa 'TRANSFORMADOR'. A interrupção durou de 01/02 18:24 a 04/02 18:34 — três dias para 1 cliente — e a SS foi encerrada às 04/02 19:21, 47 minutos depois do restabelecimento: o serviço desta SS é o que restabeleceu o cliente, e trafo de 5 kVA queimado com estrutura condenada não se restabelece por reparo. Conta no indicador.",
+ "evidencia":"ORIGEM_SS = 'QUEIMADO'; TIPOSS = 'FORMS SUBST DE TRANSFORMADOR'; texto: 'TR-5701056155 Queimado para raios QUEIMADO potência 5kva'; crítica: causa 'TRANSFORMADOR', dist_h 0.0, fim 2026-02-04 18:34 contra DATA_TERMINO_SS 2026-02-04 19:21:55.",
+ "o_que_o_veredito_anterior_perdeu":"Acertou o resultado, mas passou por cima de três coisas que um revisor precisa ver. (1) O texto da OS é cópia literal da SS — não há relato do executante, portanto a troca física está INFERIDA, não documentada; série, tombamento e potência retirada/instalada estão todos em branco. (2) O ESQUEMA do serviço é 'MC - POSTES', não 'MC - SUBSTITUIÇÃO DE TRANSFORMADOR' — na base, 91% dos 400 registros de esquema de substituição têm série do retirado preenchida, e nenhum dos registros de outros esquemas tem; o serviço foi lançado como troca de poste (a SS pede poste de fibra 10/150 porque 'ESTRTURURA DO TRAFO NÃO OFERECE SEGURANÇA'), o que é a fragilidade real do caso. (3) A subcausa da crítica é 'VAZAMENTO DE OLEO / TANQUE DETERIORADO', ou seja, a base de interrupção classifica como AVARIADO, e não como queimado — divergência com a SS que o veredito não apontou. Nada disso muda a decisão: por qualquer dos dois rótulos é falha do equipamento e conta no indicador; o que muda é que a confiança se apoia na coincidência entre fim da interrupção e encerramento da SS, e não em registro de troca."
+},
+{
+ "ss":"ETO-RD-AR 01071/2026",
+ "classificacao":"SEM TROCA (não substituído)",
+ "conta_no_indicador": False,
+ "confianca":"alta",
+ "concorda_com_o_veredito": True,
+ "justificativa":"A OS tem texto próprio e afirma o serviço executado: colagem na bucha do trafo que estava vazando. Reparo, não substituição. O ESQUEMA é 'MC - FERRAGENS' — não é esquema de substituição —, e série, tombamento e potência retirada/instalada estão em branco. Julho não foi carregado na crítica, mas aqui isso é irrelevante: o relato do executante é afirmativo e basta.",
+ "evidencia":"Texto da OS: 'FEITO COLAGEM NA BUCHA DO TRAFO 5700017077 QUE ESTAVA COM VAZAMENTO.'; ESQUEMA = 'MC - FERRAGENS'.",
+ "o_que_o_veredito_anterior_perdeu":"Não enfrentou o contraindício que existia no registro: TIPOSS = 'FORMS SUBST DE TRANSFORMADOR', que sozinho sugeriria substituição. Ele é neutralizado pelo relato explícito de colagem, pelo ESQUEMA 'MC - FERRAGENS' e pelo NUM_INT preenchido como 'NÃO' (nenhuma intervenção). Também não registrou a divergência ORIGEM_SS 'SOBRECARGA PREVENTIVA' × ORIGEM da execução 'AVARIADO'."
+},
+]
+
+assert len(R) == len(ent)
+for r, e in zip(R, ent):
+    assert r["ss"] == e["ss"], (r["ss"], e["ss"])
+    assert list(r.keys()) == ["ss","classificacao","conta_no_indicador","confianca","concorda_com_o_veredito","justificativa","evidencia","o_que_o_veredito_anterior_perdeu"]
+
+out = os.path.join(base, "revisao_ineditos.json")
+json.dump(R, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+print("ok", out, len(R), "contam:", sum(1 for r in R if r["conta_no_indicador"]))

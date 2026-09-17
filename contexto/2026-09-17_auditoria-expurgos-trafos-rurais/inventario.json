@@ -1,0 +1,4208 @@
+{
+ "gerado_em": "2026-09-17T09:47:19",
+ "sessao": "74dc9c64-5026-54ee-a81e-173d2f38a735",
+ "sessao_remota": "cse_01RxofeRP7NcuPNAFpWh9sqt",
+ "motivo": "manual",
+ "scratchpad": "/tmp/claude-0/-home-user/74dc9c64-5026-54ee-a81e-173d2f38a735/scratchpad",
+ "branch": "claude/site-trafos-queimados-review-eidois",
+ "commit_base": "d097369",
+ "copiados": 361,
+ "bytes_copiados": 120318070,
+ "total_arquivos": 466,
+ "arquivos": [
+  {
+   "caminho": ".ultimo_autosave",
+   "bytes": 0,
+   "modificado": "2026-09-17 09:46",
+   "ext": "",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e3b0c44298fc"
+  },
+  {
+   "caminho": "AIC_2026_12-09.xlsx",
+   "bytes": 2002703,
+   "modificado": "2026-09-12 17:15",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c9306dbdfab7"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica.json",
+   "bytes": 331843,
+   "modificado": "2026-09-02 00:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1f8da1ad3d3f"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica.xlsx",
+   "bytes": 65508,
+   "modificado": "2026-09-02 00:27",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "274b73b181d4"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v2.json",
+   "bytes": 204158,
+   "modificado": "2026-09-02 00:29",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7a6d33e132f3"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v2.xlsx",
+   "bytes": 44332,
+   "modificado": "2026-09-02 00:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4dedfa1ab45a"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v3.json",
+   "bytes": 217286,
+   "modificado": "2026-09-02 00:34",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f366999aee3a"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v3.xlsx",
+   "bytes": 49510,
+   "modificado": "2026-09-02 00:34",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a9bc7184ab1a"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v4.json",
+   "bytes": 220998,
+   "modificado": "2026-09-02 00:36",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a75c4af3dbf2"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v4.xlsx",
+   "bytes": 50235,
+   "modificado": "2026-09-02 00:36",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "96d1448ab713"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v5.json",
+   "bytes": 241935,
+   "modificado": "2026-09-02 00:56",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2c61b9b4e2c7"
+  },
+  {
+   "caminho": "Ausentes_na_Observacao_da_Critica_v5.xlsx",
+   "bytes": 53445,
+   "modificado": "2026-09-02 00:56",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "298f5486c9d2"
+  },
+  {
+   "caminho": "BASE2026_Observacao.json",
+   "bytes": 1803078,
+   "modificado": "2026-09-02 03:21",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2840c65d5050"
+  },
+  {
+   "caminho": "BASE2026_Observacao.xlsx",
+   "bytes": 292103,
+   "modificado": "2026-09-02 03:21",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "288a4f4a1784"
+  },
+  {
+   "caminho": "BASE2026_SS_x_Critica.xlsx",
+   "bytes": 1477660,
+   "modificado": "2026-09-02 03:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fea0e80484fb"
+  },
+  {
+   "caminho": "BASE2026_SS_x_Critica_por_resultado.xlsx",
+   "bytes": 1039776,
+   "modificado": "2026-09-02 03:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f5014d9cff26"
+  },
+  {
+   "caminho": "BASE_SS_OS_11-08-2026.txt",
+   "bytes": 7767020,
+   "modificado": "2026-09-02 03:10",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a57a41858d73"
+  },
+  {
+   "caminho": "CONTEXTO.md",
+   "bytes": 9092,
+   "modificado": "2026-09-17 09:38",
+   "ext": ".md",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "99934e9e7ded"
+  },
+  {
+   "caminho": "Obras_AIC_sem_OS.xlsx",
+   "bytes": 225623,
+   "modificado": "2026-09-12 17:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7750e12dd43e"
+  },
+  {
+   "caminho": "Obras_AIC_sem_SS.xlsx",
+   "bytes": 310910,
+   "modificado": "2026-09-12 17:25",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "def82052b740"
+  },
+  {
+   "caminho": "SIGCO_das_obras_base_trafo.xlsx",
+   "bytes": 201698,
+   "modificado": "2026-09-12 17:18",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "18e425eb116a"
+  },
+  {
+   "caminho": "SIGCO_obras_SS_OS.xlsx",
+   "bytes": 226001,
+   "modificado": "2026-09-12 01:54",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c00eb508a2bc"
+  },
+  {
+   "caminho": "SIGCO_obras_SS_OS_setembro.xlsx",
+   "bytes": 234754,
+   "modificado": "2026-09-12 02:10",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "199a791b9566"
+  },
+  {
+   "caminho": "SS_x_Critica_2026_por_resultado.xlsx",
+   "bytes": 525524,
+   "modificado": "2026-09-02 00:56",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "280c56bca366"
+  },
+  {
+   "caminho": "SS_x_Critica_trafo_e_chave_2026.xlsx",
+   "bytes": 589209,
+   "modificado": "2026-09-02 00:55",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "81d226b961df"
+  },
+  {
+   "caminho": "TrafoV13_Observacao.json",
+   "bytes": 1802110,
+   "modificado": "2026-09-02 20:42",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "282e37df2ef9"
+  },
+  {
+   "caminho": "TrafoV13_Observacao.xlsx",
+   "bytes": 292080,
+   "modificado": "2026-09-02 20:42",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d4cf8fa702a8"
+  },
+  {
+   "caminho": "TrafoV13_SS_x_Critica.xlsx",
+   "bytes": 1518569,
+   "modificado": "2026-09-02 20:38",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b35b1591e0b4"
+  },
+  {
+   "caminho": "TrafoV13_SS_x_Critica_por_resultado.xlsx",
+   "bytes": 1054015,
+   "modificado": "2026-09-02 20:42",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "efbb68f27a56"
+  },
+  {
+   "caminho": "agente_A/analise.py",
+   "bytes": 16267,
+   "modificado": "2026-09-02 03:14",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "59de9d1977fb"
+  },
+  {
+   "caminho": "agente_A/contagens.md",
+   "bytes": 4045,
+   "modificado": "2026-09-02 03:14",
+   "ext": ".md",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "66a917ad8f2d"
+  },
+  {
+   "caminho": "agente_A/resultado.json",
+   "bytes": 1209867,
+   "modificado": "2026-09-02 03:14",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "71c4a59ac47e"
+  },
+  {
+   "caminho": "agente_B/amostra.md",
+   "bytes": 10122,
+   "modificado": "2026-09-02 03:26",
+   "ext": ".md",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c7ade9c420f7"
+  },
+  {
+   "caminho": "agente_B/amostra_ss.json",
+   "bytes": 725,
+   "modificado": "2026-09-02 03:18",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "873c73f1747c"
+  },
+  {
+   "caminho": "agente_B/auditoria.md",
+   "bytes": 19977,
+   "modificado": "2026-09-02 03:25",
+   "ext": ".md",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a4eca5dbf1b4"
+  },
+  {
+   "caminho": "agente_B/crit.pkl",
+   "bytes": 33541264,
+   "modificado": "2026-09-02 03:14",
+   "ext": ".pkl",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "agente_B/repro_atual.xlsx",
+   "bytes": 1477522,
+   "modificado": "2026-09-02 03:20",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f13bab7b5660"
+  },
+  {
+   "caminho": "agente_B/rows.pkl",
+   "bytes": 443093,
+   "modificado": "2026-09-02 03:15",
+   "ext": ".pkl",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "agente_B/tabela_amostra.txt",
+   "bytes": 4728,
+   "modificado": "2026-09-02 03:23",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2c4fcff5676e"
+  },
+  {
+   "caminho": "agente_B/veredito.json",
+   "bytes": 1513,
+   "modificado": "2026-09-02 03:19",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8e531d88f5d0"
+  },
+  {
+   "caminho": "agente_B/verificacao_bruta.txt",
+   "bytes": 23298,
+   "modificado": "2026-09-02 03:19",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3d1908d0be84"
+  },
+  {
+   "caminho": "agente_B/xlsx.pkl",
+   "bytes": 2516721,
+   "modificado": "2026-09-02 03:16",
+   "ext": ".pkl",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "art/dinamica.html",
+   "bytes": 2034824,
+   "modificado": "2026-09-10 01:23",
+   "ext": ".html",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e23b65a61277"
+  },
+  {
+   "caminho": "art/tpl.html",
+   "bytes": 19301,
+   "modificado": "2026-09-10 01:23",
+   "ext": ".html",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c31137079454"
+  },
+  {
+   "caminho": "aux/32196f1a-TMAE_2026_Jan_Jun_Consolidado.txt",
+   "bytes": 27518577,
+   "modificado": "2026-07-30 14:03",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "aux/71743a90-material_obra_1295.txt",
+   "bytes": 1366974,
+   "modificado": "2026-07-23 17:11",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "712600f5a603"
+  },
+  {
+   "caminho": "aux/Original_Material_SIAGO.zip",
+   "bytes": 113702,
+   "modificado": "2026-09-09 23:26",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "aux/Original_TMAE_Atendimentos.zip",
+   "bytes": 5106599,
+   "modificado": "2026-09-09 23:26",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "aux/aviso_sol.json",
+   "bytes": 276606,
+   "modificado": "2026-09-09 23:28",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "623eb1292802"
+  },
+  {
+   "caminho": "aux/df9ff469-material_obra.txt",
+   "bytes": 240947,
+   "modificado": "2026-07-23 16:49",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7da74b448eba"
+  },
+  {
+   "caminho": "aux/excel.py",
+   "bytes": 8387,
+   "modificado": "2026-09-09 23:30",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b4412e5b7ed3"
+  },
+  {
+   "caminho": "aux/material.json",
+   "bytes": 2586179,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "222dab6bcf47"
+  },
+  {
+   "caminho": "aux/montar.py",
+   "bytes": 5146,
+   "modificado": "2026-09-09 23:28",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7dc4564f60a4"
+  },
+  {
+   "caminho": "aux/obras.json",
+   "bytes": 5369067,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "23d5b144696d"
+  },
+  {
+   "caminho": "aux/portrafo.json",
+   "bytes": 321728,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "58252f79be4a"
+  },
+  {
+   "caminho": "aux/prep.py",
+   "bytes": 2900,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2189d3941d42"
+  },
+  {
+   "caminho": "aux/ssos.json",
+   "bytes": 23682831,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "aux/tmae.json",
+   "bytes": 52226170,
+   "modificado": "2026-09-09 23:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_01-2026.txt",
+   "bytes": 17349013,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_02-2026.txt",
+   "bytes": 13152495,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_03-2026.txt",
+   "bytes": 12349925,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_04-2026.txt",
+   "bytes": 10344508,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d97dc55cd9cc"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_05-2026.txt",
+   "bytes": 7014710,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0c137b928266"
+  },
+  {
+   "caminho": "crit/Critica-CHEIO_06-2026.txt",
+   "bytes": 5763374,
+   "modificado": "2026-09-01 23:48",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "limite total do snapshot"
+  },
+  {
+   "caminho": "deck/chk/[Content_Types].xml",
+   "bytes": 6347,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/_rels/.rels",
+   "bytes": 605,
+   "modificado": "2026-09-15 17:47",
+   "ext": "",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/docProps/app.xml",
+   "bytes": 1586,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/docProps/core.xml",
+   "bytes": 814,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/_rels/presentation.xml.rels",
+   "bytes": 2197,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/_rels/chart1.xml.rels",
+   "bytes": 318,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/_rels/chart2.xml.rels",
+   "bytes": 318,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/_rels/chart3.xml.rels",
+   "bytes": 318,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/_rels/chart4.xml.rels",
+   "bytes": 318,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/chart1.xml",
+   "bytes": 4139,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/chart2.xml",
+   "bytes": 5929,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/chart3.xml",
+   "bytes": 6401,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/charts/chart4.xml",
+   "bytes": 7106,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/embeddings/Microsoft_Excel_Worksheet1.xlsx",
+   "bytes": 16727,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xlsx",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/embeddings/Microsoft_Excel_Worksheet2.xlsx",
+   "bytes": 17074,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xlsx",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/embeddings/Microsoft_Excel_Worksheet3.xlsx",
+   "bytes": 16881,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xlsx",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/embeddings/Microsoft_Excel_Worksheet4.xlsx",
+   "bytes": 17581,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xlsx",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-1-image-1.png",
+   "bytes": 80483,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-2-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-3-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-4-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-5-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-6-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-7-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-8-image-1.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/media/Slide-9-image-1.png",
+   "bytes": 36672,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".png",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesMasters/_rels/notesMaster1.xml.rels",
+   "bytes": 298,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesMasters/notesMaster1.xml",
+   "bytes": 7508,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide1.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide2.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide3.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide4.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide5.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide6.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide7.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide8.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/_rels/notesSlide9.xml.rels",
+   "bytes": 459,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide1.xml",
+   "bytes": 1774,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide2.xml",
+   "bytes": 1803,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide3.xml",
+   "bytes": 1753,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide4.xml",
+   "bytes": 1767,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide5.xml",
+   "bytes": 1777,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide6.xml",
+   "bytes": 1780,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide7.xml",
+   "bytes": 1820,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide8.xml",
+   "bytes": 1771,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/notesSlides/notesSlide9.xml",
+   "bytes": 1691,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/presProps.xml",
+   "bytes": 287,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/presentation.xml",
+   "bytes": 3515,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slideLayouts/_rels/slideLayout1.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slideLayouts/slideLayout1.xml",
+   "bytes": 687,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slideMasters/_rels/slideMaster1.xml.rels",
+   "bytes": 446,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slideMasters/slideMaster1.xml",
+   "bytes": 7831,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide1.xml.rels",
+   "bytes": 606,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide2.xml.rels",
+   "bytes": 744,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide3.xml.rels",
+   "bytes": 744,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide4.xml.rels",
+   "bytes": 606,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide5.xml.rels",
+   "bytes": 606,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide6.xml.rels",
+   "bytes": 744,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide7.xml.rels",
+   "bytes": 744,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide8.xml.rels",
+   "bytes": 606,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/_rels/slide9.xml.rels",
+   "bytes": 606,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".rels",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide1.xml",
+   "bytes": 3323,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide2.xml",
+   "bytes": 26967,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide3.xml",
+   "bytes": 7036,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide4.xml",
+   "bytes": 96874,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide5.xml",
+   "bytes": 58792,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide6.xml",
+   "bytes": 26716,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide7.xml",
+   "bytes": 7501,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide8.xml",
+   "bytes": 30864,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/slides/slide9.xml",
+   "bytes": 2497,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/tableStyles.xml",
+   "bytes": 182,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/theme/theme1.xml",
+   "bytes": 8397,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/chk/ppt/viewProps.xml",
+   "bytes": 816,
+   "modificado": "2026-09-15 17:47",
+   "ext": ".xml",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "deck/gen.js",
+   "bytes": 16371,
+   "modificado": "2026-09-15 17:33",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c2cca1f8c5cc"
+  },
+  {
+   "caminho": "deck/gen2.js",
+   "bytes": 16505,
+   "modificado": "2026-09-15 17:39",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e50b528a483b"
+  },
+  {
+   "caminho": "deck/gen3.js",
+   "bytes": 20211,
+   "modificado": "2026-09-15 18:07",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0184cc4fde89"
+  },
+  {
+   "caminho": "deck/icons/FaBan.png",
+   "bytes": 5507,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b0ef2521b556"
+  },
+  {
+   "caminho": "deck/icons/FaBolt.png",
+   "bytes": 2663,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b2f2083df876"
+  },
+  {
+   "caminho": "deck/icons/FaCalendarAlt.png",
+   "bytes": 2343,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9cd4d50c4df7"
+  },
+  {
+   "caminho": "deck/icons/FaChartPie.png",
+   "bytes": 3969,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "638c94d8d813"
+  },
+  {
+   "caminho": "deck/icons/FaCheckCircle.png",
+   "bytes": 4229,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ac37cd3c7d8e"
+  },
+  {
+   "caminho": "deck/icons/FaExclamationTriangle.png",
+   "bytes": 3972,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "85f6ece4c07c"
+  },
+  {
+   "caminho": "deck/icons/FaFlag.png",
+   "bytes": 2882,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b842c5d98219"
+  },
+  {
+   "caminho": "deck/icons/FaFolderOpen.png",
+   "bytes": 2295,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5d75d5bc1934"
+  },
+  {
+   "caminho": "deck/icons/FaHourglassHalf.png",
+   "bytes": 3991,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "62e7113d3b99"
+  },
+  {
+   "caminho": "deck/icons/FaListUl.png",
+   "bytes": 2596,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4b59a5c14c78"
+  },
+  {
+   "caminho": "deck/icons/FaPowerOff.png",
+   "bytes": 5307,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "93d27bc98576"
+  },
+  {
+   "caminho": "deck/icons/FaQuestionCircle.png",
+   "bytes": 5402,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c8927e473c43"
+  },
+  {
+   "caminho": "deck/icons/FaRegClock.png",
+   "bytes": 6248,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e335ce64ead3"
+  },
+  {
+   "caminho": "deck/icons/FaSearch.png",
+   "bytes": 4764,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c7a5a98a9e04"
+  },
+  {
+   "caminho": "deck/icons/FaSyncAlt.png",
+   "bytes": 4736,
+   "modificado": "2026-09-15 17:36",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "76c2670cd6a7"
+  },
+  {
+   "caminho": "deck/img3_preview.png",
+   "bytes": 18444,
+   "modificado": "2026-09-15 17:21",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "785ab7dc198d"
+  },
+  {
+   "caminho": "deck/out/Expurgos_Jan_Ago_2026.pdf",
+   "bytes": 274087,
+   "modificado": "2026-09-15 18:07",
+   "ext": ".pdf",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0fc80084aa49"
+  },
+  {
+   "caminho": "deck/out/Expurgos_Jan_Ago_2026.pptx",
+   "bytes": 800869,
+   "modificado": "2026-09-15 18:07",
+   "ext": ".pptx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7a237a246428"
+  },
+  {
+   "caminho": "deck/out/s-05.jpg",
+   "bytes": 133477,
+   "modificado": "2026-09-15 18:07",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c622d5dd76dc"
+  },
+  {
+   "caminho": "deck/template-thumbs.jpg",
+   "bytes": 148117,
+   "modificado": "2026-09-15 17:18",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e5f637dd3b07"
+  },
+  {
+   "caminho": "deck/template.pptx",
+   "bytes": 1563885,
+   "modificado": "2026-09-15 17:18",
+   "ext": ".pptx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a8ebcfdb874b"
+  },
+  {
+   "caminho": "deck/unpacked/[Content_Types].xml",
+   "bytes": 4225,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "99d2ac83e813"
+  },
+  {
+   "caminho": "deck/unpacked/_rels/.rels",
+   "bytes": 885,
+   "modificado": "2026-09-15 17:19",
+   "ext": "",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "143ea4565ff4"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/_rels/item1.xml.rels",
+   "bytes": 296,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "80482f86e196"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/_rels/item2.xml.rels",
+   "bytes": 296,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2a6aee4c8a97"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/_rels/item3.xml.rels",
+   "bytes": 296,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3aa4054f7f46"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/item1.xml",
+   "bytes": 219,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5efcaf9ad70d"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/item2.xml",
+   "bytes": 587,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "38abb518eba3"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/item3.xml",
+   "bytes": 11656,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "19df384ca462"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/itemProps1.xml",
+   "bytes": 335,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d0892676df89"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/itemProps2.xml",
+   "bytes": 954,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "be38bc03c36e"
+  },
+  {
+   "caminho": "deck/unpacked/customXml/itemProps3.xml",
+   "bytes": 1149,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f8d703d2c446"
+  },
+  {
+   "caminho": "deck/unpacked/docProps/app.xml",
+   "bytes": 1814,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "36d44fc81391"
+  },
+  {
+   "caminho": "deck/unpacked/docProps/core.xml",
+   "bytes": 733,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b551c156ce0b"
+  },
+  {
+   "caminho": "deck/unpacked/docProps/custom.xml",
+   "bytes": 530,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9bb82a1c1c43"
+  },
+  {
+   "caminho": "deck/unpacked/docProps/thumbnail.jpeg",
+   "bytes": 7862,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".jpeg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d1f1083c5453"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/_rels/presentation.xml.rels",
+   "bytes": 2903,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "98fce1882c73"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/changesInfos/changesInfo1.xml",
+   "bytes": 1721,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f8851a74a353"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image1.png",
+   "bytes": 80483,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "539fa3d39b38"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image10.png",
+   "bytes": 132893,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ffa54b2a3846"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image11.png",
+   "bytes": 35876,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d595e546f580"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image12.png",
+   "bytes": 27281,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "42151f323e1d"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image13.png",
+   "bytes": 17140,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ea3940444659"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image14.png",
+   "bytes": 20381,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ed36e39a3327"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image15.png",
+   "bytes": 23245,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bc61246fec27"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image16.png",
+   "bytes": 25572,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0dac713afac8"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image17.png",
+   "bytes": 21145,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c0ef9d2496e5"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image18.png",
+   "bytes": 27680,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a169c5d52ce0"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image19.png",
+   "bytes": 29243,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4ce17bc05b17"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image2.png",
+   "bytes": 22090,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d7527a7a78ca"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image20.png",
+   "bytes": 18953,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "31a39657401a"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image21.png",
+   "bytes": 19895,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1b96ea79cd70"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image22.png",
+   "bytes": 26160,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "511508dc2773"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image23.png",
+   "bytes": 136125,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6a6992c47f84"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image24.png",
+   "bytes": 18841,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "550f39a45e22"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image3.png",
+   "bytes": 36672,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "72982c2aa86a"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image4.png",
+   "bytes": 229942,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "baa559e95ba0"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image5.png",
+   "bytes": 136232,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e5070532ae6e"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image6.png",
+   "bytes": 87144,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "694b703daac5"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image7.png",
+   "bytes": 95900,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0d198eb13a3b"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image8.png",
+   "bytes": 116426,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ec0f392a972d"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/media/image9.png",
+   "bytes": 120383,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1d6f67a3fe5f"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/notesMasters/_rels/notesMaster1.xml.rels",
+   "bytes": 292,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c900da93a4de"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/notesMasters/notesMaster1.xml",
+   "bytes": 7647,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bc9ad58dce6b"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/presProps.xml",
+   "bytes": 914,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fd3b2571519c"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/presentation.xml",
+   "bytes": 3785,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "52175f69d2b9"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/_rels/slideLayout1.xml.rels",
+   "bytes": 446,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fd47f0bf1494"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/_rels/slideLayout2.xml.rels",
+   "bytes": 446,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bb6a997eb3b5"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/_rels/slideLayout3.xml.rels",
+   "bytes": 446,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bb6a997eb3b5"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/_rels/slideLayout4.xml.rels",
+   "bytes": 446,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "84e0b3ece0f3"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/slideLayout1.xml",
+   "bytes": 990,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0afed5119d85"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/slideLayout2.xml",
+   "bytes": 3467,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2c5b88432c70"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/slideLayout3.xml",
+   "bytes": 3702,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2bf846df6492"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideLayouts/slideLayout4.xml",
+   "bytes": 998,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "201cc7c8cdae"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideMasters/_rels/slideMaster1.xml.rels",
+   "bytes": 1043,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2d443f2f3c6b"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slideMasters/slideMaster1.xml",
+   "bytes": 8914,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f79e3a5c3d08"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide1.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e125c916ff31"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide10.xml.rels",
+   "bytes": 3174,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a78533197c5e"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide2.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide3.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide4.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide5.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide6.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide7.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide8.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d09de5116e19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/_rels/slide9.xml.rels",
+   "bytes": 311,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".rels",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6d7ac5555ff2"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide1.xml",
+   "bytes": 3510,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3b1f019acbcc"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide10.xml",
+   "bytes": 18985,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "df6a8dd49734"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide2.xml",
+   "bytes": 1799,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d6524f9d3829"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide3.xml",
+   "bytes": 107714,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7dcf94090473"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide4.xml",
+   "bytes": 51453,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ffc55f48a1d3"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide5.xml",
+   "bytes": 1801,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "107fb9ece1d2"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide6.xml",
+   "bytes": 1790,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0a5564afdd51"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide7.xml",
+   "bytes": 1785,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f081cd899c19"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide8.xml",
+   "bytes": 1785,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fa50e7ad206d"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/slides/slide9.xml",
+   "bytes": 1526,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "30081b5ecc64"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/tableStyles.xml",
+   "bytes": 2858,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "aab2add44700"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/theme/theme1.xml",
+   "bytes": 8744,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "360664fd0648"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/theme/theme2.xml",
+   "bytes": 8401,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d35cb0efb1e8"
+  },
+  {
+   "caminho": "deck/unpacked/ppt/viewProps.xml",
+   "bytes": 763,
+   "modificado": "2026-09-15 17:19",
+   "ext": ".xml",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "61ba404add88"
+  },
+  {
+   "caminho": "gen_a.py",
+   "bytes": 7316,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "760a4dd4d4b7"
+  },
+  {
+   "caminho": "gen_b.py",
+   "bytes": 6690,
+   "modificado": "2026-09-02 22:17",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ce1010df4121"
+  },
+  {
+   "caminho": "jan_ago/Agosto_cascata_expurgos.xlsx",
+   "bytes": 36057,
+   "modificado": "2026-09-10 19:42",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "de67bc3c729a"
+  },
+  {
+   "caminho": "jan_ago/As_161_fora_do_Infotrafo.pptx",
+   "bytes": 276060,
+   "modificado": "2026-09-09 15:19",
+   "ext": ".pptx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "57f57db9c879"
+  },
+  {
+   "caminho": "jan_ago/As_161_fora_do_Infotrafo.xlsx",
+   "bytes": 175786,
+   "modificado": "2026-09-09 15:15",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d789682bd60c"
+  },
+  {
+   "caminho": "jan_ago/As_252_fora_do_Infotrafo.pdf",
+   "bytes": 220647,
+   "modificado": "2026-09-09 16:06",
+   "ext": ".pdf",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "39709eb466bb"
+  },
+  {
+   "caminho": "jan_ago/As_252_fora_do_Infotrafo.pptx",
+   "bytes": 286836,
+   "modificado": "2026-09-09 15:26",
+   "ext": ".pptx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "30195a14cbfc"
+  },
+  {
+   "caminho": "jan_ago/As_252_fora_do_Infotrafo.xlsx",
+   "bytes": 268490,
+   "modificado": "2026-09-09 14:48",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "49239ac9edf7"
+  },
+  {
+   "caminho": "jan_ago/As_25_do_Infotrafo_fora_das_1671.xlsx",
+   "bytes": 8371,
+   "modificado": "2026-09-09 20:24",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "cdf9e7b2c78b"
+  },
+  {
+   "caminho": "jan_ago/Aviso_e_Solicitacao_completo.xlsx",
+   "bytes": 74088,
+   "modificado": "2026-09-09 23:30",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "775b48dcaddd"
+  },
+  {
+   "caminho": "jan_ago/Base_Transformadores_Jan_Ago_2026.xlsx",
+   "bytes": 408746,
+   "modificado": "2026-09-09 20:10",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f2b6aa367bac"
+  },
+  {
+   "caminho": "jan_ago/Base_de_Expurgos_jan_ago.xlsx",
+   "bytes": 110853,
+   "modificado": "2026-09-10 20:13",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4bf4e97e32e9"
+  },
+  {
+   "caminho": "jan_ago/Categorizacao_Jan_Ago_2026.xlsx",
+   "bytes": 647318,
+   "modificado": "2026-09-09 16:10",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "931692738e24"
+  },
+  {
+   "caminho": "jan_ago/Cola_e_Fita.xlsx",
+   "bytes": 19775,
+   "modificado": "2026-09-09 23:01",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4bc4d19fed82"
+  },
+  {
+   "caminho": "jan_ago/Confronto_1671_defeito_x_descricao.xlsx",
+   "bytes": 267417,
+   "modificado": "2026-09-10 02:04",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "424234158bda"
+  },
+  {
+   "caminho": "jan_ago/Confronto_1671_origemSS_x_descricao.xlsx",
+   "bytes": 285641,
+   "modificado": "2026-09-10 02:21",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "01a5a7161595"
+  },
+  {
+   "caminho": "jan_ago/Confronto_1671_origem_x_descricao.xlsx",
+   "bytes": 282175,
+   "modificado": "2026-09-10 02:08",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f2acebe8e9a4"
+  },
+  {
+   "caminho": "jan_ago/Defeito_da_OS_o_que_a_descricao_conta.xlsx",
+   "bytes": 10354,
+   "modificado": "2026-09-10 01:41",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "78f3a259c9e0"
+  },
+  {
+   "caminho": "jan_ago/Dinamica_defeito_jan_ago.xlsx",
+   "bytes": 539885,
+   "modificado": "2026-09-10 01:09",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4a8af6ff8725"
+  },
+  {
+   "caminho": "jan_ago/GD_e_trafos_queimados.xlsx",
+   "bytes": 10082,
+   "modificado": "2026-09-10 22:06",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ed4b51b11a6e"
+  },
+  {
+   "caminho": "jan_ago/Historico_dos_avisos.xlsx",
+   "bytes": 17563,
+   "modificado": "2026-09-10 01:27",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c34f30efe99d"
+  },
+  {
+   "caminho": "jan_ago/Padrao_Infotrafo.xlsx",
+   "bytes": 23448,
+   "modificado": "2026-09-09 22:54",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3254ac06578a"
+  },
+  {
+   "caminho": "jan_ago/Padrao_abertura_origem_defeito.xlsx",
+   "bytes": 16936,
+   "modificado": "2026-09-10 01:31",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0398e930f97c"
+  },
+  {
+   "caminho": "jan_ago/Recategorizacao_dinamica_defeito.xlsx",
+   "bytes": 547049,
+   "modificado": "2026-09-10 01:00",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f0496dfa375c"
+  },
+  {
+   "caminho": "jan_ago/Regras_Somente_pela_SS.xlsx",
+   "bytes": 9740,
+   "modificado": "2026-09-09 22:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "006235091c95"
+  },
+  {
+   "caminho": "jan_ago/Regras_de_Categorizacao.xlsx",
+   "bytes": 10333,
+   "modificado": "2026-09-09 22:25",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b95b555271eb"
+  },
+  {
+   "caminho": "jan_ago/Revisao_dos_10_ineditos.xlsx",
+   "bytes": 13718,
+   "modificado": "2026-09-09 16:02",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ce9196e28c53"
+  },
+  {
+   "caminho": "jan_ago/SS_OS_Critica_TMAE.xlsx",
+   "bytes": 494974,
+   "modificado": "2026-09-10 01:49",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "480a8900def8"
+  },
+  {
+   "caminho": "jan_ago/SS_e_OS_confirmam_o_defeito.xlsx",
+   "bytes": 37049,
+   "modificado": "2026-09-10 01:45",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "617143e27734"
+  },
+  {
+   "caminho": "jan_ago/SS_fora_do_FIS.xlsx",
+   "bytes": 9086,
+   "modificado": "2026-09-09 18:24",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1fef1f5bcdff"
+  },
+  {
+   "caminho": "jan_ago/Trafo.xlsx",
+   "bytes": 1832377,
+   "modificado": "2026-09-09 22:06",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c0bf75b65d9b"
+  },
+  {
+   "caminho": "jan_ago/Transformadores_1696_Jan_Ago_2026.xlsx",
+   "bytes": 1586487,
+   "modificado": "2026-09-09 20:45",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8c50bd2cb31f"
+  },
+  {
+   "caminho": "jan_ago/Transformadores_Infotrafo_mais_Anomalias.xlsx",
+   "bytes": 467416,
+   "modificado": "2026-09-09 20:33",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7a39e981dd21"
+  },
+  {
+   "caminho": "jan_ago/Transformadores_Jan_Ago_2026.xlsx",
+   "bytes": 486482,
+   "modificado": "2026-09-09 20:22",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "cac0a2ba6222"
+  },
+  {
+   "caminho": "jan_ago/__pycache__/novas23.cpython-311.pyc",
+   "bytes": 5303,
+   "modificado": "2026-09-10 01:00",
+   "ext": ".pyc",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/__pycache__/textos.cpython-311.pyc",
+   "bytes": 6986,
+   "modificado": "2026-09-09 22:25",
+   "ext": ".pyc",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/ago_1.json",
+   "bytes": 51764,
+   "modificado": "2026-09-09 16:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9aaa84484b75"
+  },
+  {
+   "caminho": "jan_ago/ago_2.json",
+   "bytes": 48923,
+   "modificado": "2026-09-09 16:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b3fb39aefd85"
+  },
+  {
+   "caminho": "jan_ago/ago_3.json",
+   "bytes": 50103,
+   "modificado": "2026-09-09 16:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "26c44749df14"
+  },
+  {
+   "caminho": "jan_ago/ago_tmae.py",
+   "bytes": 2538,
+   "modificado": "2026-09-10 19:40",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d15077bfe5f2"
+  },
+  {
+   "caminho": "jan_ago/agosto_79.json",
+   "bytes": 218141,
+   "modificado": "2026-09-09 16:03",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "75e80289d30e"
+  },
+  {
+   "caminho": "jan_ago/agosto_79_critica.json",
+   "bytes": 266389,
+   "modificado": "2026-09-09 16:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "66b2926e6f82"
+  },
+  {
+   "caminho": "jan_ago/agosto_79_dossie.json",
+   "bytes": 150786,
+   "modificado": "2026-09-09 16:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "33594aca46cc"
+  },
+  {
+   "caminho": "jan_ago/agosto_tmae.json",
+   "bytes": 39513,
+   "modificado": "2026-09-10 19:40",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3c3af3b0baf1"
+  },
+  {
+   "caminho": "jan_ago/as_161.json",
+   "bytes": 293006,
+   "modificado": "2026-09-09 15:15",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e103bbe0d893"
+  },
+  {
+   "caminho": "jan_ago/as_1671.json",
+   "bytes": 1158732,
+   "modificado": "2026-09-09 16:09",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8fdef5406945"
+  },
+  {
+   "caminho": "jan_ago/as_1696.json",
+   "bytes": 3401851,
+   "modificado": "2026-09-09 20:45",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a11e71678d5c"
+  },
+  {
+   "caminho": "jan_ago/as_252.json",
+   "bytes": 612280,
+   "modificado": "2026-09-09 14:47",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "24a25d1dcc46"
+  },
+  {
+   "caminho": "jan_ago/as_262.json",
+   "bytes": 498047,
+   "modificado": "2026-09-09 15:24",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3a89df668e43"
+  },
+  {
+   "caminho": "jan_ago/base_1671.json",
+   "bytes": 4782315,
+   "modificado": "2026-09-10 00:58",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "870af26fea77"
+  },
+  {
+   "caminho": "jan_ago/base_3602.json",
+   "bytes": 8397641,
+   "modificado": "2026-09-10 01:25",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "46cccb9c8b19"
+  },
+  {
+   "caminho": "jan_ago/base_expurgos.json",
+   "bytes": 421241,
+   "modificado": "2026-09-10 20:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a0b261345a22"
+  },
+  {
+   "caminho": "jan_ago/base_expurgos.py",
+   "bytes": 7559,
+   "modificado": "2026-09-10 19:44",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "024db6e54e50"
+  },
+  {
+   "caminho": "jan_ago/bloco1.py",
+   "bytes": 8170,
+   "modificado": "2026-09-09 14:46",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e414c8a61abd"
+  },
+  {
+   "caminho": "jan_ago/bloco2.py",
+   "bytes": 9344,
+   "modificado": "2026-09-09 14:47",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c90642c04a46"
+  },
+  {
+   "caminho": "jan_ago/bloco_a.py",
+   "bytes": 9196,
+   "modificado": "2026-09-09 16:07",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2abfe6c8a076"
+  },
+  {
+   "caminho": "jan_ago/bloco_ago2_a.py",
+   "bytes": 9441,
+   "modificado": "2026-09-09 16:07",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c6d689ac1ced"
+  },
+  {
+   "caminho": "jan_ago/bloco_ago2_b.py",
+   "bytes": 9776,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d7a3b1882f10"
+  },
+  {
+   "caminho": "jan_ago/bloco_ago3_a.py",
+   "bytes": 9820,
+   "modificado": "2026-09-09 16:07",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f51a841ca0a4"
+  },
+  {
+   "caminho": "jan_ago/bloco_ago3_b.py",
+   "bytes": 9282,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "109474a1ae0d"
+  },
+  {
+   "caminho": "jan_ago/bloco_b.py",
+   "bytes": 9986,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f33f3ca6213f"
+  },
+  {
+   "caminho": "jan_ago/casar_critica.py",
+   "bytes": 6281,
+   "modificado": "2026-09-09 14:41",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "855d4611f79a"
+  },
+  {
+   "caminho": "jan_ago/cascata_ago.py",
+   "bytes": 5423,
+   "modificado": "2026-09-10 19:42",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7649ca0a0b30"
+  },
+  {
+   "caminho": "jan_ago/conf.py",
+   "bytes": 6864,
+   "modificado": "2026-09-10 01:45",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5ad440dff7d4"
+  },
+  {
+   "caminho": "jan_ago/conf_origem.py",
+   "bytes": 4822,
+   "modificado": "2026-09-10 02:08",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9d182cc12332"
+  },
+  {
+   "caminho": "jan_ago/confronto.json",
+   "bytes": 1369875,
+   "modificado": "2026-09-10 02:04",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "40ce4ba01049"
+  },
+  {
+   "caminho": "jan_ago/confronto.py",
+   "bytes": 5862,
+   "modificado": "2026-09-10 02:04",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "429640a463d2"
+  },
+  {
+   "caminho": "jan_ago/confronto_origem.json",
+   "bytes": 1270115,
+   "modificado": "2026-09-10 02:08",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c9c7b2da0de8"
+  },
+  {
+   "caminho": "jan_ago/consolidar.py",
+   "bytes": 3721,
+   "modificado": "2026-09-09 14:47",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8bd7c831ac0f"
+  },
+  {
+   "caminho": "jan_ago/consolidar_1671.py",
+   "bytes": 5942,
+   "modificado": "2026-09-09 16:09",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4856dee113be"
+  },
+  {
+   "caminho": "jan_ago/cr_tm_por_ss.json",
+   "bytes": 1046888,
+   "modificado": "2026-09-10 01:47",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "78cc617f4b6e"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_01-2026.txt",
+   "bytes": 17349013,
+   "modificado": "2026-07-31 19:48",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_02-2026.txt",
+   "bytes": 13152495,
+   "modificado": "2026-07-31 19:48",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_03-2026.txt",
+   "bytes": 12349925,
+   "modificado": "2026-07-31 19:49",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_04-2026.txt",
+   "bytes": 10344508,
+   "modificado": "2026-07-31 19:49",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_05-2026.txt",
+   "bytes": 7014710,
+   "modificado": "2026-07-31 19:49",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_06-2026.txt",
+   "bytes": 5763374,
+   "modificado": "2026-07-31 19:49",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit/Critica-CHEIO_08-2026.txt",
+   "bytes": 6839091,
+   "modificado": "2026-09-09 14:40",
+   "ext": ".txt",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "jan_ago/crit_alvo.json",
+   "bytes": 2646384,
+   "modificado": "2026-09-10 01:47",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "34227c48d5e4"
+  },
+  {
+   "caminho": "jan_ago/dados_dinamica.json",
+   "bytes": 2015532,
+   "modificado": "2026-09-10 01:23",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4d4838851908"
+  },
+  {
+   "caminho": "jan_ago/deck.js",
+   "bytes": 20374,
+   "modificado": "2026-09-09 15:19",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e1e84a668079"
+  },
+  {
+   "caminho": "jan_ago/deck252.js",
+   "bytes": 20887,
+   "modificado": "2026-09-09 15:26",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f9435f9c129a"
+  },
+  {
+   "caminho": "jan_ago/defeito_os_perfil.json",
+   "bytes": 6174,
+   "modificado": "2026-09-10 01:40",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "59acffcc8448"
+  },
+  {
+   "caminho": "jan_ago/dois.json",
+   "bytes": 4670,
+   "modificado": "2026-09-09 15:14",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "46b1ca75fcab"
+  },
+  {
+   "caminho": "jan_ago/dois_critica.json",
+   "bytes": 5559,
+   "modificado": "2026-09-09 15:14",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c7898e4d662e"
+  },
+  {
+   "caminho": "jan_ago/extrai_crit.py",
+   "bytes": 1441,
+   "modificado": "2026-09-10 01:47",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a6c89f9a1f5c"
+  },
+  {
+   "caminho": "jan_ago/falta_1_critica.json",
+   "bytes": 2722,
+   "modificado": "2026-09-09 20:32",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "cd43b829c9aa"
+  },
+  {
+   "caminho": "jan_ago/faltam_universo_novo.json",
+   "bytes": 2067,
+   "modificado": "2026-09-09 20:31",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "21f342663ef0"
+  },
+  {
+   "caminho": "jan_ago/final4.py",
+   "bytes": 6145,
+   "modificado": "2026-09-10 01:49",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "676a65e33a90"
+  },
+  {
+   "caminho": "jan_ago/fis/FIS_ETO_2026_07_E_TRANSFORMADORES_ID.csv",
+   "bytes": 37506177,
+   "modificado": "2026-08-10 18:09",
+   "ext": ".csv",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "jan_ago/fora_161.json",
+   "bytes": 444198,
+   "modificado": "2026-09-09 15:14",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "13096636085c"
+  },
+  {
+   "caminho": "jan_ago/fora_262.json",
+   "bytes": 718947,
+   "modificado": "2026-09-09 15:23",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d5cc19aa1979"
+  },
+  {
+   "caminho": "jan_ago/fora_do_fis.json",
+   "bytes": 6170,
+   "modificado": "2026-09-09 18:23",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3107da74ada9"
+  },
+  {
+   "caminho": "jan_ago/fora_infotrafo.json",
+   "bytes": 697149,
+   "modificado": "2026-09-09 14:39",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8f04bd70503e"
+  },
+  {
+   "caminho": "jan_ago/fora_infotrafo_critica.json",
+   "bytes": 832747,
+   "modificado": "2026-09-09 14:41",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "532772324efe"
+  },
+  {
+   "caminho": "jan_ago/gd_perto.json",
+   "bytes": 6840,
+   "modificado": "2026-09-10 22:05",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c31ced36a062"
+  },
+  {
+   "caminho": "jan_ago/gera.py",
+   "bytes": 14933,
+   "modificado": "2026-09-09 14:46",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "01b3cd4bbb08"
+  },
+  {
+   "caminho": "jan_ago/gera_revisao.py",
+   "bytes": 16132,
+   "modificado": "2026-09-09 15:33",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8a2cdc8924a6"
+  },
+  {
+   "caminho": "jan_ago/ineditos_10.json",
+   "bytes": 16931,
+   "modificado": "2026-09-09 15:27",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6b53aa3c2a99"
+  },
+  {
+   "caminho": "jan_ago/ja_no_site.json",
+   "bytes": 405638,
+   "modificado": "2026-09-09 14:42",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3ad8d2753912"
+  },
+  {
+   "caminho": "jan_ago/junta.py",
+   "bytes": 3836,
+   "modificado": "2026-09-10 01:47",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5bcaea6f7b22"
+  },
+  {
+   "caminho": "jan_ago/lista_dono.txt",
+   "bytes": 5293,
+   "modificado": "2026-09-09 20:40",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a739cccc48dd"
+  },
+  {
+   "caminho": "jan_ago/macro.py",
+   "bytes": 2768,
+   "modificado": "2026-09-10 19:46",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ef95e22b432a"
+  },
+  {
+   "caminho": "jan_ago/novas23.py",
+   "bytes": 5350,
+   "modificado": "2026-09-10 01:00",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b2a7abf47e70"
+  },
+  {
+   "caminho": "jan_ago/novas_equip.json",
+   "bytes": 18470,
+   "modificado": "2026-09-09 15:23",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1001936cf3be"
+  },
+  {
+   "caminho": "jan_ago/novas_equip_critica.json",
+   "bytes": 22452,
+   "modificado": "2026-09-09 15:23",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "368eae45ecbe"
+  },
+  {
+   "caminho": "jan_ago/novos.json",
+   "bytes": 95694,
+   "modificado": "2026-09-09 14:42",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fb2d80ecba04"
+  },
+  {
+   "caminho": "jan_ago/novos_1.json",
+   "bytes": 45903,
+   "modificado": "2026-09-09 14:42",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5a57a8dbfa91"
+  },
+  {
+   "caminho": "jan_ago/novos_13.json",
+   "bytes": 32723,
+   "modificado": "2026-09-09 15:14",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "13b80e199d11"
+  },
+  {
+   "caminho": "jan_ago/novos_2.json",
+   "bytes": 49793,
+   "modificado": "2026-09-09 14:42",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "318e49176343"
+  },
+  {
+   "caminho": "jan_ago/planilha_161.py",
+   "bytes": 5643,
+   "modificado": "2026-09-09 15:15",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ce70a01a667a"
+  },
+  {
+   "caminho": "jan_ago/planilha_252.py",
+   "bytes": 5741,
+   "modificado": "2026-09-09 14:48",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "93dd8fa03b44"
+  },
+  {
+   "caminho": "jan_ago/recat.py",
+   "bytes": 8317,
+   "modificado": "2026-09-10 01:09",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3ef3374ad83b"
+  },
+  {
+   "caminho": "jan_ago/regras.py",
+   "bytes": 4140,
+   "modificado": "2026-09-09 22:25",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b72a17b83ff0"
+  },
+  {
+   "caminho": "jan_ago/regras_ss.py",
+   "bytes": 7088,
+   "modificado": "2026-09-09 22:29",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c4b7d6eae0cf"
+  },
+  {
+   "caminho": "jan_ago/revisao_ineditos.json",
+   "bytes": 15769,
+   "modificado": "2026-09-09 15:33",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "077edce6c9b2"
+  },
+  {
+   "caminho": "jan_ago/saida_ago_1.json",
+   "bytes": 19161,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9f1423244000"
+  },
+  {
+   "caminho": "jan_ago/saida_ago_2.json",
+   "bytes": 19628,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "80ee289dd5c4"
+  },
+  {
+   "caminho": "jan_ago/saida_ago_3.json",
+   "bytes": 19882,
+   "modificado": "2026-09-09 16:08",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3a4069bf0ec4"
+  },
+  {
+   "caminho": "jan_ago/saida_novos_1.json",
+   "bytes": 18670,
+   "modificado": "2026-09-09 14:46",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "919d3ea07287"
+  },
+  {
+   "caminho": "jan_ago/saida_novos_2.json",
+   "bytes": 18045,
+   "modificado": "2026-09-09 14:47",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a4c0cea5ac59"
+  },
+  {
+   "caminho": "jan_ago/sem_explicacao.json",
+   "bytes": 2117,
+   "modificado": "2026-09-09 22:54",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "98daf35252a2"
+  },
+  {
+   "caminho": "jan_ago/so_ss.py",
+   "bytes": 2753,
+   "modificado": "2026-09-09 22:29",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a94583947c72"
+  },
+  {
+   "caminho": "jan_ago/teste.pptx",
+   "bytes": 44750,
+   "modificado": "2026-09-09 14:52",
+   "ext": ".pptx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "50defd762d93"
+  },
+  {
+   "caminho": "jan_ago/textos.py",
+   "bytes": 7138,
+   "modificado": "2026-09-09 22:25",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "3fcdc9ea4705"
+  },
+  {
+   "caminho": "jan_ago/xls_macro.py",
+   "bytes": 5780,
+   "modificado": "2026-09-10 20:12",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "47258359bdd7"
+  },
+  {
+   "caminho": "leitura_agente_B.json",
+   "bytes": 3208,
+   "modificado": "2026-09-02 00:36",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ae7e534c8dfb"
+  },
+  {
+   "caminho": "lote205/Analise_205_SS_ANALISE_DE_EXPURGOS.xlsx",
+   "bytes": 243501,
+   "modificado": "2026-09-02 22:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d5fdf594b215"
+  },
+  {
+   "caminho": "lote205/Analise_caso_a_caso_205_SS.xlsx",
+   "bytes": 243501,
+   "modificado": "2026-09-02 22:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d5fdf594b215"
+  },
+  {
+   "caminho": "lote205/build_saida2.py",
+   "bytes": 13356,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "204e8bb5e2fd"
+  },
+  {
+   "caminho": "lote205/consolidar.py",
+   "bytes": 10497,
+   "modificado": "2026-09-02 22:29",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a6d1c79e2b32"
+  },
+  {
+   "caminho": "lote205/dump2.txt",
+   "bytes": 86917,
+   "modificado": "2026-09-02 22:11",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9edaa057d3a6"
+  },
+  {
+   "caminho": "lote205/dump_l3.txt",
+   "bytes": 77297,
+   "modificado": "2026-09-02 22:13",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a01bc49c05f6"
+  },
+  {
+   "caminho": "lote205/full2.txt",
+   "bytes": 84491,
+   "modificado": "2026-09-02 22:13",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "1fe733bd2c0b"
+  },
+  {
+   "caminho": "lote205/full_l4.txt",
+   "bytes": 67135,
+   "modificado": "2026-09-02 22:13",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f647c961c41f"
+  },
+  {
+   "caminho": "lote205/full_l5.txt",
+   "bytes": 83013,
+   "modificado": "2026-09-02 22:14",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f15755ead47f"
+  },
+  {
+   "caminho": "lote205/gen_recheck.py",
+   "bytes": 7106,
+   "modificado": "2026-09-02 22:26",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5bcde2a00d60"
+  },
+  {
+   "caminho": "lote205/gen_saida3.py",
+   "bytes": 13097,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2fc21b73832a"
+  },
+  {
+   "caminho": "lote205/gerar_5.py",
+   "bytes": 13686,
+   "modificado": "2026-09-02 22:17",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b5f3aafcc5d2"
+  },
+  {
+   "caminho": "lote205/gerar_saida_1.py",
+   "bytes": 13203,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "eb077ae5b79a"
+  },
+  {
+   "caminho": "lote205/lote_1.json",
+   "bytes": 106449,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5db1011796cc"
+  },
+  {
+   "caminho": "lote205/lote_2.json",
+   "bytes": 103676,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8c9ad93e1474"
+  },
+  {
+   "caminho": "lote205/lote_3.json",
+   "bytes": 104057,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "009ac9a06463"
+  },
+  {
+   "caminho": "lote205/lote_4.json",
+   "bytes": 100867,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8f9f66e90cee"
+  },
+  {
+   "caminho": "lote205/lote_5.json",
+   "bytes": 101831,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "983e31cd8e9c"
+  },
+  {
+   "caminho": "lote205/lote_recheck.json",
+   "bytes": 17861,
+   "modificado": "2026-09-02 22:24",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4abdfbf96f20"
+  },
+  {
+   "caminho": "lote205/p2.txt",
+   "bytes": 29846,
+   "modificado": "2026-09-02 22:11",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "66a0462ee172"
+  },
+  {
+   "caminho": "lote205/p3.txt",
+   "bytes": 31932,
+   "modificado": "2026-09-02 22:11",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c6a2fc53bcf1"
+  },
+  {
+   "caminho": "lote205/saida_1.json",
+   "bytes": 17478,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "715b3f0729d5"
+  },
+  {
+   "caminho": "lote205/saida_2.json",
+   "bytes": 19197,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6bcc0e0d30cc"
+  },
+  {
+   "caminho": "lote205/saida_3.json",
+   "bytes": 17941,
+   "modificado": "2026-09-02 22:16",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8b191bcf6669"
+  },
+  {
+   "caminho": "lote205/saida_4.json",
+   "bytes": 19066,
+   "modificado": "2026-09-02 22:17",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "97ee7d2027f4"
+  },
+  {
+   "caminho": "lote205/saida_5.json",
+   "bytes": 17851,
+   "modificado": "2026-09-02 22:17",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8b1d1b3df93f"
+  },
+  {
+   "caminho": "lote205/saida_recheck.json",
+   "bytes": 6314,
+   "modificado": "2026-09-02 22:26",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ef2b1483310e"
+  },
+  {
+   "caminho": "lote205/todos.json",
+   "bytes": 516872,
+   "modificado": "2026-09-02 22:10",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ad19f3c12197"
+  },
+  {
+   "caminho": "lote205/todos_full.json",
+   "bytes": 496316,
+   "modificado": "2026-09-02 22:24",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bd09c7ce8102"
+  },
+  {
+   "caminho": "lote205/view3.txt",
+   "bytes": 80177,
+   "modificado": "2026-09-02 22:11",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f75022c04fde"
+  },
+  {
+   "caminho": "lote205/view_l1.txt",
+   "bytes": 87573,
+   "modificado": "2026-09-02 22:13",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9c9cf693f673"
+  },
+  {
+   "caminho": "manual/Protocolo_Leitura_SS_OS_Status.docx",
+   "bytes": 31470,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".docx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a18d0594a439"
+  },
+  {
+   "caminho": "manual/Protocolo_Leitura_SS_OS_Status.md",
+   "bytes": 31693,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".md",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0394a366e415"
+  },
+  {
+   "caminho": "manual/Protocolo_Leitura_SS_OS_Status.pdf",
+   "bytes": 283242,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".pdf",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a39b07ffb564"
+  },
+  {
+   "caminho": "manual/contato.jpg",
+   "bytes": 914045,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ec49a36a2ae7"
+  },
+  {
+   "caminho": "manual/conteudo.js",
+   "bytes": 33876,
+   "modificado": "2026-09-09 22:38",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "50605dbc2c5f"
+  },
+  {
+   "caminho": "manual/gerar.js",
+   "bytes": 7250,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".js",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6b9ecf3631d6"
+  },
+  {
+   "caminho": "manual/pg-01.jpg",
+   "bytes": 20410,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "603572e4049e"
+  },
+  {
+   "caminho": "manual/pg-02.jpg",
+   "bytes": 6661,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d73b07e7f842"
+  },
+  {
+   "caminho": "manual/pg-03.jpg",
+   "bytes": 73705,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fcd389319128"
+  },
+  {
+   "caminho": "manual/pg-04.jpg",
+   "bytes": 59586,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9808c1c35f9e"
+  },
+  {
+   "caminho": "manual/pg-05.jpg",
+   "bytes": 61600,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6f9d0acf74c2"
+  },
+  {
+   "caminho": "manual/pg-06.jpg",
+   "bytes": 64908,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "732876c59899"
+  },
+  {
+   "caminho": "manual/pg-07.jpg",
+   "bytes": 69998,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0b93d7e9fc43"
+  },
+  {
+   "caminho": "manual/pg-08.jpg",
+   "bytes": 60686,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0f9b13db36a3"
+  },
+  {
+   "caminho": "manual/pg-09.jpg",
+   "bytes": 66959,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6d6121dcbef3"
+  },
+  {
+   "caminho": "manual/pg-10.jpg",
+   "bytes": 62254,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e5d6ad4c0eb9"
+  },
+  {
+   "caminho": "manual/pg-11.jpg",
+   "bytes": 67580,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "923eb7ad861a"
+  },
+  {
+   "caminho": "manual/pg-12.jpg",
+   "bytes": 58106,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c3938f4ba217"
+  },
+  {
+   "caminho": "manual/pg-13.jpg",
+   "bytes": 55678,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "02e942402946"
+  },
+  {
+   "caminho": "manual/pg-14.jpg",
+   "bytes": 60040,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "671d2102d7f1"
+  },
+  {
+   "caminho": "manual/pg-15.jpg",
+   "bytes": 49956,
+   "modificado": "2026-09-09 22:39",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d03d72cf0320"
+  },
+  {
+   "caminho": "manual/sum-02.jpg",
+   "bytes": 41774,
+   "modificado": "2026-09-09 22:40",
+   "ext": ".jpg",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "e11289d7896c"
+  },
+  {
+   "caminho": "novas/AIC_obras_2026_extracao_12-09-2026.xlsx",
+   "bytes": 2002703,
+   "modificado": "2026-09-14 12:06",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "c9306dbdfab7"
+  },
+  {
+   "caminho": "novas/OS_STATUS_2026.xlsx",
+   "bytes": 15886023,
+   "modificado": "2026-09-14 12:06",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": false,
+   "motivo": "maior que 10 MB"
+  },
+  {
+   "caminho": "novas/Trafo_SS_OS_10-09-2026.xlsx",
+   "bytes": 2653883,
+   "modificado": "2026-09-14 12:06",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "15fbd7f206d8"
+  },
+  {
+   "caminho": "obras_sigco.json",
+   "bytes": 4338429,
+   "modificado": "2026-09-12 01:53",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "03d70889d188"
+  },
+  {
+   "caminho": "p1a_Original_OS.zip",
+   "bytes": 29641317,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p1b_Critica_Interrupcoes.zip",
+   "bytes": 19592226,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p1c_originais_restante.zip",
+   "bytes": 11307910,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p2_bases_tratadas.zip",
+   "bytes": 7171549,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p3_dados_e_scripts.zip",
+   "bytes": 10573146,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p4_site_json.zip",
+   "bytes": 6859840,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p5_versoes_backup.zip",
+   "bytes": 5635975,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "p6_bases_novas_setembro.zip",
+   "bytes": 20412895,
+   "modificado": "2026-09-14 12:07",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "repositorio_x.zip",
+   "bytes": 112070120,
+   "modificado": "2026-09-14 12:06",
+   "ext": ".zip",
+   "ignorado": true,
+   "copiado": false,
+   "motivo": "ignorado"
+  },
+  {
+   "caminho": "scan.py",
+   "bytes": 1062,
+   "modificado": "2026-09-12 01:21",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "f9d055b4e745"
+  },
+  {
+   "caminho": "tr/Trafos_rurais_112_150_levantamento.xlsx",
+   "bytes": 31763,
+   "modificado": "2026-09-15 19:27",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "70cdbded300d"
+  },
+  {
+   "caminho": "tr/Trafos_rurais_visual.xlsx",
+   "bytes": 32746,
+   "modificado": "2026-09-15 20:26",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5430509f173a"
+  },
+  {
+   "caminho": "tr/analise_trafos_rurais_1125_e_150_PREENCHIDA.xlsx",
+   "bytes": 2398861,
+   "modificado": "2026-09-15 20:23",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "cf6ffb7426fd"
+  },
+  {
+   "caminho": "tr/consolidado.json",
+   "bytes": 102141,
+   "modificado": "2026-09-15 19:26",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "b3b9351ca1e5"
+  },
+  {
+   "caminho": "tr/critica_hits.json",
+   "bytes": 25502,
+   "modificado": "2026-09-15 19:59",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "36af47941d2c"
+  },
+  {
+   "caminho": "tr/dossie.json",
+   "bytes": 26601,
+   "modificado": "2026-09-15 20:08",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "81ac80d8af9f"
+  },
+  {
+   "caminho": "tr/enr.py",
+   "bytes": 8880,
+   "modificado": "2026-09-15 19:21",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "7d41c27ad8ac"
+  },
+  {
+   "caminho": "tr/enr2.py",
+   "bytes": 11084,
+   "modificado": "2026-09-15 19:26",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "42ca6074141d"
+  },
+  {
+   "caminho": "tr/os_blocos.json",
+   "bytes": 10941,
+   "modificado": "2026-09-15 20:22",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "8e89c373faa2"
+  },
+  {
+   "caminho": "tr/os_vs_form.json",
+   "bytes": 3592,
+   "modificado": "2026-09-15 20:22",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "09cf813aa68c"
+  },
+  {
+   "caminho": "tr/pagina.html",
+   "bytes": 48581,
+   "modificado": "2026-09-15 19:53",
+   "ext": ".html",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "544fed0fc726"
+  },
+  {
+   "caminho": "tr/pagina.py",
+   "bytes": 14835,
+   "modificado": "2026-09-15 19:53",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "56c3d7f21418"
+  },
+  {
+   "caminho": "tr/potencias_texto.json",
+   "bytes": 7019,
+   "modificado": "2026-09-15 20:19",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bbbd3b5c857e"
+  },
+  {
+   "caminho": "tr/preencher.py",
+   "bytes": 7332,
+   "modificado": "2026-09-15 19:38",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "0ab63528b43c"
+  },
+  {
+   "caminho": "tr/saida.py",
+   "bytes": 8330,
+   "modificado": "2026-09-15 19:22",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "cc2b2c8695dd"
+  },
+  {
+   "caminho": "tr/visual.py",
+   "bytes": 11169,
+   "modificado": "2026-09-15 19:56",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "2a24c58f23f0"
+  },
+  {
+   "caminho": "verif_A/divergencias.txt",
+   "bytes": 2119,
+   "modificado": "2026-09-02 00:34",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d0f469f961d3"
+  },
+  {
+   "caminho": "verif_A/saida.txt",
+   "bytes": 13054,
+   "modificado": "2026-09-02 00:31",
+   "ext": ".txt",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "5437ed1f8881"
+  },
+  {
+   "caminho": "verif_A/verif.py",
+   "bytes": 6934,
+   "modificado": "2026-09-02 00:29",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "eedc7eb4a8d5"
+  },
+  {
+   "caminho": "verif_A/verif_A_result.json",
+   "bytes": 216574,
+   "modificado": "2026-09-02 00:31",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "6d398013598c"
+  },
+  {
+   "caminho": "verif_B/amostra_nao.json",
+   "bytes": 26957,
+   "modificado": "2026-09-02 00:29",
+   "ext": ".json",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "daa2df705c40"
+  },
+  {
+   "caminho": "verif_B/julgamento_verif_B.csv",
+   "bytes": 7469,
+   "modificado": "2026-09-02 00:32",
+   "ext": ".csv",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "4c32cb510be4"
+  },
+  {
+   "caminho": "visao.png",
+   "bytes": 162441,
+   "modificado": "2026-09-01 21:46",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "bfe2645b1ff3"
+  },
+  {
+   "caminho": "visao2.png",
+   "bytes": 133347,
+   "modificado": "2026-09-01 21:46",
+   "ext": ".png",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "a491521775dd"
+  },
+  {
+   "caminho": "xl/Expurgos_Jan_Ago_2026.xlsx",
+   "bytes": 195178,
+   "modificado": "2026-09-15 18:41",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "d4e6370e5815"
+  },
+  {
+   "caminho": "xl/base.xlsx",
+   "bytes": 185960,
+   "modificado": "2026-09-15 18:21",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "ba68bd2065b2"
+  },
+  {
+   "caminho": "xl/build.py",
+   "bytes": 10487,
+   "modificado": "2026-09-15 18:23",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "17aece74e270"
+  },
+  {
+   "caminho": "xl/mini.xlsx",
+   "bytes": 4846,
+   "modificado": "2026-09-15 18:38",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9e6dc2eb2fbb"
+  },
+  {
+   "caminho": "xl/roundtrip.xlsx",
+   "bytes": 183434,
+   "modificado": "2026-09-15 18:21",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "dbfee8d05d76"
+  },
+  {
+   "caminho": "xl/teste_pivot.xlsx",
+   "bytes": 185564,
+   "modificado": "2026-09-15 18:22",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "fd13df079042"
+  },
+  {
+   "caminho": "xl/validacao.xlsx",
+   "bytes": 84681,
+   "modificado": "2026-09-15 18:29",
+   "ext": ".xlsx",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "9db3e4f05035"
+  },
+  {
+   "caminho": "xl/verifica.py",
+   "bytes": 3384,
+   "modificado": "2026-09-15 18:41",
+   "ext": ".py",
+   "ignorado": false,
+   "copiado": true,
+   "sha": "04819d12349e"
+  }
+ ]
+}

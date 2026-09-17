@@ -135,3 +135,16 @@ preenche 53,6%; fabricante conhecido em **23.276** (25,2%); série não zerada e
 `5700339055` aparece duas vezes (difere só em `CONJUNTO`); 50 códigos estão fora do padrão
 de 10 dígitos; e 155 têm prefixo alfabético (`PA`, `GE`, `T1`–`T4`, `AU`, `UC`), quase
 todos particulares de grande porte cadastrados como distribuição.
+
+## A base de SS/OS do ano está no repositório (achado em 02/09/2026)
+
+A extração de 11/08/2026 da base de SS/OS (64 colunas, 9.297 SS de 01/01 a 31/07/2026) foi
+enviada em zip (`BASE_SS_OS_11-08-2026.zip`, partes 1 e 2 em `@`) e o zip se perdeu com o
+diretório temporário. Mas a mesma base está gravada em
+`public/bases/originais/Original_OS.xlsx`, aba **BASE SS_OS** — uma SS por linha, as mesmas
+64 colunas. `scripts/analise_ss_critica_chave.py` lê a base @; para usar a aba, exporte-a
+para texto `@` (o cabeçalho tem 64 colunas) ou leia direto com openpyxl. Não dependa de
+upload para isto de novo: está aqui.
+
+O que continua perdido: a Crítica bruta de julho (`Critica__072026.txt`), a de dezembro/2025
+e as de agosto. De julho sobrou a extração por SS em `public/julho-2026.json`.

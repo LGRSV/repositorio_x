@@ -42,6 +42,9 @@ GERADORES = [
     dict(id="solo", script="gerar_solo_ativo.py", produz=["solo-ativo.json"],
          precisa=["/tmp/pedo_to.json"],
          nota="Tipo de solo por ativo, da camada de pedologia do IBGE/BDIA."),
+    dict(id="expurgos_macro", script="gerar_expurgos_macro.py",
+         produz=["expurgos-macro.json"], precisa=[],
+         nota="Macro categoria dos expurgos de jan a ago. Lê dados/jan-ago-2026/."),
     dict(id="revisao", script="gerar_revisao.py", produz=["revisao.json"],
          precisa=[], nota="Revisão caso a caso. Confira a entrada no cabeçalho do script."),
 ]

@@ -1,0 +1,21 @@
+Verificação independente (verif_A/verif.py) — 185 SS, 76.630 linhas da Crítica, 54.205 ocorrências.
+
+DIVERGÊNCIAS REAIS (menção literal do código de 10 dígitos que o JSON não registrou):
+1) ETO-RD-AR 00739/2026 — trafo 5743290004 — SS aberta 24/04/2026 13:04:54
+   Ocorrência 20264321235059 (Critica-CHEIO_04-2026.txt, linha 11461), início 24/04/2026 08:44, fim 24/04/2026 11:40 -> janela 07:44 .. 25/04 11:40 -> NA JANELA
+   OBS: "TRF 5743290004 , COM VAZAMENTO DE OLEO, E O A UC ESTA CADATRADO NO TRF5703752004 , E O 5743290004 TEM QUE TROCA COM URGENCIA ..."
+   JSON: NÃO MENCIONADO (o achado foi atribuído só à SS ETO-RD-AR 00774/2026, mesmo trafo, aberta 30/04 -> fora da janela)
+   Meu veredito: MENCIONADO NA JANELA
+2) ETO-RD-GR 00405/2026 — trafo 5700001112 — SS aberta 06/04/2026 16:56:03
+   Ocorrência 20264251771515 (04-2026, linha 1748), 03/04 10:34–14:50, OBS: "CODIGO INVALIDO:CH/5700001112- Intervenção gerada pelo PDA-Sigod ..."
+   Ocorrência 20264402848739 (05-2026, linha 878), 16/05 13:01–15:00, OBS: "ABERTURA EMERGENCIAL DO TRAFO 5700001112 PARA CORRIGIR VAZAMENTO DE ÓLEO..."
+   JSON: NÃO MENCIONADO (achados atribuídos só à SS ETO-RD-GR 00530/2026, mesmo trafo)
+   Meu veredito: MENCIONADO FORA DA JANELA
+Causa aparente: quando duas SS compartilham o mesmo transformador, o JSON registrou as menções do código só para uma delas.
+
+DIVERGÊNCIAS POR INTERPRETAÇÃO DA REGRA (c) — nº da SS "nnnnn/2026":
+Para SS de número <= 12 (00001..00005), o padrão "0*n/2026" casa com competências "01/2026", "02/2026" etc.
+("Intervenção gerada apenas no sistema para fechamento da competencia 03/2026", "aberto nota para linha viva 02/2026").
+Aplicando a regra ao pé da letra, mudam 7 vereditos: DG-RD-PO 00002 (NA JANELA), ETO-RD-DP 00002 (NA JANELA), ETO-RD-GR 00002 (NA JANELA),
+ETO-RD-AR 00001, ETO-RD-GR 00001, ETO-RD-GR 00004, ETO-RD-GU 00001 (FORA DA JANELA). O JSON tratou-os como não-menção (coerente: são datas, não nº de SS).
+Descartando os casamentos no formato exato mm/2026 (2 dígitos, <=12), restam só as 2 divergências reais acima.

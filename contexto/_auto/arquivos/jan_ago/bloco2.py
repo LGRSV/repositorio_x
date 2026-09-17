@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+import json
+b2 = [
+{"ss":"ETO-RD-AR 01218/2026","trafo":"5710084058","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Vazamento severo de óleo confirmado pelo formulário de campo (vazamento: Sim) e substituição por outro de mesma potência (45 kVA), com série e tombamento do retirado (1254028 / 126126) e do instalado (606280 / 150737). Vazamento de óleo é falha do próprio equipamento. O trafo não aparece na base de interrupção (ausente da Crítica) — falta de registro, não evidência de que não houve falha.",
+ "evidencia":"TRAFO 5710084058 COM SEVERO VAZAMENTO DE ÓLEO.","prova_de_troca":"série"},
+{"ss":"ETO-RD-AR 01234/2026","trafo":"5710027159","classificacao":"QUEIMADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Origem da SS QUEIMADO e a Crítica casou pelo trafo com causa TRANSFORMADOR / QUEIMADO POR DESCARGA ATMOSFERICA na mesma janela (10/08 16:46 a 11/08 20:39). Troca registrada: retirado TRAEL 1999 série 370179 / CITD 134911, instalado ITAM 2026 série C306325 / CITD 152584, mesma potência 15 kVA.",
+ "evidencia":"causa TRANSFORMADOR / subcausa QUEIMADO POR DESCARGA ATMOSFERICA (ocorrência 20264759019413)","prova_de_troca":"série"},
+{"ss":"DOLP-RD-PA 00827/2026","trafo":"5710348122","classificacao":"SEM TROCA","conta_no_indicador":False,"confianca":"alta",
+ "justificativa":"O executante registrou na OS que o transformador não estava queimado, o formulário não traz série nem tombamento (00) e a observação da Crítica diz que a equipe mediu, conferiu, encontrou tensão e trafo normais e não substituiu. Equipamento permaneceu em serviço.",
+ "evidencia":"foi constatado que o transformador indicado na nota não estava queimado, conforme havia sido informado inicialmente.","prova_de_troca":"nenhuma"},
+{"ss":"ETO-RD-AR 01242/2026","trafo":"5715142022","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Bucha da fase B danificada no próprio transformador de 75 kVA, com substituição efetivada e mesma potência (retirado TRAEL 2015 série 366468 / CITD 149592; instalado TRAEL série 43245 / CITD 134268, reformado). Bucha quebrada é avaria do equipamento. A ocorrência que casou na Crítica é de nível de tensão/conexão do dia anterior, com o trafo apenas como interrompido — não contradiz a avaria.",
+ "evidencia":"trafo 5715142022 queimado bucha fase B danificado em campo trafo 75 kva 34,5 kv","prova_de_troca":"série"},
+{"ss":"ETO-RD-AG 00842/2026","trafo":"5701759103","classificacao":"QUEIMADO","conta_no_indicador":True,"confianca":"média",
+ "justificativa":"A SS e o plano de medida falam em sobrecarga (15 para 25 kVA), mas a Crítica casou pelo próprio trafo com causa TRANSFORMADOR / QUEIMADO POR CAUSA NAO IDENTIFICADA e observação explícita de queima, em ocorrência que começou 12/08 23:15 e fechou 14/08, envolvendo a SS aberta em 13/08. Título de plano de medida não anula queima registrada. Confiança média porque o formulário de campo veio praticamente vazio (só quantidade de clientes), sem série do retirado e do instalado.",
+ "evidencia":"Trafo de 15 kva na 19,9 kv queimada (obs. da ocorrência 20264776837545)","prova_de_troca":"texto"},
+{"ss":"ENC-RD-PS 00702/2026","trafo":"5700153233","classificacao":"QUEIMADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Trafo fervendo, com tensão insuficiente na bucha secundária; a Crítica casou pelo trafo com causa TRANSFORMADOR / FALTANDO FASE INTERNAMENTE e observação trafo queimado. Substituição registrada (retirado ITAM 2025 série C290264; instalado ITAM 2026 série C 315168 / CITD 152535), mesma potência 15 kVA.",
+ "evidencia":"TRAFO 5700153233 QUEIMADO ... OS TRAFO ESTA FERVENDO E MANDANDO TENSÃO NA BUCHA SEGUNDARIA INSUFICIENTE","prova_de_troca":"série"},
+{"ss":"ETO-RD-AG 00876/2026","trafo":"5710184039","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"média",
+ "justificativa":"A SS e a OS pedem, além da troca do poste deteriorado, a correção de vazamento de óleo do trafo, e o serviço terminou com substituição do transformador de mesma potência (retirado TRAEL 2005 série 1823 / CITD P.83764; instalado série 976562 / CITD 151197, reformado). Vazamento de óleo é avaria do equipamento. Confiança média porque o formulário marca vazamento Não e motivo não identificado, e a ocorrência da Crítica é de ventos fortes.",
+ "evidencia":"Segue SS para subsituição de poste desteriorado e correção de vazamento de oleo do trafo 5710184039.","prova_de_troca":"série"},
+{"ss":"ENC-RD-PS 00714/2026","trafo":"5700969182","classificacao":"QUEIMADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Trafo de 75 kVA queimado, com 47 clientes; a Crítica casou pelo trafo com causa TRANSFORMADOR / QUEIMADO POR CURTO NA RD e observação TR queimado. Troca registrada (retirado ITAIPU 2024 série 544583 / CITD 142612; instalado série 544483 / CITD 142161). A OS registra erro de cadastro: o equipamento em campo é o 5758706182.",
+ "evidencia":"causa TRANSFORMADOR / subcausa QUEIMADO POR CURTO NA RD — obs: TR QUEIAMDO EQUIPE DIVO 04 ESTEVE NO LOCAL","prova_de_troca":"série"},
+{"ss":"ETO-RD-AR 01288/2026","trafo":"5704180004","classificacao":"REMANEJAMENTO","conta_no_indicador":False,"confianca":"alta",
+ "justificativa":"Troca por aumento de potência: medições de corrente e tensão indicaram sobrecarga e o trafo de 75 kVA foi substituído por um de 112,5 kVA. Formulário de campo com motivo SOBRECARGA e sem vazamento; a Crítica registra causa TRANSFORMADOR / SOBRECARGA, sem queima ou avaria do equipamento.",
+ "evidencia":"Segundo medições feitas no trafo 5704180004 de 75kVA, favor providenciar a substituição do mesmo por um de 112.5kvA.","prova_de_troca":"série"},
+{"ss":"ETO-RD-AG 00900/2026","trafo":"5700135090","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Transformador com tensão alterada para 257 V sem possibilidade de correção, exigindo troca; a Crítica casou pelo trafo com causa TRANSFORMADOR / FALTANDO FASE INTERNAMENTE, que é avaria interna do equipamento. Substituição registrada (retirado ITB 1999 série 140264; instalado TRAEL 2026 série 845306 / CITD 152927), mesma potência 15 kVA.",
+ "evidencia":"FOI ENCONTRADO O TRAFO ALTERADO A TENSAO EM 257 E NAO TEM COMO VOLTAR A TENSAO TEM QUE TROCAR O MESMO","prova_de_troca":"série"},
+{"ss":"ETO-RD-AR 01308/2026","trafo":"5701352004","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Vazamento de óleo que já havia recebido reparo e não resolveu, levando à substituição; o formulário do executante confirma vazamento Sim, motivo do defeito VAZAMENTO DE OLEO e cola e fita Sim, com série e tombamento do retirado (204976 / 48644) e do instalado (1687462 / 152975). O aumento de 112,5 para 150 kVA foi aproveitamento na mesma troca, mas o motivo da falha é avaria do equipamento. A ocorrência da Crítica ficou fora da janela e não altera o veredito.",
+ "evidencia":"Realizar troca de trafo com vazamento de oleo foi feito reparo mais não resolveu colocar trafo de 150KVA","prova_de_troca":"série"},
+{"ss":"DG-RD-PO 00526/2026","trafo":"5700004152","classificacao":"SEM TROCA","conta_no_indicador":False,"confianca":"alta",
+ "justificativa":"Havia vazamento de óleo, mas o executante resolveu no local com reparo de cola e fita e aplicação do P600; não houve substituição do transformador — o formulário não traz série de retirado nem de instalado (ambos 1) e o campo de tombamento instalado registra o produto do reparo. Equipamento de 150 kVA permaneceu em serviço.",
+ "evidencia":"FOI O REPARO COM COLA E FITA E INSTALDO O P600","prova_de_troca":"nenhuma"},
+{"ss":"ETO-RD-AG 00924/2026","trafo":"5700558081","classificacao":"REMANEJAMENTO","conta_no_indicador":False,"confianca":"média",
+ "justificativa":"Plano de medida de sobrecarga (5 para 15 kVA) que na prática foi regularização de cadastro — o equipamento em campo já era de 15 kVA — junto com melhoria de aterramento. Nenhum texto descreve queima ou avaria do transformador; a Crítica aponta CONDUTOR DE BT / PARTIDO NO NEUTRO, com queima de elo e aterramento rompido, não do trafo.",
+ "evidencia":"TRAFO EM CAMPO SEM ATUALIZAÇÃO DE CADASTRO, ONDE O MESMO NO SISTEMA É DE 05KVA 7.9KV E EM CAMPO JA SE ENCONTRAVA CONFORME LAUDO EM ANEXO DE 15KVA 7.9KV","prova_de_troca":"série"},
+{"ss":"ETO-RD-AR 01351/2026","trafo":"5700273004","classificacao":"AVARIADO","conta_no_indicador":True,"confianca":"alta",
+ "justificativa":"Vazamento severo de óleo em transformador de 1984, confirmado pelo formulário (vazamento: Sim), com substituição por outro de mesma potência (retirado série 301234 / CITD 5232912; instalado ITAIPU 2026 série 603099 / CITD 150508). Vazamento é falha do próprio equipamento. A ocorrência que a Crítica trouxe está fora da janela (230 h) e trata de ramal de serviço, não contradiz.",
+ "evidencia":"TRAFO 5700273004 COM SEVERO VAZAMENTO DE ÓLEO. POTÊNCIA: 112,5 KVA","prova_de_troca":"série"}
+]
+saida = json.load(open('saida_novos_2.json'))
+saida.extend(b2)
+json.dump(saida, open('saida_novos_2.json','w'), ensure_ascii=False, indent=1)
+print(len(saida))

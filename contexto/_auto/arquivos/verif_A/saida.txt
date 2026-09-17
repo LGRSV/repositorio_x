@@ -1,0 +1,91 @@
+rows 76630 problems {} baddates 0 []
+occurrences 54205 spanning >1 file 978
+cases 185 Counter({'Fora da janela': 104, 'Ausentes': 81})
+SS sets equal: True 0
+
+Grupo            Veredito                        MEU   JSON
+Ausentes         MENCIONADO FORA DA JANELA        19     16
+Ausentes         MENCIONADO NA JANELA              5      2
+Ausentes         NÃO MENCIONADO                   57     63
+Fora da janela   MENCIONADO FORA DA JANELA        54     52
+Fora da janela   MENCIONADO NA JANELA             10      9
+Fora da janela   NÃO MENCIONADO                   40     43
+
+DIVERGÊNCIAS DE VEREDITO:
+DG-RD-PO 00002/2026 MEU= MENCIONADO NA JANELA JSON= NÃO MENCIONADO
+ETO-RD-AR 00001/2026 MEU= MENCIONADO FORA DA JANELA JSON= NÃO MENCIONADO
+ETO-RD-AR 00739/2026 MEU= MENCIONADO NA JANELA JSON= NÃO MENCIONADO
+ETO-RD-DP 00002/2026 MEU= MENCIONADO NA JANELA JSON= NÃO MENCIONADO
+ETO-RD-GR 00001/2026 MEU= MENCIONADO FORA DA JANELA JSON= NÃO MENCIONADO
+ETO-RD-GR 00002/2026 MEU= MENCIONADO NA JANELA JSON= NÃO MENCIONADO
+ETO-RD-GR 00004/2026 MEU= MENCIONADO FORA DA JANELA JSON= NÃO MENCIONADO
+ETO-RD-GR 00405/2026 MEU= MENCIONADO FORA DA JANELA JSON= NÃO MENCIONADO
+ETO-RD-GU 00001/2026 MEU= MENCIONADO FORA DA JANELA JSON= NÃO MENCIONADO
+
+menções (SS,occ): meu 190 json 127 só meu 63 só json 0
+ SÓ MEU ('DG-RD-PO 00001/2026', '20264132991773') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026.
+ SÓ MEU ('DG-RD-PO 00001/2026', '20264133001605') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('DG-RD-PO 00001/2026', '20264133002537') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('DG-RD-PO 00001/2026', '20264133003911') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264059214246') nº da SS SIM 2026-01-01 03:56:00 2026-01-01 08:23:00 | chave faca danificada 8800648073aberto nota para linha viva 02/2026
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264137864698') nº da SS NÃO 2026-02-25 11:22:00 2026-02-25 13:50:00 | * Com (repetidora fora desde de ontem 24/02/2026 com equipamneto queiumado sem comunicação geral na região) 
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264180217313') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264180279905') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264182453755') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. instruida pela ATM 574398.
+ SÓ MEU ('DG-RD-PO 00002/2026', '20264182474382') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. INSTRUÇÃO CONFORME ATM - 574398.
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264290747643') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026 ATM - 30518912
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264295150747') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264295155806') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264295160259') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264295164901') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026.
+ SÓ MEU ('DG-RD-PO 00003/2026', '20264295169814') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264290747643') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026 ATM - 30518912
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264295150747') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264295155806') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264295160259') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264295164901') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026.
+ SÓ MEU ('ENC-RD-PS 00003/2026', '20264295169814') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('ETO-RD-AR 00001/2026', '20264132991773') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026.
+ SÓ MEU ('ETO-RD-AR 00001/2026', '20264133001605') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-AR 00001/2026', '20264133002537') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-AR 00001/2026', '20264133003911') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-AR 00739/2026', '20264321235059') 10 dígitos + 8 dígitos finais SIM 2026-04-24 08:44:00 2026-04-24 11:40:00 | TRF 5743290004 , COM VAZAMENTO DE OLEO, E O A UC ESTA CADATRADO NO TRF5703
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264059214246') nº da SS SIM 2026-01-01 03:56:00 2026-01-01 08:23:00 | chave faca danificada 8800648073aberto nota para linha viva 02/2026
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264137864698') nº da SS NÃO 2026-02-25 11:22:00 2026-02-25 13:50:00 | * Com (repetidora fora desde de ontem 24/02/2026 com equipamneto queiumado sem comunicação geral na região) 
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264180217313') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264180279905') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264182453755') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. instruida pela ATM 574398.
+ SÓ MEU ('ETO-RD-DP 00002/2026', '20264182474382') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. INSTRUÇÃO CONFORME ATM - 574398.
+ SÓ MEU ('ETO-RD-GR 00001/2026', '20264132991773') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026.
+ SÓ MEU ('ETO-RD-GR 00001/2026', '20264133001605') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GR 00001/2026', '20264133002537') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GR 00001/2026', '20264133003911') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264059214246') nº da SS SIM 2026-01-01 03:56:00 2026-01-01 08:23:00 | chave faca danificada 8800648073aberto nota para linha viva 02/2026
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264137864698') nº da SS NÃO 2026-02-25 11:22:00 2026-02-25 13:50:00 | * Com (repetidora fora desde de ontem 24/02/2026 com equipamneto queiumado sem comunicação geral na região) 
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264180217313') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264180279905') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 02/2026
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264182453755') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. instruida pela ATM 574398.
+ SÓ MEU ('ETO-RD-GR 00002/2026', '20264182474382') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 02/2026. INSTRUÇÃO CONFORME ATM - 574398.
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264290747643') nº da SS NÃO 2026-03-01 00:01:00 2026-03-31 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026 ATM - 30518912
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264295150747') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264295155806') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | a no sistema para tratar erro impeditivo de fechamento ref. 03/2026
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264295160259') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264295164901') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 |  gerada apenas no sistema para fechamento da competência de 03/2026.
+ SÓ MEU ('ETO-RD-GR 00003/2026', '20264295169814') nº da SS NÃO 2026-04-01 00:01:00 2026-04-30 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 03/2026
+ SÓ MEU ('ETO-RD-GR 00004/2026', '20264371708106') nº da SS NÃO 2026-05-01 00:01:00 2026-05-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 04/2026
+ SÓ MEU ('ETO-RD-GR 00004/2026', '20264371716664') nº da SS NÃO 2026-05-01 00:01:00 2026-05-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 04/2026
+ SÓ MEU ('ETO-RD-GR 00004/2026', '20264371719581') nº da SS NÃO 2026-05-01 00:01:00 2026-05-31 23:59:00 |  gerada apenas no sistema para fechamento da competência de 04/2026.
+ SÓ MEU ('ETO-RD-GR 00004/2026', '20264371724005') nº da SS NÃO 2026-05-01 00:01:00 2026-05-31 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 04/2026
+ SÓ MEU ('ETO-RD-GR 00405/2026', '20264251771515') 10 dígitos + 8 dígitos finais NÃO 2026-04-03 10:34:00 2026-04-03 14:50:00 | CODIGO INVALIDO:CH/5700001112- Intervenção gerada pelo PDA-Sigod - Reclamacao OS 05-20264
+ SÓ MEU ('ETO-RD-GR 00405/2026', '20264402848739') 10 dígitos + 8 dígitos finais NÃO 2026-05-16 13:01:00 2026-05-16 15:00:00 | ABERTURA EMERGENCIAL DO TRAFO 5700001112 PARA CORRIGIR VAZAMENTO DE ÓLEO. POV GOIANY. MANUT PESADA G
+ SÓ MEU ('ETO-RD-GU 00001/2026', '20264132991773') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026.
+ SÓ MEU ('ETO-RD-GU 00001/2026', '20264133001605') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GU 00001/2026', '20264133002537') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GU 00001/2026', '20264133003911') nº da SS NÃO 2026-02-01 00:01:00 2026-02-28 23:59:00 | ção gerada apenas no sistema para fechamento da competencia 01/2026
+ SÓ MEU ('ETO-RD-GU 00005/2026', '20264511596405') nº da SS NÃO 2026-06-01 00:01:00 None |  gerada apenas no sistema para fechamento da competência de 05/2026
+ SÓ MEU ('ETO-RD-GU 00005/2026', '20264511605651') nº da SS NÃO 2026-06-01 00:01:00 None | ção gerada apenas no sistema para fechamento da competencia 05/2026
+ SÓ MEU ('ETO-RD-GU 00005/2026', '20264511622725') nº da SS NÃO 2026-06-01 00:01:00 None |  gerada apenas no sistema para fechamento da competência de 05/2026.
+ SÓ MEU ('ETO-RD-GU 00005/2026', '20264511627659') nº da SS NÃO 2026-06-01 00:01:00 None | ção gerada apenas no sistema para fechamento da competencia 05/2026
+
+achados: meu 323 json 209
+divergências janela/datas/nº passos por (SS,occ): 0

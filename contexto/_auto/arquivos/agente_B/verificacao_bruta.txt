@@ -1,0 +1,263 @@
+====================================================================================================
+SS ENC-RD-PS 00259/2026 | trafo 5700191054 | chave 0300191054 | abertura 2026-02-20 13:46:12
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264132739596 2026-02-19 09:57:00→2026-02-22 07:41:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5700191054: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0300191054: 1 ocorrência(s)
+      oc 20264132739596 np=2 2026-02-19 09:57:00 → 2026-02-22 07:41:00 pap=fechado+interrompido+problema DENTRO causa=POSTE DE AT
+      >>> CHAVE: SIM | n=1 | dentro=['20264132739596'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS ETO-RD-GU 00429/2026 | trafo 5710235032 | chave 0310235032 | abertura 2026-04-06 10:49:34
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264257975458 2026-04-06 02:01:00→2026-04-06 23:17:00 | papel=interrompido | dist=None | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5710235032: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310235032: 1 ocorrência(s)
+      oc 20264257975458 np=1 2026-04-06 02:01:00 → 2026-04-06 23:17:00 pap=interrompido DENTRO causa=POSTE DE AT
+      >>> CHAVE: SIM | n=1 | dentro=['20264257975458'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS ENC-RD-PS 00561/2026 | trafo 5710247085 | chave 0310247085 | abertura 2026-06-04 16:27:09
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264477882406 2026-06-03 12:27:00→2026-06-07 04:08:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5710247085: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310247085: 1 ocorrência(s)
+      oc 20264477882406 np=1 2026-06-03 12:27:00 → 2026-06-07 04:08:00 pap=fechado+interrompido+problema DENTRO causa=POSTE DE AT
+      >>> CHAVE: SIM | n=1 | dentro=['20264477882406'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS DOLP-RD-PA 00003/2026 | trafo 5700121151 | chave 0300121151 | abertura 2026-01-02 15:28:37
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264062540292 2026-01-02 15:31:00→2026-01-05 16:27:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5700121151: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0300121151: 1 ocorrência(s)
+      oc 20264062540292 np=1 2026-01-02 15:31:00 → 2026-01-05 16:27:00 pap=fechado+interrompido+problema DENTRO causa=MEIO AMBIENTE
+      >>> CHAVE: SIM | n=1 | dentro=['20264062540292'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS ETO-RD-AR 00423/2026 | trafo 5703829004 | chave 0303829004 | abertura 2026-03-04 16:34:51
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264161013301 2026-03-04 12:22:00→2026-03-05 16:34:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5703829004: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0303829004: 1 ocorrência(s)
+      oc 20264161013301 np=2 2026-03-04 12:22:00 → 2026-03-05 16:34:00 pap=fechado+interrompido+problema DENTRO causa=MEIO AMBIENTE
+      >>> CHAVE: SIM | n=1 | dentro=['20264161013301'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS DOLP-RD-PA 00122/2026 | trafo 5710169006 | chave 0310169006 | abertura 2026-01-25 10:13:51
+   SCRIPT: CASOU PELA CHAVE GÊMEA | por=chave gêmea | oc=20264097204789 2026-01-24 20:49:00→2026-01-26 19:25:00 | papel=fechado | dist=None | n_trafo=0 n_chave=2
+   cobertura: Crítica carregada
+   TRAFO 5710169006: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310169006: 2 ocorrência(s)
+      oc 20264097204789 np=3 2026-01-24 20:49:00 → 2026-01-26 19:25:00 pap=fechado DENTRO causa=CAUSA NAO IDENTIFICADA
+      oc 20264169840440 np=3 2026-03-10 04:07:00 → 2026-03-12 16:40:00 pap=fechado fora d=1049.9 causa=MEIO AMBIENTE
+      >>> CHAVE: SIM | n=2 | dentro=['20264097204789'] | menor dist=1049.9
+   ### MEU VEREDITO: CASOU PELA CHAVE GÊMEA | script: CASOU PELA CHAVE GÊMEA | BATE: S
+====================================================================================================
+SS ETO-RD-AG 00065/2026 | trafo 5710047039 | chave 0310047039 | abertura 2026-01-16 14:32:01
+   SCRIPT: CHAVE GÊMEA FORA DA JANELA | por=chave gêmea | oc=20264105122300 2026-01-28 14:38:00→2026-01-28 17:50:00 | papel=fechado+interrompido+problema | dist=288.1 | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5710047039: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310047039: 1 ocorrência(s)
+      oc 20264105122300 np=1 2026-01-28 14:38:00 → 2026-01-28 17:50:00 pap=fechado+interrompido+problema fora d=288.1 causa=DESLIGAMENTO SEM PROGRAMACAO PREVIA
+      >>> CHAVE: fora da janela | n=1 | dentro=[] | menor dist=288.1
+   ### MEU VEREDITO: CHAVE GÊMEA FORA DA JANELA | script: CHAVE GÊMEA FORA DA JANELA | BATE: S
+====================================================================================================
+SS DOLP-RD-PA 00550/2026 | trafo 5701477122 | chave 0301477122 | abertura 2026-05-11 11:13:03
+   SCRIPT: CHAVE GÊMEA FORA DA JANELA | por=chave gêmea | oc=20264387262514 2026-05-12 09:40:00→2026-05-12 12:11:00 | papel=fechado+interrompido+problema | dist=22.4 | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5701477122: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0301477122: 1 ocorrência(s)
+      oc 20264387262514 np=1 2026-05-12 09:40:00 → 2026-05-12 12:11:00 pap=fechado+interrompido+problema fora d=22.4 causa=POSTE DE AT
+      >>> CHAVE: fora da janela | n=1 | dentro=[] | menor dist=22.4
+   ### MEU VEREDITO: CHAVE GÊMEA FORA DA JANELA | script: CHAVE GÊMEA FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-GU 00487/2026 | trafo 5710512097 | chave 0310512097 | abertura 2026-04-20 18:21:25
+   SCRIPT: CHAVE GÊMEA FORA DA JANELA | por=chave gêmea | oc=20264412837750 2026-05-19 10:47:00→2026-05-19 12:10:00 | papel=fechado+interrompido+problema | dist=688.4 | n_trafo=0 n_chave=1
+   cobertura: Crítica carregada
+   TRAFO 5710512097: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310512097: 1 ocorrência(s)
+      oc 20264412837750 np=1 2026-05-19 10:47:00 → 2026-05-19 12:10:00 pap=fechado+interrompido+problema fora d=688.4 causa=DESLIGAMENTO SEM PROGRAMACAO PREVIA
+      >>> CHAVE: fora da janela | n=1 | dentro=[] | menor dist=688.4
+   ### MEU VEREDITO: CHAVE GÊMEA FORA DA JANELA | script: CHAVE GÊMEA FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-AR 00727/2026 | trafo 5700956193 | chave 0300956193 | abertura 2026-04-21 13:37:13
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264309979092 2026-04-20 19:03:00→2026-04-22 17:00:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700956193: 1 ocorrência(s)
+      oc 20264309979092 np=2 2026-04-20 19:03:00 → 2026-04-22 17:00:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      >>> TRAFO: SIM | n=1 | dentro=['20264309979092'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-GU 00316/2026 | trafo 5709639032 | chave 0309639032 | abertura 2026-03-11 19:13:22
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264172649239 2026-03-11 11:27:00→2026-03-12 15:02:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5709639032: 2 ocorrência(s)
+      oc 20264097116181 np=1 2026-01-23 12:05:00 → 2026-01-24 10:34:00 pap=fechado+interrompido+problema fora d=1112.7 causa=MEIO AMBIENTE
+      oc 20264172649239 np=2 2026-03-11 11:27:00 → 2026-03-12 15:02:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      >>> TRAFO: SIM | n=2 | dentro=['20264172649239'] | menor dist=1112.7
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-GR 00322/2026 | trafo 5710108154 | chave 0310108154 | abertura 2026-03-09 17:37:31
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264168767306 2026-03-09 14:31:00→2026-03-10 14:36:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5710108154: 2 ocorrência(s)
+      oc 20264168767306 np=2 2026-03-09 14:31:00 → 2026-03-10 14:36:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      oc 20264274446023 np=1 2026-04-10 11:18:00 → 2026-04-10 18:10:00 pap=fechado+interrompido+problema fora d=761.7 causa=MEIO AMBIENTE
+      >>> TRAFO: SIM | n=2 | dentro=['20264168767306'] | menor dist=761.7
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ENC-RD-AR 00008/2026 | trafo 5763737265 | chave 0363737265 | abertura 2026-05-01 14:00:49
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264350820773 2026-05-01 08:03:00→2026-05-02 16:00:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5763737265: 1 ocorrência(s)
+      oc 20264350820773 np=2 2026-05-01 08:03:00 → 2026-05-02 16:00:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      >>> TRAFO: SIM | n=1 | dentro=['20264350820773'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-PA 00298/2026 | trafo 5700071015 | chave 0300071015 | abertura 2026-05-13 08:58:24
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264392533181 2026-05-12 17:11:00→2026-05-13 10:59:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700071015: 1 ocorrência(s)
+      oc 20264392533181 np=1 2026-05-12 17:11:00 → 2026-05-13 10:59:00 pap=fechado+interrompido+problema DENTRO causa=CAUSA NAO IDENTIFICADA
+      >>> TRAFO: SIM | n=1 | dentro=['20264392533181'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ENC-RD-PS 00319/2026 | trafo 5710502007 | chave 0310502007 | abertura 2026-03-08 16:26:01
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264166516134 2026-03-07 15:57:00→2026-03-08 16:21:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5710502007: 2 ocorrência(s)
+      oc 20264164717242 np=1 2026-03-05 12:38:00 → 2026-03-06 10:16:00 pap=fechado+interrompido+problema fora d=54.2 causa=MEIO AMBIENTE
+      oc 20264166516134 np=1 2026-03-07 15:57:00 → 2026-03-08 16:21:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      >>> TRAFO: SIM | n=2 | dentro=['20264166516134'] | menor dist=54.2
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-GR 00218/2026 | trafo 5700952113 | chave 0300952113 | abertura 2026-02-11 16:58:57
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264123976007 2026-02-11 08:42:00→2026-02-12 13:36:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700952113: 2 ocorrência(s)
+      oc 20264080564425 np=1 2026-01-13 17:36:00 → 2026-01-14 16:11:00 pap=fechado+interrompido+problema fora d=672.8 causa=MEIO AMBIENTE
+      oc 20264123976007 np=2 2026-02-11 08:42:00 → 2026-02-12 13:36:00 pap=fechado+interrompido+problema DENTRO causa=MEIO AMBIENTE
+      >>> TRAFO: SIM | n=2 | dentro=['20264123976007'] | menor dist=672.8
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-GR 00366/2026 | trafo 5700121011 | chave 0300121011 | abertura 2026-03-22 15:46:11
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=20264191720127 2026-03-22 15:45:00→2026-03-23 12:41:00 | papel=fechado+interrompido+problema | dist=None | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700121011: 1 ocorrência(s)
+      oc 20264191720127 np=1 2026-03-22 15:45:00 → 2026-03-23 12:41:00 pap=fechado+interrompido+problema DENTRO causa=TRANSFORMADOR
+      >>> TRAFO: SIM | n=1 | dentro=['20264191720127'] | menor dist=None
+   ### MEU VEREDITO: CASOU PELO TRAFO | script: CASOU PELO TRAFO | BATE: S
+====================================================================================================
+SS ETO-RD-GR 00205/2026 | trafo 5700299024 | chave 0300299024 | abertura 2026-02-08 10:49:14
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264121629809 2026-02-09 15:48:00→2026-02-09 17:29:00 | papel=fechado+interrompido+problema | dist=29 | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700299024: 1 ocorrência(s)
+      oc 20264121629809 np=1 2026-02-09 15:48:00 → 2026-02-09 17:29:00 pap=fechado+interrompido+problema fora d=29.0 causa=TRANSFORMADOR
+      >>> TRAFO: fora da janela | n=1 | dentro=[] | menor dist=29.0
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-AR 00668/2026 | trafo 5700026004 | chave 0300026004 | abertura 2026-04-11 18:54:09
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264173806480 2026-03-12 08:50:00→2026-03-12 12:46:00 | papel=fechado+interrompido | dist=726.1 | n_trafo=3 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700026004: 3 ocorrência(s)
+      oc 20264069707868 np=1 2026-01-08 15:06:00 → 2026-01-08 17:55:00 pap=fechado+interrompido+problema fora d=2233.0 causa=CAUSA NAO IDENTIFICADA
+      oc 20264094957713 np=1 2026-01-23 18:30:00 → 2026-01-24 10:00:00 pap=fechado+interrompido fora d=1856.9 causa=CONEXAO
+      oc 20264173806480 np=1 2026-03-12 08:50:00 → 2026-03-12 12:46:00 pap=fechado+interrompido fora d=726.1 causa=NIVEL DE TENSAO
+      >>> TRAFO: fora da janela | n=3 | dentro=[] | menor dist=726.1
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-CADTOC 00111/2026 | trafo 5700080152 | chave 0300080152 | abertura 2026-05-08 17:28:51
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264180719522 2026-03-16 06:59:00→2026-03-16 17:09:00 | papel=fechado+interrompido+problema | dist=1272.3 | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700080152: 2 ocorrência(s)
+      oc 20264128758138 np=1 2026-02-14 20:46:00 → 2026-02-16 15:07:00 pap=fechado+interrompido+problema fora d=1946.4 causa=MEIO AMBIENTE
+      oc 20264180719522 np=1 2026-03-16 06:59:00 → 2026-03-16 17:09:00 pap=fechado+interrompido+problema fora d=1272.3 causa=MEIO AMBIENTE
+      >>> TRAFO: fora da janela | n=2 | dentro=[] | menor dist=1272.3
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-GR 00637/2026 | trafo 5713251009 | chave 0313251009 | abertura 2026-06-22 14:18:39
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264543567796 2026-06-22 16:35:00→2026-06-22 17:06:00 | papel=fechado+interrompido+problema | dist=2.3 | n_trafo=2 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5713251009: 2 ocorrência(s)
+      oc 20264191711843 np=1 2026-03-22 11:12:00 → 2026-03-22 14:24:00 pap=fechado+interrompido+problema fora d=2207.9 causa=MEIO AMBIENTE
+      oc 20264543567796 np=1 2026-06-22 16:35:00 → 2026-06-22 17:06:00 pap=fechado+interrompido+problema fora d=2.3 causa=PARA-RAIOS
+      >>> TRAFO: fora da janela | n=2 | dentro=[] | menor dist=2.3
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-PS 00247/2026 | trafo 5702498013 | chave 0302498013 | abertura 2026-05-22 10:22:49
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264448250235 2026-05-27 14:58:00→2026-05-27 16:23:00 | papel=fechado+interrompido+problema | dist=124.6 | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5702498013: 1 ocorrência(s)
+      oc 20264448250235 np=1 2026-05-27 14:58:00 → 2026-05-27 16:23:00 pap=fechado+interrompido+problema fora d=124.6 causa=DESLIGAMENTO SEM PROGRAMACAO PREVIA
+      >>> TRAFO: fora da janela | n=1 | dentro=[] | menor dist=124.6
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-DP 00286/2026 | trafo 5700040005 | chave 0300040005 | abertura 2026-04-28 20:24:11
+   SCRIPT: TRAFO FORA DA JANELA | por=trafo | oc=20264247039186 2026-04-01 17:29:00→2026-04-01 19:35:00 | papel=fechado+interrompido+problema | dist=648.8 | n_trafo=1 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700040005: 1 ocorrência(s)
+      oc 20264247039186 np=1 2026-04-01 17:29:00 → 2026-04-01 19:35:00 pap=fechado+interrompido+problema fora d=648.8 causa=CAUSADA POR TERCEIROS
+      >>> TRAFO: fora da janela | n=1 | dentro=[] | menor dist=648.8
+   ### MEU VEREDITO: TRAFO FORA DA JANELA | script: TRAFO FORA DA JANELA | BATE: S
+====================================================================================================
+SS ETO-RD-PA 00085/2026 | trafo 5700375092 | chave 0300375092 | abertura 2026-02-03 18:43:16
+   SCRIPT: AUSENTE — nem trafo nem chave | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700375092: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0300375092: 0 ocorrência(s)
+      >>> CHAVE: AUSENTE | n=0 | dentro=[] | menor dist=None
+   ### MEU VEREDITO: AUSENTE — nem trafo nem chave | script: AUSENTE — nem trafo nem chave | BATE: S
+====================================================================================================
+SS ETO-RD-GU 00484/2026 | trafo 5700277097 | chave 0300277097 | abertura 2026-04-20 18:21:25
+   SCRIPT: AUSENTE — nem trafo nem chave | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5700277097: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0300277097: 0 ocorrência(s)
+      >>> CHAVE: AUSENTE | n=0 | dentro=[] | menor dist=None
+   ### MEU VEREDITO: AUSENTE — nem trafo nem chave | script: AUSENTE — nem trafo nem chave | BATE: S
+====================================================================================================
+SS DOLP-RD-PA 00084/2026 | trafo 5710823122 | chave 0310823122 | abertura 2026-01-16 16:24:36
+   SCRIPT: AUSENTE — nem trafo nem chave | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5710823122: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0310823122: 0 ocorrência(s)
+      >>> CHAVE: AUSENTE | n=0 | dentro=[] | menor dist=None
+   ### MEU VEREDITO: AUSENTE — nem trafo nem chave | script: AUSENTE — nem trafo nem chave | BATE: S
+====================================================================================================
+SS ETO-RD-GU 00073/2026 | trafo 5701108076 | chave 0301108076 | abertura 2026-01-14 16:27:20
+   SCRIPT: AUSENTE — nem trafo nem chave | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=0
+   cobertura: Crítica carregada
+   TRAFO 5701108076: 0 ocorrência(s)
+      >>> TRAFO: AUSENTE | n=0 | dentro=[] | menor dist=None
+   CHAVE 0301108076: 0 ocorrência(s)
+      >>> CHAVE: AUSENTE | n=0 | dentro=[] | menor dist=None
+   ### MEU VEREDITO: AUSENTE — nem trafo nem chave | script: AUSENTE — nem trafo nem chave | BATE: S
+====================================================================================================
+SS DOLP-RD-PA 00713/2026 | trafo 5364882001 | chave 0364882001 | abertura 2026-07-02 17:26:06
+   SCRIPT: CASOU PELO TRAFO | por=trafo | oc=None 2026-07-02 08:55:00→2026-07-04 12:38:00 | papel=problema+interrompido+fechado | dist=None | n_trafo=1 n_chave=None
+   cobertura: Crítica de julho · extração por SS de 07/08 (site) — chave g
+   >>> JULHO (sem Crítica bruta). julho-2026.json critica = SIM | n oc: 1
+        02/07/2026 08:55 04/07/2026 12:38 problema+interrompido+fechado na_janela= True d_ini= 8.5
+====================================================================================================
+SS ETO-COPC 00048/2026 | trafo 5700003070 | chave 0300003070 | abertura 2026-07-10 14:41:25
+   SCRIPT: AUSENTE pelo trafo — chave gêmea não conferível (Crítica bruta de julho perdida) | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=None
+   cobertura: Crítica de julho · extração por SS de 07/08 (site) — chave g
+   >>> JULHO (sem Crítica bruta). julho-2026.json critica = AUSENTE | n oc: 0
+====================================================================================================
+SS ETO-RD-GR 00746/2026 | trafo 5700056009 | chave 0300056009 | abertura 2026-07-22 17:49:31
+   SCRIPT: AUSENTE — nem trafo nem chave | por=— | oc=None None→None | papel=None | dist=None | n_trafo=0 n_chave=0
+   cobertura: SEM CRÍTICA DESTE PERÍODO — não conferível
+   >>> JULHO (sem Crítica bruta). julho-2026.json critica = None | n oc: 0
