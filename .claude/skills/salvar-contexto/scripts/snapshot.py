@@ -22,7 +22,7 @@ from pathlib import Path
 LIMITE_ARQUIVO = 10 * 1024 * 1024        # 10 MB por arquivo
 LIMITE_TOTAL = 120 * 1024 * 1024         # 120 MB por snapshot
 THROTTLE_AUTO_MIN = 20                   # minutos entre autosaves no Stop
-EXT_IGNORADAS = {'.zip', '.gz', '.7z', '.tar', '.sqlite3', '.sqlite3-shm', '.sqlite3-wal', '.pyc'}
+EXT_IGNORADAS = {'.zip', '.gz', '.7z', '.tar', '.sqlite3', '.sqlite3-shm', '.sqlite3-wal', '.pyc', '.pkl'}
 DIRS_IGNORADOS = {'node_modules', '__pycache__', '.git', '.venv', 'dist', 'pages-dist'}
 PRIORIDADE = ['.md', '.py', '.js', '.mjs', '.sh', '.json', '.txt', '.csv',
               '.xlsx', '.pptx', '.docx', '.pdf', '.html', '.png', '.jpg']
@@ -82,15 +82,20 @@ def inventariar(raiz: Path):
 
 
 def escolher(itens):
-    """Ordena por prioridade de tipo e data; copia até os limites."""
+    """Copia até os limites. Ordem: arquivos pequenos primeiro (garante que scripts,
+    JSONs de resultado e entregas entrem antes das bases grandes), depois por tipo,
+    depois o mais recente primeiro. Faixas: até 1 MB, até 5 MB, o resto."""
+    def faixa(b):
+        return 0 if b <= 1 << 20 else (1 if b <= 5 << 20 else 2)
+    def pri(ext):
+        return PRIORIDADE.index(ext) if ext in PRIORIDADE else len(PRIORIDADE)
     cand = [i for i in itens if not i['ignorado'] and i['bytes'] <= LIMITE_ARQUIVO]
-    total, escolhidos = 0, []
-    # prioridade por tipo; dentro do tipo, o mais recente primeiro
-    por_tipo = {}
+    grupos = {}
     for i in cand:
-        por_tipo.setdefault(i['ext'], []).append(i)
-    for ext in sorted(por_tipo, key=lambda e: PRIORIDADE.index(e) if e in PRIORIDADE else 99):
-        for i in sorted(por_tipo[ext], key=lambda i: i['modificado'], reverse=True):
+        grupos.setdefault((faixa(i['bytes']), pri(i['ext'])), []).append(i)
+    total, escolhidos = 0, []
+    for k in sorted(grupos):
+        for i in sorted(grupos[k], key=lambda i: i['modificado'], reverse=True):
             if total + i['bytes'] > LIMITE_TOTAL:
                 i['copiado'] = False
                 i['motivo'] = 'limite total do snapshot'
