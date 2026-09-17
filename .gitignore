@@ -11,3 +11,6 @@ auditoria-transformadores-134/dist/
 auditoria-transformadores-134/pages-dist/
 auditoria-transformadores-134/.next/
 auditoria-transformadores-134/.wrangler/
+
+# skill salvar-contexto
+.claude/skills/*/scripts/__pycache__/
