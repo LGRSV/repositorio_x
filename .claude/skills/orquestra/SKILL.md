@@ -93,6 +93,20 @@ O relatório final do agente **não chega ao usuário**. Quem conversa com o usu
 - Precisa continuar um agente já criado, com o contexto dele? `SendMessage` com o nome.
   Chamar `Agent` de novo começa do zero.
 
+## 5.1 · Esperar do jeito certo
+
+**O arquivo de saída aparece quando o agente começa a escrever, não quando termina.** Ler o
+contrato antes da notificação de conclusão faz você julgar um rascunho: já aconteceu aqui,
+e o "defeito" que eu tinha encontrado era só o arquivo pela metade.
+
+- Espere a **notificação de conclusão** do agente. Não faça laço de espera pelo arquivo existir.
+- Enquanto espera, adiante o que não depende daquele agente.
+- Antes de redisparar uma etapa, confira com `ListAgents` se a primeira ainda está viva.
+  **Dois agentes escrevendo o mesmo caminho é corrida**: ou pare o primeiro (`TaskStop`), ou
+  mande o segundo escrever em outro arquivo.
+- Redisparo sempre cita o defeito e o número certo já conferido; agente que recebe só
+  "refaça" repete o mesmo caminho.
+
 ## 6 · Reunir, conferir, decidir
 
 Você **não** repete a análise dos agentes. Você confere invariantes:
@@ -132,5 +146,7 @@ não foi salvo é um leque que vai ser refeito.
   prompt ou cada agente decide um formato diferente.
 - **Agente novo só vale na próxima sessão** (veja a seção 3). Testar a orquestração no
   mesmo turno em que os agentes foram criados exige o desvio pelo `general-purpose`.
+- **Não julgue pelo arquivo, julgue pela notificação** (seção 5.1). Um agente que ainda
+  escreve deixa campos nulos no caminho.
 - **Não leia o arquivo de transcrição do agente** (`tasks/<id>.output`): ele traz a conversa
   inteira do subagente e estoura o contexto. O produto é o JSON que o contrato mandou escrever.
