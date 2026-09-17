@@ -58,7 +58,8 @@ def ignorado(p: Path, raiz: Path, extra):
         return True
     if p.suffix.lower() in EXT_IGNORADAS:
         return True
-    return any(rel.match(pat) or str(rel).startswith(pat.rstrip('/')) for pat in extra)
+    r = str(rel)
+    return any(rel.match(pat) or r == pat.rstrip('/') or r.startswith(pat.rstrip('/') + '/') for pat in extra)
 
 
 def inventariar(raiz: Path):
