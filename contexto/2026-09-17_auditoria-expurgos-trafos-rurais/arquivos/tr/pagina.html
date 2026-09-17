@@ -1,0 +1,646 @@
+<title>Por que queimaram</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--ground:#EDEFF3;--surf:#FFF;--surf2:#F6F7FA;--ink:#161A22;--mut:#636B7C;--line:#D6DAE3;
+--burn:#A8430F;--surge:#31457F;--ok:#1D6B45;--late:#992A38;--burn-w:#F3E5DC;--surge-w:#E2E7F3;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#10131A;--surf:#181C25;--surf2:#1E232D;--ink:#E7EAF0;--mut:#98A1B2;--line:#272D39;--burn:#E08050;--surge:#8CA0DF;--ok:#4CA87A;--late:#D9788A;--burn-w:#2A1D16;--surge-w:#1B2130;}}
+:root[data-theme="dark"]{--ground:#10131A;--surf:#181C25;--surf2:#1E232D;--ink:#E7EAF0;--mut:#98A1B2;--line:#272D39;--burn:#E08050;--surge:#8CA0DF;--ok:#4CA87A;--late:#D9788A;--burn-w:#2A1D16;--surge-w:#1B2130;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:400 15px/1.55 "IBM Plex Sans",system-ui,sans-serif;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:40px 64px}
+h1{font:700 clamp(30px,5vw,46px)/1.05 Archivo,system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--mut);max-width:62ch;margin:0 0 6px;font-size:16px}
+.src0{color:var(--mut);font:400 12px/1.5 "IBM Plex Mono",monospace;margin:14px 0 0}
+h2{font:600 13px/1 "IBM Plex Sans",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:44px 0 14px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.box{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:18px 18px 16px}
+.box h3{font:600 14px/1.3 "IBM Plex Sans",sans-serif;margin:0 0 12px}
+.box ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.box li{display:grid;grid-template-columns:1fr 84px 26px;align-items:center;gap:9px;font-size:13px}
+.bl{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt{height:7px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.bt i{display:block;height:100%;border-radius:4px}
+.bn{font-family:"IBM Plex Mono",monospace;font-size:12px;text-align:right;color:var(--mut);font-variant-numeric:tabular-nums}
+.big{font:700 42px/1 Archivo,sans-serif;font-variant-numeric:tabular-nums}
+.big span{font:400 14px/1 "IBM Plex Sans",sans-serif;color:var(--mut)}
+.grid{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:18px}
+.ch{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.cid{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cid h3{font:600 20px/1.1 "IBM Plex Mono",monospace;margin:0;letter-spacing:-.01em}
+.mes{font:500 11px/1 "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+.pot{font:500 12px/1 "IBM Plex Mono",monospace;padding:4px 7px;border-radius:5px;background:var(--surf2);color:var(--mut)}
+.pot.up{color:var(--burn);background:var(--burn-w)} .pot.down{color:var(--surge);background:var(--surge-w)}
+.cmeta{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--mut)}
+.cmeta .ss{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.why{display:grid;grid-template-columns:1fr 34px 1fr;gap:10px;align-items:stretch;margin-bottom:16px}
+.wcol{background:var(--surf2);border-radius:9px;padding:12px 13px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.wcol.surge{border-left:3px solid var(--surge)} .wcol.burn{border-left:3px solid var(--burn)}
+.wlab{font:500 10.5px/1 "IBM Plex Sans",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--mut)}
+.wcol strong{font:600 14.5px/1.3 "IBM Plex Sans",sans-serif}
+.wsub{font-size:12px;color:var(--mut);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wjoin{display:grid;place-items:center;font:600 19px/1 "IBM Plex Mono",monospace;color:var(--mut)}
+.tl{margin:4px 0 14px}
+.track{position:relative;height:26px;background:var(--surf2);border-radius:6px}
+.seg{position:absolute;top:7px;height:12px;background:var(--surge);border-radius:3px;opacity:.85}
+.seg.off{background:repeating-linear-gradient(45deg,var(--surge),var(--surge) 3px,transparent 3px,transparent 6px)}
+.mk{position:absolute;top:0;width:2px;height:26px;border-radius:2px}
+.mk.ss{background:var(--burn)} .mk.lim{background:var(--mut);opacity:.55}
+.mk.fim{width:9px;height:9px;border-radius:50%;top:8.5px;margin-left:-4px}
+.mk.fim.ok{background:var(--ok)} .mk.fim.late{background:var(--late)}
+.tlab{display:flex;justify-content:space-between;font:400 11px/1.4 "IBM Plex Mono",monospace;color:var(--mut);margin-top:5px;gap:8px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin-bottom:12px}
+.facts div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts span{font:500 10.5px/1 "IBM Plex Sans",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
+.facts b{font:500 13.5px/1.3 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.facts b.late{color:var(--late)} .facts b.ok{color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:400 11.5px/1 "IBM Plex Mono",monospace;background:var(--surf2);border-radius:5px;padding:6px 8px;color:var(--ink);display:flex;gap:6px}
+.chip b{color:var(--mut);font-weight:500}
+details{margin-top:12px}
+summary{cursor:pointer;font:500 12.5px/1 "IBM Plex Sans",sans-serif;color:var(--mut);padding:6px 0}
+summary:focus-visible{outline:2px solid var(--burn);outline-offset:2px}
+details p{font-size:13px;color:var(--ink);margin:8px 0;line-height:1.5}
+details p b{color:var(--mut);font-weight:500;margin-right:6px}
+.src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mut)}
+.note{background:var(--burn-w);border-radius:9px;padding:14px 16px;font-size:13.5px;margin-top:14px;color:var(--ink)}
+.note b{color:var(--burn)}
+@media(max-width:560px){.why{grid-template-columns:1fr}.wjoin{height:18px}}
+</style>
+<div class="wrap">
+<h1>Por que queimaram</h1>
+<p class="lede">Dezesseis transformadores rurais de 112,5 e 150 kVA substituídos entre janeiro e agosto de 2026. Para cada um: o que a Crítica registrou como causa, o que a equipe encontrou em campo, e quanto tempo separou a interrupção do atendimento.</p>
+<p class="src0">Base de SS/OS 10-09-2026 · fluxo-1582 · passos-critica · cadastro FIS 07-2026</p>
+
+<h2>Por que queimou</h2>
+<div class="sum">
+ <div class="box"><h3>Subcausa registrada na Crítica</h3><ul><li><span class="bl">Queimado Por Descarga Atmosferica</span><span class="bt"><i style="width:100%;background:var(--surge)"></i></span><span class="bn">5</span></li><li><span class="bl">Rd De Bt</span><span class="bt"><i style="width:40%;background:var(--surge)"></i></span><span class="bn">2</span></li><li><span class="bl">Falha Bucha De At</span><span class="bt"><i style="width:20%;background:var(--surge)"></i></span><span class="bn">1</span></li><li><span class="bl">Descarga Atmosferica</span><span class="bt"><i style="width:20%;background:var(--surge)"></i></span><span class="bn">1</span></li><li><span class="bl">Falha Bucha De Bt</span><span class="bt"><i style="width:20%;background:var(--surge)"></i></span><span class="bn">1</span></li><li><span class="bl">Vazamento De Oleo / Tanque Deteriorado</span><span class="bt"><i style="width:20%;background:var(--surge)"></i></span><span class="bn">1</span></li><li><span class="bl">Causa Nao Identificada - Especificar</span><span class="bt"><i style="width:20%;background:var(--surge)"></i></span><span class="bn">1</span></li></ul></div>
+ <div class="box"><h3>Provável motivo apontado em campo</h3><ul><li><span class="bl">Não Identificado</span><span class="bt"><i style="width:100%;background:var(--burn)"></i></span><span class="bn">6</span></li><li><span class="bl">Descarga Atmosferica</span><span class="bt"><i style="width:83%;background:var(--burn)"></i></span><span class="bn">5</span></li><li><span class="bl">Sobrecarga</span><span class="bt"><i style="width:50%;background:var(--burn)"></i></span><span class="bn">3</span></li><li><span class="bl">Vazamento De Oleo</span><span class="bt"><i style="width:17%;background:var(--burn)"></i></span><span class="bn">1</span></li></ul></div>
+ <div class="box"><h3>Descarga atmosférica</h3>
+   <p class="big">6<span> das 12 com interrupção registrada</span></p>
+   <p style="font-size:13px;color:var(--mut);margin:10px 0 0">É a subcausa dominante. O campo confirma descarga em 5 casos, aponta sobrecarga em 3 e deixa <b>não identificado</b> em 6 — quase metade dos laudos não fecha uma causa.</p>
+ </div>
+</div>
+
+<h2>Quando queimou</h2>
+<div class="sum">
+ <div class="box"><h3>Mês de abertura da SS</h3><ul><li><span class="bl">Jan</span><span class="bt"><i style="width:100%;background:var(--burn)"></i></span><span class="bn">4</span></li><li><span class="bl">Abr</span><span class="bt"><i style="width:100%;background:var(--burn)"></i></span><span class="bn">4</span></li><li><span class="bl">Mar</span><span class="bt"><i style="width:50%;background:var(--burn)"></i></span><span class="bn">2</span></li><li><span class="bl">Ago</span><span class="bt"><i style="width:50%;background:var(--burn)"></i></span><span class="bn">2</span></li><li><span class="bl">Fev</span><span class="bt"><i style="width:25%;background:var(--burn)"></i></span><span class="bn">1</span></li><li><span class="bl">Jun</span><span class="bt"><i style="width:25%;background:var(--burn)"></i></span><span class="bn">1</span></li><li><span class="bl">Jul</span><span class="bt"><i style="width:25%;background:var(--burn)"></i></span><span class="bn">1</span></li></ul></div>
+ <div class="box"><h3>Prazo de 72 horas</h3>
+   <p class="big">14<span> de 15 dentro do prazo</span></p>
+   <p style="font-size:13px;color:var(--mut);margin:10px 0 0">Todas as SS têm limite de 72 h a partir da abertura. A folga média é de <b>55 h</b>. Um único caso estourou.</p>
+ </div>
+ <div class="box"><h3>O caso fora do prazo</h3>
+   <p style="font:600 15px/1.3 'IBM Plex Mono',monospace;margin:0 0 6px">ETO-RD-DP 00011/2026</p>
+   <p style="font-size:13px;color:var(--mut);margin:0">Almas, 02/01. Falha de bucha de AT, interrupção de 42 h. O atendimento levou <b style="color:var(--late)">100 h</b> — 28 h além do limite. É também o único que trocou 150 kVA por 75 kVA.</p>
+ </div>
+</div>
+<div class="note"><b>Duas inconsistências de data.</b> Em <code>ETO-RD-GU 00061/2026</code> a ocorrência casada é de 30/04 enquanto a SS é de 13/01 — três meses e meio de distância, o que indica vínculo errado. Em <code>ETO-RD-GR 00405/2026</code> a SS abriu 5 h <i>antes</i> da interrupção registrada. Ambas merecem conferência antes de usar a causa.</div>
+
+<h2>Caso a caso, em ordem cronológica</h2>
+<div class="grid">
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jan</span><h3>5310024091</h3><span class="pot down">150 → 75 kVA ↓</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-DP 00011/2026</span><span>ALMAS · SUL</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>FALHA BUCHA DE AT</strong>
+   <span class="wsub">TRANSFORMADOR · 2 consumidores</span>
+  </div>
+  <div class="wjoin">≠</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">SEGUE SS DE TRAFO QUEIMADO NA RDR DE ALMAS, TRAFO DE 150KVA REDE DE 34KV, 1 PARA RAIO QUEI…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:24.24%;width:24.88%" title="Interrupção 01/01 16:35 → 03/01 10:53"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim late" style="left:94.12%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 02/01 11:24</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>100 h</b></div>
+  <div><span>Prazo</span><b class="late">28 h de atraso</b></div>
+  <div><span>Interrupção</span><b>42,3 h</b></div>
+  <div><span>Série</span><b>456330 → 1819185</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>2H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>8,32 · 2,28 · 2,64</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> SEGUE SS DE TRAFO QUEIMADO NA RDR DE ALMAS, TRAFO DE 150KVA REDE DE 34KV, 1 PARA RAIO QUEIMADO, ACESSO LIVRE.EQUIPE D.B. MACHADO</p><p><b>OS</b> SEGUE SS DE TRAFO QUEIMADO NA RDR DE ALMAS, TRAFO DE 150KVA REDE DE 34KV, 1 PARA RAIO QUEIMADO, ACESSO LIVRE. EQUIPE D.B. MACHADO SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE ALMAS SS: ETO-RD-DP 11/2026 ESPECIFICAÇÕES DO TRANSFORMADOR TRANSFORMADOR INSTALADO: 75 KVA TRANSFORMADOR RETIRADO: 150 KVA MEDIÇÕES LOGO APÓS A TROCA VAN: 220 VBN: 219 OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DENNER.</p>
+  <p class="src">OS DBM-MPDB08  000005/2026 · Obra 512600030 · ocorrência 20264062473583</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jan</span><h3>5741943048</h3><span class="pot up">112.5 → 150 kVA ↑</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GR 00052/2026</span><span>FORTALEZA DO TABOCAO · NORTE</span><span>5 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>sem interrupção registrada</strong>
+   <span class="wsub">—</span>
+  </div>
+  <div class="wjoin">?</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">trafo queimado 5710088048, porem em campo esta o trafo 5741943048112.5 kVAacesso livre par…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:51.47%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 09/01 18:59</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>28 h</b></div>
+  <div><span>Prazo</span><b class="ok">44 h de folga</b></div>
+  <div><span>Interrupção</span><b>—</b></div>
+  <div><span>Série</span><b>1510147 → 489685</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>11,57 · 7,98 · 6,51</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> trafo queimado 5710088048, porem em campo esta o trafo 5741943048112.5 kVAacesso livre pararaio queimadoequipe 009op01- 63999201531</p><p><b>OS</b> SUBSTITUIÇÃO DE TRAFO 5710088048 ETO-RD-GR 52/2026 RDR FORTALEZA DO TABOCÃO TRAFO RETIRADO POTÊNCIA : 112,5KV TENSÃO : 34,5KV Nº ENERGISA (CITD) : 138563 Nº DE SÉRIE : 1510147 MARCA : ROMAGNOLE DATA FABRICAÇÃO : 03/2024 IMPEDANCIA : 3,87 POS. TAP : 02 TRAFO INSTALADO POTÊNCIA : 150KVA TENSÃO : 34,5KV Nº ENERGISA (CITD) : 135119 Nº DE SÉRIE : 489685 MARCA : ITAIPU DATA FABRICAÇÃO : 03/2023 IMPEDANCIA : 4,03 POS. TAP : 02 MEDIÇÃO 1: 11,57 MEDIÇÃO 2: 07,98 MEDIÇÃO 3: 06,51 COORDENADA: X: 785308_x</p>
+  <p class="src">OS ENC-MLGR03  000015/2026 · Obra 712600047</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jan</span><h3>5744049021</h3><span class="pot same">150 → 150 kVA =</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GU 00061/2026</span><span>PARANA · SUL</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">MEIO AMBIENTE · 1 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">transformador e para raio queimado</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg off" style="left:0;width:2%" title="Ocorrência fora da escala"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:47.41%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 13/01 15:22</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>21 h</b></div>
+  <div><span>Prazo</span><b class="ok">51 h de folga</b></div>
+  <div><span>Interrupção</span><b>4,07 h</b></div>
+  <div><span>Série</span><b>487439 → 114600</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>20,9 · 20,84 · 20,77</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> transformador e para raio queimado</p><p><b>OS</b> SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE PARANA INT:N/A SS: ETO-RD-GU 61/2026 ESPECIFICAÇÕES DO TRANSFORMADOR TRANSFORMADOR INSTALADO: 150 KVA TRANSFORMADOR RETIRADO: 150 KVA MEDIÇÕES LOGO APÓS A TROCA VAN: 213 VBN: 217 OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.</p>
+  <p class="src">OS DBM-MPDB08  000015/2026 · Obra 412600087 · ocorrência 20264347866409</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jan</span><h3>5758640152</h3><span class="pot up">112.5 → 150 kVA ↑</span></div>
+  <div class="cmeta"><span class="ss">DG-RD-PO 00085/2026</span><span>SANTA ROSA DO TOCANTINS · CENTRO</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>QUEIMADO POR DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TRANSFORMADOR</span>
+  </div>
+  <div class="wjoin">≠</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">INT: 20264089363984Segue SS de TR 5758640152 112.5KVA/34.5KV e para-raios queimados.Acesso…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:35.24%;width:12.69%" title="Interrupção 20/01 21:53 → 21/01 19:28"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:47.82%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 20/01 21:59</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>21 h</b></div>
+  <div><span>Prazo</span><b class="ok">51 h de folga</b></div>
+  <div><span>Interrupção</span><b>21,58 h</b></div>
+  <div><span>Série</span><b>1568551 → 400401</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>5H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>23,2 · 24,9 · 26,7</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> INT: 20264089363984Segue SS de TR 5758640152 112.5KVA/34.5KV e para-raios queimados.Acesso livre.UC 35609700Poto de Combustivel na entrada da cidadeGEREMIAS BORDIGNON152OP01 63 98413-9467</p><p><b>OS</b> medido_ emergencial_ substituição de trafo queimado rdr santa rosa</p>
+  <p class="src">OS DG-MPPO01  000022/2026 · Obra 312600080 · ocorrência 20264089363984</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">fev</span><h3>5710170052</h3><span class="pot same">75 → 75 kVA =</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GU 00202/2026</span><span>FORMOSO DO ARAGUAIA · SUL</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>QUEIMADO POR DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TRANSFORMADOR · 2 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">SEGUE SOLICITAÇÃO PARA TROCA DE TRAFO QUEIMADO NA RDR DE FORMOSO</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:31.06%;width:18.72%" title="Interrupção 11/02 10:11 → 12/02 18:00"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:49.82%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 11/02 17:20</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>25 h</b></div>
+  <div><span>Prazo</span><b class="ok">47 h de folga</b></div>
+  <div><span>Interrupção</span><b>31,82 h</b></div>
+  <div><span>Série</span><b>798293 → 589121</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>0</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> SEGUE SOLICITAÇÃO PARA TROCA DE TRAFO QUEIMADO NA RDR DE FORMOSO</p><p><b>OS</b> SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE FORMOSO SS: ETO-RD-GU 202/2026 ESPECIFICAÇÕES DO TRANSFORMADOR TRANSFORMADOR INSTALADO: 75 KVA TRANSFORMADOR RETIRADO: 75 KVA MEDIÇÕES LOGO APÓS A TROCA VAN: 231 VBN: 388 OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.</p>
+  <p class="src">OS DBM-MPDB08  000048/2026 · Obra 412600214 · ocorrência 20264123921464</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">mar</span><h3>5725809122</h3><span class="pot up">112.5 → 150 kVA ↑</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-PA 00187/2026</span><span>PALMAS · CENTRO</span><span>2 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>RD DE BT</strong>
+   <span class="wsub">DESLIGAMENTO SEM PROGRAMACAO PREVIA · 1 consumidores</span>
+  </div>
+  <div class="wjoin">≠</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">Segue SS para atendimento com equipe de manutenção , substituir trafo QUEIMADO 5725809122 …</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:35.24%;width:2.55%" title="Interrupção 18/03 11:08 → 18/03 15:28"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:39.29%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 18/03 11:14</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>7 h</b></div>
+  <div><span>Prazo</span><b class="ok">65 h de folga</b></div>
+  <div><span>Interrupção</span><b>4,33 h</b></div>
+  <div><span>Série</span><b>396360 → 1575636</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Não</span><span class="chip"><b>Elo</b>6K</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> Segue SS para atendimento com equipe de manutenção , substituir trafo QUEIMADO 5725809122 na RDU de palmas , acesso livre , tensão 13,8 , potencia 112,5 , para-raio queimado</p><p><b>OS</b> SS ETO-RD-PA 187/2026 TF 5725809122 TRAFO RETIRADO POTÊNCIA : 112.5KVA TENSÃO : 13.8KV Nº ENERGISA (CITD) : 104055 Nº DE SÉRIE : 396360 MARCA : TRAEL DATA FABRICAÇÃO : 08/2016 IMPEDANCIA : 3.5 POS. TAP : 01 TRAFO INSTALADO&#x27; POTÊNCIA : 150KVA TENSÃO : 13.8KV Nº ENERGISA (CITD) : 143848 Nº DE SÉRIE : 1575636 MARCA : ROMAGNOLE DATA FABRICAÇÃO : SET/2024 IMPEDANCIA : 3.65 POS. TAP : 01</p>
+  <p class="src">OS ENC-MPPS01  000106/2026 · Obra 212600376 · ocorrência 20264184431275</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">mar</span><h3>5700010186</h3><span class="pot same">112.5 → 112.5 kVA =</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GU 00384/2026</span><span>JAU DO TOCANTINS · SUL</span><span>20 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>QUEIMADO POR DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TRANSFORMADOR · 40 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">segue nota pra substituir trafo queimado RDR de JAU asseço livre</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:34.00%;width:9.89%" title="Interrupção 24/03 14:41 → 25/03 07:30"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:43.94%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 24/03 16:50</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>15 h</b></div>
+  <div><span>Prazo</span><b class="ok">57 h de folga</b></div>
+  <div><span>Interrupção</span><b>16,82 h</b></div>
+  <div><span>Série</span><b>1423257 → 1548908</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>19,1 · 18,22 · 20,61</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> segue nota pra substituir trafo queimado RDR de JAU asseço livre</p><p><b>OS</b> SUBSTITUIÇÃO DE TRANSFORMADOR NA RDR DE JAÚ INT: 20264197486841 SS: ETO-RD-GU 384/2026 ESPECIFICAÇÕES DO TRANSFORMADOR TRANSFORMADOR INSTALADO: 112,5KV TRANSFORMADOR RETIRADO: 112,5KV MEDIÇÕES LOGO APÓS A TROCA VAN: 221.4 VBN: 222.1 VCN: 209.2 VAB: 381.6 VBC: 374.9 VCA: 374.9 OBS:SUBSTITUIÇÃO DE TRANSFORMADOR AUTORIZADA PELO DIONE.</p>
+  <p class="src">OS DBM-MPDB10  000049/2026 · Obra 412600360 · ocorrência 20264197515891</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">abr</span><h3>5727671110</h3><span class="pot down">112.5 → 75 kVA ↓</span></div>
+  <div class="cmeta"><span class="ss">ENC-RD-PS 00435/2026</span><span>SANTA RITA DO TOCANTINS · CENTRO</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>QUEIMADO POR DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TRANSFORMADOR · 2 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TR 5727671110112,5KVAPARA RAIO DANIFICADO TENSAO 34500ACESSO PARA CAMINHAO 073OP01 ESTEVE …</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:22.41%;width:27.38%" title="Interrupção 04/04 18:25 → 06/04 16:58"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:49.76%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 05/04 16:20</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>25 h</b></div>
+  <div><span>Prazo</span><b class="ok">47 h de folga</b></div>
+  <div><span>Interrupção</span><b>46,55 h</b></div>
+  <div><span>Série</span><b>1498016 → 602397</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>2H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> TR 5727671110112,5KVAPARA RAIO DANIFICADO TENSAO 34500ACESSO PARA CAMINHAO 073OP01 ESTEVE NO LOCAL</p><p><b>OS</b> SS ENC-RD-PS 435/2026 TR 5727671110 TRAFO RETIRADO POTÊNCIA : 112.5KVA TENSÃO : 34.5KV Nº ENERGISA (CITD) : 134485 Nº DE SÉRIE : 1498016 MARCA : ITB DATA FABRICAÇÃO : 12/2022 IMPEDANCIA : 3.85 POS. TAP : 02 TRAFO INSTALADO&#x27; POTÊNCIA : 75KVA TENSÃO : 34.5KV Nº ENERGISA (CITD) : 149931 Nº DE SÉRIE : 602397 MARCA : ITAIPU DATA FABRICAÇÃO : 01/2026 IMPEDANCIA : 3.82 POS. TAP : 02</p>
+  <p class="src">OS ENC-LMPS01  000101/2026 · Obra 212600392 · ocorrência 20264254647623</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">abr</span><h3>5700001112</h3><span class="pot same">112.5 → 112.5 kVA =</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GR 00405/2026</span><span>COLMEIA · NORTE</span><span>0 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>FALHA BUCHA DE BT</strong>
+   <span class="wsub">TRANSFORMADOR · 88 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>VAZAMENTO DE OLEO</strong>
+   <span class="wsub">acionar equipe de manutencao para troca de trafo avariado na RDU de Goainir dos campos e c…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:38.47%;width:2.03%" title="Interrupção 06/04 22:19 → 07/04 01:46"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:40.35%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 06/04 16:56</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>9 h</b></div>
+  <div><span>Prazo</span><b class="ok">63 h de folga</b></div>
+  <div><span>Interrupção</span><b>3,45 h</b></div>
+  <div><span>Série</span><b>435126 → 489704</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>2H</span><span class="chip"><b>Vazamento</b>Sim</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>18,15 · 16,29 · 12,61</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> acionar equipe de manutencao para troca de trafo avariado na RDU de Goainir dos campos e chave danificada fase Atrafo 5700001112Equipe 033po01</p><p><b>OS</b> TROCA DE TRAFO AVARIADO 5700001112 ETO-RD-GR 405/2026 ZONA URBANA - GOIANI DOS CAMPOS 0112 TRAFO RETIRADO POTÊNCIA : 112.5KVA TENSÃO : 34.5KV Nº ENERGISA (CITD) : CITD06105557 Nº DE SÉRIE : 435126 MARCA : TRAEL DATA FABRICAÇÃO : 07/2017 IMPEDANCIA : 4.02 POS. TAP : 04 TRAFO INSTALADO POTÊNCIA : 112.5KVA TENSÃO : 34.5KV Nº ENERGISA (CITD) : 135138 Nº DE SÉRIE : 489704 MARCA : ITAIPU - TRAEL DATA FABRICAÇÃO : 03/2023 - 02/2026 IMPEDANCIA : 3.38 POS. TAP : 02 MEDIÇÃO 1: 18.15 MEDIÇÃO 2: 16.29 MEDIÇÃO 3: 12.61</p>
+  <p class="src">OS ENC-MLGR03  000150/2026 · Obra 712600284 · ocorrência 20264259245529</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">abr</span><h3>5737010110</h3><span class="pot down">112.5 → 75 kVA ↓</span></div>
+  <div class="cmeta"><span class="ss">DG-RD-PO 00331/2026</span><span>SANTA RITA DO TOCANTINS · CENTRO</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>QUEIMADO POR DESCARGA ATMOSFERICA</strong>
+   <span class="wsub">TRANSFORMADOR · 1 consumidores</span>
+  </div>
+  <div class="wjoin">≠</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">SS PARA TROCAR TRAFO 5737010110 E PARA RAIO QUEIMADOPOTENCIA; 112,5KVA 34500ACESS: LIVRE</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:23.41%;width:27.32%" title="Interrupção 12/04 18:58 → 14/04 17:25"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:50.71%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 13/04 15:09</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>26 h</b></div>
+  <div><span>Prazo</span><b class="ok">46 h de folga</b></div>
+  <div><span>Interrupção</span><b>46,45 h</b></div>
+  <div><span>Série</span><b>324371 → 584514</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>12,7 · 2,94 · 12,94</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> SS PARA TROCAR TRAFO 5737010110 E PARA RAIO QUEIMADOPOTENCIA; 112,5KVA 34500ACESS: LIVRE</p><p><b>OS</b> medido_ emergencial_ substituição de trafo queimado rdr santa rita</p>
+  <p class="src">OS DG-MPPO01  000083/2026 · Obra 312600262 · ocorrência 20264283274315</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">abr</span><h3>5731658122</h3><span class="pot same">150 → 150 kVA =</span></div>
+  <div class="cmeta"><span class="ss">DOLP-RD-PA 00493/2026</span><span>PALMAS · CENTRO</span><span>0 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>RD DE BT</strong>
+   <span class="wsub">DESLIGAMENTO SEM PROGRAMACAO PREVIA</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>SOBRECARGA</strong>
+   <span class="wsub">sgeue ss de 01 trafo de 150 kvar da rede de 34,500kv queimado para ser subistituido pela e…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:34.71%;width:4.41%" title="Interrupção 24/04 10:49 → 24/04 18:19"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:38.94%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 24/04 11:48</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>6 h</b></div>
+  <div><span>Prazo</span><b class="ok">66 h de folga</b></div>
+  <div><span>Interrupção</span><b>7,5 h</b></div>
+  <div><span>Série</span><b>489689 → 1672873</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>8 k</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> sgeue ss de 01 trafo de 150 kvar da rede de 34,500kv queimado para ser subistituido pela equipe de manutencão acesso livre cliente penalizado equipe 059op17 cel, 63992621690 chave de referencia 5731658122</p><p><b>OS</b> MEDIDO_ EMERGENCIAL_ ATIVO: 190.02780597 LOCALIZAÇÃO: 190-36642340 sgeue ss de 01 trafo de 150 kvar da rede de 34,500kv queimado para ser subistituido pela equipe de manutencão acesso livre cliente penalizado equipe 059op17 cel, 63992621690 chave de referencia 5731658122 DADOS DO ATENDIMENTO: EQUIPE: 833018 ENCARREGADO: WEDERSON RUBENS DATA: 24/04/2026</p>
+  <p class="src">OS DLP-CTPA00  000078/2026 · Obra 112600618 · ocorrência 20264322412157</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jun</span><h3>5700177250</h3><span class="pot same">45 → 45 kVA =</span></div>
+  <div class="cmeta"><span class="ss">DG-RD-PO 00400/2026</span><span>IPUEIRAS · CENTRO</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>VAZAMENTO DE OLEO / TANQUE DETERIORADO</strong>
+   <span class="wsub">TRANSFORMADOR · 2 consumidores</span>
+  </div>
+  <div class="wjoin">≠</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">TR-5700102250 Queimadopara raios bompotência 45kvatensão 34,5kvacesso livreequipe 001OP017…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:32.71%;width:16.66%" title="Interrupção 02/06 12:45 → 03/06 17:05"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:49.47%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 02/06 17:11</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>24 h</b></div>
+  <div><span>Prazo</span><b class="ok">48 h de folga</b></div>
+  <div><span>Interrupção</span><b>28,33 h</b></div>
+  <div><span>Série</span><b>644450 → 676403</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>2h</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Não</span><span class="chip"><b>Aterramento Ω</b>14,9 · 11,5 · 12,4</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> TR-5700102250 Queimadopara raios bompotência 45kvatensão 34,5kvacesso livreequipe 001OP017 tel-63992113757</p><p><b>OS</b> medido_ emegencial_ substituição de trafo queimado rdu ipueiras</p>
+  <p class="src">OS DG-MPPO01  000097/2026 · Obra 312600323 · ocorrência 20264470653384</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">jul</span><h3>5710016016</h3><span class="pot same">150 → 150 kVA =</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-AR 01134/2026</span><span>WANDERLANDIA · NORTE</span><span>2 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>CAUSA NAO IDENTIFICADA - ESPECIFICAR</strong>
+   <span class="wsub">CAUSA NAO IDENTIFICADA · 2 consumidores</span>
+  </div>
+  <div class="wjoin">=</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>SOBRECARGA</strong>
+   <span class="wsub">Boa noite!Senhores, enviar equipe manutenção para substituir trafo 5710016016 150 kva 34.5…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="seg" style="left:32.82%;width:5.43%" title="Interrupção 20/07 15:25 → 21/07 00:39"></div><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:38.29%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 20/07 19:35</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>5 h</b></div>
+  <div><span>Prazo</span><b class="ok">67 h de folga</b></div>
+  <div><span>Interrupção</span><b>9,23 h</b></div>
+  <div><span>Série</span><b>1548911 → 1613783</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>6K</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Sim</span><span class="chip"><b>Aterramento Ω</b>1848 · 15,7 · 1321</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> Boa noite!Senhores, enviar equipe manutenção para substituir trafo 5710016016 150 kva 34.5kv queimado, e substituir para raio e cruzetas.ESTRADA ESTANCIA SAO DOMINGOS, 0 - BR 153 KM 95 5 A DIREITA 4 KMacesso livre</p><p><b>OS</b> ETO-RD-AR 1134/2026 TRAFO 5710016016 TRAFO RETIRADO POTÊNCIA : 150 KVA TENSÃO : 34.5 KV Nº ENERGISA (CITD) : 141304 Nº DE SÉRIE : 1548911 MARCA : ROMAGNOLE DATA FABRICAÇÃO : 07/2024 IMPEDANCIA : 4,03 POS. TAP : 04 TRAFO INSTALADO POTÊNCIA : 150 KVA TENSÃO : 34.5 KV Nº ENERGISA (CITD) : 146016 Nº DE SÉRIE : 1613783 MARCA : ROMAGNOLE DATA FABRICAÇÃO : 03/2025 IMPEDANCIA : 4,14 POS. TAP : 04</p>
+  <p class="src">OS ENC-MPAR02  000042/2026 · Obra 612600721</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">ago</span><h3>5700577150</h3><span class="pot up">75 → 150 kVA ↑</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-DP 00501/2026</span><span>NATIVIDADE · SUL</span><span>21 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>sem interrupção registrada</strong>
+   <span class="wsub">—</span>
+  </div>
+  <div class="wjoin">?</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>SOBRECARGA</strong>
+   <span class="wsub">FOI CONSTATADO TRAFO 5700577150 75KVA EM CAMPO, 34,5KV QUEIMADO E BARRAMENTO DANIFICDO , P…</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:39.71%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 13/08 20:57</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>8 h</b></div>
+  <div><span>Prazo</span><b class="ok">64 h de folga</b></div>
+  <div><span>Interrupção</span><b>—</b></div>
+  <div><span>Série</span><b>474253 → 1672873</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Não</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Sim</span><span class="chip"><b>Aterramento Ω</b>1 · 1 · 1</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> FOI CONSTATADO TRAFO 5700577150 75KVA EM CAMPO, 34,5KV QUEIMADO E BARRAMENTO DANIFICDO , PENALIZANDO 21 CLIENTES POVOADO BOMFIM, FAVOR DISPONIBILIZAR EQUIPE MAANUTENÇÃO PARA DEVIDAS TRATATIVAS,obs,PARA RECUMPERAR BARRAMENTO , 10 METROS CABO 70mm , E CONECTORES PERFURANTE</p><p><b>OS</b> atendida pela wc trafo de 150kva da 34,9kv oleo vegetal, retirado um de 75 kva mineral</p>
+  <p class="src">OS ETO-RD-DP  002092/2026 · Obra 512600218</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes">ago</span><h3>5746834038</h3><span class="pot up">112.5 → 150 kVA ↑</span></div>
+  <div class="cmeta"><span class="ss">ETO-RD-DP 00528/2026</span><span>TAGUATINGA · SUL</span><span>1 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>sem interrupção registrada</strong>
+   <span class="wsub">—</span>
+  </div>
+  <div class="wjoin">?</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>NÃO IDENTIFICADO</strong>
+   <span class="wsub">Segue SS para substituição de trafo queimado 150 kva</span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div><div class="mk fim ok" style="left:48.88%" title="SS terminada"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta 28/08 11:11</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>23 h</b></div>
+  <div><span>Prazo</span><b class="ok">49 h de folga</b></div>
+  <div><span>Interrupção</span><b>—</b></div>
+  <div><span>Série</span><b>1454422 → 396833</b></div>
+ </div>
+ <div class="chips"><span class="chip"><b>Para-raios</b>Sim</span><span class="chip"><b>Elo</b>3H</span><span class="chip"><b>Vazamento</b>Sim</span><span class="chip"><b>Vegetação</b>Não</span><span class="chip"><b>Melhoria aterr.</b>Sim</span><span class="chip"><b>Aterramento Ω</b>1 · 1 · 1</span></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> Segue SS para substituição de trafo queimado 150 kva</p><p><b>OS</b> trafo de 150 kva substituido pela tavares</p>
+  <p class="src">OS ETO-RD-DP  002349/2026 · Obra 512600227</p>
+ </details>
+</article>
+<article class="card">
+ <header class="ch">
+  <div class="cid"><span class="mes"></span><h3>5700239104</h3></div>
+  <div class="cmeta"><span class="ss">ETO-RD-GR 00915/2026</span><span>SANTA MARIA DO TOCANTINS · NORTE</span><span>0 clientes</span></div>
+ </header>
+ <div class="why">
+  <div class="wcol surge">
+   <span class="wlab">Crítica registrou</span>
+   <strong>sem interrupção registrada</strong>
+   <span class="wsub">—</span>
+  </div>
+  <div class="wjoin">?</div>
+  <div class="wcol burn">
+   <span class="wlab">Campo apontou</span>
+   <strong>não preenchido</strong>
+   <span class="wsub"></span>
+  </div>
+ </div>
+ <div class="tl">
+  <div class="track"><div class="mk ss" style="left:35.29%" title="SS aberta"></div><div class="mk lim" style="left:77.65%" title="Prazo 72 h"></div></div>
+  <div class="tlab"><span>interrupção</span><span>SS aberta —</span><span>prazo 72 h</span></div>
+ </div>
+ <div class="facts">
+  <div><span>Atendimento</span><b>—</b></div>
+  <div><span>Prazo</span><b class="ok">—</b></div>
+  <div><span>Interrupção</span><b>—</b></div>
+  <div><span>Série</span><b>— → —</b></div>
+ </div>
+ <div class="chips"></div>
+ <details><summary>Texto da SS e da OS</summary>
+  <p><b>SS</b> —</p><p><b>OS</b> —</p>
+  <p class="src">OS — · Obra —</p>
+ </details>
+</article></div>
+<p class="src0" style="margin-top:32px">Linha do tempo em escala comum: de 60 h antes da abertura da SS a 110 h depois. Barra azul = interrupção na Crítica · traço laranja = SS aberta · traço cinza = prazo de 72 h · ponto = conclusão.</p>
+</div>
